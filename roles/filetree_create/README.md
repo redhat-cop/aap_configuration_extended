@@ -17,6 +17,7 @@ The following variables are required for that role to work properly:
 | `organization_id` | N/A | no | int | Alternative to `organization_filter`, but specifiying the current organization's ID to filter by. Exports only the objects belonging to the specified organization (applies to all the objects that can be assigned to an organization). |
 | `project_id` | N/A | no | int | Specifiying the project id to filter by. Exports the project belonging to the specified organization. |
 | `job_template_id` | N/A | no | int | Specifiying the job template id to filter by. Exports the job template belonging to the specified organization. |
+| `inventory_id` | N/A | no | int | Specifiying the inventory id to filter by. Exports the inventory belonging to the specified organization. |
 | `workflow_job_template_id` | N/A | no | int | Specifiying the workflow job template id to filter by. Exports the workflow job template belonging to the specified organization. |
 | `schedule_id` | N/A | no | int | Specifiying the schedule id to filter by. Exports the schedule belonging to the specified object. |
 | `output_path` | `/tmp/filetree_output` | yes | str | The path to the output directory where all the generated `yaml` files with the corresponding Objects as code will be written to. |
