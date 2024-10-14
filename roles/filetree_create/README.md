@@ -28,7 +28,9 @@ The following variables are required for that role to work properly:
 | `export_related_objects` | False | no | bool | Whether to export related objects (job templates related to certain workflows and the projects associated with these job templates) when a single JT or a single WFJT are being exported. |
 | `update_project_state` | False | no | bool | Whether the project should be updated after import to the target controller. |
 | `object_id` | N/A | no | int | Specifying object id with object type exports the access list of object |
+| `object_name` | N/A | no | int | Specifying object name with object type exports the access list of object |
 | `object_type` | N/A | no | str | Specifying object type with object id exports the access list of object |
+
 
 ## Dependencies
 
