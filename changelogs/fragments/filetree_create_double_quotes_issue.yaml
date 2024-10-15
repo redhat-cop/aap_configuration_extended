@@ -1,0 +1,3 @@
+bugfixes:
+  - filetree_create job_template double quote issue
+...
