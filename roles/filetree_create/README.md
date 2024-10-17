@@ -28,6 +28,9 @@ The following variables are required for that role to work properly:
 | `organization`| N/A | no | str | Default organization for all objects that have not been set in the source controller.|
 | `export_related_objects` | False | no | bool | Whether to export related objects (job templates related to certain workflows and the projects associated with these job templates) when a single JT or a single WFJT are being exported. |
 | `update_project_state` | False | no | bool | Whether the project should be updated after import to the target controller. |
+| `skip_inventory_sources` | False | no | bool | Whether the inventory sources should be exported with inventory. |
+| `skip_inventory_hosts` | False | no | bool | Whether the inventory hosts should be exported with inventory. |
+| `skip_inventory_groups` | False | no | bool | Whether the inventory groups should be exported with inventory. |
 
 ## Dependencies
 
