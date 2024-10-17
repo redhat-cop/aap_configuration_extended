@@ -1,0 +1,153 @@
+fail_if_violations_found: true
+
+print_rules_violations_data: true
+
+warn_about_audited_types_not_in_rules_objects: false
+warn_about_rules_objects_not_in_audited_types: false
+
+audited_objects:
+  - applications
+  - credential_input_sources
+  - credentials
+  - credential_types
+  - execution_environments
+  - groups
+  - hosts
+  - instance_groups
+  - instances
+  - inventories
+  - inventory_sources
+  - job_templates
+  - labels
+  - notification_templates
+  - organizations
+  - projects
+  - roles
+  - settings
+  - teams
+  - users
+  - workflow_job_templates
+
+__object_var_names:
+  projects: controller_projects
+  job_templates: controller_templates
+  inventories: controller_inventories
+  applications: controller_applications
+  hosts: controller_hosts
+  credential_input_sources: controller_credential_input_sources
+  credentials: controller_credentials
+  credential_types: controller_credential_types
+  execution_environments: controller_execution_environments
+  groups: controller_groups
+  instance_groups: controller_instance_groups
+  instances: controller_instances
+  inventory_sources: controller_inventory_sources
+  labels: controller_labels
+  notification_templates: controller_notifications
+  organizations: controller_organizations
+  roles: controller_roles
+  settings: controller_settings
+  teams: controller_teams
+  users: controller_user_accounts
+  workflow_job_templates: controller_workflows
+  schedules: controller_schedules
+
+__singular:
+  users: user
+  teams: team
+  target_teams: target_team
+  inventories: inventory
+  job_templates: job_template
+  workflows: workflow
+  credentials: credential
+  organizations: organization
+  lookup_organization: lookup_organization
+  projects: project
+  instance_groups: instance_group
+
+__plural:
+  user: users
+  team: teams
+  target_team: target_teams
+  inventory: inventories
+  job_template: job_templates
+  workflow: workflows
+  credential: credentials
+  organization: organizations
+  lookup_organizations: lookup_organizations
+  project: projects
+  instance_group: instance_groups
+
+__org_scoped_objects:
+  - applications
+  - credentials
+  - inventories
+  - inventory_sources
+  - job_templates
+  - notification_templates
+  - projects
+  - teams
+  - users
+  - workflow_job_templates
+
+__global_scoped_objects:
+  - credential_input_sources
+  - credential_types
+  - execution_environments
+  - hosts
+  - groups
+  - instance_groups
+  - instances
+  - labels
+  - organizations
+  - roles
+  - schedules
+  - settings
+
+__scope:
+  applications: organization
+  credentials: organization
+  groups: global
+  inventories: organization
+  inventory_sources: organization
+  job_templates: organization
+  notification_templates: organization
+  projects: organization
+  teams: organization
+  users: global
+  workflow_job_templates: organization
+  credential_input_sources: global
+  credential_types: global
+  execution_environments: global
+  hosts: global
+  instance_groups: global
+  instances: global
+  labels: global
+  organizations: global
+  roles: global
+  schedules: global
+  settings: global
+
+__name_field:
+  applications: name
+  credentials: name
+  groups: name
+  inventories: name
+  inventory_sources: name
+  job_templates: name
+  notification_templates: name
+  projects: name
+  teams: name
+  users: username
+  workflow_job_templates: name
+  credential_input_sources: target_credential # optimally it should be "target_credential + '_' + input_field_name"
+  credential_types: name
+  execution_environments: name
+  hosts: name
+  instance_groups: name
+  instances: hostname
+  labels: name
+  organizations: name
+  roles: __undefined__
+  schedules: name
+  settings: __undefined__
