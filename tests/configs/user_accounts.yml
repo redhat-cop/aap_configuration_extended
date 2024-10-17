@@ -3,4 +3,17 @@ controller_user_accounts:
   - user: controller_user
     is_superuser: false
     password: controller_password
+  - user: second_controller_user
+    is_superuser: false
+    organization: Default
+    password: controller_password
+  - user: controller_auditor
+    is_system_auditor: true
+    password: controller_password
+  - user: controller_admin
+    is_superuser: true
+    password: controller_password
+  - user: second_controller_admin
+    is_superuser: true
+    password: controller_password
 ...
