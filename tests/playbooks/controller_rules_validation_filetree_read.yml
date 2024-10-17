@@ -1,0 +1,7 @@
+---
+- name: Check for controller rules violations with configuration read using filetree_read
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - role: infra.aap_controller_configuration_extended.filetree_read
+    - role: infra.aap_controller_configuration_extended.controller_rules_validation
