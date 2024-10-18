@@ -29,7 +29,7 @@ controller_rules:
       - projects
       - credentials
     fields_regex:
-      name: '^[Default].*'       # name must start with '[Default]'
+      name: '^\[Default\].*'       # name must start with '[Default]'
       description: "^DESC - .*"  # description must start with 'DESC - '
       scm_type: ^git$            # accept only git scm
       scm_branch: ^main$         # branch naming rule : accept only main branch
@@ -49,23 +49,28 @@ controller_rules:
     mandatory_fields:
       - description
 
-  # ------- Rule n°4 # Organizations
-  - organizations:
-      - Satellite
-      - Default
+  # ------- Rule n°4 # Organizations - Allow only the following EEs
   - objects:
       - organizations
+    organizations:
+      - Satellite
+      - Default
     max_hosts_per_organization: 100
     allowed_organization_default_environments:
-      - Automation Hub Minimal Execution Environment
-    # forbidden_organization_default_environments:
-    #   - Automation Hub Default Execution Environment
-    #   - Custom EE
+      - Automation Hub Default Execution Environment
+      - Custom EE
+
+  # ------- Rule n°5 # Organizations - Allow all EEs except the listed forbidden EEs for all organizations except Satellite
+  - objects:
+      - organizations
+    max_hosts_per_organization: 10
+    forbidden_organization_default_environments:
+      - Automation Hub Default Execution Environment
     exceptions:
       organizations:
         - Satellite
 
-  # ------- Rule n°5  # inventories
+  # ------- Rule n°6  # inventories
   - organizations:
       - Satellite
       - Default
@@ -76,12 +81,12 @@ controller_rules:
       inventories:
         - localhost
 
-  # ------- Rule n°6  # hosts
+  # ------- Rule n°7  # hosts
   - objects:
       - hosts
-    allow_ungrouped_hosts: false # needs 'controller_groups' and 'controller_hosts' to be defined
+    allow_ungrouped_hosts: false  # needs 'controller_groups' and 'controller_hosts' to be defined
 
-  # ------- Rule n°7  # Credentials
+  # ------- Rule n°8  # Credentials
   - rule_name: Credentials Check  # Optional arbitrary string
     encrypt_credentials_sensitive_data: true              # DO NOT WORK with intermediary variables (filetree_read)
     organizations:
@@ -96,10 +101,8 @@ controller_rules:
         - password
       Vault:
         - vault_password
-      CyberArk Central Credential Provider Lookup:
-        - app_id
 
-  #   ------- Rule n°8  # Users
+  # ------- Rule n°9  # Users
   - objects:
       - users
     allow_superusers: false
@@ -110,27 +113,28 @@ controller_rules:
         - controller_admin
         - admin
 
-  #   ------- Rule n°9  # Roles
+  # ------- Rule n°10  # Roles - Allow ONLY 'read' on projects, 'member' on organizations and 'admin' on teams. Any other role is forbidden.
   - objects:
       - roles
     allowed_roles:
       projects:
-        - read
         - update
+        - read
       organizations:
         - member
       target_teams:
-        - admin
         - member
-    # forbidden_roles:
-    #   projects:
-    #     - update
-    #     - admin
-    #   organizations:
-    #     - admin
-    #   target_teams:
-    #     - admin
 
+  # ------- Rule n°11  # Roles - Do not allow 'admin' on projects, 'admin' on organizations and 'admin' on teams, allow everything else
+  - objects:
+      - roles
+    forbidden_roles:
+      projects:
+        - admin
+      organizations:
+        - admin
+      target_teams:
+        - admin
 
 # # -------------------------------------------- All Possible Options :
 #   - rule_name: Custom rule name    # Optional arbitrary string
@@ -222,3 +226,5 @@ controller_rules:
 #         - admin
 #       target_teams:
 #         - admin
+
+...
