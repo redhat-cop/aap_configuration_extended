@@ -31,6 +31,9 @@ The following variables are required for that role to work properly:
 | `skip_inventory_sources` | False | no | bool | Whether the inventory sources should be exported with inventory. |
 | `skip_inventory_hosts` | False | no | bool | Whether the inventory hosts should be exported with inventory. |
 | `skip_inventory_groups` | False | no | bool | Whether the inventory groups should be exported with inventory. |
+| `templates_overrides_dynamic`| N/A | no | dict | Whether the certain objects should be modified during the export |
+| `templates_overrides_static`| N/A | no | dict | Whether the all objects should be modified during the export |
+
 
 ## Dependencies
 
