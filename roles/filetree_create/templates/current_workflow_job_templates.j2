@@ -3,9 +3,13 @@
 controller_workflows:
 {% endif %}
   - name: "{{ current_workflow_job_templates_asset_value.name }}"
-    description: "{{ current_workflow_job_templates_asset_value.description }}"
+    description: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].description
+                     | default(template_overrides_global.workflow_template.description)
+                     | default(current_workflow_job_templates_asset_value.description) }}"
     organization: "{{ current_workflow_job_templates_asset_value.summary_fields.organization.name | default(organization if organization != 'ORGANIZATIONLESS' else 'ToDo: The WF \'' + current_workflow_job_templates_asset_value.name + '\' must belong to an organization') }}"
-    state: "present"
+    state: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].state
+               | default(template_overrides_global.workflow_template.state)
+               | default('present') }}"
     simplified_workflow_nodes:
 {% for node in query(controller_api_plugin, 'api/v2/workflow_job_template_nodes/',
                      query_params={'workflow_job_template': current_workflow_job_templates_asset_value.id},
@@ -21,7 +25,7 @@ controller_workflows:
         all_parents_must_converge: "{{ node.all_parents_must_converge }}"
 {% if node.extra_data is defined and node.extra_data | length > 0 %}
         extra_data:
-          {{ node.extra_data | to_nice_yaml | indent(10) | replace("'{{", "!unsafe \'{{") }} | replace("$encrypted$", "")
+          {{ node.extra_data | to_nice_yaml | indent(10) | replace("'{{", "!unsafe \'{{") | replace("$encrypted$", "") }}
 {%- endif %}
 {% if node.success_nodes is defined and node.success_nodes | length > 0 %}
         success_nodes:
@@ -42,13 +46,26 @@ controller_workflows:
 {% endfor %}
 {% endif %}
 {% endfor %}
-    ask_variables_on_launch: "{{ current_workflow_job_templates_asset_value.ask_variables_on_launch }}"
-    allow_simultaneous: "{{ current_workflow_job_templates_asset_value.allow_simultaneous }}"
-    scm_branch: "{{ current_workflow_job_templates_asset_value.scm_branch }}"
-    webhook_service: "{{ current_workflow_job_templates_asset_value.webhook_service }}"
-{% if current_workflow_job_templates_asset_value.extra_vars and current_workflow_job_templates_asset_value.extra_vars | length > 3 %}
+    ask_variables_on_launch: "{{  template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].ask_variables_on_launch
+                                 | default(template_overrides_global.workflow_template.ask_variables_on_launch)
+                                 | default(current_workflow_job_templates_asset_value.ask_variables_on_launch) }}"
+    allow_simultaneous: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].allow_simultaneous
+                            | default(template_overrides_global.workflow_template.allow_simultaneous)
+                            | default(current_workflow_job_templates_asset_value.allow_simultaneous) }}"
+    scm_branch: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].scm_branch
+                    | default(template_overrides_global.workflow_template.scm_branch)
+                    | default(current_workflow_job_templates_asset_value.scm_branch) }}"
+    webhook_service: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].description
+                         | default(template_overrides_global.workflow_template.webhook_service)
+                         | default(current_workflow_job_templates_asset_value.webhook_service) }}"
+{% if template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].extra_vars is defined
+      or template_overrides_global.workflow_template.extra_vars is defined
+      or (current_workflow_job_templates_asset_value.extra_vars and current_workflow_job_templates_asset_value.extra_vars | length > 3) %}
     extra_vars:
-      {{ current_workflow_job_templates_asset_value.extra_vars | from_yaml | to_nice_yaml(indent=2) | indent(width=6, first=False) | regex_replace('(^[^:]*): (.*){{', '\1: !unsafe \2{{', multiline=True) }}
+      {{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].extra_vars
+         | default(template_overrides_global.workflow_template.extra_vars)
+         | default(current_workflow_job_templates_asset_value.extra_vars)
+         | from_yaml | to_nice_yaml(indent=2) | indent(width=6, first=False) | regex_replace('(^[^:]*): (.*){{', '\1: !unsafe \2{{', multiline=True) }}
 {%- endif %}
 {% if query_labels | length > 0 %}
     labels:
@@ -80,12 +97,19 @@ controller_workflows:
       - "{{ notification_approval.name }}"
 {% endfor %}
 {% endif %}
-    survey_enabled: {{ current_workflow_job_templates_asset_value.survey_enabled }}
-{% set survey_spec_contents = query(controller_api_plugin, current_workflow_job_templates_asset_value.related.survey_spec,
-                                    host=controller_hostname, oauth_token=controller_oauthtoken, verify_ssl=controller_validate_certs)[0] |
-                                    from_yaml | to_nice_yaml(indent=2,width=500) | regex_replace("\n\n[ ]*", "\\\\n") | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") | replace("^$", "") | replace("$encrypted$", "")
+    survey_enabled: {{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].survey_enabled
+                       | default(template_overrides_global.workflow_template.survey_enabled)
+                       | default(current_workflow_job_templates_asset_value.survey_enabled) }}
+{% set survey_spec_contents = template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].survey_spec
+                              | default(template_overrides_global.workflow_job_template.survey_spec)
+                              | default(query(controller_api_plugin, current_workflow_job_templates_asset_value.related.survey_spec,
+                                              host=controller_hostname, oauth_token=controller_oauthtoken, verify_ssl=controller_validate_certs)[0])
+                              | from_yaml | to_nice_yaml(indent=2,width=500) | regex_replace("\n\n[ ]*", "\\\\n")
+                              | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") | replace("^$", "") | replace("$encrypted$", "")
 -%}
-{% if current_workflow_job_templates_asset_value.related.survey_spec is defined and survey_spec_contents | length > 3 %}
+{% if template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].survey_spec is defined
+      or template_overrides_global.workflow_job_template.survey_spec is defined
+      or (current_workflow_job_templates_asset_value.related.survey_spec is defined and survey_spec_contents | length > 3) %}
     survey_spec:
       {{ survey_spec_contents }}
 {% endif %}
