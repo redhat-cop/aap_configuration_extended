@@ -18,7 +18,7 @@ Otherwise it will look for the modules only in your base installation. If there 
     controller_validate_certs: false
   collections:
     - awx.awx
-    - infra.controller_configuration
+    - infra.aap_configuration_extended
 ```
 
 ## Variable name changes

@@ -74,7 +74,7 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
 
 
   roles:
-    - infra.controller_configuration.filetree_create
+    - infra.aap_configuration_extended.filetree_create
 
   post_tasks:
     - name: "Delete the Authentication Token used"
@@ -165,7 +165,7 @@ This role can generate output files in two different ways:
 
 - **Flatten files**:
 
-  The output files are all located in the same directory. Each file contains a YAML list with all the objects belonging to the same object type. This output format allows to load all the objects both from the standard Ansible `group_vars` and from the `infra.controller_configuration.filetree_read` role.
+  The output files are all located in the same directory. Each file contains a YAML list with all the objects belonging to the same object type. This output format allows to load all the objects both from the standard Ansible `group_vars` and from the `infra.aap_configuration_extended.filetree_read` role.
 
   The expotation can be triggered with the following command:
 
@@ -203,7 +203,7 @@ This role can generate output files in two different ways:
 A playbook to convert from the structured output to the flattened one is provided, and can be executed with the following command:
 
 ```console
-ansible-playbook infra.controller_configuration.flatten_filetree_create_output.yaml -e '{filetree_create_output_dir: /tmp/filetree_output}'
+ansible-playbook infra.aap_configuration_extended.flatten_filetree_create_output.yaml -e '{filetree_create_output_dir: /tmp/filetree_output}'
 ```
 
 ## License

@@ -322,7 +322,7 @@ The role is designed to be used with tags, each tags correspond to an AWX or Aut
     - block:
         - name: Include Tasks to load Galaxy credentials to be added to Organizations
           ansible.builtin.include_role:
-            name: infra.controller_configuration.filetree_read
+            name: infra.aap_configuration_extended.filetree_read
             tasks_from: "{{ create_orgs_credentials }}"
           loop:
             - organizations.yml
@@ -332,7 +332,7 @@ The role is designed to be used with tags, each tags correspond to an AWX or Aut
 
         - name: Include Tasks to add Galaxy credentials to Organizations
           ansible.builtin.include_role:
-            name: infra.controller_configuration.dispatch
+            name: infra.aap_configuration_extended.dispatch
             apply:
               tags:
                 - organizations
@@ -344,8 +344,8 @@ The role is designed to be used with tags, each tags correspond to an AWX or Aut
               - {role: credentials, var: controller_credentials, tags: credentials}
 
   roles:
-    - {role: infra.controller_configuration.filetree_read }
-    - {role: infra.controller_configuration.dispatch }
+    - {role: infra.aap_configuration_extended.filetree_read }
+    - {role: infra.aap_configuration_extended.dispatch }
 
   post_tasks:
     - name: "Delete the Authentication Token used"

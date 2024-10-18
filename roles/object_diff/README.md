@@ -73,8 +73,8 @@ To correctly manage `roles`, they can only be defined by a super-admin organizat
         - always
 
   roles:
-    - role: infra.controller_configuration.filetree_read
-    - role: infra.controller_configuration.object_diff
+    - role: infra.aap_configuration_extended.filetree_read
+    - role: infra.aap_configuration_extended.object_diff
       vars:
         controller_configuration_object_diff_tasks:
           - {name: workflow_job_templates, var: controller_workflows, tags: workflow_job_templates}
@@ -88,7 +88,7 @@ To correctly manage `roles`, they can only be defined by a super-admin organizat
           - {name: credentials, var: controller_credentials, tags: credentials}
           - {name: credential_types, var: controller_credential_types, tags: credential_types}
           - {name: organizations, var: controller_organizations, tags: organizations}
-    - role: infra.controller_configuration.dispatch
+    - role: infra.aap_configuration_extended.dispatch
       vars:
         controller_configuration_dispatcher_roles:
           - {role: workflow_job_templates, var: controller_workflows, tags: workflow_job_templates}
