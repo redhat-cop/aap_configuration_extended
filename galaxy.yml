@@ -23,7 +23,7 @@ license:
 tags:
     - controller
     - collection
-    - controller_configuration
+    - aap_configuration_extended
     - automation_platform
     - infrastructure
 ...

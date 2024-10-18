@@ -78,7 +78,7 @@ jobs:
         uses: redhat-cop/ansible_collections_tooling/actions/build_ansible_collection@main
         with:
           collection_namespace: infra
-          collection_name: controller_configuration
+          collection_name: aap_configuration_extended
           collection_version: 2.0.0
           collection_repo: https://github.com/redhat-cop/aap_configuration_extended/
 

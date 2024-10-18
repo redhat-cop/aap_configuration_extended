@@ -169,7 +169,7 @@ notes:
 
 EXAMPLES = """
 - name: Get differential on projects and orgs.
-  infra.controller_configuration.controller_export_diff:
+  infra.aap_configuration_extended.controller_export_diff:
     organizations: all
     projects: all
     compare_items:

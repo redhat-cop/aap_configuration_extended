@@ -55,10 +55,10 @@ Click the `Content` button to see the list of content included in this collectio
 
 ## Installing this collection
 
-You can install the infra.controller_configuration.collection with the Ansible Galaxy CLI:
+You can install the infra.aap_configuration_extended.collection with the Ansible Galaxy CLI:
 
 ```console
-ansible-galaxy collection install infra.controller_configuration
+ansible-galaxy collection install infra.aap_configuration_extended
 ```
 
 You can also include it in a `requirements.yml` file and install it with `ansible-galaxy collection install -r requirements.yml`, using the format:
@@ -66,7 +66,7 @@ You can also include it in a `requirements.yml` file and install it with `ansibl
 ```yaml
 ---
 collections:
-  - name: infra.controller_configuration
+  - name: infra.aap_configuration_extended
     # If you need a specific version of the collection, you can specify like this:
     # version: ...
 ```
@@ -82,7 +82,7 @@ The awx.awx or ansible.controller collection must be invoked in the playbook in 
 The following command will invoke the collection playbook. This is considered a starting point for the collection.
 
 ```console
-ansible-playbook infra.controller_configuration.configure_controller.yml
+ansible-playbook infra.aap_configuration_extended.configure_controller.yml
 ```
 
 Otherwise it will look for the modules only in your base installation. If there are errors complaining about "couldn't resolve module/action" this is the most likely cause.
@@ -182,7 +182,7 @@ Adding the ability to use direct output from the awx export command in the roles
 
 ## Contributing to this collection
 
-We welcome community contributions to this collection. If you find problems, please open an issue or create a PR against the [Controller Configuration collection repository](https://github.com/redhat-cop/controller_configuration).
+We welcome community contributions to this collection. If you find problems, please open an issue or create a PR against the [Controller Configuration collection repository](https://github.com/redhat-cop/aap_configuration_extended).
 More information about contributing can be found in our [Contribution Guidelines.](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/.github/CONTRIBUTING.md)
 
 We have a community meeting every 4 weeks. Find the agenda in the [issues](https://github.com/redhat-cop/aap_configuration_extended/issues) and the calendar invitation below:
