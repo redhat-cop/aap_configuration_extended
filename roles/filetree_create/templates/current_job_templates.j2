@@ -79,7 +79,9 @@ controller_templates:
     ask_credential_on_launch: {{ template_overrides_resources.job_template[current_job_templates_asset_value.name].ask_credential_on_launch
                                  | default(template_overrides_global.job_template.ask_credential_on_launch)
                                  | default(current_job_templates_asset_value.ask_credential_on_launch | bool | lower) }}
-{% if current_job_templates_asset_value.ask_execution_environment_on_launch is defined %}
+{% if template_overrides_resources.job_template[current_job_templates_asset_value.name].ask_execution_environment_on_launch is defined
+      or template_overrides_global.job_template.ask_execution_environment_on_launch is defined
+      or current_job_templates_asset_value.ask_execution_environment_on_launch is defined %}
     ask_execution_environment_on_launch: {{ template_overrides_resources.job_template[current_job_templates_asset_value.name].ask_execution_environment_on_launch
                                             | default(template_overrides_global.job_template.ask_execution_environment_on_launch)
                                             | default(current_job_templates_asset_value.ask_execution_environment_on_launch | bool | lower) }}
@@ -105,7 +107,9 @@ controller_templates:
                                       | default(template_overrides_global.job_template.ask_job_slice_count_on_launch)
                                       | default(current_job_templates_asset_value.ask_job_slice_count_on_launch | bool | lower) }}
 {% endif %}
-{% if current_job_templates_asset_value.ask_timeout_on_launch is defined %}
+{% if template_overrides_resources.job_template[current_job_templates_asset_value.name].ask_timeout_on_launch is defined
+      or template_overrides_global.job_template.ask_timeout_on_launch is defined
+      or current_job_templates_asset_value.ask_timeout_on_launch is defined %}
     ask_timeout_on_launch: {{ template_overrides_resources.job_template[current_job_templates_asset_value.name].ask_timeout_on_launch
                               | default(template_overrides_global.job_template.ask_timeout_on_launch)
                               | default(current_job_templates_asset_value.ask_timeout_on_launch | bool | lower) }}
@@ -117,11 +121,11 @@ controller_templates:
                                       | default(template_overrides_global.job_template.ask_instance_groups_on_launch)
                                       | default(current_job_templates_asset_value.ask_instance_groups_on_launch | bool | lower) }}
 {% endif %}
-{% if template_overrides_resources.job_template[current_job_templates_asset_value.name].extra_var is defined
+{% if template_overrides_resources.job_template[current_job_templates_asset_value.name].extra_vars is defined
       or template_overrides_global.job_template.extra_vars is defined
       or current_job_templates_asset_value.extra_vars and current_job_templates_asset_value.extra_vars | length > 3 %}
     extra_vars:
-      {{ template_overrides_resources.job_template[current_job_templates_asset_value.name].extra_var
+      {{ template_overrides_resources.job_template[current_job_templates_asset_value.name].extra_vars
          | default(template_overrides_global.job_template.extra_vars)
          | default(current_job_templates_asset_value.extra_vars)
          | from_yaml | to_nice_yaml(indent=2)

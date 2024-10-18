@@ -69,9 +69,9 @@ controller_workflows:
 {%- endif %}
 {% if query_labels | length > 0 %}
     labels:
-    {% for label in query_labels %}
+{% for label in query_labels %}
       - "{{ label.name }}"
-    {% endfor %}
+{% endfor %}
 {% endif %}
 {% if query_notification_error | length > 0 %}
     notification_templates_error:

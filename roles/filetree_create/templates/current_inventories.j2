@@ -1,4 +1,4 @@
-{% if (first_inventory | default(true) | bool) or (current_inventory_index | default(0) == 0) %}
+{% if (first_inventory | default(true) | bool) and (current_inventory_index | default(0) == 0) %}
 ---
 controller_inventories:
 {% endif %}
@@ -24,7 +24,9 @@ controller_inventories:
                                         | default(template_overrides_global.inventory.prevent_instance_group_fallback)
                                         | default(current_inventories_asset_value.prevent_instance_group_fallback) }}
 {% endif %}
-{% if template_overrides_global_global.inventory.source_vars is defined or current_inventories_asset_value.source_vars is defined %}
+{% if template_overrides_resources.inventory[current_inventories_asset_value.name].source_vars is defined
+      or template_overrides_global_global.inventory.source_vars is defined
+      or current_inventories_asset_value.source_vars is defined %}
     source_vars:
        {{ template_overrides_resources.inventory[current_inventories_asset_value.name].source_vars
           | default(template_overrides_global.inventory.source_vars)

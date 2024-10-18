@@ -44,7 +44,9 @@ controller_inventory_sources:
     overwrite: "{{ template_overrides_resources.inventory_source[inventory_source.name].overwrite
                    | default(template_overrides_global.inventory_source.overwrite)
                    | default(inventory_source.overwrite) }}"
-{% if template_overrides_global.inventory_source.credential is defined or inventory_source.summary_fields.credential is defined %}
+{% if template_overrides_global.inventory_source.credential is defined
+      or template_overrides_global.inventory_source.credential is defined
+      or inventory_source.summary_fields.credential is defined %}
     credential: "{{ template_overrides_resources.inventory_source[inventory_source.name].credential
                     | default(template_overrides_global.inventory_source.credential)
                     | default(inventory_source.summary_fields.credential.name) }}"
@@ -77,6 +79,6 @@ controller_inventory_sources:
 {% endfor %}
 {% endif %}
 {% endfor %}
-{% if (last_inventory | default(true) | bool) or (last_inventory_source | default(true) | bool) %}
+{% if (last_inventory | default(true) | bool) and (last_inventory_source | default(true) | bool) %}
 ...
 {% endif %}

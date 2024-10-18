@@ -7,7 +7,7 @@ controller_groups:
     description: "{{ template_overrides_resources.group[group.name].description
                      | default(template_overrides_global.group.description)
                      | default(group.description) }}"
-    inventory: "{{ group.summary_fields.inventory.nam }}"
+    inventory: "{{ group.summary_fields.inventory.name }}"
 {% if template_overrides_resources.group[group.name].variables is defined
       or template_overrides_global.group.variables is defined
       or (group.variables and group.variables != '---' and group.variables != '') %}
