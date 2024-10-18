@@ -1,3 +1,5 @@
+controller_rules: []
+
 fail_if_violations_found: true
 
 print_rules_violations_data: true
