@@ -4,11 +4,21 @@ controller_user_accounts:
 {% endif %}
 - username: "{{ current_users_asset_value.username }}"
   password: "INITIAL"
-  email: "{{ current_users_asset_value.email }}"
-  first_name: "{{ current_users_asset_value.first_name }}"
-  last_name: "{{ current_users_asset_value.last_name }}"
-  auditor: "{{ current_users_asset_value.is_system_auditor }}"
-  superuser: "{{ current_users_asset_value.is_superuser }}"
+  email: "{{ template_overrides_dynamic.user[current_users_asset_value.username].email
+             | default(template_overrides_static.user.email)
+             | default(current_users_asset_value.email) }}"
+  first_name: "{{ template_overrides_dynamic.user[current_users_asset_value.username].first_name
+                  | default(template_overrides_static.user.first_name)
+                  | default(current_users_asset_value.first_name) }}"
+  last_name: "{{ template_overrides_dynamic.user[current_users_asset_value.username].last_name
+                 | default(template_overrides_static.user.last_name)
+                 | default(current_users_asset_value.last_name) }}"
+  auditor: "{{ template_overrides_dynamic.user[current_users_asset_value.username].is_system_auditor
+               | default(template_overrides_static.user.is_system_auditor)
+               | default(current_users_asset_value.is_system_auditor) }}"
+  superuser: "{{ template_overrides_dynamic.user[current_users_asset_value.username].is_superuser
+                 | default(template_overrides_static.user.is_superuser)
+                 | default(current_users_asset_value.is_superuser) }}"
   update_secrets: false
 {% if last_user | default(true) | bool %}
 ...
