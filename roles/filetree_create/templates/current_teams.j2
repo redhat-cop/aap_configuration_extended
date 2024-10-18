@@ -3,8 +3,8 @@
 controller_teams:
 {% endif %}
   - name: "{{ current_teams_asset_value.name }}"
-    description: "{{ template_overrides_dynamic.team[current_teams_asset_value.name].description
-                     | default(template_overrides_static.team.description)
+    description: "{{ template_overrides_resources.team[current_teams_asset_value.name].description
+                     | default(template_overrides_global.team.description)
                      | default(current_teams_asset_value.description) }}"
     organization: "{{ current_teams_asset_value.summary_fields.organization.name }}"
 {% if last_team | default(true) | bool %}

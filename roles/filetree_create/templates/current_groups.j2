@@ -4,16 +4,16 @@ controller_groups:
 {% endif %}
 {% for group in current_groups_asset_value %}
   - name: "{{ group.name }}"
-    description: "{{ template_overrides_dynamic.group[group.name].description
-                     | default(template_overrides_static.group.description)
+    description: "{{ template_overrides_resources.group[group.name].description
+                     | default(template_overrides_global.group.description)
                      | default(group.description) }}"
     inventory: "{{ group.summary_fields.inventory.nam }}"
-{% if template_overrides_dynamic.group[group.name].variables is defined
-      or template_overrides_static.group.variables is defined
+{% if template_overrides_resources.group[group.name].variables is defined
+      or template_overrides_global.group.variables is defined
       or (group.variables and group.variables != '---' and group.variables != '') %}
     variables:
-      {{ template_overrides_dynamic.group[group.name].variables
-         | default(template_overrides_static.group.variables)
+      {{ template_overrides_resources.group[group.name].variables
+         | default(template_overrides_global.group.variables)
          | default(group.variables)
          | from_yaml | to_nice_yaml(indent=2) | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") }}
 {%- endif %}

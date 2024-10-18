@@ -3,63 +3,63 @@
 controller_projects:
 {% endif %}
   - name: "{{ current_projects_asset_value.name }}"
-    description: "{{ template_overrides_dynamic.project[current_projects_asset_value.name].description
-                     | default(template_overrides_static.project.description)
+    description: "{{ template_overrides_resources.project[current_projects_asset_value.name].description
+                     | default(template_overrides_global.project.description)
                      | default(current_projects_asset_value.description) }}"
     organization: "{{ current_projects_asset_value.summary_fields.organization.name
                       | default(organization if organization != 'ORGANIZATIONLESS'
                       else 'ToDo: The project \'' + current_projects_asset_value.name + '\' must have an organization') }}"
-{% if template_overrides_dynamic.project[current_projects_asset_value.name].scm_type is defined
-      or template_overrides_static.project.scm_type is defined
+{% if template_overrides_resources.project[current_projects_asset_value.name].scm_type is defined
+      or template_overrides_global.project.scm_type is defined
       or current_projects_asset_value.scm_type %}
-    scm_type: "{{ template_overrides_dynamic.project[current_projects_asset_value.name].scm_type
-                  | default(template_overrides_static.project.scm_type)
+    scm_type: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_type
+                  | default(template_overrides_global.project.scm_type)
                   | default(current_projects_asset_value.scm_type) }}"
-    scm_url: "{{ template_overrides_dynamic.project[current_projects_asset_value.name].scm_url
-                 | default(template_overrides_static.project.scm_url)
+    scm_url: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_url
+                 | default(template_overrides_global.project.scm_url)
                  | default(current_projects_asset_value.scm_url) }}"
-{% if template_overrides_dynamic.project[current_projects_asset_value.name].scm_credential is defined
-      or template_overrides_static.scm_credential is defined
+{% if template_overrides_resources.project[current_projects_asset_value.name].scm_credential is defined
+      or template_overrides_global.scm_credential is defined
       or current_projects_asset_value.summary_fields.credential is defined %}
-    scm_credential: "{{ template_overrides_dynamic.project[current_projects_asset_value.name].scm_credential
-                        | default(template_overrides_static.scm_credential)
+    scm_credential: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_credential
+                        | default(template_overrides_global.scm_credential)
                         | default(current_projects_asset_value.summary_fields.credential.name) }}"
 {% endif %}
-    scm_branch: "{{ template_overrides_dynamic.project[current_projects_asset_value.name].scm_branch
-                    | default(template_overrides_static.project.scm_branch)
+    scm_branch: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_branch
+                    | default(template_overrides_global.project.scm_branch)
                     | default(current_projects_asset_value.scm_branch) }}"
-    scm_clean: "{{ template_overrides_dynamic.project[current_projects_asset_value.name].scm_clean
-                   | default(template_overrides_static.project.scm_clean)
+    scm_clean: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_clean
+                   | default(template_overrides_global.project.scm_clean)
                    | default(current_projects_asset_value.scm_clean) }}"
-    scm_delete_on_update: "{{ template_overrides_dynamic.project[current_projects_asset_value.name].scm_delete_on_update
-                              | default(template_overrides_static.project.scm_delete_on_update)
+    scm_delete_on_update: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_delete_on_update
+                              | default(template_overrides_global.project.scm_delete_on_update)
                               | default(current_projects_asset_value.scm_delete_on_update) }}"
-    scm_update_on_launch: "{{ template_overrides_dynamic.project[current_projects_asset_value.name].scm_update_on_launch
-                              | default(template_overrides_static.project.scm_update_on_launch)
+    scm_update_on_launch: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_update_on_launch
+                              | default(template_overrides_global.project.scm_update_on_launch)
                               | default(current_projects_asset_value.scm_update_on_launch) }}"
-    scm_update_cache_timeout: "{{ template_overrides_dynamic.project[current_projects_asset_value.name].scm_update_cache_timeout
-                                  | default(template_overrides_static.project.scm_update_cache_timeout)
+    scm_update_cache_timeout: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_update_cache_timeout
+                                  | default(template_overrides_global.project.scm_update_cache_timeout)
                                   | default(current_projects_asset_value.scm_update_cache_timeout) }}"
-    scm_refspec: "{{ template_overrides_dynamic.project[current_projects_asset_value.name].scm_refspec
-                     | default(template_overrides_static.project.scm_refspec)
+    scm_refspec: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_refspec
+                     | default(template_overrides_global.project.scm_refspec)
                      | default(current_projects_asset_value.scm_refspec) }}"
 {% endif %}
 {% if is_aap and
-      (template_overrides_dynamic.project[current_projects_asset_value.name].default_environment is defined
-      or template_overrides_static.project.default_environment is defined
+      (template_overrides_resources.project[current_projects_asset_value.name].default_environment is defined
+      or template_overrides_global.project.default_environment is defined
       or current_job_templates_asset_value.summary_fields.default_environment is defined) %}
-    default_environment: "{{ template_overrides_dynamic.project[current_projects_asset_value.name].default_environment
-                             | default(template_overrides_static.project.default_environment)
+    default_environment: "{{ template_overrides_resources.project[current_projects_asset_value.name].default_environment
+                             | default(template_overrides_global.project.default_environment)
                              | default(current_job_templates_asset_value.summary_fields.default_environment.name) }}"
 {% endif %}
-    allow_override: "{{ template_overrides_dynamic.project[current_projects_asset_value.name].allow_override
-                        | default(template_overrides_static.project.allow_override)
+    allow_override: "{{ template_overrides_resources.project[current_projects_asset_value.name].allow_override
+                        | default(template_overrides_global.project.allow_override)
                         | default(current_projects_asset_value.allow_override) }}"
-    update_project: "{{ template_overrides_dynamic.project[current_projects_asset_value.name].update_project
-                        | default(template_overrides_static.project.update_project)
+    update_project: "{{ template_overrides_resources.project[current_projects_asset_value.name].update_project
+                        | default(template_overrides_global.project.update_project)
                         | default(update_project_state | default(false)) }}"
-    timeout: "{{ template_overrides_dynamic.project[current_projects_asset_value.name].timeout
-                 | default(template_overrides_static.project.timeout)
+    timeout: "{{ template_overrides_resources.project[current_projects_asset_value.name].timeout
+                 | default(template_overrides_global.project.timeout)
                  | default(current_projects_asset_value.timeout) }}"
 {% if query_notification_error | length > 0 %}
     notification_templates_error:

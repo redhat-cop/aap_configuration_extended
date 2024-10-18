@@ -3,24 +3,24 @@
 controller_schedules:
 {% endif %}
   - name: "{{ current_schedules_asset_value.name }}"
-{% if template_overrides_dynamic.schedule[current_schedules_asset_value.name].description is defined
-      or template_overrides_static.schedule.description is defined
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].description is defined
+      or template_overrides_global.schedule.description is defined
       or current_schedules_asset_value.description is defined %}
-    description: "{{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].description
-                     | default(template_overrides_static.schedule.description)
+    description: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].description
+                     | default(template_overrides_global.schedule.description)
                      | default(current_schedules_asset_value.description) }}"
 {% endif %}
-    enabled: {{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].enabled
-                | default(template_overrides_static.schedule.enabled)
+    enabled: {{ template_overrides_resources.schedule[current_schedules_asset_value.name].enabled
+                | default(template_overrides_global.schedule.enabled)
                 | default(current_schedules_asset_value.enabled | bool | lower) }}
-    unified_job_template: "{{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].unified_job_template
-                | default(template_overrides_static.schedule.unified_job_template)
+    unified_job_template: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].unified_job_template
+                | default(template_overrides_global.schedule.unified_job_template)
                 | default(current_schedules_asset_value.summary_fields.unified_job_template.name) }}"
-{% if template_overrides_dynamic.schedule[current_schedules_asset_value.name].inventory is defined
-      or template_overrides_static.schedule.inventory is defined
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].inventory is defined
+      or template_overrides_global.schedule.inventory is defined
       or current_schedules_asset_value.summary_fields.inventory is defined %}
-    inventory: "{{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].inventory
-                   | default(template_overrides_static.schedule.inventory)
+    inventory: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].inventory
+                   | default(template_overrides_global.schedule.inventory)
                    | default(current_schedules_asset_value.summary_fields.inventory.name) }}"
 {% endif %}
 {% if query_instance_groups | length > 0 %}
@@ -29,47 +29,47 @@ controller_schedules:
       - "{{ instance_group.name }}"
 {% endfor %}
 {% endif %}
-{% if template_overrides_dynamic.schedule[current_schedules_asset_value.name].dtstart is defined
-      or template_overrides_static.schedule.dtstart is defined
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].dtstart is defined
+      or template_overrides_global.schedule.dtstart is defined
       or current_schedules_asset_value.dtstart is defined %}
-    dtstart: "{{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].dtstart
-                 | default(template_overrides_static.schedule.dtstart)
+    dtstart: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].dtstart
+                 | default(template_overrides_global.schedule.dtstart)
                  | default(current_schedules_asset_value.dtstart) }}"
 {% endif %}
-{% if template_overrides_dynamic.schedule[current_schedules_asset_value.name].dtend is defined
-      or template_overrides_static.schedule.dtend is defined
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].dtend is defined
+      or template_overrides_global.schedule.dtend is defined
       or current_schedules_asset_value.dtend is defined %}
-    dtend: "{{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].dtend
-               | default(template_overrides_static.schedule.dtend)
+    dtend: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].dtend
+               | default(template_overrides_global.schedule.dtend)
                | default(current_schedules_asset_value.dtend) }}"
 {% endif %}
-{% if template_overrides_dynamic.schedule[current_schedules_asset_value.name].timezone is defined
-      or template_overrides_static.schedule.timezone is defined
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].timezone is defined
+      or template_overrides_global.schedule.timezone is defined
       or current_schedules_asset_value.timezone is defined %}
-    timezone: "{{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].timezone
-                  | default(template_overrides_static.schedule.timezone)
+    timezone: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].timezone
+                  | default(template_overrides_global.schedule.timezone)
                   | default(current_schedules_asset_value.timezone) }}"
 {% endif %}
-{% if template_overrides_dynamic.schedule[current_schedules_asset_value.name].rrule is defined
-      or template_overrides_static.schedule.rrule is defined
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].rrule is defined
+      or template_overrides_global.schedule.rrule is defined
       or current_schedules_asset_value.rrule is defined %}
-    rrule: "{{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].rrule
-               | default(template_overrides_static.schedule.rrule)
+    rrule: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].rrule
+               | default(template_overrides_global.schedule.rrule)
                | default(current_schedules_asset_value.rrule) }}"
 {% endif %}
-{% if template_overrides_dynamic.schedule[current_schedules_asset_value.name].execution_environment is defined
-      or template_overrides_static.schedule.execution_environment is defined
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].execution_environment is defined
+      or template_overrides_global.schedule.execution_environment is defined
       or current_schedules_asset_value.summary_fields.execution_environment is defined %}
-    execution_environment: "{{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].execution_environment
-                               | default(template_overrides_static.schedule.execution_environment)
+    execution_environment: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].execution_environment
+                               | default(template_overrides_global.schedule.execution_environment)
                                | default(current_schedules_asset_value.summary_fields.execution_environment.name) }}"
 {% endif %}
-{% if template_overrides_dynamic.schedule[current_schedules_asset_value.name].extra_data is defined
-      or template_overrides_static.schedule.extra_data is defined
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].extra_data is defined
+      or template_overrides_global.schedule.extra_data is defined
       or current_schedules_asset_value.extra_data is defined %}
     extra_data:
-      {{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].extra_data
-         | default(template_overrides_static.schedule.extra_data)
+      {{ template_overrides_resources.schedule[current_schedules_asset_value.name].extra_data
+         | default(template_overrides_global.schedule.extra_data)
          | default(current_schedules_asset_value.extra_data)
          | from_yaml | to_nice_yaml(indent=2) | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") | replace("$encrypted$", "") }}
 {%- endif -%}
@@ -79,25 +79,25 @@ controller_schedules:
       - "{{ credential.name }}"
 {% endfor %}
 {% endif %}
-{% if template_overrides_dynamic.schedule[current_schedules_asset_value.name].scm_branch is defined
-      or template_overrides_static.schedule.scm_branch is defined
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].scm_branch is defined
+      or template_overrides_global.schedule.scm_branch is defined
       or current_schedules_asset_value.scm_branch is defined %}
-    scm_branch: "{{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].scm_branch
-                    | default(template_overrides_static.schedule.scm_branch)
+    scm_branch: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].scm_branch
+                    | default(template_overrides_global.schedule.scm_branch)
                     | default(current_schedules_asset_value.scm_branch) }}"
 {% endif %}
-{% if template_overrides_dynamic.schedule[current_schedules_asset_value.name].forks is defined
-      or template_overrides_static.schedule.forks is defined
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].forks is defined
+      or template_overrides_global.schedule.forks is defined
       or current_schedules_asset_value.forks is defined %}
-    forks: {{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].forks
-              | default(template_overrides_static.schedule.forks)
+    forks: {{ template_overrides_resources.schedule[current_schedules_asset_value.name].forks
+              | default(template_overrides_global.schedule.forks)
               | default(current_schedules_asset_value.forks | int) }}
 {% endif %}
-{% if template_overrides_dynamic.schedule[current_schedules_asset_value.name].job_slice_count is defined
-      or template_overrides_static.schedule.job_slice_count is defined
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].job_slice_count is defined
+      or template_overrides_global.schedule.job_slice_count is defined
       or current_schedules_asset_value.job_slice_count is defined %}
-    job_slice_count: {{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].job_slice_count
-                        | default(template_overrides_static.schedule.job_slice_count)
+    job_slice_count: {{ template_overrides_resources.schedule[current_schedules_asset_value.name].job_slice_count
+                        | default(template_overrides_global.schedule.job_slice_count)
                         | default(current_schedules_asset_value.job_slice_count | int) }}
 {% endif %}
 {% if query_labels | length > 0 %}
@@ -106,53 +106,53 @@ controller_schedules:
       - "{{ label.name }}"
 {% endfor %}
 {% endif %}
-{% if template_overrides_dynamic.schedule[current_schedules_asset_value.name].timeout is defined
-      or template_overrides_static.schedule.timeout is defined
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].timeout is defined
+      or template_overrides_global.schedule.timeout is defined
       or current_schedules_asset_value.timeout is defined %}
-    timeout: {{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].timeout
-                | default(template_overrides_static.schedule.timeout)
+    timeout: {{ template_overrides_resources.schedule[current_schedules_asset_value.name].timeout
+                | default(template_overrides_global.schedule.timeout)
                 | default(current_schedules_asset_value.timeout | int) }}
 {% endif %}
-{% if template_overrides_dynamic.schedule[current_schedules_asset_value.name].job_type is defined
-      or template_overrides_static.schedule.job_type is defined
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].job_type is defined
+      or template_overrides_global.schedule.job_type is defined
       or current_schedules_asset_value.job_type is defined %}
-    job_type: "{{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].job_type
-                  | default(template_overrides_static.schedule.job_type)
+    job_type: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].job_type
+                  | default(template_overrides_global.schedule.job_type)
                   | default(current_schedules_asset_value.job_type) }}"
 {% endif %}
-{% if template_overrides_dynamic.schedule[current_schedules_asset_value.name].job_tags is defined
-      or template_overrides_static.schedule.job_tags is defined
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].job_tags is defined
+      or template_overrides_global.schedule.job_tags is defined
       or current_schedules_asset_value.job_tags is defined %}
-    job_tags: "{{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].job_tags
-                  | default(template_overrides_static.schedule.job_tags)
+    job_tags: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].job_tags
+                  | default(template_overrides_global.schedule.job_tags)
                   | default(current_schedules_asset_value.job_tags) }}"
 {% endif %}
-{% if template_overrides_dynamic.schedule[current_schedules_asset_value.name].skip_tags is defined
-      or template_overrides_static.schedule.skip_tags is defined
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].skip_tags is defined
+      or template_overrides_global.schedule.skip_tags is defined
       or current_schedules_asset_value.skip_tags is defined %}
-    skip_tags: "{{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].skip_tags
-                   | default(template_overrides_static.schedule.skip_tags)
+    skip_tags: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].skip_tags
+                   | default(template_overrides_global.schedule.skip_tags)
                    | default(current_schedules_asset_value.skip_tags) }}"
 {% endif %}
-{% if template_overrides_dynamic.schedule[current_schedules_asset_value.name].limit is defined
-      or template_overrides_static.schedule.limit is defined
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].limit is defined
+      or template_overrides_global.schedule.limit is defined
       or current_schedules_asset_value.limit is defined %}
-    limit: "{{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].limit
-               | default(template_overrides_static.schedule.limit)
+    limit: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].limit
+               | default(template_overrides_global.schedule.limit)
                | default(current_schedules_asset_value.limit) }}"
 {% endif %}
-{% if template_overrides_dynamic.schedule[current_schedules_asset_value.name].diff_mode is defined
-      or template_overrides_static.schedule.diff_mode is defined
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].diff_mode is defined
+      or template_overrides_global.schedule.diff_mode is defined
       or current_schedules_asset_value.diff_mode is defined and current_schedules_asset_value.diff_mode | type_debug != "NoneType" %}
-    diff_mode: {{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].diff_mode
-                  | default(template_overrides_static.schedule.diff_mode)
+    diff_mode: {{ template_overrides_resources.schedule[current_schedules_asset_value.name].diff_mode
+                  | default(template_overrides_global.schedule.diff_mode)
                   | default(current_schedules_asset_value.diff_mode | bool | lower) }}
 {% endif %}
-{% if template_overrides_dynamic.schedule[current_schedules_asset_value.name].verbosity is defined
-      or template_overrides_static.schedule.verbosity is defined
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].verbosity is defined
+      or template_overrides_global.schedule.verbosity is defined
       or current_schedules_asset_value.verbosity is defined %}
-    verbosity: {{ template_overrides_dynamic.schedule[current_schedules_asset_value.name].verbosity
-                  | default(template_overrides_static.schedule.verbosity)
+    verbosity: {{ template_overrides_resources.schedule[current_schedules_asset_value.name].verbosity
+                  | default(template_overrides_global.schedule.verbosity)
                   | default(current_schedules_asset_value.verbosity | int) }}
 {% endif %}
 {% if last_schedule | default(true) | bool %}

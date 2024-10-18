@@ -4,49 +4,49 @@ controller_inventory_sources:
 {% endif %}
 {% for inventory_source in current_inventory_sources_asset_value %}
   - name: "{{ inventory_source.name }}"
-    description: "{{ template_overrides_dynamic.inventory_source[inventory_source.name].description
-                     | default(template_overrides_static.inventory_source.description)
+    description: "{{ template_overrides_resources.inventory_source[inventory_source.name].description
+                     | default(template_overrides_global.inventory_source.description)
                      | default(inventory_source.description) }}"
 {% if inventory_source.summary_fields.organization is defined %}
     organization: "{{ inventory_source.summary_fields.organization.name }}"
 {% endif %}
-    source: "{{ template_overrides_dynamic.inventory_source[inventory_source.name].source
-                | default(template_overrides_static.inventory_source.source)
+    source: "{{ template_overrides_resources.inventory_source[inventory_source.name].source
+                | default(template_overrides_global.inventory_source.source)
                 | default(inventory_source.source)
                 | default('ToDo: The source of the inventory_source was originally missing and must be specified', true) }}"
-{% if template_overrides_dynamic.inventory_source[inventory_source.name].source_project is defined
-      or template_overrides_static.inventory_source.source_project is defined
+{% if template_overrides_resources.inventory_source[inventory_source.name].source_project is defined
+      or template_overrides_global.inventory_source.source_project is defined
       or inventory_source.source_project is defined %}
-    source_project: "{{ template_overrides_dynamic.inventory_source[inventory_source.name].source_project
-                        | default(template_overrides_static.inventory_source.source_project)
+    source_project: "{{ template_overrides_resources.inventory_source[inventory_source.name].source_project
+                        | default(template_overrides_global.inventory_source.source_project)
                         | default(inventory_source.summary_fields.source_project.name) }}"
 {% endif %}
-{% if template_overrides_dynamic.inventory_source[inventory_source.name].source_path is defined
-      or template_overrides_static.inventory_source.source_path is defined
+{% if template_overrides_resources.inventory_source[inventory_source.name].source_path is defined
+      or template_overrides_global.inventory_source.source_path is defined
       or inventory_source.source_path is defined %}
-    source_path: "{{ template_overrides_dynamic.inventory_source[inventory_source.name].source_path
-                     | default(template_overrides_static.inventory_source.source_path)
+    source_path: "{{ template_overrides_resources.inventory_source[inventory_source.name].source_path
+                     | default(template_overrides_global.inventory_source.source_path)
                      | default(inventory_source.source_path) }}"
 {% endif %}
-{% if template_overrides_dynamic.inventory_source[inventory_source.name].source_vars is defined
-      or template_overrides_static.inventory_source.source_vars is defined
+{% if template_overrides_resources.inventory_source[inventory_source.name].source_vars is defined
+      or template_overrides_global.inventory_source.source_vars is defined
       or (inventory_source.source_vars is defined and inventory_source.source_vars != '---' and inventory_source.source_vars != '') %}
     source_vars:
-      {{ template_overrides_dynamic.inventory_source[inventory_source.name].source_vars
-         | default(template_overrides_static.inventory_source.source_vars)
+      {{ template_overrides_resources.inventory_source[inventory_source.name].source_vars
+         | default(template_overrides_global.inventory_source.source_vars)
          | default(inventory_source.source_vars)
          | from_yaml | to_nice_yaml(indent=2) | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") }}
 {%- endif %}
     inventory: "{{ inventory_source.summary_fields.inventory.name }}"
-    update_on_launch: "{{ template_overrides_dynamic.inventory_source[inventory_source.name].update_on_launch
-                          | default(template_overrides_static.inventory_source.update_on_launch)
+    update_on_launch: "{{ template_overrides_resources.inventory_source[inventory_source.name].update_on_launch
+                          | default(template_overrides_global.inventory_source.update_on_launch)
                           | default(inventory_source.update_on_launch) }}"
-    overwrite: "{{ template_overrides_dynamic.inventory_source[inventory_source.name].overwrite
-                   | default(template_overrides_static.inventory_source.overwrite)
+    overwrite: "{{ template_overrides_resources.inventory_source[inventory_source.name].overwrite
+                   | default(template_overrides_global.inventory_source.overwrite)
                    | default(inventory_source.overwrite) }}"
-{% if template_overrides_static.inventory_source.credential is defined or inventory_source.summary_fields.credential is defined %}
-    credential: "{{ template_overrides_dynamic.inventory_source[inventory_source.name].credential
-                    | default(template_overrides_static.inventory_source.credential)
+{% if template_overrides_global.inventory_source.credential is defined or inventory_source.summary_fields.credential is defined %}
+    credential: "{{ template_overrides_resources.inventory_source[inventory_source.name].credential
+                    | default(template_overrides_global.inventory_source.credential)
                     | default(inventory_source.summary_fields.credential.name) }}"
 {% endif %}
 {% set query_notification_error = query(controller_api_plugin, inventory_source.related.notification_templates_error,
