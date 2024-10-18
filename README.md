@@ -2,14 +2,14 @@
 
 ![pre-commit tests](https://github.com/redhat-cop/aap_configuration_extended/actions/workflows/pre-commit.yml/badge.svg)
 ![Release](https://github.com/redhat-cop/aap_configuration_extended/actions/workflows/release.yml/badge.svg)
-<!-- markdownlint-disable-line MD033 MD034 --><a href="https://raw.githubusercontent.com/redhat-cop/controller_configuration/devel/docs/aap_config_as_code_public_meeting.ics"><img border="0" alt="Google Calendar invite" src="https://www.google.com/calendar/images/ext/gc_button1_en-GB.gif"></a>
+<!-- markdownlint-disable-line MD033 MD034 --><a href="https://raw.githubusercontent.com/redhat-cop/aap_configuration_extended/devel/docs/aap_config_as_code_public_meeting.ics"><img border="0" alt="Google Calendar invite" src="https://www.google.com/calendar/images/ext/gc_button1_en-GB.gif"></a>
 <!-- Further CI badges go here as above -->
 
 This Ansible collection allows for easy interaction with an AWX or Ansible Controller server via Ansible roles using the AWX/Controller collection modules.
 
 ## Getting Help
 
-We are on the Ansible Forums and Matrix, if you want to discuss something, ask for help, or participate in the community, please use the #infra-config-as-code tag on the fourm, or post to the chat in Matrix.
+We are on the Ansible Forums and Matrix, if you want to discuss something, ask for help, or participate in the community, please use the #infra-config-as-code tag on the form, or post to the chat in Matrix.
 
 [Ansible Forums](https://forum.ansible.com/tag/infra-config-as-code)
 
@@ -32,19 +32,22 @@ The awx.awx or ansible.controller collections MUST be installed in order for thi
 
 ## Links to Ansible Automation Platform Collections
 
-|                                      Collection Name                                         |                 Purpose                  |
-|:--------------------------------------------------------------------------------------------:|:----------------------------------------:|
-| [awx.awx/Ansible.controller repo](https://github.com/ansible/awx/tree/devel/awx_collection) |   Automation controller modules          |
-|        [Ansible Hub Configuration](https://github.com/ansible/automation_hub_collection)     |       Automation hub configuration       |
+|                                      Collection Name                                |            Purpose            |
+|:-----------------------------------------------------------------------------------:|:-----------------------------:|
+| ansible.platform repo (no public repo for this collection)                          | gateway/platform modules      |
+| [ansible.hub repo](https://github.com/ansible-collections/ansible_hub)              | Automation hub modules        |
+| [ansible.controller repo](https://github.com/ansible/awx/tree/devel/awx_collection) | Automation controller modules |
+| [ansible.eda repo](https://github.com/ansible/event-driven-ansible)                 | Event Driven Ansible modules  |
 
 ## Links to other Validated Configuration Collections for Ansible Automation Platform
 
-|                                      Collection Name                                       |                 Purpose                  |
-|:------------------------------------------------------------------------------------------:|:----------------------------------------:|
-| [Controller Configuration](https://github.com/redhat-cop/controller_configuration) |   Automation controller configuration    |
-|             [EE Utilities](https://github.com/redhat-cop/ee_utilities)             | Execution Environment creation utilities |
-|     [AAP installation Utilities](https://github.com/redhat-cop/aap_utilities)      |  Ansible Automation Platform Utilities   |
-|   [AAP Configuration Template](https://github.com/redhat-cop/aap_configuration_template)   |  Configuration Template for this suite   |
+|                                      Collection Name                                       |                      Purpose                      |
+|:------------------------------------------------------------------------------------------:|:-------------------------------------------------:|
+| [AAP Configuration Extended](https://github.com/redhat-cop/aap_configuration_extended)     | Where other useful roles that don't fit here live |
+| [EE Utilities](https://github.com/redhat-cop/ee_utilities)                                 | Execution Environment creation utilities          |
+| [AAP installation Utilities](https://github.com/redhat-cop/aap_utilities)                  | Ansible Automation Platform Utilities             |
+| [AAP Configuration Template](https://github.com/redhat-cop/aap_configuration_template)     | Configuration Template for this suite             |
+
 
 ## Included content
 
@@ -185,7 +188,7 @@ More information about contributing can be found in our [Contribution Guidelines
 We have a community meeting every 4 weeks. Find the agenda in the [issues](https://github.com/redhat-cop/aap_configuration_extended/issues) and the calendar invitation below:
 
 <!-- markdownlint-disable-next-line MD033 MD034 -->
-<a target="_blank" href="https://raw.githubusercontent.com/redhat-cop/controller_configuration/devel/docs/aap_config_as_code_public_meeting.ics"><img border="0" alt="Google Calendar invite" src="https://www.google.com/calendar/images/ext/gc_button1_en-GB.gif"></a>
+<a target="_blank" href="https://raw.githubusercontent.com/redhat-cop/aap_configuration_extended/devel/docs/aap_config_as_code_public_meeting.ics"><img border="0" alt="Google Calendar invite" src="https://www.google.com/calendar/images/ext/gc_button1_en-GB.gif"></a>
 
 ## Code of Conduct
 

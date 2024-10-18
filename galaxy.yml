@@ -1,8 +1,8 @@
 ---
 namespace: infra
-name: controller_configuration
-version: 2.9.0-devel
-description: A collection of roles to manage Ansible Controller
+name: aap_configuration_extended
+version: 1.0.0-devel
+description: A collection of roles to extend functionality of aap_configuration collection 
 readme: README.md
 authors:
     - Andrew Huffman
@@ -11,14 +11,12 @@ authors:
     - Tom Page @Tompage1994
     - Sean Sullivan @sean-m-sullivan
     - David Danielsson @djdanielsson
-repository: https://github.com/redhat-cop/controller_configuration/
-issues: https://github.com/redhat-cop/controller_configuration//issues
+repository: https://github.com/redhat-cop/aap_configuration_extended/
+issues: https://github.com/redhat-cop/aap_configuration_extended//issues
 build_ignore:
     - galaxy.yml.j2
     - release.yml
     - .github
-    - .ansiblelint.yml
-    - .yamllint.yml
     - '*.tar.gz'
 license:
     - GPL-3.0-or-later
