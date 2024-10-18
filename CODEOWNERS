@@ -2,3 +2,4 @@
 roles/filetree_create @silvinux @ivarmu @adonisgarciac
 roles/filetree_read @silvinux @ivarmu @adonisgarciac
 roles/object_diff @silvinux @ivarmu @adonisgarciac
+roles/offline_sync @djdanielsson
