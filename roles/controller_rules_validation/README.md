@@ -1,4 +1,4 @@
-# aap_configuration_extended.controller_rules_validation
+# controller_rules_validation
 
 An ansible role which audit the declared controller configuration and validate it against a set of user-defined rules. 
 
@@ -27,7 +27,7 @@ n/a
 | `rules_violations_msgs`  | a list of all the found rules violation messages |
 
 
-## rules_violations_msgs format
+### rules_violations_msgs format
 
 Each `rules_violations_msgs` list element has the following syntax :
 
@@ -37,7 +37,7 @@ Rule ID | Object Type | Object Scope | Object Name | Violation message related t
 
 Example of `rules_violations_msgs` :
 
-```
+```json
 fatal: [localhost]: FAILED! => {
     "rules_violations_msgs | unique": [
         "Rule n°1 | organizations | global | Satellite | max_hosts is not set",
@@ -47,7 +47,7 @@ fatal: [localhost]: FAILED! => {
 }
 ```
 
-## rules_violations_data structure
+### rules_violations_data structure
 
 Each `rules_violations_data` list element contains the following elements :
 
@@ -64,7 +64,7 @@ Each `rules_violations_data` list element contains the following elements :
 
 Example of `rules_violations_data` :
 
-```
+```json
 "rules_violations_data | unique": [
     {
         "msg": "Rule n°1 | organizations | global | Satellite | max_hosts is not set",
@@ -79,9 +79,6 @@ Example of `rules_violations_data` :
     ...
 ```
 
-## Role Output Examples
-
-
 ## Rules
 
 The rules should be defined as a list in the variable `controller_rules`
@@ -90,7 +87,7 @@ Each element of the list is a rule that is audited seperately
 
 There is generic rules fields which are object-type-agnostic and other fields that are applicable to specific object type
 
-### Generic Rule fields
+### Generic Rules
 
 | Variable Name | Type     | Description |
 | :------------ | :------: | :---------- |
