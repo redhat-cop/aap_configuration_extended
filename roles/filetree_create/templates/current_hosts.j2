@@ -4,11 +4,18 @@ controller_hosts:
 {% endif %}
 {% for host in current_hosts_asset_value if not host.has_inventory_sources %}
   - name: "{{ host.name }}"
-    description: "{{ host.description }}"
+    description: "{{ template_overrides_dynamic.host[host.name].description
+                     | default(template_overrides_static.host.description)
+                     | default(host.description) }}"
     inventory: "{{ host.summary_fields.inventory.name | default('ToDo: The host \'' + host.name + '\' must have an associated inventory') }}"
-{% if host.variables and host.variables != '---' and host.variables != '' %}
+{% if template_overrides_dynamic.host[host.name].variables is defined
+      or template_overrides_static.host.variables is defined
+      or (host.variables and host.variables != '---' and host.variables != '') %}
     variables:
-      {{ host.variables | from_yaml | to_nice_yaml(indent=2) | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") }}
+      {{ template_overrides_dynamic.host[host.name].variables
+         | template_overrides_static.host.variables
+         | default(host.variables)
+         | from_yaml | to_nice_yaml(indent=2) | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") }}
 {%- endif %}
 {% endfor %}
 ...
