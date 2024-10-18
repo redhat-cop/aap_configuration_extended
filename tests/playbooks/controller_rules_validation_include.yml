@@ -1,0 +1,11 @@
+---
+- name: Check for controller rules violations with configuration read using include_vars
+  hosts: localhost
+  gather_facts: false
+  pre_tasks:
+    - name: Read configuration
+      ansible.builtin.include_vars:
+        dir: ../configs/
+  roles:
+    - role: infra.aap_controller_configuration_extended.controller_rules_validation
+...

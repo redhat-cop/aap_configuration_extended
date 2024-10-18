@@ -1,0 +1,130 @@
+- name: Init variables
+  ansible.builtin.set_fact:
+    __forbidden_roles: []
+    __forbidden: []
+    __objects_and_roles: []
+    __objects_and_roles_product: []
+    unallowed_roles: []
+
+- name: Verify forbidden roles presence
+  when: rule['forbidden_roles'] is defined
+        and rule['forbidden_roles'] != None
+        and rule['forbidden_roles'] | length > 0
+  block:
+
+    - name: Set forbidden roles list
+      ansible.builtin.set_fact:
+        __forbidden_roles: "{{ __forbidden_roles + ([item.key] | product(item.value)) }}"
+      with_dict: "{{ rule['forbidden_roles'] }}"
+
+    - name: Extract declared forbidden roles
+      ansible.builtin.set_fact:
+        __forbidden: "{{ __forbidden +
+          (
+            (
+              (
+                (controller_roles | selectattr(__role_target, 'defined'))
+                + (controller_roles | selectattr(__singular[__role_target], 'defined'))
+              ) | selectattr('role', 'defined') | selectattr('role', 'equalto', __role_verb))
+            + (
+                (controller_roles | selectattr(__role_target,'defined'))
+                + (controller_roles | selectattr(__singular[__role_target], 'defined'))
+              ) | selectattr('roles', 'defined') | selectattr('roles', 'contains', __role_verb)
+          ) | product([{'role_target_object': __role_target, 'role_verb': __role_verb}])
+          }}"
+      vars:
+        __role_target: "{{ item[0] }}"
+        __role_verb: "{{ item[1] }}"
+      loop: "{{ __forbidden_roles }}"
+
+    - name: Update violations related to forbidden roles
+      ansible.builtin.set_fact:
+        rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
+        rules_violations_data: "{{ rules_violations_data +
+          [{
+            'rule_id': rule_id,
+            'rule_index': rule_index,
+            'rule_broken': 'forbidden_roles',
+            'object_type': 'roles',
+            'object_scope': 'global',
+            'object_organization': '__undefined_org__',
+            'object_name': '__undefined_name__',
+            'role_details':
+              {
+                'users': __role_users,
+                'teams': __role_teams,
+                'targets': __role_target,
+                'role': __role_verb
+              },
+            'msg': msg
+          }]
+         }}"
+      vars:
+        msg: "Rule {{ rule_id }} | roles | global | __undefined_org__ | The role '{{ __role_verb }}' on '{{ __role_target }}' requested for '{{ __role_benefactor }}' is forbidden"
+        __role_users: "{{ item[0]['user'] | default('') + item[0]['users'] | default([]) | join(',') }}"
+        __role_teams: "{{ item[0]['team'] | default('') + item[0]['teams'] | default([]) | join(',') }}"
+        __role_target: "{{ item[1]['role_target_object'] }}"
+        __role_verb: "{{ item[1]['role_verb'] }}"
+        __role_benefactor: "{{ (('team(s) ' + __role_teams) if __role_teams != '' else '') + ((' and ') if __role_teams != '' and __role_users != ''  else '' ) + (('user(s) ' + __role_users) if __role_users != ''  else '' ) }}"
+      loop: "{{ __forbidden }}"
+
+- name: Verify non-allowed roles presence
+  when: rule['allowed_roles'] is defined
+        and rule['allowed_roles'] != None
+        and rule['allowed_roles'] | length > 0
+  block:
+
+    - name: Extract and format declared roles
+      ansible.builtin.set_fact:
+        __objects_and_roles: "{{ __objects_and_roles +
+                                  [{
+                                    'objects': item | dict2items | rejectattr('key', 'in' ,['role', 'roles', 'teams', 'team', 'teams', 'user', 'users']) | map(attribute='key'),
+                                    'roles': [ item['role'] | default('') ] | select() + item['roles'] | default([]) | select()
+                                  }] }}"
+      loop: "{{ controller_roles }}"
+
+    - name: Expand declared roles for easier comparaison
+      ansible.builtin.set_fact:
+        __objects_and_roles_product: "{{ __objects_and_roles_product + item['objects'] | product(item['roles']) }}"
+      loop: "{{ __objects_and_roles }}"
+
+    - name: Compute unallowed_roles
+      ansible.builtin.set_fact:
+        unallowed_roles: "{{ unallowed_roles + [ {'object': __object, 'role': __role } ] }}"
+      when: (
+              (__plural[__object] is defined and rule['allowed_roles'][__plural[__object]] is not defined)
+              or (__singular[__object] is defined and rule['allowed_roles'][__object] is not defined)
+            )
+            or
+            (
+              (__plural[__object] is defined and rule['allowed_roles'][__plural[__object]] is defined and __role not in rule['allowed_roles'][__plural[__object]])
+              or  (__singular[__object] is defined and rule['allowed_roles'][__object] is defined and __role not in rule['allowed_roles'][__object])
+            )
+      vars:
+        __object: "{{ item[0] }}"
+        __role: "{{ item[1] }}"
+      loop: "{{ __objects_and_roles_product }}"
+
+    - name: Update violations related to non-allowed roles
+      ansible.builtin.set_fact:
+        rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
+        rules_violations_data: "{{ rules_violations_data +
+          [{
+            'rule_id': rule_id,
+            'rule_index': rule_index,
+            'rule_broken': 'allowed_roles',
+            'object_type': 'roles',
+            'object_scope': 'global',
+            'object_organization': '__undefined_org__',
+            'object_name': '__undefined_name__',
+            'role_details':
+              {
+                'targets': item['object'],
+                'role': item['role']
+              },
+            'msg': msg
+          }]
+         }}"
+      vars:
+        msg: "Rule {{ rule_id }} | roles | global | __undefined_org__ | The role '{{ item['role'] }}' on '{{ item['object'] }}' is not allowed."
+      loop: "{{ unallowed_roles }}"

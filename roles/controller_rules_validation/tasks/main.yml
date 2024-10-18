@@ -1,0 +1,55 @@
+- name: Look for rules violations
+  when: controller_rules is defined and controller_rules != None and controller_rules | length > 0
+  block:
+    - name: Init rules violations
+      ansible.builtin.set_fact:
+        rules_violations_msgs: []
+        rules_violations_data: []
+        __objects_in_rules: []
+
+    - name: Rules check loop
+      ansible.builtin.include_tasks:
+        file: tasks/rule_check.yml
+      loop: "{{ controller_rules }}"
+      when: rule['objects'] is defined and rule['objects'] != None and rule['objects'] | length > 0
+      loop_control:
+        loop_var: rule
+        index_var: rule_index
+
+    - name: Flag discrepancy between objects in rules and in audited types as violations
+      when: warn_about_audited_types_not_in_rules_objects or warn_about_rules_objects_not_in_audited_types
+      block:
+        - name: Get object types declared rules
+          ansible.builtin.set_fact:
+            __objects_in_rules: "{{ controller_rules | map(attribute='objects') | flatten | unique }}"
+
+        - name: Object types in rules that are not part of audited object types
+          ansible.builtin.set_fact:
+            rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
+          vars:
+            diff: "{{ __objects_in_rules | difference(audited_objects) }}"
+            msg: "The object type(s) '{{ diff | join(',') }}' are mentioned in rules but are not audited."
+          when: warn_about_audited_types_not_in_rules_objects and diff is defined and diff | length > 0
+
+        - name: Audited object types that are not mentioned in any rule
+          ansible.builtin.set_fact:
+            rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
+          vars:
+            diff: "{{ audited_objects | difference(__objects_in_rules) }}"
+            msg: "The object types(s) '{{ diff | join(',') }}' are audited but are not mentioned in any rule."
+          when: warn_about_rules_objects_not_in_audited_types and diff is defined and diff | length > 0
+
+    - name: Print rules violations data
+      ansible.builtin.debug:
+        var: rules_violations_data | unique
+      when: print_rules_violations_data is defined and print_rules_violations_data | bool
+
+    - name: Print rules violations messages
+      ansible.builtin.debug:
+        var: rules_violations_msgs | unique
+      failed_when: fail_if_violations_found is defined and fail_if_violations_found | bool and rules_violations_msgs | length > 0
+
+    - name: Print success message
+      ansible.builtin.debug:
+        msg: "Success. No rules violations detected."
+      when: rules_violations_msgs | length == 0

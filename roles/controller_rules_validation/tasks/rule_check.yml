@@ -1,0 +1,103 @@
+- name: Set rule ID
+  ansible.builtin.set_fact:
+    rule_id: "{{ rule['rule_name'] | default('n°' + (rule_index + 1) | string) }}"
+
+- name: Objects count check
+  ansible.builtin.include_tasks:
+    file: tasks/check_objects_count.yml
+  when: lookup('vars', __object_var_names[object_type], default='__undefined__') != '__undefined__' and
+        ((rule['minimum_defined_globally'] is defined and rule['minimum_defined_globally'] > 0)
+         or (rule['maximum_defined_globally'] is defined and rule['maximum_defined_globally'] > 0)
+         or (rule['minimum_defined_per_org'] is defined and rule['minimum_defined_per_org'] > 0)
+         or (rule['maximum_defined_per_org'] is defined and rule['maximum_defined_per_org'] > 0))
+  loop: "{{ rule['objects'] }}"
+  loop_control:
+    loop_var: object_type
+
+- name: Mandatory field check
+  ansible.builtin.include_tasks:
+    file: tasks/check_mandatory_fields.yml
+  when: rule['mandatory_fields'] is defined
+        and rule['mandatory_fields'] != None
+        and rule['mandatory_fields'] | length > 0
+        and lookup('vars', __object_var_names[object_type], default='__undefined__') != '__undefined__'
+  loop: "{{ rule['objects'] }}"
+  loop_control:
+    loop_var: object_type
+
+- name: Regex check loop
+  ansible.builtin.include_tasks:
+    file: tasks/check_fields_regex.yml
+  when: rule['fields_regex'] is defined
+        and lookup('vars', __object_var_names[object_type], default='__undefined__') != '__undefined__'
+  loop: "{{ rule['objects'] }}"
+  loop_control:
+    loop_var: object_type
+
+- name: Organizations specific checks - {{ object_type }}
+  ansible.builtin.include_tasks:
+    file: tasks/check_organizations.yml
+  when: controller_organizations is defined
+        and controller_organizations | length > 0
+        and 'organizations' in rule['objects']
+        and (org['name'] in rule['organizations'] if rule['organizations'] is defined else true)
+  loop: "{{ controller_organizations }}"
+  loop_control:
+    loop_var: org
+
+- name: Inventory specific checks
+  ansible.builtin.include_tasks:
+    file: tasks/check_inventories.yml
+  when: controller_inventories is defined
+        and controller_inventories | length > 0
+        and 'inventories' in rule['objects']
+  loop: "{{ controller_inventories }}"
+  loop_control:
+    loop_var: inventory
+
+- name: Hosts specific checks
+  ansible.builtin.include_tasks:
+    file: tasks/check_hosts.yml
+  when: controller_hosts is defined
+        and 'hosts' in rule['objects']
+        and rule['allow_ungrouped_hosts'] is defined
+        and not rule['allow_ungrouped_hosts']
+
+- name: Credential encryption check
+  ansible.builtin.include_tasks:
+    file: tasks/check_credentials_encryption.yml
+  when: controller_credentials is defined
+    and controller_credentials | length > 0
+    and 'credentials' in rule['objects']
+    and rule['encrypt_credentials_sensitive_data'] is defined
+    and rule['encrypt_credentials_sensitive_data'] | bool
+    and rule['credential_sensitive_data'] is defined
+    and rule['credential_sensitive_data'] | length > 0
+
+- name: User specific checks
+  ansible.builtin.include_tasks:
+    file: tasks/check_users.yml
+  when: controller_user_accounts is defined
+        and controller_user_accounts | length > 0
+        and 'users' in rule['objects']
+        and
+        (
+          (rule['allow_superusers'] is defined and not rule['allow_superusers'] | bool )
+          or
+          (rule['allow_system_auditors'] is defined and not rule['allow_system_auditors'] | bool )
+          or
+          (rule['encrypt_user_passwords'] is defined and rule['encrypt_user_passwords'] | bool )
+        )
+
+- name: Roles specific checks
+  ansible.builtin.include_tasks:
+    file: tasks/check_roles.yml
+  when: controller_roles is defined
+        and controller_roles | length > 0
+        and 'roles' in rule['objects']
+        and
+        (
+          (rule['allowed_roles'] is defined and rule['allowed_roles'] | length > 0 )
+          or
+          (rule['forbidden_roles'] is defined and rule['forbidden_roles'] | length > 0 )
+        )

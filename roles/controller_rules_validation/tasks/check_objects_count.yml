@@ -1,0 +1,89 @@
+- name: Global objects minimum count check
+  ansible.builtin.set_fact:
+    rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
+    rules_violations_data: "{{ rules_violations_data +
+        [{
+          'rule_id': rule_id,
+          'rule_index': rule_index,
+          'rule_broken': 'minimum_defined_globally',
+          'object_type': object_type,
+          'object_scope': 'global',
+          'object_organization': '__organizationless__',
+          'msg': msg
+        }]
+      }}"
+  vars:
+    msg: "Rule {{ rule_id }} | {{ object_type }} | global | Global {{ object_type }} count ({{ lookup('vars', __object_var_names[object_type]) | length }}) is inferior to the minimum allowed ({{ rule['minimum_defined_globally'] }})"
+  when: rule['minimum_defined_globally'] is defined
+        and (lookup('vars', __object_var_names[object_type]) | unique | length < rule['minimum_defined_globally'])
+
+- name: Per organization objects minimum count check
+  ansible.builtin.set_fact:
+    rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
+    rules_violations_data: "{{ rules_violations_data +
+        [{
+          'rule_id': rule_id,
+          'rule_index': rule_index,
+          'rule_broken': 'minimum_defined_per_org',
+          'object_type': object_type,
+          'object_scope': 'organization',
+          'object_organization': org,
+          'msg': msg
+        }]
+      }}"
+  vars:
+    msg: "Rule {{ rule_id }} | {{ object_type }} | {{ org }} | Organization {{ org }} {{ object_type }} count ({{ __object_count }}) is inferior to the minimum allowed ({{ __org_minimum }})"
+    __object_count: "{{ lookup('vars', __object_var_names[object_type]) | selectattr('organization', 'defined') | selectattr('organization', 'equalto', org) | unique | length }}"
+    __org_minimum: "{{ rule['minimum_defined_per_org'] }}"
+  when: rule['organizations'] is defined
+        and object_type in __org_scoped_objects
+        and rule['minimum_defined_per_org'] is defined
+        and ((lookup('vars', __object_var_names[object_type]) | selectattr('organization', 'defined') | selectattr('organization', 'equalto', org) | unique | length) < rule['minimum_defined_per_org'])
+  loop: "{{ rule['organizations'] }}"
+  loop_control:
+    loop_var: org
+
+- name: Objects count maximum check
+  ansible.builtin.set_fact:
+    rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
+    rules_violations_data: "{{ rules_violations_data +
+        [{
+          'rule_id': rule_id,
+          'rule_index': rule_index,
+          'rule_broken': 'maximum_defined_globally',
+          'object_type': object_type,
+          'object_scope': 'global',
+          'object_organization': '__organizationless__',
+          'msg': msg
+        }]
+      }}"
+  vars:
+    msg: "Rule {{ rule_id }} | {{ object_type }} | global | Global {{ object_type }} count ({{ lookup('vars', __object_var_names[object_type]) | length }}) is superior to the maximum allowed ({{ rule['maximum_defined_globally'] }})"
+  when: rule['maximum_defined_globally'] is defined
+        and lookup('vars', __object_var_names[object_type]) | length > rule['maximum_defined_globally']
+
+- name: Per organization objects maximum count check
+  ansible.builtin.set_fact:
+    rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
+    rules_violations_data: "{{ rules_violations_data +
+        [{
+          'rule_id': rule_id,
+          'rule_index': rule_index,
+          'rule_broken': 'maximum_defined_per_org',
+          'object_type': object_type,
+          'object_scope': 'organization',
+          'object_organization': org,
+          'msg': msg
+        }]
+      }}"
+  vars:
+    msg: "Rule {{ rule_id }} | {{ object_type }} | {{ org }} | Organization {{ org }} {{ object_type }} count  ({{ __object_count }}) is superior to the maximum allowed ({{ __org_maximum }})"
+    __object_count: "{{ lookup('vars', __object_var_names[object_type]) | selectattr('organization', 'defined') | selectattr('organization', 'equalto', org) | unique | length }}"
+    __org_maximum: "{{ rule['maximum_defined_per_org'] }}"
+  when: rule['organizations'] is defined
+        and object_type in __org_scoped_objects
+        and rule['maximum_defined_per_org'] is defined
+        and ((lookup('vars', __object_var_names[object_type]) | selectattr('organization', 'defined') | selectattr('organization', 'equalto', org) | unique | length) > rule['maximum_defined_per_org'])
+  loop: "{{ rule['organizations'] }}"
+  loop_control:
+    loop_var: org
