@@ -188,7 +188,7 @@ More information about contributing can be found in our [Contribution Guidelines
 We have a community meeting every 4 weeks. Find the agenda in the [issues](https://github.com/redhat-cop/aap_configuration_extended/issues) and the calendar invitation below:
 
 <!-- markdownlint-disable-next-line MD033 MD034 -->
-<a target="_blank" href="https://raw.githubusercontent.com/redhat-cop/aap_configuration_extended/devel/docs/aap_config_as_code_public_meeting.ics"><img border="0" alt="Google Calendar invite" src="https://www.google.com/calendar/images/ext/gc_button1_en-GB.gif"></a>
+<a target="_blank" href="https://raw.githubusercontent.com/redhat-cop/aap_configuration/devel/docs/aap_config_as_code_public_meeting.ics"><img border="0" alt="Google Calendar invite" src="https://www.google.com/calendar/images/ext/gc_button1_en-GB.gif"></a>
 
 ## Code of Conduct
 
