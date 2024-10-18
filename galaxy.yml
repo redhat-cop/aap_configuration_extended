@@ -12,7 +12,7 @@ authors:
     - Sean Sullivan @sean-m-sullivan
     - David Danielsson @djdanielsson
 repository: https://github.com/redhat-cop/aap_configuration_extended/
-issues: https://github.com/redhat-cop/aap_configuration_extended//issues
+issues: https://github.com/redhat-cop/aap_configuration_extended/issues
 build_ignore:
     - galaxy.yml.j2
     - release.yml

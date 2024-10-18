@@ -17,7 +17,7 @@ Currently:
 The following command will invoke the playbook with the ansible.controller collection
 
 ```console
-ansible-playbook infra.controller_configuration.configure_controller.yml
+ansible-playbook infra.aap_configuration_extended.configure_controller.yml
 ```
 
 ## Examples
