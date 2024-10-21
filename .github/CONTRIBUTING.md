@@ -13,7 +13,7 @@ Ensure you install the awx collections, so that roles and playbooks can be prope
 
 Python's pre-commit tool can be installed, and hooks installed, to cleanup whitespace, newlines, and run yamllint and ansible-lint against your local changes before committing. This will help you avoid failures in the github workflows.
 
-1. Create a local virtual environment for controller_configurations (suggested, its your system!)
+1. Create a local virtual environment for aap_configuration_extendeds (suggested, its your system!)
 2. Use pip to install pre-commit in your environment of choice: `pip install pre-commit`
 3. Install pre-commit hooks with `pre-commit install --install-hooks -c .pre-commit-config.yaml`
 4. With hooks installed, they will be run automatically when you call `git commit`, blocking commit if any hooks fail.
@@ -29,7 +29,7 @@ If you feel like getting your hands dirty, feel free to make the change yourself
 1. Fork the repo on Github, and then clone it locally.
 2. Create a branch named appropriately for the change you are going to make.
 3. Make your code change.
-4. If you are creating a new role, please add a test for it in our [testing playbook.](https://github.com/redhat-cop/controller_configuration/blob/devel/tests/configure_controller.yml) by adding a new role entry and adding the appropriate yaml file with test data in the controller_configs directory.
+4. If you are creating a new role, please add a test for it in our [testing playbook.](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/tests/configure_controller.yml) by adding a new role entry and adding the appropriate yaml file with test data in the controller_configs directory.
 5. Add a changelog fragment in `changelogs/fragments` as per <https://docs.ansible.com/ansible/latest/community/development_process.html#changelogs>
 6. Push your code change up to your forked repo.
 7. Open a Pull Request to merge your changes to this repo. The comment box will be filled in automatically via a template.
