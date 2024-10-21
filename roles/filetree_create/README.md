@@ -237,7 +237,7 @@ This example will export all object but some with modifications:
         enabled: false
 
   roles:
-    - infra.controller_configuration.filetree_create
+    - infra. aap_configuration_extended.filetree_create
 
 ...
 ```
