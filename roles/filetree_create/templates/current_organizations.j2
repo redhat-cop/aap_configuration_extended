@@ -3,7 +3,9 @@
 controller_organizations:
 {% endif %}
   - name: "{{ current_organization.name }}"
-    description: "{{ current_organization.description }}"
+    description: "{{ template_overrides_resources.organization[current_organization.name].description
+                     | default(template_overrides_global.organization.description)
+                     | default(current_organization.description) }}"
 {% if query_notification_error | length > 0 %}
     notification_templates_error:
 {% for notification_error  in query_notification_error %}

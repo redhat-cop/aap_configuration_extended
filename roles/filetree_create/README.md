@@ -31,13 +31,15 @@ The following variables are required for that role to work properly:
 | `skip_inventory_sources` | False | no | bool | Whether the inventory sources should be exported with inventory. |
 | `skip_inventory_hosts` | False | no | bool | Whether the inventory hosts should be exported with inventory. |
 | `skip_inventory_groups` | False | no | bool | Whether the inventory groups should be exported with inventory. |
+| `templates_overrides_resources`| N/A | no | dict | Whether the certain objects should be modified during the export |
+| `templates_overrides_global`| N/A | no | dict | Whether the all objects should be modified during the export |
+
 
 ## Dependencies
 
 A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
 
-## Example Playbook
-
+## Example Playbook - export everything without modifications
 ```yaml
 ---
 - hosts: all
@@ -89,7 +91,6 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
       when: controller_oauthtoken_url is defined
 ...
 ```
-
 This role can generate output files in two different ways:
 
 - **Structured output**:
@@ -206,6 +207,40 @@ A playbook to convert from the structured output to the flattened one is provide
 ansible-playbook infra.aap_configuration_extended.flatten_filetree_create_output.yaml -e '{filetree_create_output_dir: /tmp/filetree_output}'
 ```
 
+## Example Playbook - export object with modifications
+This example will export all object but some with modifications:
+ - job template called `job_template_example` will be exported with the `dev` branch, while the rest of the job templates will use the `main` branch — the resources dictionary takes precedence over the global dictionary.
+ - all projects will have a Jinja2 expression assigned to the `scm_branch`.
+ - all schedules enabled state will be set as `false`.
+```yaml
+---
+- hosts: all
+  connection: local
+  gather_facts: false
+  vars:
+    controller_username: "{{ vault_controller_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    controller_oauthtoken : "{{ vault_controller_password | default(lookup('env', 'CONTROLLER_OAUTHTOKEN')) }}"
+    controller_hostname: "{{ vault_controller_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    controller_validate_certs: "{{ vault_controller_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
+
+    templates_overrides_resources:
+      job_template:
+        job_template_example:
+          scm_branch: "dev"
+
+    templates_overrides_global:
+      job_template:
+        scm_branch: "main"
+      project:
+        scm_branch: !unsafe  "{{ 'true' if AAP.environment == 'PROD' else 'false' }}"
+      schedules:
+        enabled: false
+
+  roles:
+    - infra. aap_configuration_extended.filetree_create
+
+...
+```
 ## License
 
 GPLv3+
