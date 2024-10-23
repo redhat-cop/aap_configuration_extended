@@ -1,5 +1,5 @@
 ---
-controller_rules:
+aap_rules:
 
   # ------- Rule n°1 # Generic - Minimum and Maximum
   - rule_name: Generic Stuff

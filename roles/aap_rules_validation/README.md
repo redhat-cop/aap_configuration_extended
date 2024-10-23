@@ -1,8 +1,10 @@
-# controller_rules_validation
+# aap_rules_validation
 
-An ansible role which audit the declared controller configuration and validate it against a set of user-defined rules. 
+An ansible role which audit the declared AAP configuration and validate it against a set of user-defined rules. 
 
 At the end of the role's execution, a structured data list and human readable report are generated containing the detected violations.
+
+The actual version of the role supports only the controller component
 
 ## Requirements
 
@@ -12,10 +14,10 @@ n/a
 
 | Variable Name | Default Value | Required | Description |
 | :------------ | :-----------: | :------: | :---------- |
-| `controller_rules` | `[]`     | yes      | The list of rules to enforce on the declared configuration |
+| `aap_rules` | `[]`     | yes      | The list of rules to enforce on the declared configuration |
 | `fail_if_violations_found` | `true` | no  | Force the role to fails if if it finds violations  |
 | `print_rules_violations_data` | `true` | no  | Print the detailed violation data before printing the violation messages  |
-| `audited_objects` | a list of all the controller objet types | no  | The objects to be audited. See the roles defaults main.yml file for the complete list  |
+| `audited_objects` | a list of all the objet types | no  | The objects to be audited. See the roles defaults main.yml file for the complete list  |
 | `warn_about_audited_types_not_in_rules_objects` | `false` | no | Treat the objects to be audited but are not in any rule as a violation |
 | `warn_about_rules_objects_not_in_audited_types` | `false` | no | Treat the objects that are defined in rules are not in the audited objects list as a violation  |
 
@@ -41,8 +43,9 @@ Example of `rules_violations_msgs` :
 fatal: [localhost]: FAILED! => {
     "rules_violations_msgs | unique": [
         "Rule n°1 | organizations | global | Satellite | max_hosts is not set",
-        "Rule n°2 | organizations | global | Default | max_hosts is not set",
         "Rule n°2 | organizations | global | Default | The EE (Automation Hub Default Execution Environment) is forbidden.",
+        "Rule n°3 | projects | Default | Test Project 3 | The value of the field name (Test Project 3) do not respect the regex (^\\[Default\\].*)",
+        "Rule n°4 | groups | global | group3 | The mandatory field 'description' is not defined"
     ]
 }
 ```
@@ -81,7 +84,7 @@ Example of `rules_violations_data` :
 
 ## Rules
 
-The rules should be defined as a list in the variable `controller_rules`
+The rules should be defined as a list in the variable `aap_rules`
 
 Each element of the list is a rule that is audited seperately
 
@@ -107,7 +110,7 @@ There is generic rules fields which are object-type-agnostic and other fields th
 Here's examples of generic rules 
 
 ```yaml
-controller_rules:
+aap_rules:
 
   # ------- Rule n°1  # Generic - Make 'description' a mandatory fields for the listed objects
   - objects:
@@ -173,7 +176,7 @@ The organizations specific rules are compatible with the `exceptions` field
 ##### Organizations specific rules examples :
 
 ```yaml
-controller_rules:
+aap_rules:
 
   # # ------- Rule n°4 # Organizations - Allow only the following EEs for the organizations 'Satellite' and 'Default'
   - objects:
@@ -210,7 +213,7 @@ The inventories specific rules are compatible with the `exceptions` field
 ##### Inventories specific rules examples :
 
 ```yaml
-controller_rules:
+aap_rules:
 
   # ------- Rule n°6  # inventories - The static hosts maximum count of each inventories of the organization 'Satellite' and 'Default' should not exceed 10 except the 'localhost' inventory
 
@@ -236,7 +239,7 @@ The following rule is specific to hosts. However it needs both `controller_group
 ##### Hosts specific rules examples
 
 ```yaml
-controller_rules:
+aap_rules:
 
   # ------- Rule n°7 # Hosts
   - objects:
@@ -259,7 +262,7 @@ The sensitive data encryption check **will not work** if the credentials transit
 
 
 ```yaml
-controller_rules:
+aap_rules:
 
   # ------- Rule n°8  # Credentials
   - encrypt_credentials_sensitive_data: true              # DO NOT WORK with intermediary variables (filetree_read)
@@ -294,7 +297,7 @@ The `encrypt_user_passwords` option **will not work** if the users transit throu
 ##### Users specific rules examples
 
 ```yaml
-controller_rules:
+aap_rules:
 
   # ------- Rule n°9  # Users - do not allow system auditors or super-admins except the 'controller-admin' and 'admin' users
   - objects:
@@ -320,7 +323,7 @@ The following rules are specific to roles.
 ##### Roles specific rules examples
 
 ```yaml
-controller_rules:
+aap_rules:
 
   # ------- Rule n°10  # Roles - Allow ONLY 'read' on projects, 'member' on organizations and 'admin' on teams
   - objects:

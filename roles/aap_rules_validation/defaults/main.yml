@@ -1,4 +1,5 @@
-controller_rules: []
+---
+aap_rules: []
 
 fail_if_violations_found: true
 
@@ -142,7 +143,7 @@ __name_field:
   teams: name
   users: username
   workflow_job_templates: name
-  credential_input_sources: target_credential # optimally it should be "target_credential + '_' + input_field_name"
+  credential_input_sources: target_credential  # optimally it should be "target_credential + '_' + input_field_name"
   credential_types: name
   execution_environments: name
   hosts: name
@@ -153,3 +154,5 @@ __name_field:
   roles: __undefined__
   schedules: name
   settings: __undefined__
+
+...

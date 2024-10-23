@@ -1,3 +1,4 @@
+---
 - name: Init variables
   ansible.builtin.set_fact:
     __forbidden_roles: []
@@ -128,3 +129,4 @@
       vars:
         msg: "Rule {{ rule_id }} | roles | global | __undefined_org__ | The role '{{ item['role'] }}' on '{{ item['object'] }}' is not allowed."
       loop: "{{ unallowed_roles }}"
+...

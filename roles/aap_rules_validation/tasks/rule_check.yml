@@ -1,3 +1,4 @@
+---
 - name: Set rule ID
   ansible.builtin.set_fact:
     rule_id: "{{ rule['rule_name'] | default('n°' + (rule_index + 1) | string) }}"
@@ -101,3 +102,4 @@
           or
           (rule['forbidden_roles'] is defined and rule['forbidden_roles'] | length > 0 )
         )
+...

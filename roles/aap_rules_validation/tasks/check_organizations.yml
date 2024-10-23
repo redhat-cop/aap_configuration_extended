@@ -1,3 +1,4 @@
+---
 - name: Check organizations max_hosts when defined
   ansible.builtin.set_fact:
     rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
@@ -86,3 +87,4 @@
         and org['default_environment'] is defined
         and rule['forbidden_organization_default_environments'] is defined
         and org['default_environment'] in rule['forbidden_organization_default_environments']
+...

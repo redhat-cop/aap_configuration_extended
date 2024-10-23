@@ -1,3 +1,4 @@
+---
 - name: Init - {{ object_type }}
   ansible.builtin.set_fact:
     __defined_none: []
@@ -38,7 +39,7 @@
     __field: "{{ item[0]['mandatory_field'] }}"
     __object_type: "{{ item[0]['object_type'] }}"
     __object_scope: "{{ item[1]['organization'] | default(__scope[object_type]) | default('__undefined_org__') }}"
-    __object_name: "{{ item[1][__name_field[object_type]] | default(item[1]['user']) | default('__undefined_name__') }}" # TO BE CHECKED FOR ALTERNATIVE 'name' fileds
+    __object_name: "{{ item[1][__name_field[object_type]] | default(item[1]['user']) | default('__undefined_name__') }}"  # TO BE CHECKED FOR ALTERNATIVE 'name' fileds
     __object_org: "{{ item[1]['organization'] | default('__undefined_org__') }}"
   loop: "{{ __defined_empty + __defined_none }}"
 
@@ -69,6 +70,7 @@
     __field: "{{ item[0]['mandatory_field'] }}"
     __object_type: "{{ item[0]['object_type'] }}"
     __object_scope: "{{ item[1]['organization'] | default(__scope[object_type]) | default('__undefined_org__') }}"
-    __object_name: "{{ item[1][__name_field[object_type]] | default(item[1]['user']) | default('__undefined_name__') }}" # TO BE CHECKED FOR ALTERNATIVE 'name' fields
+    __object_name: "{{ item[1][__name_field[object_type]] | default(item[1]['user']) | default('__undefined_name__') }}"  # TO BE CHECKED FOR ALTERNATIVE 'name' fields
     __object_org: "{{ item[1]['organization'] | default('__undefined_org__') }}"
   loop: "{{ __undefined }}"
+...

@@ -1,3 +1,4 @@
+---
 - name: Global objects minimum count check
   ansible.builtin.set_fact:
     rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
@@ -87,3 +88,4 @@
   loop: "{{ rule['organizations'] }}"
   loop_control:
     loop_var: org
+...

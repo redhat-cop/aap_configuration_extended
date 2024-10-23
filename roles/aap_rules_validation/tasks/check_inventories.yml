@@ -1,3 +1,4 @@
+---
 - name: Check if inventory hosts count is inferior to maximum allowed
   ansible.builtin.set_fact:
     rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
@@ -25,3 +26,4 @@
         and rule['max_hosts_per_inventory'] > 0
         and inventory['name'] not in (rule['exceptions']['inventories'] | default([]))
         and controller_hosts | selectattr('inventory', 'equalto', inventory['name']) | length > rule['max_hosts_per_inventory']
+...

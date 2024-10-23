@@ -1,3 +1,4 @@
+---
 - name: Check for ungrouped hosts
   when: rule['allow_ungrouped_hosts'] is defined
         and not rule['allow_ungrouped_hosts']
@@ -34,3 +35,4 @@
       when: __ungrouped_hosts is defined
             and __ungrouped_hosts != None
             and __ungrouped_hosts | length > 0
+...

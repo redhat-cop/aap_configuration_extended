@@ -1,3 +1,4 @@
+---
 - name: Update rules violation regarding users passwords encryption
   ansible.builtin.set_fact:
     rules_violations_msgs: "{{ (rules_violations_msgs + [msg]) }}"
@@ -75,3 +76,4 @@
   loop: "{{ controller_user_accounts | selectattr('is_system_auditor', 'defined') | rejectattr('is_system_auditor', 'false') }}"
   loop_control:
     loop_var: __system_auditors
+...

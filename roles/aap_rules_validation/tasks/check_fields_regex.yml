@@ -1,3 +1,4 @@
+---
 - name: Init regex issues list
   ansible.builtin.set_fact:
     __regex_issue: []
@@ -28,8 +29,9 @@
     msg: "Rule {{ rule_id }} | {{ __object_type }} | {{ __object_scope }} | {{ __object_name }} | The value of the field {{ __field }} ({{ __value }}) do not respect the regex ({{ __regex }})"
     __object_type: "{{ item[0]['object_type'] }}"
     __object_scope: "{{ item[1]['organization'] | default(__scope[object_type]) | default('__undefined_org__') }}"
-    __object_name: "{{ item[1][__name_field[object_type]] | default(item[1]['user']) | default('__undefined_name__') }}" # TO BE CHECKED FOR ALTERNATIVE 'name' fileds
+    __object_name: "{{ item[1][__name_field[object_type]] | default(item[1]['user']) | default('__undefined_name__') }}"  # TO BE CHECKED FOR ALTERNATIVE 'name' fields
     __field: "{{ item[0]['field_regex'] }}"
     __value: "{{ item[1][item[0]['field_regex']] }}"
     __regex: "{{ item[0]['regex_value'] }}"
   loop: "{{ __regex_issue }}"
+...
