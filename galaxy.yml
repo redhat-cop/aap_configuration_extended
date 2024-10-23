@@ -2,7 +2,7 @@
 namespace: infra
 name: aap_configuration_extended
 version: 1.0.0-devel
-description: A collection of roles to extend functionality of aap_configuration collection 
+description: A collection of roles to extend functionality of aap_configuration collection
 readme: README.md
 authors:
     - Andrew Huffman

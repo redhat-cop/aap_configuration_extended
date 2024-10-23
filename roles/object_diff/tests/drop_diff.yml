@@ -35,7 +35,7 @@
   roles:
     - role: infra.aap_configuration_extended.filetree_read
     - role: infra.aap_configuration_extended.object_diff
-    - role: infra.aap_configuration_extended.dispatch
+    - role: infra.aap_configuration.dispatch
       vars:
         controller_configuration_dispatcher_roles:
           - {role: workflow_job_templates, var: controller_workflows, tags: workflow_job_templates}
