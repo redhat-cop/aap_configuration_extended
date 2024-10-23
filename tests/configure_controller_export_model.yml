@@ -58,7 +58,6 @@
       retries: 120
       delay: 5
 
-
   roles:
     - {role: organizations, when: organizations is defined, tags: organizations}
     - {role: users, when: users is defined, tags: users}

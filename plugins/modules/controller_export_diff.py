@@ -8,9 +8,7 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-
 ANSIBLE_METADATA = {"metadata_version": "1.1", "status": ["preview"], "supported_by": "community"}
-
 
 DOCUMENTATION = """
 ---
@@ -222,7 +220,6 @@ try:
 except ImportError:
     HAS_EXPORTABLE_RESOURCES = False
 
-
 def main():
     argument_spec = dict(
         all=dict(type="bool", default=False),
@@ -332,7 +329,6 @@ def main():
             module.fail_json(msg="Failed to export assets {0} with resource {1}".format(e, resource_object))
     module.json_output["difference"] = output_list
     module.exit_json(**module.json_output)
-
 
 if __name__ == "__main__":
     main()

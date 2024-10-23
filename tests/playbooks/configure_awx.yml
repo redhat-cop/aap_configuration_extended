@@ -30,7 +30,6 @@
 #                  Defaults to $PWD/configs
 #
 
-
 - name: Playbook to configure ansible Controller post installation
   hosts: localhost
   connection: local

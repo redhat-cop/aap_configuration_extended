@@ -33,7 +33,7 @@
             controller_oauthtoken_url: "{{ authtoken_res.json.url }}"
 
   roles:
-    - role: infra.aap_configuration_extended.d.filetree_read
+    - role: infra.aap_configuration_extended.filetree_read
     - role: infra.aap_configuration_extended.object_diff
     - role: infra.aap_configuration_extended.dispatch
       vars:

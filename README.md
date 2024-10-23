@@ -48,7 +48,6 @@ The awx.awx or ansible.controller collections MUST be installed in order for thi
 | [AAP installation Utilities](https://github.com/redhat-cop/aap_utilities)                  | Ansible Automation Platform Utilities             |
 | [AAP Configuration Template](https://github.com/redhat-cop/aap_configuration_template)     | Configuration Template for this suite             |
 
-
 ## Included content
 
 Click the `Content` button to see the list of content included in this collection.
