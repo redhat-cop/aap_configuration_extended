@@ -60,7 +60,7 @@ options:
       elements: str
     inventory_sources:
       description:
-        - inventory soruces to export
+        - inventory sources to export
       type: list
       elements: str
     inventory:
@@ -220,6 +220,7 @@ try:
 except ImportError:
     HAS_EXPORTABLE_RESOURCES = False
 
+
 def main():
     argument_spec = dict(
         all=dict(type="bool", default=False),
@@ -329,6 +330,7 @@ def main():
             module.fail_json(msg="Failed to export assets {0} with resource {1}".format(e, resource_object))
     module.json_output["difference"] = output_list
     module.exit_json(**module.json_output)
+
 
 if __name__ == "__main__":
     main()
