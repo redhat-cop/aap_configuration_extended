@@ -1,0 +1,90 @@
+---
+- name: Check organizations max_hosts when defined
+  ansible.builtin.set_fact:
+    rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
+    rules_violations_data: "{{ rules_violations_data +
+        [{
+          'rule_id': rule_id,
+          'rule_index': rule_index,
+          'rule_broken': 'max_hosts_per_organization',
+          'object_type': 'organizations',
+          'object_scope': 'global',
+          'object_organization': '__undefined_org__',
+          'object_name': org['name'],
+          'msg': msg
+        }]
+      }}"
+  vars:
+    msg: "Rule {{ rule_id }} | organizations | global | {{ org['name'] }} | max_hosts ({{ org['max_hosts'] }}) is superior to {{ rule['max_hosts_per_organization'] }}"
+  when: org['name'] not in (rule['exceptions']['organizations'] | default([]))
+        and org['max_hosts'] is defined
+        and rule['max_hosts_per_organization'] is defined
+        and org['max_hosts'] | int > rule['max_hosts_per_organization'] | int
+
+- name: Check organizations undefined or unset max_hosts
+  ansible.builtin.set_fact:
+    rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
+    rules_violations_data: "{{ rules_violations_data +
+        [{
+          'rule_id': rule_id,
+          'rule_index': rule_index,
+          'rule_broken': 'max_hosts_per_organization',
+          'object_type': 'organizations',
+          'object_scope': 'global',
+          'object_organization': '__undefined_org__',
+          'object_name': org['name'],
+          'msg': msg
+        }]
+      }}"
+  vars:
+    msg: "Rule {{ rule_id }} | organizations | global | {{ org['name'] }} | max_hosts is not set"
+  when: org['name'] not in (rule['exceptions']['organizations'] | default([]))
+        and rule['max_hosts_per_organization'] is defined
+        and (org['max_hosts'] is not defined
+            or org['max_hosts'] == ""
+            or org['max_hosts'] == None)
+
+- name: Check if organizations default EE is in allowed list
+  ansible.builtin.set_fact:
+    rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
+    rules_violations_data: "{{ rules_violations_data +
+        [{
+          'rule_id': rule_id,
+          'rule_index': rule_index,
+          'rule_broken': 'max_hosts_per_organization',
+          'object_type': 'organizations',
+          'object_scope': 'global',
+          'object_organization': '__undefined_org__',
+          'object_name': org['name'],
+          'msg': msg
+        }]
+      }}"
+  vars:
+    msg: "Rule {{ rule_id }} | organizations | global | {{ org['name'] }} | The EE ({{ org['default_environment'] }}) is not allowed."
+  when: org['name'] not in (rule['exceptions']['organizations'] | default([]))
+        and org['default_environment'] is defined
+        and rule['allowed_organization_default_environments'] is defined
+        and org['default_environment'] not in rule['allowed_organization_default_environments']
+
+- name: Check if organizations default EE is in forbidden list
+  ansible.builtin.set_fact:
+    rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
+    rules_violations_data: "{{ rules_violations_data +
+        [{
+          'rule_id': rule_id,
+          'rule_index': rule_index,
+          'rule_broken': 'max_hosts_per_organization',
+          'object_type': 'organizations',
+          'object_scope': 'global',
+          'object_organization': '__undefined_org__',
+          'object_name': org['name'],
+          'msg': msg
+        }]
+      }}"
+  vars:
+    msg: "Rule {{ rule_id }} | organizations | global | {{ org['name'] }} | The EE ({{ org['default_environment'] }}) is forbidden."
+  when: org['name'] not in (rule['exceptions']['organizations'] | default([]))
+        and org['default_environment'] is defined
+        and rule['forbidden_organization_default_environments'] is defined
+        and org['default_environment'] in rule['forbidden_organization_default_environments']
+...
