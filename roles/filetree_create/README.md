@@ -72,7 +72,6 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
       tags:
         - always
 
-
   roles:
     - infra.aap_configuration_extended.filetree_create
 

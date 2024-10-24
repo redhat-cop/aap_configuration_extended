@@ -26,7 +26,6 @@ argument_specs:
         type: bool
         description: Whether to create output files without objects id.
 
-
       # Async variables
       controller_configuration_async_retries:
         default: 30
@@ -36,7 +35,6 @@ argument_specs:
         default: 1
         required: false
         description: This variable sets delay between retries across all roles as a default.
-
 
       # No_log variables
       controller_configuration_filetree_create_secure_logging:

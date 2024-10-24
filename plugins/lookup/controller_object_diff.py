@@ -340,8 +340,8 @@ class LookupModule(LookupBase):
                     if self.equal_dicts(compare_item, item, "state"):
                         break
                     elif (
-                        ("organization" in compare_item)  # permission applies to all objects in orga
-                        and (len(compare_item) == 3)  # we only have orga, team/user, and role
+                        ("organization" in compare_item)  # permission applies to all objects in org
+                        and (len(compare_item) == 3)  # we only have org, team/user, and role
                         and self.equal_dicts(compare_item, item, ["organization"] + list(item.keys() - compare_item.keys()))
                     ):
                         break
