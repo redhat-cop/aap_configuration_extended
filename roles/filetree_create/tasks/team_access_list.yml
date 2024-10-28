@@ -1,4 +1,8 @@
 ---
+- name: Define team role matrix
+  ansible.builtin.set_fact:
+    team_roles_matrix: []
+
 - name: "Get object id from API"
   when: object_name is defined
   ansible.builtin.set_fact:
@@ -29,15 +33,15 @@
 - name: "Set team roles matrix"
   ansible.builtin.set_fact:
     team_roles_matrix: >-
-      {{ team_roles_matrix | default([]) + [{ 'role': item.0,
-                                              'team': team_direct_access_fact | selectattr('name','equalto', item.0) |
-                                                                                selectattr('resource_name','equalto', item.1) |
-                                                                                map(attribute='team_name') | unique,
-                                              'resource_type': team_direct_access_fact | selectattr('name','equalto', item.0) |
-                                                                                         selectattr('resource_name','equalto', item.1) |
-                                                                                         map(attribute='resource_type') | unique,
-                                              'resource_name': item.1
-                                           }]
+      {{ team_roles_matrix + [{ 'role': item.0,
+                                'team': team_direct_access_fact | selectattr('name','equalto', item.0) |
+                                        selectattr('resource_name','equalto', item.1) |
+                                        map(attribute='team_name') | unique,
+                                'resource_type': team_direct_access_fact | selectattr('name','equalto', item.0) |
+                                                 selectattr('resource_name','equalto', item.1) |
+                                                 map(attribute='resource_type') | unique,
+                                'resource_name': item.1
+                             }]
       }}
   when: team_direct_access_fact | selectattr('name','equalto', item.0) | selectattr('resource_name','equalto', item.1) | map(attribute='team_name') | length > 0
   loop: "{{ team_roles | product(team_objects) | list }}"
