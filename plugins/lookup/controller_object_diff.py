@@ -67,13 +67,13 @@ EXAMPLES = """
 
 - name: "Find the difference of Project between what is on the Controller versus curated list."
   set_fact:
-    project_difference: "{{ query('infra.controller_configuration.controller_object_diff',
+    project_difference: "{{ query('infra.aap_configuration_extended.controller_object_diff',
       api_list=controller_api_results, compare_list=differential_item.differential_test_items,
       with_present=true, set_absent=true) }}"
 
 - name: Add Projects
   include_role:
-    name: infra.controller_configuration.projects
+    name: infra.aap_configuration_extended.projects
   vars:
     controller_projects: "{{ project_difference }}"
 ...
@@ -340,8 +340,8 @@ class LookupModule(LookupBase):
                     if self.equal_dicts(compare_item, item, "state"):
                         break
                     elif (
-                        ("organization" in compare_item)  # permission applies to all objects in orga
-                        and (len(compare_item) == 3)  # we only have orga, team/user, and role
+                        ("organization" in compare_item)  # permission applies to all objects in org
+                        and (len(compare_item) == 3)  # we only have org, team/user, and role
                         and self.equal_dicts(compare_item, item, ["organization"] + list(item.keys() - compare_item.keys()))
                     ):
                         break

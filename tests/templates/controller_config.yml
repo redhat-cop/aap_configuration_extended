@@ -21,7 +21,6 @@
 #   - notifications
 #   - roles
 
-
 ---
 - name: Playbook to configure a controller cluster
   hosts: localhost

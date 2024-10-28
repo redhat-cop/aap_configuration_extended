@@ -14,7 +14,7 @@
   when: (not r_ansible_cfg['stat']['exists']) and (ah_token is not defined or ah_token['token'] is defined)
   block:
     - name: Authenticate and get an API token from Automation Hub
-      ah_token:
+      ansible.hub.ah_token:
         ah_host: "{{ ah_host }}"
         ah_username: "{{ ah_username }}"
         ah_password: "{{ ah_password }}"
