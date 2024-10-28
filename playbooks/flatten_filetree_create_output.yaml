@@ -26,7 +26,7 @@
     filetree_controller_schedules: *filetree_create_output_dir
     filetree_controller_roles: *filetree_create_output_dir
   roles:
-    - infra.controller_configuration.filetree_read
+    - infra.aap_configuration_extended.filetree_read
   post_tasks:
     - name: "Create the output flatten dir"
       ansible.builtin.file:
@@ -90,5 +90,5 @@
 ...
 # Sample usage:
 #
-# ansible-playbook infra.controller_configuration.flatten_filetree_create_output.yaml -e '{filetree_create_output_dir: /tmp/filetree_output}'
+# ansible-playbook infra.aap_configuration_extended.flatten_filetree_create_output.yaml -e '{filetree_create_output_dir: /tmp/filetree_output}'
 #

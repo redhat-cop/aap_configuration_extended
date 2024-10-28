@@ -126,6 +126,21 @@ argument_specs:
         default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_roles.d/"
         required: false
         description: Directory path to load controller object variables
+      filetree_controller_include:
+        type:  raw
+        default: omit
+        required: false
+        description: Allows control of the find command to limit include based on patterns string or regex matching
+      filetree_controller_exclude:
+        type:  raw
+        default: omit
+        required: false
+        description: Allows control of the find command to exclude based on exclude based on string or regex matching
+      filetree_controller_regex:
+        type: bool
+        default: false
+        required: false
+        description: Allows control of the find use_regex to switch between simple string matching and regex for the find command used to determine files included.
 
       # Async variables
       controller_configuration_async_retries:
@@ -136,7 +151,6 @@ argument_specs:
         default: 1
         required: false
         description: This variable sets delay between retries across all roles as a default.
-
 
       # No_log variables
       controller_configuration_filetree_create_secure_logging:

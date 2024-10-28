@@ -8,9 +8,7 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-
 ANSIBLE_METADATA = {"metadata_version": "1.1", "status": ["preview"], "supported_by": "community"}
-
 
 DOCUMENTATION = """
 ---
@@ -62,7 +60,7 @@ options:
       elements: str
     inventory_sources:
       description:
-        - inventory soruces to export
+        - inventory sources to export
       type: list
       elements: str
     inventory:
@@ -169,7 +167,7 @@ notes:
 
 EXAMPLES = """
 - name: Get differential on projects and orgs.
-  infra.controller_configuration.controller_export_diff:
+  infra.aap_configuration_extended.controller_export_diff:
     organizations: all
     projects: all
     compare_items:

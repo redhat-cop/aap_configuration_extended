@@ -17,6 +17,7 @@ The following variables are required for that role to work properly:
 | `organization_id` | N/A | no | int | Alternative to `organization_filter`, but specifiying the current organization's ID to filter by. Exports only the objects belonging to the specified organization (applies to all the objects that can be assigned to an organization). |
 | `project_id` | N/A | no | int | Specifiying the project id to filter by. Exports the project belonging to the specified organization. |
 | `job_template_id` | N/A | no | int | Specifiying the job template id to filter by. Exports the job template belonging to the specified organization. |
+| `inventory_id` | N/A | no | int | Specifiying the inventory id to filter by. Exports the inventory belonging to the specified organization. |
 | `workflow_job_template_id` | N/A | no | int | Specifiying the workflow job template id to filter by. Exports the workflow job template belonging to the specified organization. |
 | `schedule_id` | N/A | no | int | Specifiying the schedule id to filter by. Exports the schedule belonging to the specified object. |
 | `output_path` | `/tmp/filetree_output` | yes | str | The path to the output directory where all the generated `yaml` files with the corresponding Objects as code will be written to. |
@@ -30,7 +31,9 @@ The following variables are required for that role to work properly:
 | `object_id` | N/A | no | int | Specifying object id with object type exports the access list of object |
 | `object_name` | N/A | no | int | Specifying object name with object type exports the access list of object |
 | `object_type` | N/A | no | str | Specifying object type with object id exports the access list of object |
-
+| `skip_inventory_sources` | False | no | bool | Whether the inventory sources should be exported with inventory. |
+| `skip_inventory_hosts` | False | no | bool | Whether the inventory hosts should be exported with inventory. |
+| `skip_inventory_groups` | False | no | bool | Whether the inventory groups should be exported with inventory. |
 
 ## Dependencies
 
@@ -72,9 +75,8 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
       tags:
         - always
 
-
   roles:
-    - infra.controller_configuration.filetree_create
+    - infra.aap_configuration_extended.filetree_create
 
   post_tasks:
     - name: "Delete the Authentication Token used"
@@ -165,7 +167,7 @@ This role can generate output files in two different ways:
 
 - **Flatten files**:
 
-  The output files are all located in the same directory. Each file contains a YAML list with all the objects belonging to the same object type. This output format allows to load all the objects both from the standard Ansible `group_vars` and from the `infra.controller_configuration.filetree_read` role.
+  The output files are all located in the same directory. Each file contains a YAML list with all the objects belonging to the same object type. This output format allows to load all the objects both from the standard Ansible `group_vars` and from the `infra.aap_configuration_extended.filetree_read` role.
 
   The expotation can be triggered with the following command:
 
@@ -203,7 +205,7 @@ This role can generate output files in two different ways:
 A playbook to convert from the structured output to the flattened one is provided, and can be executed with the following command:
 
 ```console
-ansible-playbook infra.controller_configuration.flatten_filetree_create_output.yaml -e '{filetree_create_output_dir: /tmp/filetree_output}'
+ansible-playbook infra.aap_configuration_extended.flatten_filetree_create_output.yaml -e '{filetree_create_output_dir: /tmp/filetree_output}'
 ```
 
 ## License

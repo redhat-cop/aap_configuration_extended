@@ -39,6 +39,9 @@ The following Variables set the organization where should be applied the configu
 |`filetree_controller_workflow_job_templates`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_workflow_job_templates.d/|no|Directory path to load controller object variables|
 |`filetree_controller_schedules`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_schedules.d/|no|Directory path to load controller object variables|
 |`filetree_controller_roles`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_roles.d/|no|Directory path to load controller object variables|
+|`filetree_controller_include`|String/List(String)|omit|no|patterns for find to include only matching|
+|`filetree_controller_exclude`|String/List(String)|omit|no|patterns for find to exclude matching|
+|`filetree_controller_regex`|bool|false|no|switch to allow find to use_regex in combination with include/exclude default matches find default |
 
 ### Data Structure
 
@@ -319,7 +322,7 @@ The role is designed to be used with tags, each tags correspond to an AWX or Aut
     - block:
         - name: Include Tasks to load Galaxy credentials to be added to Organizations
           ansible.builtin.include_role:
-            name: infra.controller_configuration.filetree_read
+            name: infra.aap_configuration_extended.filetree_read
             tasks_from: "{{ create_orgs_credentials }}"
           loop:
             - organizations.yml
@@ -329,7 +332,7 @@ The role is designed to be used with tags, each tags correspond to an AWX or Aut
 
         - name: Include Tasks to add Galaxy credentials to Organizations
           ansible.builtin.include_role:
-            name: infra.controller_configuration.dispatch
+            name: infra.aap_configuration_extended.dispatch
             apply:
               tags:
                 - organizations
@@ -341,8 +344,8 @@ The role is designed to be used with tags, each tags correspond to an AWX or Aut
               - {role: credentials, var: controller_credentials, tags: credentials}
 
   roles:
-    - {role: infra.controller_configuration.filetree_read }
-    - {role: infra.controller_configuration.dispatch }
+    - {role: infra.aap_configuration_extended.filetree_read }
+    - {role: infra.aap_configuration_extended.dispatch }
 
   post_tasks:
     - name: "Delete the Authentication Token used"

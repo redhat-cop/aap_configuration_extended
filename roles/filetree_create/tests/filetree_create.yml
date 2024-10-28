@@ -33,7 +33,7 @@
             controller_oauthtoken_url: "{{ authtoken_res.json.url }}"
 
   roles:
-    - infra.controller_configuration.filetree_create
+    - infra.aap_configuration_extended.filetree_create
 
   post_tasks:
     - name: "Delete the Authentication Token used"
