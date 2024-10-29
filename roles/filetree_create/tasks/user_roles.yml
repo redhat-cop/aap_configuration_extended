@@ -23,18 +23,15 @@
     - name: "Match objects with roles"
       when: (user_roles_lookvar | selectattr('name','equalto', item.0) | selectattr('summary_fields.resource_type', 'defined') | selectattr('summary_fields.resource_type','equalto', item.1) | map(attribute='summary_fields.resource_name')) | length > 0
       ansible.builtin.set_fact:
-        object_roles: >-
-          {{ object_roles +
-            [{ item.0:
-              {
-                'resource_names': (user_roles_lookvar |
-                                   selectattr('name','equalto', item.0) |
-                                   selectattr('summary_fields.resource_type','equalto', item.1) |
-                                   map(attribute='summary_fields.resource_name')),
-                'resource_type': item.1,
-              }
-            }]
-          }}
+        object_roles: "{{ object_roles + [{ item.0:
+                                                    {
+                                                      'resource_names': (user_roles_lookvar | selectattr('name','equalto', item.0) |
+                                                                        selectattr('summary_fields.resource_type','equalto', item.1) |
+                                                                        map(attribute='summary_fields.resource_name')),
+                                                      'resource_type': item.1,
+                                                    }
+                                         }]
+                      }}"
       loop: "{{ role_types | product(object_types) | list }}"
 
 - name: "Block for to generate flatten output"
