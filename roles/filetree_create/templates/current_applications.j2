@@ -3,13 +3,25 @@
 controller_applications:
 {% endif %}
   - name: "{{ current_applications_asset_value.name }}"
-    description: "{{ current_applications_asset_value.description }}"
+    description: "{{ template_overrides_resources.application[current_applications_asset_value.name].description
+                     | default(template_overrides_global.application.description)
+                     | default(current_applications_asset_value.description) }}"
     organization: "{{ current_applications_asset_value.summary_fields.organization.name | default(organization if organization != 'ORGANIZATIONLESS' else 'ToDo: The application \'' + current_applications_asset_value.name + '\' must have an organization') }}"
-    authorization_grant_type: "{{ current_applications_asset_value.authorization_grant_type }}"
-    redirect_uris: "{{ current_applications_asset_value.redirect_uris }}"
-    skip_authorization: "{{ current_applications_asset_value.skip_authorization }}"
-    client_id: "{{ current_applications_asset_value.client_id }}"
-    client_type: "{{ current_applications_asset_value.client_type }}"
+    authorization_grant_type: "{{ template_overrides_resources.application[current_applications_asset_value.name].authorization_grant_type
+                                  | default(template_overrides_global.application.authorization_grant_type)
+                                  | default(current_applications_asset_value.authorization_grant_type) }}"
+    redirect_uris: "{{ template_overrides_resources.application[current_applications_asset_value.name].redirect_uris
+                       | default(template_overrides_global.application.redirect_uris)
+                       | default(current_applications_asset_value.redirect_uris) }}"
+    skip_authorization: "{{ template_overrides_resources.application[current_applications_asset_value.name].skip_authorization
+                            | default(template_overrides_global.application.skip_authorization)
+                            | default(current_applications_asset_value.skip_authorization) }}"
+    client_id: "{{ template_overrides_resources.application[current_applications_asset_value.name].client_id
+                   | default(template_overrides_global.application.client_id)
+                   | default(current_applications_asset_value.client_id) }}"
+    client_type: "{{ template_overrides_resources.application[current_applications_asset_value.name].client_type
+                     | default(template_overrides_global.application.client_type)
+                     | default(current_applications_asset_value.client_type) }}"
 {% if last_application | default(true) | bool %}
 ...
 {% endif %}

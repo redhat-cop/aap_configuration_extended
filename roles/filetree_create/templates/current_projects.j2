@@ -3,42 +3,79 @@
 controller_projects:
 {% endif %}
   - name: "{{ current_projects_asset_value.name }}"
-    description: "{{ current_projects_asset_value.description }}"
-    organization: "{{ current_projects_asset_value.summary_fields.organization.name | default(organization if organization != 'ORGANIZATIONLESS' else 'ToDo: The project \'' + current_projects_asset_value.name + '\' must have an organization') }}"
-{% if current_projects_asset_value.scm_type %}
-    scm_type: "{{ current_projects_asset_value.scm_type }}"
-    scm_url: "{{ current_projects_asset_value.scm_url }}"
-{% if current_projects_asset_value.summary_fields.credential is defined %}
-    scm_credential: "{{ current_projects_asset_value.summary_fields.credential.name }}"
+    description: "{{ template_overrides_resources.project[current_projects_asset_value.name].description
+                     | default(template_overrides_global.project.description)
+                     | default(current_projects_asset_value.description) }}"
+    organization: "{{ current_projects_asset_value.summary_fields.organization.name
+                      | default(organization if organization != 'ORGANIZATIONLESS'
+                      else 'ToDo: The project \'' + current_projects_asset_value.name + '\' must have an organization') }}"
+{% if template_overrides_resources.project[current_projects_asset_value.name].scm_type is defined
+      or template_overrides_global.project.scm_type is defined
+      or current_projects_asset_value.scm_type %}
+    scm_type: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_type
+                  | default(template_overrides_global.project.scm_type)
+                  | default(current_projects_asset_value.scm_type) }}"
+    scm_url: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_url
+                 | default(template_overrides_global.project.scm_url)
+                 | default(current_projects_asset_value.scm_url) }}"
+{% if template_overrides_resources.project[current_projects_asset_value.name].scm_credential is defined
+      or template_overrides_global.scm_credential is defined
+      or current_projects_asset_value.summary_fields.credential is defined %}
+    scm_credential: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_credential
+                        | default(template_overrides_global.scm_credential)
+                        | default(current_projects_asset_value.summary_fields.credential.name) }}"
 {% endif %}
-    scm_branch: "{{ current_projects_asset_value.scm_branch }}"
-    scm_clean: "{{ current_projects_asset_value.scm_clean }}"
-    scm_delete_on_update: "{{ current_projects_asset_value.scm_delete_on_update }}"
-    scm_update_on_launch: "{{ current_projects_asset_value.scm_update_on_launch }}"
-    scm_update_cache_timeout: "{{ current_projects_asset_value.scm_update_cache_timeout }}"
-    scm_refspec: "{{ current_projects_asset_value.scm_refspec }}"
+    scm_branch: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_branch
+                    | default(template_overrides_global.project.scm_branch)
+                    | default(current_projects_asset_value.scm_branch) }}"
+    scm_clean: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_clean
+                   | default(template_overrides_global.project.scm_clean)
+                   | default(current_projects_asset_value.scm_clean) }}"
+    scm_delete_on_update: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_delete_on_update
+                              | default(template_overrides_global.project.scm_delete_on_update)
+                              | default(current_projects_asset_value.scm_delete_on_update) }}"
+    scm_update_on_launch: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_update_on_launch
+                              | default(template_overrides_global.project.scm_update_on_launch)
+                              | default(current_projects_asset_value.scm_update_on_launch) }}"
+    scm_update_cache_timeout: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_update_cache_timeout
+                                  | default(template_overrides_global.project.scm_update_cache_timeout)
+                                  | default(current_projects_asset_value.scm_update_cache_timeout) }}"
+    scm_refspec: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_refspec
+                     | default(template_overrides_global.project.scm_refspec)
+                     | default(current_projects_asset_value.scm_refspec) }}"
 {% endif %}
-{% if is_aap and current_job_templates_asset_value.summary_fields.default_environment is defined %}
-    default_environment: "{{ current_job_templates_asset_value.summary_fields.default_environment.name }}"
+{% if is_aap and
+      (template_overrides_resources.project[current_projects_asset_value.name].default_environment is defined
+      or template_overrides_global.project.default_environment is defined
+      or current_job_templates_asset_value.summary_fields.default_environment is defined) %}
+    default_environment: "{{ template_overrides_resources.project[current_projects_asset_value.name].default_environment
+                             | default(template_overrides_global.project.default_environment)
+                             | default(current_job_templates_asset_value.summary_fields.default_environment.name) }}"
 {% endif %}
-    allow_override: "{{ current_projects_asset_value.allow_override }}"
-    update_project: "{{ update_project_state | default(false) }}"
-    timeout: {{ current_projects_asset_value.timeout }}
+    allow_override: "{{ template_overrides_resources.project[current_projects_asset_value.name].allow_override
+                        | default(template_overrides_global.project.allow_override)
+                        | default(current_projects_asset_value.allow_override) }}"
+    update_project: "{{ template_overrides_resources.project[current_projects_asset_value.name].update_project
+                        | default(template_overrides_global.project.update_project)
+                        | default(update_project_state | default(false)) }}"
+    timeout: "{{ template_overrides_resources.project[current_projects_asset_value.name].timeout
+                 | default(template_overrides_global.project.timeout)
+                 | default(current_projects_asset_value.timeout) }}"
 {% if query_notification_error | length > 0 %}
     notification_templates_error:
-{% for notification_error  in query_notification_error %}
+{% for notification_error in query_notification_error %}
       - "{{ notification_error.name }}"
 {% endfor %}
 {% endif %}
 {% if query_notification_started | length > 0 %}
     notification_templates_started:
-{% for notification_started  in query_notification_started %}
+{% for notification_started in query_notification_started %}
       - "{{ notification_started.name }}"
 {% endfor %}
 {% endif %}
 {% if query_notification_success | length > 0 %}
     notification_templates_success:
-{% for notification_success  in query_notification_success %}
+{% for notification_success in query_notification_success %}
       - "{{ notification_success.name }}"
 {% endfor %}
 {% endif %}
