@@ -1,5 +1,4 @@
-collections/*
-!collections/requirements.yml
+ansible_collections
 *.tar.gz
 *.pyc
 id_rsa*
@@ -7,3 +6,4 @@ test
 tests/output
 .vscode
 ansible.cfg
+vault-aap-controller.yaml
