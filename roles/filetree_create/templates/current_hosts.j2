@@ -13,7 +13,7 @@ controller_hosts:
       or (host.variables and host.variables != '---' and host.variables != '') %}
     variables:
       {{ template_overrides_resources.host[host.name].variables
-         | template_overrides_global.host.variables
+         | default(template_overrides_global.host.variables)
          | default(host.variables)
          | from_yaml | to_nice_yaml(indent=2) | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") }}
 {%- endif %}
