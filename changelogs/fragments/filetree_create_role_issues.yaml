@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - filetree_create roles export issues introduced by PR #14
+...

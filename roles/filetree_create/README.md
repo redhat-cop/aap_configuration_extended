@@ -90,6 +90,7 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
       when: controller_oauthtoken_url is defined
 ...
 ```
+
 This role can generate output files in two different ways:
 
 - **Structured output**:
