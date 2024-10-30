@@ -16,7 +16,7 @@
     - name: Set forbidden roles list
       ansible.builtin.set_fact:
         __forbidden_roles: "{{ __forbidden_roles + ([item.key] | product(item.value)) }}"
-      with_dict: "{{ rule['forbidden_roles'] }}"
+      loop: "{{ rule['forbidden_roles'] | dict2items }}"
 
     - name: Extract declared forbidden roles
       ansible.builtin.set_fact:
