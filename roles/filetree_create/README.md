@@ -34,12 +34,12 @@ The following variables are required for that role to work properly:
 | `templates_overrides_resources`| N/A | no | dict | Whether the certain objects should be modified during the export |
 | `templates_overrides_global`| N/A | no | dict | Whether the all objects should be modified during the export |
 
-
 ## Dependencies
 
 A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
 
 ## Example Playbook - export everything without modifications
+
 ```yaml
 ---
 - hosts: all
@@ -207,10 +207,13 @@ ansible-playbook infra.aap_configuration_extended.flatten_filetree_create_output
 ```
 
 ## Example Playbook - export object with modifications
+
 This example will export all object but some with modifications:
- - job template called `job_template_example` will be exported with the `dev` branch, while the rest of the job templates will use the `main` branch — the resources dictionary takes precedence over the global dictionary.
- - all projects will have a Jinja2 expression assigned to the `scm_branch`.
- - all schedules enabled state will be set as `false`.
+
+- job template called `job_template_example` will be exported with the `dev` branch, while the rest of the job templates will use the `main` branch — the resources dictionary takes precedence over the global dictionary.
+- all projects will have a Jinja2 expression assigned to the `scm_branch`.
+- all schedules enabled state will be set as `false`.
+
 ```yaml
 ---
 - hosts: all
@@ -240,6 +243,7 @@ This example will export all object but some with modifications:
 
 ...
 ```
+
 ## License
 
 GPLv3+

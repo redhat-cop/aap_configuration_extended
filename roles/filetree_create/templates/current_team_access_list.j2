@@ -23,4 +23,3 @@ controller_roles:
 {% endif %}
     role: "{% if team_role.role | lower == 'approve' %}approval{% else %}{{ team_role.role | lower | regex_replace(' ', '_') }}{% endif %}"
 ...
-
