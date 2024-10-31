@@ -130,7 +130,7 @@ controller_templates:
          | default(current_job_templates_asset_value.extra_vars)
          | from_yaml | to_nice_yaml(indent=2)
          | indent(width=6, first=False)
-         | regex_replace('(^[^:]*): (.*){{', '\1: !unsafe \2{{', multiline=True)
+         | regex_replace('(^[^:]*): (.*){{', '\\g<1>: !unsafe \\g<2>{{', multiline=True)
       }}
 {%- endif %}
     job_tags: "{{ template_overrides_resources.job_template[current_job_templates_asset_value.name].job_tags
