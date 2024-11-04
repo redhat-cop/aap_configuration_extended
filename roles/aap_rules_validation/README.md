@@ -1,6 +1,6 @@
 # aap_rules_validation
 
-An ansible role which audit the declared AAP configuration and validate it against a set of user-defined rules. 
+An ansible role which audit the declared AAP configuration and validate it against a set of user-defined rules.
 
 At the end of the role's execution, a structured data list and human readable report are generated containing the detected violations.
 
@@ -28,12 +28,11 @@ n/a
 | `rules_violations_data`  | a list of dictionaries containing all the found rules violation details    |
 | `rules_violations_msgs`  | a list of all the found rules violation messages |
 
-
 ### rules_violations_msgs format
 
 Each `rules_violations_msgs` list element has the following syntax :
 
-```
+```markdown
 Rule ID | Object Type | Object Scope | Object Name | Violation message related to this specific object"
 ```
 
@@ -107,7 +106,7 @@ There is generic rules fields which are object-type-agnostic and other fields th
 
 #### Generic Rule Examples
 
-Here's examples of generic rules 
+Here's examples of generic rules
 
 ```yaml
 aap_rules:
@@ -173,7 +172,7 @@ The organizations specific rules are compatible with the `exceptions` field
 | `allowed_organization_default_environments`   |  list   | The only possible EEs to be used in the organization  |
 | `forbidden_organization_default_environments` |  integer  | The maximum hosts count allowed for the organization  |
 
-##### Organizations specific rules examples :
+##### Organizations specific rules examples
 
 ```yaml
 aap_rules:
@@ -210,7 +209,7 @@ The inventories specific rules are compatible with the `exceptions` field
 | :------------ | :------: | :---------- |
 | `max_hosts_per_inventory`   |  integer   | The maximum hosts count allowed for the organization  |
 
-##### Inventories specific rules examples :
+##### Inventories specific rules examples
 
 ```yaml
 aap_rules:
@@ -259,7 +258,6 @@ The sensitive data encryption check **will not work** if the credentials transit
 | `credential_sensitive_data`   |  dictionary   | The credential types and the lists of the sensitive fields to check. The dictionary keys are the credential type to check and the values are the list of the input sub-fields. See the example below.   |
 
 ##### Credentials specific rules examples
-
 
 ```yaml
 aap_rules:
