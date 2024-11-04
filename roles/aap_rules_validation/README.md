@@ -172,7 +172,7 @@ The organizations specific rules are compatible with the `exceptions` field
 | `allowed_organization_default_environments`   |  list   | The only possible EEs to be used in the organization  |
 | `forbidden_organization_default_environments` |  integer  | The maximum hosts count allowed for the organization  |
 
-##### Organizations specific rules examples
+##### Organizations specific rules example 1 : Allow only the specified EEs and deny everything else
 
 ```yaml
 aap_rules:
@@ -187,7 +187,11 @@ aap_rules:
     allowed_organization_default_environments:
       - Automation Hub Default Execution Environment
       - Custom EE
+```
 
+##### Organizations specific rules example 2 : Deny only the specified EEs and allow everything else
+
+```yaml
   # # ------- Rule n°5 # Organizations - Allow all EEs except the listed forbidden EEs for all organizations except the org 'Satellite'
   - objects:
       - organizations
@@ -250,12 +254,12 @@ aap_rules:
 
 The following rules are specific to credentials.
 
-The sensitive data encryption check **will not work** if the credentials transit through intermediary variables, like when the `filetree_read` role is used.
-
 | Variable Name | Type     | Description |
 | :------------ | :------: | :---------- |
 | `encrypt_credentials_sensitive_data`  |  boolean   | Set to `true` to activate sensitive data encryption check |
 | `credential_sensitive_data`   |  dictionary   | The credential types and the lists of the sensitive fields to check. The dictionary keys are the credential type to check and the values are the list of the input sub-fields. See the example below.   |
+
+**Important Note**: The sensitive data encryption check **will not work** if the credentials transit through intermediary variables, like when the `filetree_read` role is used.
 
 ##### Credentials specific rules examples
 
@@ -284,13 +288,13 @@ The following rules are specific to users.
 
 The users rules are compatible with the `exceptions` option.
 
-The `encrypt_user_passwords` option **will not work** if the users transit through intermediary variables, like when the `filetree_read` role is used.
-
 | Variable Name | Type     | Description |
 | :------------ | :------: | :---------- |
 | `allow_superusers`|  boolean | Set to `false` to flag superusers as a violation  |
 | `allow_system_auditors`|  boolean | Set to `false` to flag system auditors as a violation  |
 | `encrypt_user_passwords`|  boolean | Set to `true` to flag unvaulted users passwords as a violation  |
+
+**Important Note**: The `encrypt_user_passwords` option **will not work** if the users transit through intermediary variables, like when the `filetree_read` role is used.
 
 ##### Users specific rules examples
 
@@ -318,7 +322,7 @@ The following rules are specific to roles.
 | `allowed_roles`|  dictionary   | The allowed objects roles. Any role not explicitly listed in this dictionary will be flagged as a violation. The dictionary keys are the object types and the values are the list of the allowed roles. See the example below.   |
 | `forbidden_roles`|  dictionary   | The forbidden objects roles. The roles listed in this dictionary will be considered as a violation. Any other role not specified in this dictionary is allowed. The dictionary keys are the object types and the values are the list of the forbidden roles. See the example below. |
 
-##### Roles specific rules examples
+##### Roles specific rules example 1 : Allow only the specified roles. Deny anything else
 
 ```yaml
 aap_rules:
@@ -334,7 +338,11 @@ aap_rules:
         - member
       target_teams:
         - member
+```
 
+##### Roles specific rules example 2 : Deny only the specified roles. Allow everything else
+
+```yaml
   # ------- Rule n°11  # Roles - Do not allow 'admin' on projects, 'admin' on organizations and 'admin' on teams, allow everything else.
   - objects:
       - roles
