@@ -1,15 +1,15 @@
 ---
 - name: Filetree read test
-  hosts: all
+  hosts: localhost
   connection: local
   gather_facts: false
   vars:
-    controller_configuration_projects_async_retries: 120
-    controller_configuration_projects_async_delay: 2
-    controller_username: "{{ vault_controller_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
-    controller_password: "{{ vault_controller_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
-    controller_hostname: "{{ vault_controller_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
-    controller_validate_certs: "{{ vault_controller_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
+    aap_configuration_projects_async_retries: 120
+    aap_configuration_projects_async_delay: 2
+    aap_username: "{{ vault_controller_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    aap_password: "{{ vault_controller_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+    aap_hostname: "{{ vault_controller_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    aap_validate_certs: "{{ vault_controller_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
   pre_tasks:
     - name: "Setup authentication (block)"
       no_log: "{{ controller_configuration_filetree_read_secure_logging | default('false') }}"
@@ -19,12 +19,12 @@
       block:
         - name: "Get the Authentication Token for the future requests"
           ansible.builtin.uri:
-            url: "https://{{ controller_hostname }}/api/v2/tokens/"
-            user: "{{ controller_username }}"
-            password: "{{ controller_password }}"
+            url: "https://{{ aap_hostname }}/api/v2/tokens/"
+            user: "{{ aap_username }}"
+            password: "{{ aap_password }}"
             method: POST
             force_basic_auth: true
-            validate_certs: "{{ controller_validate_certs }}"
+            validate_certs: "{{ aap_validate_certs }}"
             status_code: 201
           register: authtoken_res
 
@@ -39,12 +39,12 @@
   post_tasks:
     - name: "Delete the Authentication Token used"
       ansible.builtin.uri:
-        url: "https://{{ controller_hostname }}{{ controller_oauthtoken_url }}"
-        user: "{{ controller_username }}"
-        password: "{{ controller_password }}"
+        url: "https://{{ aap_hostname }}{{ controller_oauthtoken_url }}"
+        user: "{{ aap_username }}"
+        password: "{{ aap_password }}"
         method: DELETE
         force_basic_auth: true
-        validate_certs: "{{ controller_validate_certs }}"
+        validate_certs: "{{ aap_validate_certs }}"
         status_code: 204
       when: controller_oauthtoken_url is defined
 ...
