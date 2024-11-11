@@ -7,5 +7,5 @@
       ansible.builtin.include_vars:
         dir: ../configs/
   roles:
-    - role: infra.aap_controller_configuration_extended.aap_rules_validation
+    - role: infra.aap_configuration_extended.aap_rules_validation
 ...

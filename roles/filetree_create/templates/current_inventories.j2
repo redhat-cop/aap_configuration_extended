@@ -31,7 +31,7 @@ controller_inventories:
        {{ template_overrides_resources.inventory[current_inventories_asset_value.name].source_vars
           | default(template_overrides_global.inventory.source_vars)
           | default(current_inventories_asset_value.source_vars)
-          | from_yaml | to_nice_yaml(indent=2) | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") }}
+          | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") }}
 {% endif %}
 {% if template_overrides_resources.inventory[current_inventories_asset_value.name].update_cache_timeout is defined
       or template_overrides_global_global.inventory.update_cache_timeout is defined
@@ -61,7 +61,7 @@ controller_inventories:
       {{ template_overrides_resources.inventory[current_inventories_asset_value.name].variables
          | default(template_overrides_global.inventory.variables)
          | default(current_inventories_asset_value.variables)
-         | from_yaml | to_nice_yaml(indent=2) | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") }}
+         | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") }}
 {%- endif %}
 {% if last_inventory | default(true) | bool %}
 ...

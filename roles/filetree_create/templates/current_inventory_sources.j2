@@ -35,7 +35,7 @@ controller_inventory_sources:
       {{ template_overrides_resources.inventory_source[inventory_source.name].source_vars
          | default(template_overrides_global.inventory_source.source_vars)
          | default(inventory_source.source_vars)
-         | from_yaml | to_nice_yaml(indent=2) | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") }}
+         | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") }}
 {%- endif %}
     inventory: "{{ inventory_source.summary_fields.inventory.name }}"
     update_on_launch: "{{ template_overrides_resources.inventory_source[inventory_source.name].update_on_launch
