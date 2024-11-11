@@ -1,0 +1,15 @@
+---
+controller_projects:
+  - name: "Test Inventory source project"
+    description: "ansible-examples"
+    organization: "Default"
+    scm_type: "git"
+    scm_url: "https://github.com/ansible/ansible-examples.git"
+    scm_branch: ""
+    scm_clean: "false"
+    scm_delete_on_update: "false"
+    scm_update_on_launch: "false"
+    scm_update_cache_timeout: "0"
+    allow_override: "false"
+    timeout: 0
+...

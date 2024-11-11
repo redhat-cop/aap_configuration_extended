@@ -24,6 +24,6 @@ jobs:
       collection_namespace: infra
       collection_name: aap_configuration_extended
       collection_version: 1.0.0
-      collection_repo: https://github.com/redhat-cop/aap_configuration_extended/
+      collection_repo: https://github.com/redhat-cop/aap_configuration_extended
       collection_dependencies: awx.awx ansible.hub infra.aap_configuration
 ...

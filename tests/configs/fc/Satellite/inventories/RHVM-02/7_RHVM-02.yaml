@@ -1,0 +1,8 @@
+---
+controller_inventories:
+  - name: "RHVM-02"
+    description: "created by Ansible Playbook - for RHVM-02"
+    organization: "Satellite"
+    host_filter: ""
+    prevent_instance_group_fallback: true
+...

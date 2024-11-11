@@ -1,0 +1,6 @@
+---
+- name: "Test object_diff from an AAP instance"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+...

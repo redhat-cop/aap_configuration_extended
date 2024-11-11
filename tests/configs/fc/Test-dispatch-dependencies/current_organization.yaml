@@ -1,0 +1,7 @@
+---
+controller_organizations:
+  - name: "Test-dispatch-dependencies"
+    description: ""
+    notification_templates_approvals:
+      - "Email notification"
+...

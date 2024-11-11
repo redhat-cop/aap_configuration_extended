@@ -1,0 +1,30 @@
+---
+controller_schedules:
+  - name: "Demo Schedule 2"
+    description: "Another demonstration"
+    enabled: true
+    unified_job_template: "Demo Job Template"
+    inventory: "localhost"
+    instance_groups:
+      - "test_instance_group"
+    dtstart: "2024-10-22T00:00:00Z"
+    dtend: ""
+    timezone: "UTC"
+    rrule: "DTSTART:20200101T000000Z RRULE:FREQ=HOURLY;INTERVAL=3"
+    execution_environment: "My EE"
+    extra_data:
+      {}
+    scm_branch: ""
+    forks: 2
+    job_slice_count: 1
+    labels:
+      - "differential"
+      - "differential2"
+    timeout: 165
+    job_type: ""
+    job_tags: ""
+    skip_tags: ""
+    limit: "all"
+    diff_mode: false
+    verbosity: 0
+...

@@ -19,7 +19,7 @@ controller_notifications:
 {% endfor %}
 {% if current_notification_templates_asset_value.messages is defined and current_notification_templates_asset_value.messages %}
     messages:
-{{ current_notification_templates_asset_value.messages | to_nice_yaml(indent=2) | indent(width=6, first=True) | replace("'{{", "!unsafe \'{{") }}
+{{ current_notification_templates_asset_value.messages | to_nice_yaml(indent=2) | indent(width=6, first=True) | replace("'{{", "!unsafe \'{{") | replace("body: '", "body: !unsafe \'") }}
 {% endif %}
 {% if last_notification_template | default(true) | bool %}
 ...

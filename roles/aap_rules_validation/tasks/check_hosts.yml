@@ -17,7 +17,8 @@
     - name: Update violations if ungrouped hosts found
       ansible.builtin.set_fact:
         rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
-        rules_violations_data: "{{ rules_violations_data +
+        rules_violations_data: |-
+          {{ rules_violations_data +
             [{
               'rule_id': rule_id,
               'rule_index': rule_index,
@@ -28,7 +29,7 @@
               'object_name': '__multiple_objects__',
               'msg': msg
             }]
-          }}"
+          }}
       vars:
         msg: "Rule {{ rule_id }} | hosts | global | {{ __ungrouped_hosts_names }} | Found {{ __ungrouped_hosts | length }} ungrouped hosts"
         __ungrouped_hosts_names: "{{ (__ungrouped_hosts[:3] | join(',') + '...') if (__ungrouped_hosts | length) > 3 else (__ungrouped_hosts | join(',')) }}"

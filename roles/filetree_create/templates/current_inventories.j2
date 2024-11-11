@@ -61,7 +61,7 @@ controller_inventories:
       {{ template_overrides_resources.inventory[current_inventories_asset_value.name].variables
          | default(template_overrides_global.inventory.variables)
          | default(current_inventories_asset_value.variables)
-         | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") }}
+         | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") | replace("'{%", "!unsafe \'{%") }}
 {%- endif %}
 {% if last_inventory | default(true) | bool %}
 ...

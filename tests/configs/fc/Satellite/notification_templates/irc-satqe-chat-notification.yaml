@@ -1,0 +1,20 @@
+---
+controller_notifications:
+  - name: "irc-satqe-chat-notification"
+    organization: "Satellite"
+    notification_type: "irc"
+    notification_configuration:
+      port: 6667
+      server: "irc.freenode.com"
+      targets: ['#my-channel']
+      use_ssl: false
+      use_tls: false
+      nickname: "Ansible-Tower-Stage-Bot-01"
+      password: ""
+    messages:
+      success:
+        body: !unsafe '{"fields": {"project": {"id": "11111"},"summary": "Lab {{ job.status }} Ansible
+          Tower {{ job.name }}","description": "{{ job.status }} in {{ job.name }} {{ job.id
+          }} {{url}}","issuetype": {"id": "1"}}}'
+
+...

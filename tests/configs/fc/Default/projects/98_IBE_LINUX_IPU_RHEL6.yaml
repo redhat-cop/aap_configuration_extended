@@ -1,0 +1,15 @@
+---
+controller_projects:
+  - name: "IBE_LINUX_IPU_RHEL6"
+    description: "Ansible RHEL6 In-Place-Upgrade"
+    organization: "Default"
+    scm_type: "git"
+    scm_url: "https://<gitserver>/project/repository.git"
+    scm_branch: "main"
+    scm_clean: "true"
+    scm_delete_on_update: "false"
+    scm_update_on_launch: "false"
+    scm_update_cache_timeout: "0"
+    allow_override: "false"
+    timeout: 0
+...

@@ -1,0 +1,13 @@
+---
+controller_organizations:
+  - name: "Default"
+    description: ""
+  - name: "Recursive Workflows"
+    description: "Organization to show how to create and use a Workflow tha is calling another workflows"
+  - name: "Satellite"
+    description: ""
+  - name: "Test-dispatch-dependencies"
+    description: ""
+    notification_templates_approvals:
+      - "Email notification"
+...

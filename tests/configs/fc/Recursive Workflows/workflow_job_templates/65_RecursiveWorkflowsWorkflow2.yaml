@@ -1,0 +1,23 @@
+---
+controller_workflows:
+  - name: "RecursiveWorkflowsWorkflow2"
+    description: ""
+    organization: "Recursive Workflows"
+    state: "present"
+    simplified_workflow_nodes:
+      - identifier: "8be3dc3e-64cc-473a-914c-28a23177ddce"
+        workflow_job_template: "RecursiveWorkflowsWorkflow2"
+        unified_job_template: "Recursive Workflows Job Template"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+      - identifier: "97783e98-f83b-4b07-9f6e-ca1ffc78af29"
+        workflow_job_template: "RecursiveWorkflowsWorkflow2"
+        unified_job_template: "Recursive Workflows Job Template"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+    ask_variables_on_launch: "false"
+    allow_simultaneous: "false"
+    scm_branch: ""
+    webhook_service: ""
+    survey_enabled: false
+...
