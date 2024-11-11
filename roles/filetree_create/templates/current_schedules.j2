@@ -71,7 +71,7 @@ controller_schedules:
       {{ template_overrides_resources.schedule[current_schedules_asset_value.name].extra_data
          | default(template_overrides_global.schedule.extra_data)
          | default(current_schedules_asset_value.extra_data)
-         | from_yaml | to_nice_yaml(indent=2) | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") | replace("$encrypted$", "") }}
+         | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") | replace("$encrypted$", "") }}
 {%- endif -%}
 {% if query_credentials | length > 0 %}
     credentials:

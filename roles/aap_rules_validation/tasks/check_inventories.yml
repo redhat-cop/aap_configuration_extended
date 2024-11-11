@@ -1,0 +1,29 @@
+---
+- name: Check if inventory hosts count is inferior to maximum allowed
+  ansible.builtin.set_fact:
+    rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
+    rules_violations_data: "{{ rules_violations_data +
+        [{
+          'rule_id': rule_id,
+          'rule_index': rule_index,
+          'rule_broken': 'max_hosts_per_inventory',
+          'object_type': 'inventories',
+          'object_scope': 'organization',
+          'object_organization': __inventory_org,
+          'object_name': __inventory_name,
+          'msg': msg
+        }]
+      }}"
+  vars:
+    msg: "Rule {{ rule_id }} | inventories | {{ __inventory_org }} | {{ __inventory_name }} | Inventory has more hosts ({{ __hosts_in_inventory }}) than allowed ({{ rule['max_hosts_per_inventory'] }})"
+    __hosts_in_inventory: "{{ controller_hosts | selectattr('inventory', 'equalto', inventory['name']) | length }}"
+    __inventory_org: "{{ inventory['organization'] | default('__undefined_org__') }}"
+    __inventory_name: "{{ inventory['name'] | default('__undefined_name__') }}"
+  when: controller_hosts is defined
+        and controller_hosts != None
+        and controller_hosts | length > 0
+        and rule['max_hosts_per_inventory'] is defined
+        and rule['max_hosts_per_inventory'] > 0
+        and inventory['name'] not in (rule['exceptions']['inventories'] | default([]))
+        and controller_hosts | selectattr('inventory', 'equalto', inventory['name']) | length > rule['max_hosts_per_inventory']
+...

@@ -1,0 +1,79 @@
+---
+- name: Update rules violation regarding users passwords encryption
+  ansible.builtin.set_fact:
+    rules_violations_msgs: "{{ (rules_violations_msgs + [msg]) }}"
+    rules_violations_data: "{{ rules_violations_data +
+        [{
+          'rule_id': rule_id,
+          'rule_index': rule_index,
+          'rule_broken': 'encrypt_user_passwords',
+          'object_type': 'users',
+          'object_scope': 'organizations',
+          'object_organization': __user_org,
+          'object_name': __username,
+          'msg': msg
+        }]
+      }}"
+  vars:
+    msg: "Rule {{ rule_id }} | users | {{ __user_org }} | {{ __username }} | The user's password is not encrypted"
+    __username: "{{ __unencrypted_user['username'] | default(__unencrypted_user['user']) }}"
+    __user_org: "{{ __unencrypted_user['organization'] | default('__undefined_org__') }}"
+  loop: "{{ controller_user_accounts | selectattr('password', 'defined') | rejectattr('password', 'vault_encrypted') }}"
+  when: rule['encrypt_user_passwords'] is defined
+        and rule['encrypt_user_passwords'] | bool
+        and __unencrypted_user['username'] | default(__unencrypted_user['user']) not in (rule['exceptions']['users'] | default([]))
+  loop_control:
+    loop_var: __unencrypted_user
+
+- name: Update rules violation regarding superusers
+  ansible.builtin.set_fact:
+    rules_violations_msgs: "{{ (rules_violations_msgs + [msg]) }}"
+    rules_violations_data: "{{ rules_violations_data +
+        [{
+          'rule_id': rule_id,
+          'rule_index': rule_index,
+          'rule_broken': 'allow_superusers',
+          'object_type': 'users',
+          'object_scope': 'organizations',
+          'object_organization': __user_org,
+          'object_name': __username,
+          'msg': msg
+        }]
+      }}"
+  vars:
+    msg: "Rule {{ rule_id }} | users | {{ __user_org }} | {{ __username }} | Superusers are not allowed"
+    __username: "{{ __superusers['username'] | default(__superusers['user']) }}"
+    __user_org: "{{ __superusers['organization'] | default('__undefined_org__') }}"
+  loop: "{{ controller_user_accounts | selectattr('is_superuser', 'defined') | rejectattr('is_superuser', 'false') }}"
+  when: rule['allow_superusers'] is defined
+        and not rule['allow_superusers'] | bool
+        and __superusers['username'] | default(__superusers['user']) not in (rule['exceptions']['users'] | default([]))
+  loop_control:
+    loop_var: __superusers
+
+- name: Update rules violation regarding systm auditors
+  ansible.builtin.set_fact:
+    rules_violations_msgs: "{{ (rules_violations_msgs + [msg]) }}"
+    rules_violations_data: "{{ rules_violations_data +
+        [{
+          'rule_id': rule_id,
+          'rule_index': rule_index,
+          'rule_broken': 'allow_system_auditors',
+          'object_type': 'users',
+          'object_scope': 'organizations',
+          'object_organization': __user_org,
+          'object_name': __username,
+          'msg': msg
+        }]
+      }}"
+  vars:
+    msg: "Rule {{ rule_id }} | users | {{ __user_org }} | {{ __username }} | System Auditors are not allowed"
+    __username: "{{ __system_auditors['username'] | default(__system_auditors['user']) }}"
+    __user_org: "{{ __system_auditors['organization'] | default('__undefined_org__') }}"
+  when: rule['allow_system_auditors'] is defined
+        and not rule['allow_system_auditors'] | bool
+        and __system_auditors['username'] | default(__system_auditors['user']) not in (rule['exceptions']['users'] | default([]))
+  loop: "{{ controller_user_accounts | selectattr('is_system_auditor', 'defined') | rejectattr('is_system_auditor', 'false') }}"
+  loop_control:
+    loop_var: __system_auditors
+...

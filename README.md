@@ -5,7 +5,7 @@
 <!-- markdownlint-disable-line MD033 MD034 --><a href="https://raw.githubusercontent.com/redhat-cop/aap_configuration_extended/devel/docs/aap_config_as_code_public_meeting.ics"><img border="0" alt="Google Calendar invite" src="https://www.google.com/calendar/images/ext/gc_button1_en-GB.gif"></a>
 <!-- Further CI badges go here as above -->
 
-This Ansible collection allows for easy interaction with an AWX or Ansible Controller server via Ansible roles using the AWX/Controller collection modules.
+This Ansible collection extends the `infra.aap_configuration` collection by providing extra functionalities that allows advanced operations on the Ansible Automation Platform Configuration as Code.
 
 ## Getting Help
 
@@ -43,7 +43,7 @@ The awx.awx or ansible.controller collections MUST be installed in order for thi
 
 |                                      Collection Name                                       |                      Purpose                      |
 |:------------------------------------------------------------------------------------------:|:-------------------------------------------------:|
-| [AAP Configuration Extended](https://github.com/redhat-cop/aap_configuration_extended)     | Where other useful roles that don't fit here live |
+| [AAP Configuration](https://github.com/redhat-cop/infra.aap_configuration)                 | Easy interaction with Ansible Automation Platform via Ansible roles |
 | [EE Utilities](https://github.com/redhat-cop/ee_utilities)                                 | Execution Environment creation utilities          |
 | [AAP installation Utilities](https://github.com/redhat-cop/aap_utilities)                  | Ansible Automation Platform Utilities             |
 | [AAP Configuration Template](https://github.com/redhat-cop/aap_configuration_template)     | Configuration Template for this suite             |
@@ -69,10 +69,6 @@ collections:
     # If you need a specific version of the collection, you can specify like this:
     # version: ...
 ```
-
-## Conversion from tower_configuration
-
-If you were using a version of redhat_cop.tower_configuration, please refer to our Conversion Guide here: [Conversion Guide](docs/CONVERSION_GUIDE.md)
 
 ## Using this collection
 

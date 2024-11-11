@@ -1,0 +1,230 @@
+---
+aap_rules:
+
+  # ------- Rule n°1 # Generic - Minimum and Maximum
+  - rule_name: Generic Stuff
+    organizations:
+      - Satellite
+      - Default
+    objects:
+      - credentials
+      - groups
+      - inventories
+      - inventory_sources
+      - job_templates
+      - projects
+      - teams
+      - users
+      - credential_types
+      - instances
+    minimum_defined_globally: 3
+    maximum_defined_globally: 5
+    minimum_defined_per_org: 2
+    maximum_defined_per_org: 4
+
+  # ------- Rule n°2  # Generic - Regex
+  - organizations:
+      - Default
+    objects:
+      - projects
+      - credentials
+    fields_regex:
+      name: '^\[Default\].*'       # name must start with '[Default]'
+      description: "^DESC - .*"  # description must start with 'DESC - '
+      scm_type: ^git$            # accept only git scm
+      scm_branch: ^main$         # branch naming rule : accept only main branch
+
+  # ------- Rule n°3  # Generic - Mandatory fields
+  - objects:
+      - credentials
+      - groups
+      - inventories
+      - inventory_sources
+      - job_templates
+      - projects
+      - teams
+      - users
+      - credential_types
+      - instances
+    mandatory_fields:
+      - description
+
+  # ------- Rule n°4 # Organizations - Allow only the following EEs
+  - objects:
+      - organizations
+    organizations:
+      - Satellite
+      - Default
+    max_hosts_per_organization: 100
+    allowed_organization_default_environments:
+      - Automation Hub Default Execution Environment
+      - Custom EE
+
+  # ------- Rule n°5 # Organizations - Allow all EEs except the listed forbidden EEs for all organizations except Satellite
+  - objects:
+      - organizations
+    max_hosts_per_organization: 10
+    forbidden_organization_default_environments:
+      - Automation Hub Default Execution Environment
+    exceptions:
+      organizations:
+        - Satellite
+
+  # ------- Rule n°6  # inventories
+  - organizations:
+      - Satellite
+      - Default
+    objects:
+      - inventories
+    max_hosts_per_inventory: 1  # needs 'controller_hosts' and 'controller_inventories' to be defined
+    exceptions:
+      inventories:
+        - localhost
+
+  # ------- Rule n°7  # hosts
+  - objects:
+      - hosts
+    allow_ungrouped_hosts: false  # needs 'controller_groups' and 'controller_hosts' to be defined
+
+  # ------- Rule n°8  # Credentials
+  - rule_name: Credentials Check  # Optional arbitrary string
+    encrypt_credentials_sensitive_data: true              # DO NOT WORK with intermediary variables (filetree_read)
+    organizations:
+      - Default
+      - Satellite
+    objects:
+      - credentials
+    credential_sensitive_data:
+      Source Control:
+        - password
+      Red Hat Virtualization:
+        - password
+      Vault:
+        - vault_password
+
+  # ------- Rule n°9  # Users
+  - objects:
+      - users
+    allow_superusers: false
+    allow_system_auditors: false
+    encrypt_user_passwords: true
+    exceptions:
+      users:
+        - controller_admin
+        - admin
+
+  # ------- Rule n°10  # Roles - Allow ONLY 'read' on projects, 'member' on organizations and 'admin' on teams. Any other role is forbidden.
+  - objects:
+      - roles
+    allowed_roles:
+      projects:
+        - update
+        - read
+      organizations:
+        - member
+      target_teams:
+        - member
+
+  # ------- Rule n°11  # Roles - Do not allow 'admin' on projects, 'admin' on organizations and 'admin' on teams, allow everything else
+  - objects:
+      - roles
+    forbidden_roles:
+      projects:
+        - admin
+      organizations:
+        - admin
+      target_teams:
+        - admin
+
+# # -------------------------------------------- All Possible Options :
+#   - rule_name: Custom rule name    # Optional arbitrary string
+#     organizations:
+#       - Satellite       # Audited organization
+#       - Default
+#     objects:
+#       # org scope:
+#       - applications
+#       - credentials
+#       - inventories
+#       - inventory_sources
+#       - job_templates
+#       - notification_templates
+#       - projects
+#       - teams
+#       - users
+#       - workflow_job_templates
+#       # global scope:
+#       - credential_input_sources
+#       - credential_types
+#       - execution_environments
+#       - groups
+#       - hosts
+#       - instance_groups
+#       - instances
+#       - labels
+#       - organizations
+#       - roles
+#       - schedules
+#       - settings
+
+#     # ------ generic rules
+#     minimum_defined: 1           # at least 1 organization is defined
+#     maximum_defined: 2           # no more than 2 organization
+#     mandatory_fields:
+#       - description              # force use of description & max_hosts field
+#       - max_hosts
+#     fields_regex:
+#       name: '\[Default\].*'      # names should start with '[Default]'
+#       description: "^DESC - .*"  # description should start with 'DESC - '
+#       scm_type: ^git$            # accept only git scm
+#       scm_branch: ^main$         # accept only main branch
+
+#     # ------ organization specific rules
+#     max_hosts_per_organization: 100
+#     allowed_organization_default_environments:
+#       - Automation Hub Minimal Execution Environment
+#     forbidden_organization_default_environments:
+#       - Automation Hub Default Execution Environment
+#       - Custom EE
+
+#     # ------ inventory specific rules
+#     max_hosts_per_inventory: 1     # needs both 'controller_inventories' and 'controller_hosts' to be defined
+
+#     # ------ hosts specific rules
+#     allow_ungrouped_hosts: false   # needs both 'controller_groups' and 'controller_hosts' to be defined
+
+#     # ------ Credentials specific rules
+#     encrypt_credentials_sensitive_data: true      # DO NOT WORK with intermediary variables (filetree_read)
+#     credential_sensitive_data:
+#       Source Control:
+#         - password
+
+#     # ------- Users specific rules
+#     allow_superusers: false
+#     allow_system_auditors: false
+#     encrypt_user_passwords: true     # DO NOT WORK with intermediary variables (filetree_read)
+#     exceptions:
+#       users:
+#         - admin
+
+#  # ------- Roles specific rules
+#     allowed_roles:
+#       projects:
+#         - read
+#         - update
+#       organizations:
+#         - member
+#       target_teams:
+#         - admin
+#         - member
+#
+#     forbidden_roles:
+#       projects:
+#         - update
+#         - admin
+#       organizations:
+#         - admin
+#       target_teams:
+#         - admin
+
+...
