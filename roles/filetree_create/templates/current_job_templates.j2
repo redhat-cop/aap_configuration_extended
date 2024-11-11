@@ -195,7 +195,7 @@ controller_templates:
                               | default(query(controller_api_plugin, current_job_templates_asset_value.related.survey_spec,
                                               host=controller_hostname, oauth_token=controller_oauthtoken, verify_ssl=controller_validate_certs)[0])
                               | from_yaml | to_nice_yaml(indent=2,width=500,sort_keys=False) | regex_replace("\n\n[ ]*", "\\\\n")
-                              | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") | replace("^$", "") | replace("$encrypted$", "")
+                              | indent(width=6, first=False) | replace("'{{", "!unsafe \'{{") | replace("^$", "") | replace("$encrypted$", "\'\'")
                               | replace("'", '"') | regex_replace('default: ([^"].*)', 'default: "\\g<1>"')
 -%}
 {% if template_overrides_resources.job_template[current_job_templates_asset_value.name].survey_spec is defined
