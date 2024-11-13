@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - filetree_create properly escape every variable with unsafe
+...

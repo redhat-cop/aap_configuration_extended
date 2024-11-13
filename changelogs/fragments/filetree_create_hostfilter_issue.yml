@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - filetree_create exported properly smart inventories host filter (double quotes issue)
+...
