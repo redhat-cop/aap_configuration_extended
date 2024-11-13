@@ -1,0 +1,4 @@
+---
+minor_changes:
+  - filetree_create is able to export approval node of workflow
+...
