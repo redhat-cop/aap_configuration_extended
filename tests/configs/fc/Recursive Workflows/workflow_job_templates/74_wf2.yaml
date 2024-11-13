@@ -1,0 +1,18 @@
+---
+controller_workflows:
+  - name: "wf2"
+    description: ""
+    organization: "Recursive Workflows"
+    state: "present"
+    simplified_workflow_nodes:
+      - identifier: "6b19966d-958e-4b8d-9e13-06d738775e75"
+        workflow_job_template: "wf2"
+        unified_job_template: "task3"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+    ask_variables_on_launch: "false"
+    allow_simultaneous: "false"
+    scm_branch: ""
+    webhook_service: ""
+    survey_enabled: false
+...

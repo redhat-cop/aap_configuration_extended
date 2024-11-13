@@ -1,0 +1,9 @@
+---
+controller_hosts:
+  - name: "localhost"
+    description: ""
+    inventory: "localhost"
+    variables:
+      ansible_connection: local
+      some_var: some_val
+...

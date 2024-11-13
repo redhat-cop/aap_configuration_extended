@@ -1,0 +1,17 @@
+---
+controller_instance_groups:
+  - name: "controlplane"
+    policy_instance_minimum: "0"
+    policy_instance_percentage: "100"
+    instances:
+      - "aap-all-in-one.iam.lab"
+  - name: "default"
+    policy_instance_minimum: "0"
+    policy_instance_percentage: "100"
+    instances:
+      - "aap-all-in-one.iam.lab"
+  - name: "test_instance_group"
+    policy_instance_minimum: "0"
+    policy_instance_percentage: "0"
+    instances:
+...

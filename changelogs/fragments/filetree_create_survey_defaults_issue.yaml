@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - filetree_create job_template and workflow_job_template survey default values issue when they are multiline
+...

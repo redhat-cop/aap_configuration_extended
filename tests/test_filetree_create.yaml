@@ -1,0 +1,116 @@
+---
+- name: "Get the oauth token to be used since now"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tags:
+    - always
+  vars:
+    # Controller connection variables
+    controller_username: "{{ vault_controller_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    controller_password: "{{ vault_controller_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+    controller_hostname: "{{ vault_controller_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    controller_validate_certs: "{{ vault_controller_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
+  tasks:
+    - name: "Setup authentication (block)"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging | default(true) }}"
+      when: controller_oauthtoken is not defined
+      block:
+        - name: "Get the Authentication Token for the future requests"
+          ansible.builtin.uri:
+            url: "https://{{ controller_hostname }}/api/v2/tokens/"
+            user: "{{ controller_username }}"
+            password: "{{ controller_password }}"
+            method: POST
+            force_basic_auth: true
+            validate_certs: "{{ controller_validate_certs }}"
+            status_code: 201
+          register: authtoken_res
+
+        - name: "Set the oauth token to be used since now"
+          ansible.builtin.set_fact:
+            controller_oauthtoken: "{{ authtoken_res.json.token }}"
+            controller_oauthtoken_url: "{{ authtoken_res.json.url }}"
+
+- name: "Test the filetree_create role"
+  # Run example: ansible-playbook test_filetree_create.yaml -e@vault-aap-controller.yaml
+  # Run example: ansible-playbook test_filetree_create.yaml -e@vault-aap-controller.yaml --tags default
+  # Run example: ansible-playbook test_filetree_create.yaml -e@vault-aap-controller.yaml --tags flatten
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    # Controller connection variables
+    controller_username: "{{ vault_controller_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    controller_password: "{{ vault_controller_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+    controller_hostname: "{{ vault_controller_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    controller_validate_certs: "{{ vault_controller_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
+    # output_path: "/tmp/filetree_output_default"
+  pre_tasks:
+    - name: "Ensure /tmp/filetree_output_{default,flatten} paths does not exist"
+      ansible.builtin.file:
+        path: "{{ current_output_path }}"
+        state: absent
+      loop:
+        - "/tmp/filetree_output_default"
+        - "/tmp/filetree_output_flatten"
+      loop_control:
+        loop_var: current_output_path
+      tags:
+        - always
+
+  roles:
+    - role: infra.aap_configuration_extended.filetree_create
+      vars:
+        output_path: "/tmp/filetree_output_default"
+      tags:
+        - default
+    - role: infra.aap_configuration_extended.filetree_create
+      vars:
+        output_path: "/tmp/filetree_output_flatten"
+        flatten_output: true
+      tags:
+        - flatten
+
+  post_tasks:
+    - name: "Remove /tmp/filetree_output_{default,flatten}"
+      ansible.builtin.file:
+        path: "{{ current_output_path }}"
+        state: absent
+      loop:
+        - "/tmp/filetree_output_default"
+        - "/tmp/filetree_output_flatten"
+      loop_control:
+        loop_var: current_output_path
+      tags:
+        - always
+        - cleanup
+
+- name: "Delete the Authentication Token used"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tags:
+    - always
+  vars:
+    # Controller connection variables
+    controller_username: "{{ vault_controller_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    controller_password: "{{ vault_controller_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+    controller_hostname: "{{ vault_controller_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    controller_validate_certs: "{{ vault_controller_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
+  tasks:
+    - name: "Delete the Authentication Token used"
+      ansible.builtin.uri:
+        url: "https://{{ controller_hostname }}{{ controller_oauthtoken_url }}"
+        user: "{{ controller_username }}"
+        password: "{{ controller_password }}"
+        method: DELETE
+        force_basic_auth: true
+        validate_certs: "{{ controller_validate_certs }}"
+        status_code: 204
+      when: controller_oauthtoken_url is defined
+
+# Run example: ansible-playbook test_filetree_create.yaml -e@vault-aap-controller.yaml
+# Run example: ansible-playbook test_filetree_create.yaml -e@vault-aap-controller.yaml --tags default
+# Run example: ansible-playbook test_filetree_create.yaml -e@vault-aap-controller.yaml --tags flatten
+...

@@ -2,7 +2,8 @@
 - name: Check organizations max_hosts when defined
   ansible.builtin.set_fact:
     rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
-    rules_violations_data: "{{ rules_violations_data +
+    rules_violations_data: |-
+      {{ rules_violations_data +
         [{
           'rule_id': rule_id,
           'rule_index': rule_index,
@@ -13,7 +14,7 @@
           'object_name': org['name'],
           'msg': msg
         }]
-      }}"
+      }}
   vars:
     msg: "Rule {{ rule_id }} | organizations | global | {{ org['name'] }} | max_hosts ({{ org['max_hosts'] }}) is superior to {{ rule['max_hosts_per_organization'] }}"
   when: org['name'] not in (rule['exceptions']['organizations'] | default([]))
@@ -24,7 +25,8 @@
 - name: Check organizations undefined or unset max_hosts
   ansible.builtin.set_fact:
     rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
-    rules_violations_data: "{{ rules_violations_data +
+    rules_violations_data: |-
+      {{ rules_violations_data +
         [{
           'rule_id': rule_id,
           'rule_index': rule_index,
@@ -35,7 +37,7 @@
           'object_name': org['name'],
           'msg': msg
         }]
-      }}"
+      }}
   vars:
     msg: "Rule {{ rule_id }} | organizations | global | {{ org['name'] }} | max_hosts is not set"
   when: org['name'] not in (rule['exceptions']['organizations'] | default([]))
@@ -47,7 +49,8 @@
 - name: Check if organizations default EE is in allowed list
   ansible.builtin.set_fact:
     rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
-    rules_violations_data: "{{ rules_violations_data +
+    rules_violations_data: |-
+      {{ rules_violations_data +
         [{
           'rule_id': rule_id,
           'rule_index': rule_index,
@@ -58,7 +61,7 @@
           'object_name': org['name'],
           'msg': msg
         }]
-      }}"
+      }}
   vars:
     msg: "Rule {{ rule_id }} | organizations | global | {{ org['name'] }} | The EE ({{ org['default_environment'] }}) is not allowed."
   when: org['name'] not in (rule['exceptions']['organizations'] | default([]))
@@ -69,7 +72,8 @@
 - name: Check if organizations default EE is in forbidden list
   ansible.builtin.set_fact:
     rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
-    rules_violations_data: "{{ rules_violations_data +
+    rules_violations_data: |-
+      {{ rules_violations_data +
         [{
           'rule_id': rule_id,
           'rule_index': rule_index,
@@ -80,7 +84,7 @@
           'object_name': org['name'],
           'msg': msg
         }]
-      }}"
+      }}
   vars:
     msg: "Rule {{ rule_id }} | organizations | global | {{ org['name'] }} | The EE ({{ org['default_environment'] }}) is forbidden."
   when: org['name'] not in (rule['exceptions']['organizations'] | default([]))

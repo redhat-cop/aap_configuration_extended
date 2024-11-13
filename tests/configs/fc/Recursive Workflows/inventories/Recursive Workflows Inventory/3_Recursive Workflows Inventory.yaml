@@ -1,0 +1,8 @@
+---
+controller_inventories:
+  - name: "Recursive Workflows Inventory"
+    description: ""
+    organization: "Recursive Workflows"
+    host_filter: ""
+    prevent_instance_group_fallback: false
+...

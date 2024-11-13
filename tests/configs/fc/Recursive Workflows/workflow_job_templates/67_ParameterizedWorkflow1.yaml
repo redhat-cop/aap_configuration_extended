@@ -1,0 +1,20 @@
+---
+controller_workflows:
+  - name: "ParameterizedWorkflow1"
+    description: ""
+    organization: "Recursive Workflows"
+    state: "present"
+    simplified_workflow_nodes:
+      - identifier: "ParameterizedWorflow1Node1"
+        workflow_job_template: "ParameterizedWorkflow1"
+        unified_job_template: "Parameterized Job Template"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+        extra_data:
+          param2: World
+    ask_variables_on_launch: "false"
+    allow_simultaneous: "false"
+    scm_branch: ""
+    webhook_service: ""
+    survey_enabled: false
+...

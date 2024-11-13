@@ -1,0 +1,21 @@
+---
+ee_list:
+  - name: config_as_code_ee
+    dependencies:
+      system:
+        - unzip
+      python:
+        - ansible-lint
+        - jmespath
+        - netaddr
+      galaxy:
+        collections:
+          - infra.controller_configuration
+          - infra.ah_configuration
+          - infra.ee_utilities
+          - infra.aap_utilities
+          - awx.awx
+    build_steps:
+      append_final:
+        - RUN dnf update -y
+...

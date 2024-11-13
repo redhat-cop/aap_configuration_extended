@@ -32,6 +32,7 @@
 
 - name: "Block for to generate flatten output"
   when:
+    - team_roles_lookvar | length > 0
     - flatten_output is defined
     - flatten_output | bool
   vars:
@@ -61,7 +62,9 @@
         state: absent
 
 - name: "Block for to generate the filetre_create normal output"
-  when: flatten_output is not defined or not (flatten_output | bool)
+  when:
+    - team_roles_lookvar | length > 0
+    - flatten_output is not defined or not (flatten_output | bool)
   block:
     - name: "Create the output directory for team roles: {{ output_path }}"
       ansible.builtin.file:

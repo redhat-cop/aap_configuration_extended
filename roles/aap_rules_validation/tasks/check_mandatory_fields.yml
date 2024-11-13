@@ -7,14 +7,14 @@
 
 - name: Extract objects with mandatory defined but empty (None) fields - {{ object_type }}
   ansible.builtin.set_fact:
-    __defined_none: "{{ __defined_none + [{'mandatory_field':mandatory_field, 'object_type': object_type}] | product(lookup('vars', __object_var_names[object_type]) | selectattr(mandatory_field, 'defined') | selectattr(mandatory_field, 'equalto', None)) }}"
+    __defined_none: "{{ __defined_none + [{'mandatory_field': mandatory_field, 'object_type': object_type}] | product(lookup('vars', __object_var_names[object_type]) | selectattr(mandatory_field, 'defined') | selectattr(mandatory_field, 'equalto', None)) }}"
   loop: "{{ rule['mandatory_fields'] }}"
   loop_control:
     loop_var: mandatory_field
 
 - name: Extract objects with mandatory defined but contains empty string - {{ object_type }}
   ansible.builtin.set_fact:
-    __defined_empty: "{{ __defined_empty + [{'mandatory_field':mandatory_field, 'object_type': object_type}] | product(lookup('vars', __object_var_names[object_type]) | selectattr(mandatory_field, 'defined') | selectattr(mandatory_field, 'equalto', '')) }}"
+    __defined_empty: "{{ __defined_empty + [{'mandatory_field': mandatory_field, 'object_type': object_type}] | product(lookup('vars', __object_var_names[object_type]) | selectattr(mandatory_field, 'defined') | selectattr(mandatory_field, 'equalto', '')) }}"
   loop: "{{ rule['mandatory_fields'] }}"
   loop_control:
     loop_var: mandatory_field
@@ -22,7 +22,8 @@
 - name: Update violation msgs with mandatory defined but empty fields - {{ object_type }}
   ansible.builtin.set_fact:
     rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
-    rules_violations_data: "{{ rules_violations_data +
+    rules_violations_data: |-
+      {{ rules_violations_data +
         [{
           'rule_id': rule_id,
           'rule_index': rule_index,
@@ -33,7 +34,7 @@
           'object_name': __object_name,
           'msg': msg
         }]
-      }}"
+      }}
   vars:
     msg: "Rule {{ rule_id }} | {{ __object_type }} | {{ __object_scope }} | {{ __object_name }} | The mandatory field '{{ __field }}' is empty"
     __field: "{{ item[0]['mandatory_field'] }}"
@@ -45,7 +46,7 @@
 
 - name: Extract objects with undefined mandatory fields - {{ object_type }}
   ansible.builtin.set_fact:
-    __undefined: "{{ __undefined + [{'mandatory_field':mandatory_field, 'object_type': object_type}] | product(lookup('vars', __object_var_names[object_type]) | selectattr(mandatory_field, 'undefined')) }}"
+    __undefined: "{{ __undefined + [{'mandatory_field': mandatory_field, 'object_type': object_type}] | product(lookup('vars', __object_var_names[object_type]) | selectattr(mandatory_field, 'undefined')) }}"
   loop: "{{ rule['mandatory_fields'] }}"
   loop_control:
     loop_var: mandatory_field
@@ -53,7 +54,8 @@
 - name: Update violation msgs with mandatory undefined fields - {{ object_type }}
   ansible.builtin.set_fact:
     rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
-    rules_violations_data: "{{ rules_violations_data +
+    rules_violations_data: |-
+      {{ rules_violations_data +
         [{
           'rule_id': rule_id,
           'rule_index': rule_index,
@@ -64,7 +66,7 @@
           'object_name': __object_name,
           'msg': msg
         }]
-      }}"
+      }}
   vars:
     msg: "Rule {{ rule_id }} | {{ __object_type }} | {{ __object_scope }} | {{ __object_name }} | The mandatory field '{{ __field }}' is not defined"
     __field: "{{ item[0]['mandatory_field'] }}"

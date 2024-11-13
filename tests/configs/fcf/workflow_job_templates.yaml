@@ -1,0 +1,265 @@
+---
+controller_workflows:
+  - name: "Simple workflow schema"
+    description: "a basic workflow"
+    organization: "Default"
+    state: "present"
+    simplified_workflow_nodes:
+      - identifier: "node101"
+        workflow_job_template: "Simple workflow schema"
+        unified_job_template: "RHVM-01"
+        organization: "Default"
+        all_parents_must_converge: "false"
+        success_nodes:
+          - node201
+      - identifier: "node201"
+        workflow_job_template: "Simple workflow schema"
+        unified_job_template: "test-template-1"
+        organization: "Default"
+        all_parents_must_converge: "false"
+    ask_variables_on_launch: "false"
+    allow_simultaneous: "false"
+    scm_branch: ""
+    webhook_service: ""
+    labels:
+      - "Prod"
+    survey_enabled: false
+  - name: "Simple workflow schema2"
+    description: "a basic workflow"
+    organization: "Default"
+    state: "present"
+    simplified_workflow_nodes:
+      - identifier: "node101"
+        workflow_job_template: "Simple workflow schema2"
+        unified_job_template: "RHVM-01"
+        organization: "Default"
+        all_parents_must_converge: "false"
+        success_nodes:
+          - node201
+      - identifier: "node201"
+        workflow_job_template: "Simple workflow schema2"
+        unified_job_template: "test-template-1"
+        organization: "Default"
+        all_parents_must_converge: "false"
+    ask_variables_on_launch: "false"
+    allow_simultaneous: "false"
+    scm_branch: ""
+    webhook_service: ""
+    labels:
+      - "Prod"
+    survey_enabled: false
+  - name: "Simple workflow schema no state defined"
+    description: "a basic workflow"
+    organization: "Default"
+    state: "present"
+    simplified_workflow_nodes:
+      - identifier: "node101"
+        workflow_job_template: "Simple workflow schema no state defined"
+        unified_job_template: "RHVM-01"
+        organization: "Default"
+        all_parents_must_converge: "false"
+        success_nodes:
+          - node201
+      - identifier: "node201"
+        workflow_job_template: "Simple workflow schema no state defined"
+        unified_job_template: "test-template-1"
+        organization: "Default"
+        all_parents_must_converge: "false"
+    ask_variables_on_launch: "false"
+    allow_simultaneous: "false"
+    scm_branch: ""
+    webhook_service: ""
+    labels:
+      - "Prod"
+    survey_enabled: false
+  - name: "RecursiveWorkflowsWorkflow1"
+    description: ""
+    organization: "Recursive Workflows"
+    state: "present"
+    simplified_workflow_nodes:
+      - identifier: "8be3dc3e-64cc-473a-914c-28a23177ddce"
+        workflow_job_template: "RecursiveWorkflowsWorkflow1"
+        unified_job_template: "Recursive Workflows Job Template"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+        success_nodes:
+          - 97783e98-f83b-4b07-9f6e-ca1ffc78af29
+      - identifier: "97783e98-f83b-4b07-9f6e-ca1ffc78af29"
+        workflow_job_template: "RecursiveWorkflowsWorkflow1"
+        unified_job_template: "Recursive Workflows Job Template"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+    ask_variables_on_launch: "false"
+    allow_simultaneous: "false"
+    scm_branch: ""
+    webhook_service: ""
+    survey_enabled: false
+  - name: "RecursiveWorkflowsWorkflow2"
+    description: ""
+    organization: "Recursive Workflows"
+    state: "present"
+    simplified_workflow_nodes:
+      - identifier: "8be3dc3e-64cc-473a-914c-28a23177ddce"
+        workflow_job_template: "RecursiveWorkflowsWorkflow2"
+        unified_job_template: "Recursive Workflows Job Template"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+      - identifier: "97783e98-f83b-4b07-9f6e-ca1ffc78af29"
+        workflow_job_template: "RecursiveWorkflowsWorkflow2"
+        unified_job_template: "Recursive Workflows Job Template"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+    ask_variables_on_launch: "false"
+    allow_simultaneous: "false"
+    scm_branch: ""
+    webhook_service: ""
+    survey_enabled: false
+  - name: "RecursiveWorkflowsMainWorkflow"
+    description: ""
+    organization: "Recursive Workflows"
+    state: "present"
+    simplified_workflow_nodes:
+      - identifier: "b0f1be76-649a-4a21-9e4b-c5ca652bda95"
+        workflow_job_template: "RecursiveWorkflowsMainWorkflow"
+        unified_job_template: "RecursiveWorkflowsWorkflow2"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+      - identifier: "31df88f5-d6e4-45ec-b4fa-60bbe91b6600"
+        workflow_job_template: "RecursiveWorkflowsMainWorkflow"
+        unified_job_template: "RecursiveWorkflowsWorkflow1"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+        success_nodes:
+          - b0f1be76-649a-4a21-9e4b-c5ca652bda95
+    ask_variables_on_launch: "false"
+    allow_simultaneous: "false"
+    scm_branch: ""
+    webhook_service: ""
+    survey_enabled: false
+  - name: "ParameterizedWorkflow1"
+    description: ""
+    organization: "Recursive Workflows"
+    state: "present"
+    simplified_workflow_nodes:
+      - identifier: "ParameterizedWorflow1Node1"
+        workflow_job_template: "ParameterizedWorkflow1"
+        unified_job_template: "Parameterized Job Template"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+        extra_data:
+          param2: World
+    ask_variables_on_launch: "false"
+    allow_simultaneous: "false"
+    scm_branch: ""
+    webhook_service: ""
+    survey_enabled: false
+  - name: "ParameterizedRecursiveWorkflowsMainWorkflow"
+    description: ""
+    organization: "Recursive Workflows"
+    state: "present"
+    simplified_workflow_nodes:
+      - identifier: "prwmw1"
+        workflow_job_template: "ParameterizedRecursiveWorkflowsMainWorkflow"
+        unified_job_template: "ParameterizedWorkflow1"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+        success_nodes:
+          - prwmw2
+      - identifier: "prwmw2"
+        workflow_job_template: "ParameterizedRecursiveWorkflowsMainWorkflow"
+        unified_job_template: "ParameterizedWorkflow2"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+    ask_variables_on_launch: "false"
+    allow_simultaneous: "false"
+    scm_branch: ""
+    webhook_service: ""
+    extra_vars:
+      param2: world from Main
+    survey_enabled: false
+  - name: "ParameterizedWorkflow2"
+    description: ""
+    organization: "Recursive Workflows"
+    state: "present"
+    simplified_workflow_nodes:
+      - identifier: "ParameterizedWorflow2Node1"
+        workflow_job_template: "ParameterizedWorkflow2"
+        unified_job_template: "Parameterized Job Template"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+        extra_data:
+          param2: World
+        success_nodes:
+          - ParameterizedWorflow2Node2
+      - identifier: "ParameterizedWorflow2Node2"
+        workflow_job_template: "ParameterizedWorkflow2"
+        unified_job_template: "Parameterized Job Template"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+    ask_variables_on_launch: "false"
+    allow_simultaneous: "false"
+    scm_branch: ""
+    webhook_service: ""
+    extra_vars:
+      param1: Hello from workflow2
+    survey_enabled: false
+  - name: "wf1"
+    description: ""
+    organization: "Recursive Workflows"
+    state: "present"
+    simplified_workflow_nodes:
+      - identifier: "6b19966d-958e-4b8d-9e13-06d738775e75"
+        workflow_job_template: "wf1"
+        unified_job_template: "task1"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+        always_nodes:
+          - 7529ff26-5ef6-4c10-84ab-320e0858f88e
+      - identifier: "7529ff26-5ef6-4c10-84ab-320e0858f88e"
+        workflow_job_template: "wf1"
+        unified_job_template: "task2"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+    ask_variables_on_launch: "false"
+    allow_simultaneous: "false"
+    scm_branch: ""
+    webhook_service: ""
+    survey_enabled: false
+  - name: "wf2"
+    description: ""
+    organization: "Recursive Workflows"
+    state: "present"
+    simplified_workflow_nodes:
+      - identifier: "6b19966d-958e-4b8d-9e13-06d738775e75"
+        workflow_job_template: "wf2"
+        unified_job_template: "task3"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+    ask_variables_on_launch: "false"
+    allow_simultaneous: "false"
+    scm_branch: ""
+    webhook_service: ""
+    survey_enabled: false
+  - name: "MainWF"
+    description: ""
+    organization: "Recursive Workflows"
+    state: "present"
+    simplified_workflow_nodes:
+      - identifier: "75044cd8-7938-4024-8e20-b148fb32292f"
+        workflow_job_template: "MainWF"
+        unified_job_template: "wf2"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+      - identifier: "c8eb1471-f303-43f1-8107-80caa81709d8"
+        workflow_job_template: "MainWF"
+        unified_job_template: "wf1"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+        always_nodes:
+          - 75044cd8-7938-4024-8e20-b148fb32292f
+    ask_variables_on_launch: "false"
+    allow_simultaneous: "false"
+    scm_branch: ""
+    webhook_service: ""
+    survey_enabled: false
+...

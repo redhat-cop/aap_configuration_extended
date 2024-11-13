@@ -2,7 +2,8 @@
 - name: Update rules violation regarding users passwords encryption
   ansible.builtin.set_fact:
     rules_violations_msgs: "{{ (rules_violations_msgs + [msg]) }}"
-    rules_violations_data: "{{ rules_violations_data +
+    rules_violations_data: |-
+      {{ rules_violations_data +
         [{
           'rule_id': rule_id,
           'rule_index': rule_index,
@@ -13,7 +14,7 @@
           'object_name': __username,
           'msg': msg
         }]
-      }}"
+      }}
   vars:
     msg: "Rule {{ rule_id }} | users | {{ __user_org }} | {{ __username }} | The user's password is not encrypted"
     __username: "{{ __unencrypted_user['username'] | default(__unencrypted_user['user']) }}"
@@ -28,7 +29,8 @@
 - name: Update rules violation regarding superusers
   ansible.builtin.set_fact:
     rules_violations_msgs: "{{ (rules_violations_msgs + [msg]) }}"
-    rules_violations_data: "{{ rules_violations_data +
+    rules_violations_data: |-
+      {{ rules_violations_data +
         [{
           'rule_id': rule_id,
           'rule_index': rule_index,
@@ -39,7 +41,7 @@
           'object_name': __username,
           'msg': msg
         }]
-      }}"
+      }}
   vars:
     msg: "Rule {{ rule_id }} | users | {{ __user_org }} | {{ __username }} | Superusers are not allowed"
     __username: "{{ __superusers['username'] | default(__superusers['user']) }}"
@@ -54,7 +56,8 @@
 - name: Update rules violation regarding systm auditors
   ansible.builtin.set_fact:
     rules_violations_msgs: "{{ (rules_violations_msgs + [msg]) }}"
-    rules_violations_data: "{{ rules_violations_data +
+    rules_violations_data: |-
+      {{ rules_violations_data +
         [{
           'rule_id': rule_id,
           'rule_index': rule_index,
@@ -65,7 +68,7 @@
           'object_name': __username,
           'msg': msg
         }]
-      }}"
+      }}
   vars:
     msg: "Rule {{ rule_id }} | users | {{ __user_org }} | {{ __username }} | System Auditors are not allowed"
     __username: "{{ __system_auditors['username'] | default(__system_auditors['user']) }}"

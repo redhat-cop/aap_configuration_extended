@@ -2,7 +2,8 @@
 - name: Global objects minimum count check
   ansible.builtin.set_fact:
     rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
-    rules_violations_data: "{{ rules_violations_data +
+    rules_violations_data: |-
+      {{ rules_violations_data +
         [{
           'rule_id': rule_id,
           'rule_index': rule_index,
@@ -12,7 +13,7 @@
           'object_organization': '__organizationless__',
           'msg': msg
         }]
-      }}"
+      }}
   vars:
     msg: "Rule {{ rule_id }} | {{ object_type }} | global | Global {{ object_type }} count ({{ lookup('vars', __object_var_names[object_type]) | length }}) is inferior to the minimum allowed ({{ rule['minimum_defined_globally'] }})"
   when: rule['minimum_defined_globally'] is defined
@@ -21,7 +22,8 @@
 - name: Per organization objects minimum count check
   ansible.builtin.set_fact:
     rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
-    rules_violations_data: "{{ rules_violations_data +
+    rules_violations_data: |-
+      {{ rules_violations_data +
         [{
           'rule_id': rule_id,
           'rule_index': rule_index,
@@ -31,7 +33,7 @@
           'object_organization': org,
           'msg': msg
         }]
-      }}"
+      }}
   vars:
     msg: "Rule {{ rule_id }} | {{ object_type }} | {{ org }} | Organization {{ org }} {{ object_type }} count ({{ __object_count }}) is inferior to the minimum allowed ({{ __org_minimum }})"
     __object_count: "{{ lookup('vars', __object_var_names[object_type]) | selectattr('organization', 'defined') | selectattr('organization', 'equalto', org) | unique | length }}"
@@ -47,7 +49,8 @@
 - name: Objects count maximum check
   ansible.builtin.set_fact:
     rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
-    rules_violations_data: "{{ rules_violations_data +
+    rules_violations_data: |-
+      {{ rules_violations_data +
         [{
           'rule_id': rule_id,
           'rule_index': rule_index,
@@ -57,7 +60,7 @@
           'object_organization': '__organizationless__',
           'msg': msg
         }]
-      }}"
+      }}
   vars:
     msg: "Rule {{ rule_id }} | {{ object_type }} | global | Global {{ object_type }} count ({{ lookup('vars', __object_var_names[object_type]) | length }}) is superior to the maximum allowed ({{ rule['maximum_defined_globally'] }})"
   when: rule['maximum_defined_globally'] is defined
@@ -66,7 +69,8 @@
 - name: Per organization objects maximum count check
   ansible.builtin.set_fact:
     rules_violations_msgs: "{{ rules_violations_msgs + [msg] }}"
-    rules_violations_data: "{{ rules_violations_data +
+    rules_violations_data: |-
+      {{ rules_violations_data +
         [{
           'rule_id': rule_id,
           'rule_index': rule_index,
@@ -76,7 +80,7 @@
           'object_organization': org,
           'msg': msg
         }]
-      }}"
+      }}
   vars:
     msg: "Rule {{ rule_id }} | {{ object_type }} | {{ org }} | Organization {{ org }} {{ object_type }} count  ({{ __object_count }}) is superior to the maximum allowed ({{ __org_maximum }})"
     __object_count: "{{ lookup('vars', __object_var_names[object_type]) | selectattr('organization', 'defined') | selectattr('organization', 'equalto', org) | unique | length }}"

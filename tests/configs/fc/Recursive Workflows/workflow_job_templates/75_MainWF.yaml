@@ -1,0 +1,25 @@
+---
+controller_workflows:
+  - name: "MainWF"
+    description: ""
+    organization: "Recursive Workflows"
+    state: "present"
+    simplified_workflow_nodes:
+      - identifier: "75044cd8-7938-4024-8e20-b148fb32292f"
+        workflow_job_template: "MainWF"
+        unified_job_template: "wf2"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+      - identifier: "c8eb1471-f303-43f1-8107-80caa81709d8"
+        workflow_job_template: "MainWF"
+        unified_job_template: "wf1"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: "false"
+        always_nodes:
+          - 75044cd8-7938-4024-8e20-b148fb32292f
+    ask_variables_on_launch: "false"
+    allow_simultaneous: "false"
+    scm_branch: ""
+    webhook_service: ""
+    survey_enabled: false
+...

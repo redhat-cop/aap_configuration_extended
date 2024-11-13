@@ -15,7 +15,7 @@ controller_groups:
       {{ template_overrides_resources.group[group.name].variables
          | default(template_overrides_global.group.variables)
          | default(group.variables)
-         | from_yaml | to_nice_yaml(indent=2) | indent(width=6, first=False) | regex_replace('(^[^:]*): (.*){{', '\\g<1>: !unsafe \\g<2>{{', multiline=True)}}
+         | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) | regex_replace('(^[^:]*): (.*){{', '\\g<1>: !unsafe \\g<2>{{', multiline=True)}}
 {%- endif %}
     hosts:
 {{ query(controller_api_plugin, group.related.hosts,

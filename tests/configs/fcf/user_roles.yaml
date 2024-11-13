@@ -1,0 +1,7 @@
+---
+controller_roles:
+  - user: "controller_user"
+    credentials:
+      - "gitlab-team"
+    role: "admin"
+...

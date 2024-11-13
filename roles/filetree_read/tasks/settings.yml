@@ -20,7 +20,7 @@
 
 - name: "Populate Settings list"
   ansible.builtin.set_fact:
-    __populate_controller_settings: "{{ (__populate_controller_settings | default([])) + __populate_settings_list_item.ansible_facts.controller_settings }}"
+    __populate_controller_settings: "{{ (__populate_controller_settings | default([])) + ([__populate_settings_list_item.ansible_facts.controller_settings] | flatten) }}"
   loop: "{{ __contents_filetree_controller_settings.results }}"
   loop_control:
     loop_var: __populate_settings_list_item

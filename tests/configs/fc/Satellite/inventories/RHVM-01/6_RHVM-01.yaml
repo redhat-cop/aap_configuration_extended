@@ -1,0 +1,11 @@
+---
+controller_inventories:
+  - name: "RHVM-01"
+    description: "created by Ansible Playbook - for RHVM-01"
+    organization: "Satellite"
+    host_filter: ""
+    prevent_instance_group_fallback: false
+    variables:
+      remote_subnet: !unsafe '{% if site == ''SITE-2'' %}10.100.{% else %}10.200.{% endif%}'
+      site_subnet: !unsafe '{% if site == ''SITE-2'' %}10.200.{% else %}10.100.{% endif%}'
+...
