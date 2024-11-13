@@ -66,14 +66,14 @@ aap_setup_prep_inv_secrets:
 # aap_setup_inst_inventory: inventory
 aap_setup_inst_extra_vars:
   create_preload_data: false
-# controller_hostname/username/password/validate_certs: ???????????????????????
+# aap_hostname/username/password/validate_certs: ???????????????????????
 # ah_hostname/username/password/validate_certs: ???????????????????????
 aap_setup_inst_force: true
 
-controller_hostname: "{{ aap_setup_prep_inv_nodes['automationcontroller'][0] }}"
-controller_username: "{{ controller_username | default('admin') }}"
-controller_password: "{{ ansible_password | default('Password1234!') }}"
-# controller_oauthtoken: ""
+aap_hostname: "{{ aap_setup_prep_inv_nodes['automationcontroller'][0] }}"
+aap_username: "{{ aap_username | default('admin') }}"
+aap_password: "{{ ansible_password | default('Password1234!') }}"
+# aap_oauthtoken: ""
 # controller_config_file: ""
 controller_validate_certs: false
 

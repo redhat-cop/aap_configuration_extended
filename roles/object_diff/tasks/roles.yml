@@ -2,7 +2,7 @@
 - name: "Get the current controller user to determine if it is super-admin"
   ansible.builtin.set_fact:
     __controller_api_current_user_check_is_admin: "{{ lookup(controller_api_plugin, 'me',
-                                                             host=controller_hostname, oauth_token=controller_oauthtoken, verify_ssl=controller_validate_certs)
+                                                             host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs)
                                                    }}"
   no_log: "{{ controller_configuration_object_diff_secure_logging }}"
 
@@ -26,15 +26,15 @@
                                  }}"
       vars:
         current_users: "{{ query(controller_api_plugin, current_role.related.users,
-                                 host=controller_hostname, oauth_token=controller_oauthtoken, verify_ssl=controller_validate_certs,
+                                 host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
                                  return_all=true, max_objects=query_controller_api_max_objects) | map(attribute='username')
                         }}"
         current_teams: "{{ query(controller_api_plugin, current_role.related.teams,
-                                 host=controller_hostname, oauth_token=controller_oauthtoken, verify_ssl=controller_validate_certs,
+                                 host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
                                  return_all=true, max_objects=query_controller_api_max_objects) | map(attribute='name')
                         }}"
       loop: "{{ query(controller_api_plugin, 'roles',
-                      host=controller_hostname, oauth_token=controller_oauthtoken, verify_ssl=controller_validate_certs,
+                      host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
                       return_all=true, max_objects=query_controller_api_max_objects)
              }}"
       loop_control:

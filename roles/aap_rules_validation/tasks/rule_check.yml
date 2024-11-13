@@ -38,11 +38,11 @@
 - name: Organizations specific checks - {{ object_type }}
   ansible.builtin.include_tasks:
     file: tasks/check_organizations.yml
-  when: controller_organizations is defined
-        and controller_organizations | length > 0
+  when: aap_organizations is defined
+        and aap_organizations | length > 0
         and 'organizations' in rule['objects']
         and (org['name'] in rule['organizations'] if rule['organizations'] is defined else true)
-  loop: "{{ controller_organizations }}"
+  loop: "{{ aap_organizations }}"
   loop_control:
     loop_var: org
 
@@ -78,8 +78,8 @@
 - name: User specific checks
   ansible.builtin.include_tasks:
     file: tasks/check_users.yml
-  when: controller_user_accounts is defined
-        and controller_user_accounts | length > 0
+  when: aap_user_accounts is defined
+        and aap_user_accounts | length > 0
         and 'users' in rule['objects']
         and
         (

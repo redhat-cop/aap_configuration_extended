@@ -44,9 +44,9 @@ To correctly manage `roles`, they can only be defined by a super-admin organizat
   connection: local
   gather_facts: false
   vars:
-    controller_username: "{{ vault_controller_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
-    controller_password: "{{ vault_controller_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
-    controller_hostname: "{{ vault_controller_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+    aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
     controller_validate_certs: "{{ vault_controller_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
 
   pre_tasks:
@@ -54,9 +54,9 @@ To correctly manage `roles`, they can only be defined by a super-admin organizat
       block:
         - name: "Get the Authentication Token for the future requests"
           ansible.builtin.uri:
-            url: "https://{{ controller_hostname }}/api/v2/tokens/"
-            user: "{{ controller_username }}"
-            password: "{{ controller_password }}"
+            url: "https://{{ aap_hostname }}/api/gateway/v1/tokens/"
+            user: "{{ aap_username }}"
+            password: "{{ aap_password }}"
             method: POST
             force_basic_auth: true
             validate_certs: "{{ controller_validate_certs }}"
@@ -65,10 +65,10 @@ To correctly manage `roles`, they can only be defined by a super-admin organizat
 
         - name: "Set the oauth token to be used since now"
           ansible.builtin.set_fact:
-            controller_oauthtoken: "{{ authtoken_res.json.token }}"
-            controller_oauthtoken_url: "{{ authtoken_res.json.url }}"
+            aap_oauthtoken: "{{ authtoken_res.json.token }}"
+            aap_oauthtoken_url: "{{ authtoken_res.json.url }}"
       no_log: "{{ controller_configuration_object_diff_secure_logging }}"
-      when: controller_oauthtoken is not defined
+      when: aap_oauthtoken is not defined
       tags:
         - always
 
@@ -79,7 +79,7 @@ To correctly manage `roles`, they can only be defined by a super-admin organizat
         controller_configuration_object_diff_tasks:
           - {name: workflow_job_templates, var: controller_workflows, tags: workflow_job_templates}
           - {name: job_templates, var: controller_templates, tags: job_templates}
-          - {name: user_accounts, var: controller_user_accounts, tags: users}
+          - {name: user_accounts, var: aap_user_accounts, tags: users}
           - {name: groups, var: controller_groups, tags: groups}
           - {name: hosts, var: controller_hosts, tags: hosts}
           - {name: inventory_sources, var: controller_inventory_sources, tags: inventory_sources}
@@ -87,13 +87,13 @@ To correctly manage `roles`, they can only be defined by a super-admin organizat
           - {name: projects, var: controller_projects, tags: projects}
           - {name: credentials, var: controller_credentials, tags: credentials}
           - {name: credential_types, var: controller_credential_types, tags: credential_types}
-          - {name: organizations, var: controller_organizations, tags: organizations}
+          - {name: organizations, var: aap_organizations, tags: organizations}
     - role: infra.aap_configuration_extended.dispatch
       vars:
         controller_configuration_dispatcher_roles:
           - {role: workflow_job_templates, var: controller_workflows, tags: workflow_job_templates}
           - {role: job_templates, var: controller_templates, tags: job_templates}
-          - {role: users, var: controller_user_accounts, tags: users}
+          - {role: users, var: aap_user_accounts, tags: users}
           - {role: groups, var: controller_groups, tags: inventories}
           - {role: hosts, var: controller_hosts, tags: hosts}
           - {role: inventory_sources, var: controller_inventory_sources, tags: inventory_sources}
@@ -101,19 +101,19 @@ To correctly manage `roles`, they can only be defined by a super-admin organizat
           - {role: projects, var: controller_projects, tags: projects}
           - {role: credentials, var: controller_credentials, tags: credentials}
           - {role: credential_types, var: controller_credential_types, tags: credential_types}
-          - {role: organizations, var: controller_organizations, tags: organizations}
+          - {role: organizations, var: aap_organizations, tags: organizations}
 
   post_tasks:
     - name: "Delete the Authentication Token used"
       ansible.builtin.uri:
-        url: "https://{{ controller_hostname }}{{ controller_oauthtoken_url }}"
-        user: "{{ controller_username }}"
-        password: "{{ controller_password }}"
+        url: "https://{{ aap_hostname }}{{ aap_oauthtoken_url }}"
+        user: "{{ aap_username }}"
+        password: "{{ aap_password }}"
         method: DELETE
         force_basic_auth: true
         validate_certs: "{{ controller_validate_certs }}"
         status_code: 204
-      when: controller_oauthtoken_url is defined
+      when: aap_oauthtoken_url is defined
 
 $ ansible-playbook drop_diff.yml --tags ${CONTROLLER_OBJECT} -e "{orgs: ${ORGANIZATION}, dir_orgs_vars: orgs_vars, env: ${ENVIRONMENT} }" --vault-password-file ./.vault_pass.txt -e @orgs_vars/env/${ENVIRONMENT}/configure_connection_controller_credentials.yml ${OTHER}
 ```

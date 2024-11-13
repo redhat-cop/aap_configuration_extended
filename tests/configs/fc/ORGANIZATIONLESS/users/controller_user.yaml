@@ -1,5 +1,5 @@
 ---
-controller_user_accounts:
+aap_user_accounts:
  - username: "controller_user"
    password: "INITIAL"
    email: ""

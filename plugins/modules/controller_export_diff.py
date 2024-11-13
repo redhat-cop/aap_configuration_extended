@@ -118,14 +118,12 @@ options:
       aliases: [ tower_host ]
     controller_username:
       description:
-      - Username for your controller instance.
-      - If value not set, will try environment variable C(CONTROLLER_USERNAME) and then config files
+      - Username to connect to your Automation Platform Controller instance.
       type: str
       aliases: [ tower_username ]
     controller_password:
       description:
-      - Password for your controller instance.
-      - If value not set, will try environment variable C(CONTROLLER_PASSWORD) and then config files
+      - Password to connect to your Automation Platform Controller instance.
       type: str
       aliases: [ tower_password ]
     controller_oauthtoken:
@@ -194,8 +192,8 @@ EXAMPLES = """
           credential: gitlab-personal-access-token for satqe_auto_droid
           wait: false
     controller_host: https://controller
-    controller_username: admin
-    controller_password: secret123
+    aap_username: admin
+    aap_password: secret123
     validate_certs: false
   register: export_results
 ...
