@@ -15,13 +15,13 @@ controller_groups:
       {{ template_overrides_resources.group[group.name].variables
          | default(template_overrides_global.group.variables)
          | default(group.variables)
-         | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) | regex_replace('(^[^:]*): (.*){{', '\\g<1>: !unsafe \\g<2>{{', multiline=True)}}
+         | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) | regex_replace('(^[^:]*): (.*){([{%])', '\\g<1>: !unsafe \\g<2>{\\g<3>', multiline=True)}}
 {%- endif %}
     hosts:
 {{ query(controller_api_plugin, group.related.hosts,
          host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
          return_all=true, max_objects=query_controller_api_max_objects
-   ) | selectattr("name", "defined") | map(attribute="name") | to_nice_yaml(indent=2) | indent(width=6, first=True)
+   ) | selectattr("name", "defined") | map(attribute="name") | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=True)
 }}
 {%- endfor -%}
 ...
