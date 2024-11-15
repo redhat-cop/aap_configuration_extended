@@ -17,9 +17,17 @@ controller_workflows:
                      return_all=true, max_objects=query_controller_api_max_objects) %}
       - identifier: "{{ node.identifier }}"
         workflow_job_template: "{{ node.summary_fields.workflow_job_template.name }}"
+{% if node.summary_fields.unified_job_template.unified_job_type is not match('approval') %}
         unified_job_template: "{{ node.summary_fields.unified_job_template.name | default('ToDo: The node is pointing to a deleted Job Template') }}"
+{% endif %}
 {% if node.job_type %}
         job_type: "{{ node.job_type }}"
+{% if node.summary_fields.unified_job_template.unified_job_type is match('approval') %}
+        approval_node:
+          description: "{{ node.summary_fields.unified_job_template.description }}"
+          name: "{{ node.summary_fields.unified_job_template.name }}"
+          timeout: {{ node.summary_fields.unified_job_template.timeout }}
+{% endif %}
 {% endif %}
         organization: "{{ current_workflow_job_templates_asset_value.summary_fields.organization.name | default(organization if organization != 'ORGANIZATIONLESS' else 'ToDo: The WF \'' + current_workflow_job_templates_asset_value.name + '\' must belong to an organization') }}"
         all_parents_must_converge: "{{ node.all_parents_must_converge }}"
