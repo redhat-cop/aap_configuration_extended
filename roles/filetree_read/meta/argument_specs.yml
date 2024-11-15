@@ -26,9 +26,9 @@ argument_specs:
         default: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_settings.d/"
         required: false
         description: Directory path to load controller object variables
-      filetree_controller_organizations:
+      filetree_aap_organizations:
         type: raw
-        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_organizations.d/"
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_organizations.d/"
         required: false
         description: Directory path to load controller object variables
       filetree_controller_labels:
@@ -36,14 +36,14 @@ argument_specs:
         default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_labels.d/"
         required: false
         description: Directory path to load controller object variables
-      filetree_controller_user_accounts:
+      filetree_aap_user_accounts:
         type: raw
         default: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_users.d/"
         required: false
         description: Directory path to load controller object variables
-      filetree_controller_teams:
+      filetree_aap_teams:
         type: raw
-        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_teams.d/"
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_teams.d/"
         required: false
         description: Directory path to load controller object variables
       filetree_controller_credential_types:
@@ -76,9 +76,9 @@ argument_specs:
         default: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_execution_environments.d/"
         required: false
         description: Directory path to load controller object variables
-      filetree_controller_applications:
+      filetree_aap_applications:
         type: raw
-        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_applications.d/"
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_applications.d/"
         required: false
         description: Directory path to load controller object variables
       filetree_controller_inventories:
@@ -170,7 +170,7 @@ argument_specs:
         required: false
         description: The state all objects will take unless overridden by object default
         type: str
-      controller_hostname:
+      aap_hostname:
         default: None
         required: false
         description: URL to the Ansible Controller Server.
@@ -180,17 +180,17 @@ argument_specs:
         required: false
         description: Whether or not to validate the Ansible Controller Server's SSL certificate.
         type: str
-      controller_username:
+      aap_username:
         default: None
         required: false
         description: Admin User on the Ansible Controller Server. Either username / password or oauthtoken need to be specified.
         type: str
-      controller_password:
+      aap_password:
         default: None
         required: false
         description: Controller Admin User's password on the Ansible Controller Server. This should be stored in an Ansible Vault at vars/controller-secrets.yml or elsewhere and called from a parent playbook. Either username / password or oauthtoken need to be specified.
         type: str
-      controller_oauthtoken:
+      aap_oauthtoken:
         default: None
         required: false
         description: Controller Admin User's token on the Ansible Controller Server. This should be stored in an Ansible Vault at or elsewhere and called from a parent playbook. Either username / password or oauthtoken need to be specified.

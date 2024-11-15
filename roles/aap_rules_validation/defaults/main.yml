@@ -35,7 +35,7 @@ __object_var_names:
   projects: controller_projects
   job_templates: controller_templates
   inventories: controller_inventories
-  applications: controller_applications
+  applications: aap_applications
   hosts: controller_hosts
   credential_input_sources: controller_credential_input_sources
   credentials: controller_credentials
@@ -47,11 +47,11 @@ __object_var_names:
   inventory_sources: controller_inventory_sources
   labels: controller_labels
   notification_templates: controller_notifications
-  organizations: controller_organizations
+  organizations: aap_organizations
   roles: controller_roles
   settings: controller_settings
-  teams: controller_teams
-  users: controller_user_accounts
+  teams: aap_teams
+  users: aap_user_accounts
   workflow_job_templates: controller_workflows
   schedules: controller_schedules
 

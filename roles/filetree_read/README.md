@@ -19,17 +19,17 @@ The following Variables set the organization where should be applied the configu
 |`env:`|String|dev|no|This variable sets the life-cycle environment to use.|
 |`controller_location`|String|''|no|This variable sets object localtion. It is useful when the configuration need to be replicated in an active/passive sites architecture|
 |`filetree_controller_settings`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_settings.d/|no|Directory path to load controller object variables|
-|`filetree_controller_organizations`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_organizations.d/|no|Directory path to load controller object variables|
+|`filetree_aap_organizations`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_organizations.d/|no|Directory path to load controller object variables|
 |`filetree_controller_labels`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_labels.d/|no|Directory path to load controller object variables|
-|`filetree_controller_user_accounts`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_users.d/|no|Directory path to load controller object variables|
-|`filetree_controller_teams`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_teams.d/|no|Directory path to load controller object variables|
+|`filetree_aap_user_accounts`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_users.d/|no|Directory path to load controller object variables|
+|`filetree_aap_teams`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_teams.d/|no|Directory path to load controller object variables|
 |`filetree_controller_credential_types`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_credential_types.d/|no|Directory path to load controller object variables|
 |`filetree_controller_credentials`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_credentials.d/|no|Directory path to load controller object variables|
 |`filetree_controller_credential_input_sources`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_credential_input_sources.d/|no|Directory path to load controller object variables|
 |`filetree_controller_notifications`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_notification_templates.d/|no|Directory path to load controller object variables|
 |`filetree_controller_projects`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_projects.d/|no|Directory path to load controller object variables|
 |`filetree_controller_execution_environments`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_execution_environments.d/|no|Directory path to load controller object variables|
-|`filetree_controller_applications`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_applications.d/|no|Directory path to load controller object variables|
+|`filetree_aap_applications`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_applications.d/|no|Directory path to load controller object variables|
 |`filetree_controller_inventories`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_inventories.d/|no|Directory path to load controller object variables|
 |`filetree_controller_inventory_sources`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_inventory_sources.d/|no|Directory path to load controller object variables|
 |`filetree_controller_instance_groups`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_instance_groups.d/|no|Directory path to load controller object variables|
@@ -81,9 +81,9 @@ orgs_vars/env/
 $ $ ansible-vault view orgs_vars/env/demo-dev/configure_connection_controller_credentials.yml
 Vault password:
 ---
-vault_controller_username: 'ldap-admin-org1'
-vault_controller_password: 'password'
-vault_controller_hostname: controller-dev.lab.example.com
+vault_aap_username: 'ldap-admin-org1'
+vault_aap_password: 'password'
+vault_aap_hostname: controller-dev.lab.example.com
 vault_controller_validate_certs: false
 ...
 
@@ -123,14 +123,14 @@ orgs_vars/Organization1
     │   │   │   ├── controller_job_templates_crossteams.yml
     │   │   │   └── controller_job_templates_demo_push.yml
     │   │   └── controller_job_templates.yml
-    │   ├── controller_organizations.d
+    │   ├── aap_organizations.d
     │   │   ├── app-casc
-    │   │   │   └── controller_organizations_Global.yml
+    │   │   │   └── aap_organizations_Global.yml
     │   │   ├── app-example
-    │   │   │   ├── controller_organizations_ExampleOrg.yml
-    │   │   │   ├── controller_organizations_Organizations1-2.yml
-    │   │   │   └── controller_organizations_OrgCrossTeams.yml
-    │   │   └── controller_organizations.yml
+    │   │   │   ├── aap_organizations_ExampleOrg.yml
+    │   │   │   ├── aap_organizations_Organizations1-2.yml
+    │   │   │   └── aap_organizations_OrgCrossTeams.yml
+    │   │   └── aap_organizations.yml
     │   ├── controller_projects.d
     │   │   ├── app-casc
     │   │   │   └── controller_projects_casc.yml
@@ -156,11 +156,11 @@ orgs_vars/Organization1
     │   │   ├── app-example
     │   │   │   └── controller_schedules_example.yml
     │   │   └── controller_schedules.yml
-    │   ├── controller_teams.d
+    │   ├── aap_teams.d
     │   │   ├── app-demo
-    │   │   │   ├── controller_teams_org1.yml
-    │   │   │   └── controller_teams_org2.yml
-    │   │   └── controller_teams.yml
+    │   │   │   ├── aap_teams_org1.yml
+    │   │   │   └── aap_teams_org2.yml
+    │   │   └── aap_teams.yml
     │   └── controller_workflow_job_templates.d
     │       ├── app-casc
     │       │   └── controller_workflow_job_templates_casc.yml
@@ -200,9 +200,9 @@ orgs_vars/Organization1
     │   │   └── controller_instance_groups.yml
     │   ├── controller_users.d
     │   │   ├── app-demo
-    │   │   │   ├── controller_user_accounts_org1.yml
-    │   │   │   └── controller_user_accounts_org2.yml
-    │   │   └── controller_user_accounts.yml
+    │   │   │   ├── aap_user_accounts_org1.yml
+    │   │   │   └── aap_user_accounts_org2.yml
+    │   │   └── aap_user_accounts.yml
     │   ├── controller_inventory_sources.d
     │   │   ├── app-examples
     │   │   │   ├── controller_inventory_sources_sourcea_dev.yml
@@ -248,9 +248,9 @@ orgs_vars/Organization1
         │   └── controller_instance_groups.yml
         ├── controller_users.d
         │   ├── app-demo
-        │   │   ├── controller_user_accounts_org1.yml
-        │   │   └── controller_user_accounts_org2.yml
-        │   └── controller_user_accounts.yml
+        │   │   ├── aap_user_accounts_org1.yml
+        │   │   └── aap_user_accounts_org2.yml
+        │   └── aap_user_accounts.yml
         ├── controller_inventory_sources.d
         │   ├── app-examples
         │   │   ├── controller_inventory_sources_sourcea_dev.yml
@@ -291,9 +291,9 @@ The role is designed to be used with tags, each tags correspond to an AWX or Aut
   vars:
     controller_configuration_projects_async_retries: 60
     controller_configuration_projects_async_delay: 2
-    controller_username: "{{ vault_controller_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
-    controller_password: "{{ vault_controller_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
-    controller_hostname: "{{ vault_controller_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+    aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
     controller_validate_certs: "{{ vault_controller_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
 
   pre_tasks:
@@ -301,9 +301,9 @@ The role is designed to be used with tags, each tags correspond to an AWX or Aut
       block:
         - name: "Get the Authentication Token for the future requests"
           ansible.builtin.uri:
-            url: "https://{{ controller_hostname }}/api/v2/tokens/"
-            user: "{{ controller_username }}"
-            password: "{{ controller_password }}"
+            url: "https://{{ aap_hostname }}/api/gateway/v1/tokens/"
+            user: "{{ aap_username }}"
+            password: "{{ aap_password }}"
             method: POST
             force_basic_auth: true
             validate_certs: "{{ controller_validate_certs }}"
@@ -312,10 +312,10 @@ The role is designed to be used with tags, each tags correspond to an AWX or Aut
 
         - name: "Set the oauth token to be used since now"
           ansible.builtin.set_fact:
-            controller_oauthtoken: "{{ authtoken_res.json.token }}"
-            controller_oauthtoken_url: "{{ authtoken_res.json.url }}"
+            aap_oauthtoken: "{{ authtoken_res.json.token }}"
+            aap_oauthtoken_url: "{{ authtoken_res.json.url }}"
           no_log: true
-      when: controller_oauthtoken is not defined
+      when: aap_oauthtoken is not defined
       tags:
         - always
 
@@ -340,7 +340,7 @@ The role is designed to be used with tags, each tags correspond to an AWX or Aut
           vars:
             assign_galaxy_credentials_to_org: false
             controller_configuration_dispatcher_roles:
-              - {role: organizations, var: controller_organizations, tags: organizations}
+              - {role: organizations, var: aap_organizations, tags: organizations}
               - {role: credentials, var: controller_credentials, tags: credentials}
 
   roles:
@@ -350,14 +350,14 @@ The role is designed to be used with tags, each tags correspond to an AWX or Aut
   post_tasks:
     - name: "Delete the Authentication Token used"
       ansible.builtin.uri:
-        url: "https://{{ controller_hostname }}{{ controller_oauthtoken_url }}"
-        user: "{{ controller_username }}"
-        password: "{{ controller_password }}"
+        url: "https://{{ aap_hostname }}{{ aap_oauthtoken_url }}"
+        user: "{{ aap_username }}"
+        password: "{{ aap_password }}"
         method: DELETE
         force_basic_auth: true
         validate_certs: "{{ controller_validate_certs }}"
         status_code: 204
-      when: controller_oauthtoken_url is defined
+      when: aap_oauthtoken_url is defined
 ...
 
 ```

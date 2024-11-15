@@ -5,17 +5,17 @@
   gather_facts: false
   vars:
     filetree_controller_settings: &filetree_create_output_dir "{{ filetree_create_output_dir }}"
-    filetree_controller_organizations: *filetree_create_output_dir
+    filetree_aap_organizations: *filetree_create_output_dir
     filetree_controller_labels: *filetree_create_output_dir
-    filetree_controller_user_accounts: *filetree_create_output_dir
-    filetree_controller_teams: *filetree_create_output_dir
+    filetree_aap_user_accounts: *filetree_create_output_dir
+    filetree_aap_teams: *filetree_create_output_dir
     filetree_controller_credential_types: *filetree_create_output_dir
     filetree_controller_credentials: *filetree_create_output_dir
     filetree_controller_credential_input_sources: *filetree_create_output_dir
     filetree_controller_notifications: *filetree_create_output_dir
     filetree_controller_projects: *filetree_create_output_dir
     filetree_controller_execution_environments: *filetree_create_output_dir
-    filetree_controller_applications: *filetree_create_output_dir
+    filetree_aap_applications: *filetree_create_output_dir
     filetree_controller_inventories: *filetree_create_output_dir
     filetree_controller_inventory_sources: *filetree_create_output_dir
     filetree_controller_instance_groups: *filetree_create_output_dir
@@ -47,14 +47,14 @@
       loop:
         - name: controller_settings
           value: "{{ controller_settings }}"
-        - name: controller_organizations
-          value: "{{ controller_organizations }}"
+        - name: aap_organizations
+          value: "{{ aap_organizations }}"
         - name: controller_labels
           value: "{{ controller_labels }}"
-        - name: controller_user_accounts
-          value: "{{ controller_user_accounts }}"
-        - name: controller_teams
-          value: "{{ controller_teams }}"
+        - name: aap_user_accounts
+          value: "{{ aap_user_accounts }}"
+        - name: aap_teams
+          value: "{{ aap_teams }}"
         - name: controller_credential_types
           value: "{{ controller_credential_types }}"
         - name: controller_credentials
@@ -67,8 +67,8 @@
           value: "{{ controller_projects }}"
         - name: controller_execution_environments
           value: "{{ controller_execution_environments }}"
-        - name: controller_applications
-          value: "{{ controller_applications }}"
+        - name: aap_applications
+          value: "{{ aap_applications }}"
         - name: controller_inventories
           value: "{{ controller_inventories }}"
         - name: controller_inventory_sources

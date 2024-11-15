@@ -51,19 +51,19 @@ EXAMPLES = """
 - name: Get the organization ID
   set_fact:
     controller_organization_id: "{{ lookup('awx.awx.controller_api', 'organizations', query_params={ 'name': 'Default' },
-      host=controller_hostname, username=controller_username, password=controller_password, verify_ssl=false) }}"
+      host=aap_hostname, username=aap_username, password=aap_password, verify_ssl=false) }}"
 
 - name: "Get the API list of all Projects in the Default Organization"
   set_fact:
     controller_api_results: "{{ lookup('awx.awx.controller_api', 'projects', query_params={ 'organization':
-      controller_organization_id.id } ,host=controller_hostname, username=controller_username,
-      password=controller_password, verify_ssl=false) }}"
+      controller_organization_id.id } ,host=aap_hostname, username=aap_username,
+      password=aap_password, verify_ssl=false) }}"
 
 - name: "Get the API in a list form. Useful for making sure the results of one item is set to a list."
   set_fact:
     controller_api_results: "{{ query('awx.awx.controller_api', 'inventories', query_params={ 'organization':
-      controller_organization_id.id } ,host=controller_hostname, username=controller_username,
-      password=controller_password, verify_ssl=false) }}"
+      controller_organization_id.id } ,host=aap_hostname, username=aap_username,
+      password=aap_password, verify_ssl=false) }}"
 
 - name: "Find the difference of Project between what is on the Controller versus curated list."
   set_fact:
