@@ -7,20 +7,32 @@
     - always
   vars:
     # Controller connection variables
-    controller_username: "{{ vault_controller_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
-    controller_password: "{{ vault_controller_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
-    controller_hostname: "{{ vault_controller_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+    aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
     controller_validate_certs: "{{ vault_controller_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
   tasks:
     - name: "Setup authentication (block)"
       no_log: "{{ controller_configuration_filetree_create_secure_logging | default(true) }}"
-      when: controller_oauthtoken is not defined
+      when: aap_oauthtoken is not defined
       block:
+        # - name: "Create a new token using username/password"
+        #   awx.awx.token:
+        #     description: 'Token for Automated Management'
+        #     scope: "write"
+        #     state: present
+        #     controller_host: "{{ aap_hostname }}"
+        #     aap_username: "{{ aap_username }}"
+        #     aap_password: "{{ aap_password }}"
+        #     validate_certs: "{{ controller_validate_certs }}"
+        #   register: authtoken_res_new
+        # - debug: var=authtoken_res_new
+
         - name: "Get the Authentication Token for the future requests"
           ansible.builtin.uri:
-            url: "https://{{ controller_hostname }}/api/v2/tokens/"
-            user: "{{ controller_username }}"
-            password: "{{ controller_password }}"
+            url: "https://{{ aap_hostname }}/api/gateway/v1/tokens/"
+            user: "{{ aap_username }}"
+            password: "{{ aap_password }}"
             method: POST
             force_basic_auth: true
             validate_certs: "{{ controller_validate_certs }}"
@@ -29,8 +41,8 @@
 
         - name: "Set the oauth token to be used since now"
           ansible.builtin.set_fact:
-            controller_oauthtoken: "{{ authtoken_res.json.token }}"
-            controller_oauthtoken_url: "{{ authtoken_res.json.url }}"
+            aap_oauthtoken: "{{ authtoken_res.json.token }}"
+            aap_oauthtoken_url: "{{ authtoken_res.json.url }}"
 
 - name: "Test the filetree_create role"
   # Run example: ansible-playbook test_filetree_create.yaml -e@vault-aap-controller.yaml
@@ -41,9 +53,9 @@
   gather_facts: false
   vars:
     # Controller connection variables
-    controller_username: "{{ vault_controller_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
-    controller_password: "{{ vault_controller_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
-    controller_hostname: "{{ vault_controller_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+    aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
     controller_validate_certs: "{{ vault_controller_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
     # output_path: "/tmp/filetree_output_default"
   pre_tasks:
@@ -94,21 +106,21 @@
     - always
   vars:
     # Controller connection variables
-    controller_username: "{{ vault_controller_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
-    controller_password: "{{ vault_controller_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
-    controller_hostname: "{{ vault_controller_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+    aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
     controller_validate_certs: "{{ vault_controller_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
   tasks:
     - name: "Delete the Authentication Token used"
       ansible.builtin.uri:
-        url: "https://{{ controller_hostname }}{{ controller_oauthtoken_url }}"
-        user: "{{ controller_username }}"
-        password: "{{ controller_password }}"
+        url: "https://{{ aap_hostname }}{{ aap_oauthtoken_url }}"
+        user: "{{ aap_username }}"
+        password: "{{ aap_password }}"
         method: DELETE
         force_basic_auth: true
         validate_certs: "{{ controller_validate_certs }}"
         status_code: 204
-      when: controller_oauthtoken_url is defined
+      when: aap_oauthtoken_url is defined
 
 # Run example: ansible-playbook test_filetree_create.yaml -e@vault-aap-controller.yaml
 # Run example: ansible-playbook test_filetree_create.yaml -e@vault-aap-controller.yaml --tags default

@@ -30,7 +30,7 @@ The Following Variables need to be changed:
 |:---:|:---:|
 |`tower_ad_hoc_commands`|`controller_ad_hoc_commands`|
 |`tower_ad_hoc_commands_cancel`|`controller_ad_hoc_commands_cancel`|
-|`tower_applications`|`controller_applications`|
+|`tower_applications`|`aap_applications`|
 |`tower_credential_input_sources`|`controller_credential_input_sources`|
 |`tower_credential_types`|`controller_credential_types`|
 |`tower_credentials`|`controller_credentials`|
@@ -46,13 +46,13 @@ The Following Variables need to be changed:
 |`tower_labels`|`controller_labels`|
 |`tower_license`|`controller_license`|
 |`tower_notifications`|`controller_notifications`|
-|`tower_organizations`|`controller_organizations`|
+|`tower_organizations`|`aap_organizations`|
 |`tower_projects`|`controller_projects`|
 |`tower_rbac`|`controller_roles`|
 |`tower_schedules`|`controller_schedules`|
 |`tower_settings`|`controller_settings`|
-|`tower_teams`|`controller_teams`|
-|`tower_user_accounts`|`controller_user_accounts`|
+|`tower_teams`|`aap_teams`|
+|`tower_user_accounts`|`aap_user_accounts`|
 |`tower_workflows`|`controller_workflows`|
 |`tower_workflow_launch_jobs`|`controller_workflow_launch_jobs`|
 
@@ -60,10 +60,10 @@ The Following Variables need to be changed:
 
 |Tower Variable Name|Controller Variable Name|
 |:---:|:---:|
-|`tower_username`|`controller_username`|
-|`tower_password`|`controller_password`|
-|`tower_oauthtoken`|`controller_oauthtoken`|
-|`tower_hostname`|`controller_hostname`|
+|`tower_username`|`aap_username`|
+|`tower_password`|`aap_password`|
+|`tower_oauthtoken`|`aap_oauthtoken`|
+|`tower_hostname`|`aap_hostname`|
 |`tower_config_file`|`controller_config_file`|
 |`tower_validate_certs`|`controller_validate_certs`|
 

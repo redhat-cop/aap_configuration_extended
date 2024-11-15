@@ -46,9 +46,9 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
   connection: local
   gather_facts: false
   vars:
-    controller_username: "{{ vault_controller_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
-    controller_password: "{{ vault_controller_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
-    controller_hostname: "{{ vault_controller_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+    aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
     controller_validate_certs: "{{ vault_controller_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
 
   pre_tasks:
@@ -56,9 +56,9 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
       block:
         - name: "Get the Authentication Token for the future requests"
           ansible.builtin.uri:
-            url: "https://{{ controller_hostname }}/api/v2/tokens/"
-            user: "{{ controller_username }}"
-            password: "{{ controller_password }}"
+            url: "https://{{ aap_hostname }}/api/gateway/v1/tokens/"
+            user: "{{ aap_username }}"
+            password: "{{ aap_password }}"
             method: POST
             force_basic_auth: true
             validate_certs: "{{ controller_validate_certs }}"
@@ -67,10 +67,10 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
 
         - name: "Set the oauth token to be used since now"
           ansible.builtin.set_fact:
-            controller_oauthtoken: "{{ authtoken_res.json.token }}"
-            controller_oauthtoken_url: "{{ authtoken_res.json.url }}"
+            aap_oauthtoken: "{{ authtoken_res.json.token }}"
+            aap_oauthtoken_url: "{{ authtoken_res.json.url }}"
       no_log: "{{ controller_configuration_filetree_create_secure_logging | default('false') }}"
-      when: controller_oauthtoken is not defined
+      when: aap_oauthtoken is not defined
       tags:
         - always
 
@@ -80,14 +80,14 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
   post_tasks:
     - name: "Delete the Authentication Token used"
       ansible.builtin.uri:
-        url: "https://{{ controller_hostname }}{{ controller_oauthtoken_url }}"
-        user: "{{ controller_username }}"
-        password: "{{ controller_password }}"
+        url: "https://{{ aap_hostname }}{{ aap_oauthtoken_url }}"
+        user: "{{ aap_username }}"
+        password: "{{ aap_password }}"
         method: DELETE
         force_basic_auth: true
         validate_certs: "{{ controller_validate_certs }}"
         status_code: 204
-      when: controller_oauthtoken_url is defined
+      when: aap_oauthtoken_url is defined
 ...
 ```
 
@@ -100,7 +100,7 @@ This role can generate output files in two different ways:
   The export can be triggered with the following command:
 
   ```console
-  ansible-playbook -i localhost, filetree_create.yml -e '{controller_validate_certs: false, controller_hostname: localhost:8443, controller_username: admin, controller_password: password}'
+  ansible-playbook -i localhost, filetree_create.yml -e '{controller_validate_certs: false, aap_hostname: localhost:8443, aap_username: admin, aap_password: password}'
   ```
 
   One example of this approach follows:
@@ -171,7 +171,7 @@ This role can generate output files in two different ways:
   The expotation can be triggered with the following command:
 
   ```console
-  ansible-playbook -i localhost, filetree_create.yml -e '{controller_validate_certs: false, controller_hostname: localhost:8443, controller_username: admin, controller_password: password, flatten_output: true}'
+  ansible-playbook -i localhost, filetree_create.yml -e '{controller_validate_certs: false, aap_hostname: localhost:8443, aap_username: admin, aap_password: password, flatten_output: true}'
   ```
 
   One example of this approach follows:
@@ -221,9 +221,9 @@ This example will export all object but some with modifications:
   connection: local
   gather_facts: false
   vars:
-    controller_username: "{{ vault_controller_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
-    controller_oauthtoken : "{{ vault_controller_password | default(lookup('env', 'CONTROLLER_OAUTHTOKEN')) }}"
-    controller_hostname: "{{ vault_controller_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    aap_oauthtoken : "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_OAUTHTOKEN')) }}"
+    aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
     controller_validate_certs: "{{ vault_controller_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
 
     templates_overrides_resources:

@@ -15,17 +15,17 @@
     orgs: ''
     # Controller Directory Path
     filetree_controller_settings: &custom_configs_path "./configs/custom"
-    filetree_controller_organizations: *custom_configs_path
+    filetree_aap_organizations: *custom_configs_path
     filetree_controller_labels: *custom_configs_path
-    filetree_controller_user_accounts: *custom_configs_path
-    filetree_controller_teams: *custom_configs_path
+    filetree_aap_user_accounts: *custom_configs_path
+    filetree_aap_teams: *custom_configs_path
     filetree_controller_credential_types: *custom_configs_path
     filetree_controller_credentials: *custom_configs_path
     filetree_controller_credential_input_sources: *custom_configs_path
     filetree_controller_notifications: *custom_configs_path
     filetree_controller_projects: *custom_configs_path
     filetree_controller_execution_environments: *custom_configs_path
-    filetree_controller_applications: *custom_configs_path
+    filetree_aap_applications: *custom_configs_path
     filetree_controller_inventories: *custom_configs_path
     filetree_controller_inventory_sources: *custom_configs_path
     filetree_controller_instance_groups: *custom_configs_path
@@ -51,17 +51,17 @@
     orgs: ''
     # Controller Directory Path
     filetree_controller_settings: &fc_configs_path "./configs/fc"
-    filetree_controller_organizations: *fc_configs_path
+    filetree_aap_organizations: *fc_configs_path
     filetree_controller_labels: *fc_configs_path
-    filetree_controller_user_accounts: *fc_configs_path
-    filetree_controller_teams: *fc_configs_path
+    filetree_aap_user_accounts: *fc_configs_path
+    filetree_aap_teams: *fc_configs_path
     filetree_controller_credential_types: *fc_configs_path
     filetree_controller_credentials: *fc_configs_path
     filetree_controller_credential_input_sources: *fc_configs_path
     filetree_controller_notifications: *fc_configs_path
     filetree_controller_projects: *fc_configs_path
     filetree_controller_execution_environments: *fc_configs_path
-    filetree_controller_applications: *fc_configs_path
+    filetree_aap_applications: *fc_configs_path
     filetree_controller_inventories: *fc_configs_path
     filetree_controller_inventory_sources: *fc_configs_path
     filetree_controller_instance_groups: *fc_configs_path
@@ -87,17 +87,17 @@
     orgs: ''
     # Controller Directory Path
     filetree_controller_settings: &fcf_configs_path "./configs/fcf"
-    filetree_controller_organizations: *fcf_configs_path
+    filetree_aap_organizations: *fcf_configs_path
     filetree_controller_labels: *fcf_configs_path
-    filetree_controller_user_accounts: *fcf_configs_path
-    filetree_controller_teams: *fcf_configs_path
+    filetree_aap_user_accounts: *fcf_configs_path
+    filetree_aap_teams: *fcf_configs_path
     filetree_controller_credential_types: *fcf_configs_path
     filetree_controller_credentials: *fcf_configs_path
     filetree_controller_credential_input_sources: *fcf_configs_path
     filetree_controller_notifications: *fcf_configs_path
     filetree_controller_projects: *fcf_configs_path
     filetree_controller_execution_environments: *fcf_configs_path
-    filetree_controller_applications: *fcf_configs_path
+    filetree_aap_applications: *fcf_configs_path
     filetree_controller_inventories: *fcf_configs_path
     filetree_controller_inventory_sources: *fcf_configs_path
     filetree_controller_instance_groups: *fcf_configs_path
@@ -121,9 +121,9 @@
     # Controller connection variables
     controller_configuration_projects_async_retries: 60
     controller_configuration_projects_async_delay: 2
-    controller_username: "{{ vault_controller_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
-    controller_password: "{{ vault_controller_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
-    controller_hostname: "{{ vault_controller_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+    aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
     controller_validate_certs: "{{ vault_controller_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
     ah_token: "dummytoken"
     # filetree_read mandatory parameters
@@ -131,17 +131,17 @@
     orgs: ''
     # Controller Directory Path
     filetree_controller_settings: &gv_configs_path "configs/gv/group_vars/test"
-    filetree_controller_organizations: *gv_configs_path
+    filetree_aap_organizations: *gv_configs_path
     filetree_controller_labels: *gv_configs_path
-    filetree_controller_user_accounts: *gv_configs_path
-    filetree_controller_teams: *gv_configs_path
+    filetree_aap_user_accounts: *gv_configs_path
+    filetree_aap_teams: *gv_configs_path
     filetree_controller_credential_types: *gv_configs_path
     filetree_controller_credentials: *gv_configs_path
     filetree_controller_credential_input_sources: *gv_configs_path
     filetree_controller_notifications: *gv_configs_path
     filetree_controller_projects: *gv_configs_path
     filetree_controller_execution_environments: *gv_configs_path
-    filetree_controller_applications: *gv_configs_path
+    filetree_aap_applications: *gv_configs_path
     filetree_controller_inventories: *gv_configs_path
     filetree_controller_inventory_sources: *gv_configs_path
     filetree_controller_instance_groups: *gv_configs_path

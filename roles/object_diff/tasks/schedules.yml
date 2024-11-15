@@ -3,19 +3,19 @@
   ansible.builtin.set_fact:
     __controller_organization_id: "{{ lookup(controller_api_plugin, 'organizations',
                                              query_params={'name': orgs},
-                                             host=controller_hostname, oauth_token=controller_oauthtoken, verify_ssl=controller_validate_certs)
+                                             host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs)
                                    }}"
 
 - name: "Get the API list of all WF and Job Templates in Organization {{ orgs }}"
   ansible.builtin.set_fact:
     __controller_api_job_templates: "{{ query(controller_api_plugin, 'job_templates',
                                               query_params={'organization': __controller_organization_id.id},
-                                              host=controller_hostname, oauth_token=controller_oauthtoken, verify_ssl=controller_validate_certs,
+                                              host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
                                               return_all=true, max_objects=query_controller_api_max_objects)
                                      }}"
     __controller_api_workflow_job_templates: "{{ query(controller_api_plugin, 'workflow_job_templates',
                                                        query_params={'organization': __controller_organization_id.id},
-                                                       host=controller_hostname, oauth_token=controller_oauthtoken, verify_ssl=controller_validate_certs,
+                                                       host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
                                                        return_all=true, max_objects=query_controller_api_max_objects)
                                               }}"
 
@@ -26,7 +26,7 @@
 - name: "Get the API list of all Schedules"
   ansible.builtin.set_fact:
     __controller_api_schedules_prefilter: "{{ query(controller_api_plugin, 'schedules',
-                                                    host=controller_hostname, oauth_token=controller_oauthtoken, verify_ssl=controller_validate_certs,
+                                                    host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
                                                     return_all=true, max_objects=query_controller_api_max_objects)
                                            }}"
 
