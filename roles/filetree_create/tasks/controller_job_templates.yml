@@ -5,7 +5,7 @@
                                      query_params=(query_params | combine({'organization': organization_id} if organization_id is defined else {},
                                      {'project': project_id} if project_id is defined else {},
                                      {'id': job_template_id} if job_template_id is defined else {})),
-                                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                      return_all=true, max_objects=query_controller_api_max_objects)
                             }}"
   vars:
@@ -52,16 +52,16 @@
         job_template_id: "{{ current_job_templates_asset_value.id }}"
         job_template_name: "{{ current_job_templates_asset_value.name | regex_replace('/', '_') }}"
         query_labels: "{{ query(controller_api_plugin, current_job_templates_asset_value.related.labels,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_error: "{{ query(controller_api_plugin, current_job_templates_asset_value.related.notification_templates_error,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_started: "{{ query(controller_api_plugin, current_job_templates_asset_value.related.notification_templates_started,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_success: "{{ query(controller_api_plugin, current_job_templates_asset_value.related.notification_templates_success,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         last_job_template: "{{ current_job_template_index == ((job_templates_lookvar | length) - 1) }}"
       loop: "{{ job_templates_lookvar }}"
@@ -107,16 +107,16 @@
         job_template_name: "{{ current_job_templates_asset_value.name | regex_replace('/', '_') }}"
         __dest: "{{ output_path }}/{{ job_template_organization | regex_replace('/', '_') }}/controller_job_templates/{{ (job_template_id ~ '_') if omit_id is not defined else '' }}{{ job_template_name | regex_replace('/', '_') }}.yaml"
         query_labels: "{{ query(controller_api_plugin, current_job_templates_asset_value.related.labels,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_error: "{{ query(controller_api_plugin, current_job_templates_asset_value.related.notification_templates_error,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_started: "{{ query(controller_api_plugin, current_job_templates_asset_value.related.notification_templates_started,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_success: "{{ query(controller_api_plugin, current_job_templates_asset_value.related.notification_templates_success,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
       loop: "{{ job_templates_lookvar }}"
       loop_control:

@@ -1,0 +1,38 @@
+---
+gateway_services:
+{% for current_service in current_gateway_services_asset_value %}
+  - name: "{{ template_overrides_resources.gateway_service[current_service.name].name
+                     | default(template_overrides_global.gateway_service.name)
+                     | default(current_service.name) }}"
+    description: "{{ template_overrides_resources.gateway_service[current_service.name].description
+                     | default(template_overrides_global.gateway_service.description)
+                     | default(current_service.description) }}"
+    http_port: "{{ template_overrides_resources.gateway_service[current_service.name].http_port
+                     | default(template_overrides_global.gateway_service.http_port)
+                     | default(current_service.http_port) }}"
+    service_cluster: "{{ template_overrides_resources.gateway_service[current_service.name].service_cluster
+                     | default(template_overrides_global.gateway_service.service_cluster)
+                     | default(current_service.service_cluster) }}"
+    service_port: "{{ template_overrides_resources.gateway_service[current_service.name].service_port
+                     | default(template_overrides_global.gateway_service.service_port)
+                     | default(current_service.service_port) }}"
+    is_service_https: "{{ template_overrides_resources.gateway_service[current_service.name].is_service_https
+                     | default(template_overrides_global.gateway_service.is_service_https)
+                     | default(current_service.is_service_https) }}"
+    service_path: "{{ template_overrides_resources.gateway_service[current_service.name].service_path
+                     | default(template_overrides_global.gateway_service.service_path)
+                     | default(current_service.service_path) }}"
+    api_slug: "{{ template_overrides_resources.gateway_service[current_service.name].api_slug
+                     | default(template_overrides_global.gateway_service.api_slug)
+                     | default(current_service.api_slug) }}"
+    enable_gateway_auth: "{{ template_overrides_resources.gateway_service[current_service.name].enable_gateway_auth
+                     | default(template_overrides_global.gateway_service.enable_gateway_auth)
+                     | default(current_service.enable_gateway_auth) }}"
+    order: "{{ template_overrides_resources.gateway_service[current_service.name].order
+                     | default(template_overrides_global.gateway_service.order)
+                     | default(current_service.order) }}"
+    node_tags: "{{ template_overrides_resources.gateway_service[current_service.name].node_tags
+                     | default(template_overrides_global.gateway_service.node_tags)
+                     | default(current_service.node_tags) }}"
+{% endfor %}
+...

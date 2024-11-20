@@ -39,7 +39,7 @@
       ansible.builtin.assert:
         that:
           - tag_item in valid_tags
-        fail_msg: "The valid tags are the following ones: {{ valid_tags | join(', ') }}"
+        fail_msg: "Received tags are not valid: {{ tag_item }}. The valid tags are the following ones: {{ valid_tags | join(', ') }}. The list of the received tags is: {{ input_tag }}"
         quiet: true
       loop: "{{ input_tag }}"
       loop_control:

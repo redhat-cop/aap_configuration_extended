@@ -1,0 +1,27 @@
+---
+- name: "Get current Users from the Gateway API"
+  ansible.builtin.set_fact:
+    gateway_users_lookvar: "{{ query('ansible.platform.gateway_api', 'api/gateway/v1/users/',
+                                        query_params=(query_params | combine({'id': user_id})) if user_id is defined else query_params,
+                                        host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                        return_all=true, max_objects=query_controller_api_max_objects)
+                                    }}"
+  vars:
+    query_params:
+      order_by: 'id'
+  no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+- name: "Create the output directory for gateway users: {{ output_path }}"
+  ansible.builtin.file:
+    path: "{{ output_path }}"
+    state: directory
+    mode: '0755'
+
+- name: "Add current gateway user to the gateway_users.yaml output file in {{ output_path }}"
+  ansible.builtin.template:
+    src: "templates/gateway_users.j2"
+    dest: "{{ output_path }}/gateway_users.yaml"
+    mode: '0644'
+  vars:
+    current_gateway_users_asset_value: "{{ gateway_users_lookvar }}"
+...

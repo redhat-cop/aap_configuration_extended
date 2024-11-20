@@ -1,0 +1,30 @@
+---
+gateway_authenticators:
+{% for current_authenticator in current_gateway_authenticators_asset_value %}
+  - name: "{{ current_authenticator.name }}"
+    name: "{{ template_overrides_resources.gateway_authenticator[current_authenticator.name].name
+                     | default(template_overrides_global.gateway_authenticator.name)
+                     | default(current_authenticator.name) }}"
+    enabled: "{{ template_overrides_resources.gateway_authenticator[current_authenticator.name].enabled
+                     | default(template_overrides_global.gateway_authenticator.enabled)
+                     | default(current_authenticator.enabled) }}"
+    create_objects: "{{ template_overrides_resources.gateway_authenticator[current_authenticator.name].create_objects
+                     | default(template_overrides_global.gateway_authenticator.create_objects)
+                     | default(current_authenticator.create_objects) }}"
+    remove_users: "{{ template_overrides_resources.gateway_authenticator[current_authenticator.name].remove_users
+                     | default(template_overrides_global.gateway_authenticator.remove_users)
+                     | default(current_authenticator.remove_users) }}"
+    configuration: "{{ template_overrides_resources.gateway_authenticator[current_authenticator.name].configuration
+                     | default(template_overrides_global.gateway_authenticator.configuration)
+                     | default(current_authenticator.configuration) }}"
+    type: "{{ template_overrides_resources.gateway_authenticator[current_authenticator.name].type
+                     | default(template_overrides_global.gateway_authenticator.type)
+                     | default(current_authenticator.type) }}"
+    order: "{{ template_overrides_resources.gateway_authenticator[current_authenticator.name].order
+                     | default(template_overrides_global.gateway_authenticator.order)
+                     | default(current_authenticator.order) }}"
+    auto_migrate_users_to: "{{ template_overrides_resources.gateway_authenticator[current_authenticator.name].auto_migrate_users_to
+                     | default(template_overrides_global.gateway_authenticator.auto_migrate_users_to)
+                     | default(current_authenticator.auto_migrate_users_to) }}"
+{% endfor %}
+...

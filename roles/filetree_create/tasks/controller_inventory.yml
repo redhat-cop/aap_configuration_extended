@@ -4,7 +4,7 @@
     inventory_lookvar: "{{ query(controller_api_plugin, 'api/controller/v2/inventories/',
                                  query_params=(query_params | combine({'organization': organization_id} if organization_id is defined else {},
                                  {'id': inventory_id} if inventory_id is defined else {})),
-                                 host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                                 host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                  return_all=true, max_objects=query_controller_api_max_objects)
                         }}"
   vars:
@@ -99,7 +99,7 @@
                                       else
                                         output_path + '/inventory_sources.yaml' }}"
     current_inventory_sources_asset_value: "{{ query(controller_api_plugin, current_inventory_sources.related.inventory_sources,
-                                                    host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                                                    host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                                     return_all=true, max_objects=query_controller_api_max_objects)
                                               if current_inventory_sources.has_inventory_sources else []
                                             }}"
@@ -123,7 +123,7 @@
                             output_path + '/controller_hosts.yaml' }}"
     current_hosts_asset_value: "{{ query(controller_api_plugin, current_inventory_hosts.related.hosts,
                                         query_params={'not__description': 'imported'},
-                                        host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                                        host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                         return_all=true, max_objects=query_controller_api_max_objects)
                                   if not current_inventory_hosts.has_inventory_sources else []
                                 }}"
@@ -146,7 +146,7 @@
                             output_path + '/groups.yaml' }}"
     current_groups_asset_value: "{{ query(controller_api_plugin, current_inventory_groups.related.groups,
                                           query_params={'not__description': 'imported'},
-                                          host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                                          host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                           return_all=true, max_objects=query_controller_api_max_objects)
                                     if (not current_inventory_groups.has_inventory_sources or current_inventory_groups.kind is match('smart')) else []
                                 }}"

@@ -1,0 +1,27 @@
+---
+- name: "Get current Authenticator Maps from the Gateway API"
+  ansible.builtin.set_fact:
+    gateway_authenticator_maps_lookvar: "{{ query('ansible.platform.gateway_api', 'api/gateway/v1/authenticator_maps/',
+                                            query_params=(query_params | combine({'id': authenticator_map_id})) if authenticator_map_id is defined else query_params,
+                                            host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                            return_all=true, max_objects=query_controller_api_max_objects)
+                                        }}"
+  vars:
+    query_params:
+      order_by: 'id'
+  no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+- name: "Create the output directory for gateway authenticator_maps: {{ output_path }}"
+  ansible.builtin.file:
+    path: "{{ output_path }}"
+    state: directory
+    mode: '0755'
+
+- name: "Add current gateway authenticator map to the gateway_authenticator_maps.yaml output file in {{ output_path }}"
+  ansible.builtin.template:
+    src: "templates/gateway_authenticator_maps.j2"
+    dest: "{{ output_path }}/gateway_authenticator_maps.yaml"
+    mode: '0644'
+  vars:
+    current_gateway_authenticator_maps_asset_value: "{{ gateway_authenticator_maps_lookvar }}"
+...

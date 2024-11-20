@@ -1,0 +1,21 @@
+---
+- name: "Get current Settings from the API"
+  ansible.builtin.set_fact:
+    all_settings: "{{ query('ansible.platform.gateway_api', 'api/gateway/v1/settings/all/',
+                            host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                            return_all=true, max_objects=query_gateway_api_max_objects)
+                       }}"
+  # no_log: "{{ gateway_configuration_filetree_create_secure_logging }}"
+
+- name: "Create the output directory for gateway_settings in {{ output_path }}"
+  ansible.builtin.file:
+    path: "{{ output_path }}"
+    state: directory
+    mode: '0755'
+
+- name: "Add current settings to the gateway_settings.yaml output file in {{ output_path }}"
+  ansible.builtin.template:
+    src: "templates/gateway_settings.j2"
+    dest: "{{ output_path }}/gateway_settings.yaml"
+    mode: '0644'
+...

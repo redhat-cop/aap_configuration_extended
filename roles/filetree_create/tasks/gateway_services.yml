@@ -1,0 +1,27 @@
+---
+- name: "Get current Services from the Gateway API"
+  ansible.builtin.set_fact:
+    gateway_services_lookvar: "{{ query('ansible.platform.gateway_api', 'api/gateway/v1/services/',
+                                        query_params=(query_params | combine({'id': service_id})) if service_id is defined else query_params,
+                                        host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                        return_all=true, max_objects=query_controller_api_max_objects)
+                                    }}"
+  vars:
+    query_params:
+      order_by: 'id'
+  no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+- name: "Create the output directory for gateway services: {{ output_path }}"
+  ansible.builtin.file:
+    path: "{{ output_path }}"
+    state: directory
+    mode: '0755'
+
+- name: "Add current gateway service to the gateway_services.yaml output file in {{ output_path }}"
+  ansible.builtin.template:
+    src: "templates/gateway_services.j2"
+    dest: "{{ output_path }}/gateway_services.yaml"
+    mode: '0644'
+  vars:
+    current_gateway_services_asset_value: "{{ gateway_services_lookvar }}"
+...

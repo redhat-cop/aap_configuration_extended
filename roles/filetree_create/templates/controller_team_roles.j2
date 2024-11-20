@@ -4,7 +4,7 @@ controller_roles:
 {% endif %}
 {% for role in object_roles %}
 {% if (role|dict2items)[0].value.resource_type is defined %}
-  - team: "{{ (role|dict2items)[0].value.team_name }}"
+  - team: "{{ team_name }}"
 {% if (role|dict2items)[0].value.resource_names | length > 0 %}
 {% if (role|dict2items)[0].value.resource_type is match('organization') %}
     organizations:

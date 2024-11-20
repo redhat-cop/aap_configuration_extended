@@ -1,0 +1,29 @@
+---
+gateway_users:
+{% for current_user in current_gateway_users_asset_value %}
+  - username: "{{ template_overrides_resources.gateway_user[current_user.username].username
+                     | default(template_overrides_global.gateway_user.username)
+                     | default(current_user.username) }}"
+    email: "{{ template_overrides_resources.gateway_user[current_user.name].email
+                     | default(template_overrides_global.gateway_user.email)
+                     | default(current_user.email) }}"
+    first_name: "{{ template_overrides_resources.gateway_user[current_user.name].first_name
+                     | default(template_overrides_global.gateway_user.first_name)
+                     | default(current_user.first_name) }}"
+    last_name: "{{ template_overrides_resources.gateway_user[current_user.name].last_name
+                     | default(template_overrides_global.gateway_user.last_name)
+                     | default(current_user.last_name) }}"
+    password: "{{ template_overrides_resources.gateway_user[current_user.name].password
+                     | default(template_overrides_global.gateway_user.password)
+                     | default(current_user.password) | replace("$encrypted$", "\'\'") }}"
+    is_superuser: "{{ template_overrides_resources.gateway_user[current_user.name].is_superuser
+                     | default(template_overrides_global.gateway_user.is_superuser)
+                     | default(current_user.is_superuser) }}"
+    authenticators: {{ template_overrides_resources.gateway_user[current_user.name].authenticators
+                     | default(template_overrides_global.gateway_user.authenticators)
+                     | default(current_user.authenticators) }}
+    authenticator_uid: "{{ template_overrides_resources.gateway_user[current_user.name].authenticator_uid
+                     | default(template_overrides_global.gateway_user.authenticator_uid)
+                     | default(current_user.authenticator_uid) }}"
+{% endfor %}
+...

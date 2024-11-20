@@ -19,7 +19,7 @@ controller_groups:
 {%- endif %}
     hosts:
 {{ query(controller_api_plugin, group.related.hosts,
-         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
          return_all=true, max_objects=query_controller_api_max_objects
    ) | selectattr("name", "defined") | map(attribute="name") | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=True)
 }}

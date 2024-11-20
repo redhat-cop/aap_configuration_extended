@@ -3,7 +3,7 @@
   ansible.builtin.set_fact:
     orgs_lookvar: "{{ query(controller_api_plugin, 'api/controller/v2/organizations/',
                             query_params=(query_params | combine({'id': organization_id})) if organization_id is defined else query_params,
-                            host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                            host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                             return_all=true, max_objects=query_controller_api_max_objects)
                    }}"
   vars:
@@ -28,16 +28,16 @@
         block: "{{ lookup('template', 'templates/controller_organizations.j2') }}"
       vars:
         query_notification_error: "{{ query(controller_api_plugin, current_organization.related.notification_templates_error,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_started: "{{ query(controller_api_plugin, current_organization.related.notification_templates_started,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_success: "{{ query(controller_api_plugin, current_organization.related.notification_templates_success,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_approvals: "{{ query(controller_api_plugin, current_organization.related.notification_templates_approvals,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         last_organization: "{{ current_organization_index == ((orgs_lookvar | length) - 1) }}"
       loop: "{{ orgs_lookvar }}"
@@ -76,16 +76,16 @@
       vars:
         __dest: "{{ output_path }}/{{ current_organization.name | regex_replace('/', '_') }}/controller_organization.yaml"
         query_notification_error: "{{ query(controller_api_plugin, current_organization.related.notification_templates_error,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_started: "{{ query(controller_api_plugin, current_organization.related.notification_templates_started,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_success: "{{ query(controller_api_plugin, current_organization.related.notification_templates_success,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_approvals: "{{ query(controller_api_plugin, current_organization.related.notification_templates_approvals,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
       loop: "{{ orgs_lookvar }}"
       loop_control:

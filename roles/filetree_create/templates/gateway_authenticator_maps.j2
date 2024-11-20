@@ -1,0 +1,30 @@
+---
+gateway_authenticator_maps:
+{% for current_authenticator_map in current_gateway_authenticator_maps_asset_value %}
+  - name: "{{ current_authenticator_map.name }}"
+    authenticator: "{{ template_overrides_resources.gateway_authenticator_map[current_authenticator_map.name].authenticator
+                     | default(template_overrides_global.gateway_authenticator_map.authenticator)
+                     | default(current_authenticator_map.authenticator) }}"
+    map_type: "{{ template_overrides_resources.gateway_authenticator_map[current_authenticator_map.name].map_type
+                     | default(template_overrides_global.gateway_authenticator_map.map_type)
+                     | default(current_authenticator_map.map_type) }}"
+    role: "{{ template_overrides_resources.gateway_authenticator_map[current_authenticator_map.name].role
+                     | default(template_overrides_global.gateway_authenticator_map.role)
+                     | default(current_authenticator_map.role) }}"
+    organization: "{{ template_overrides_resources.gateway_authenticator_map[current_authenticator_map.name].organization
+                     | default(template_overrides_global.gateway_authenticator_map.organization)
+                     | default(current_authenticator_map.organization) }}"
+    team: "{{ template_overrides_resources.gateway_authenticator_map[current_authenticator_map.name].team
+                     | default(template_overrides_global.gateway_authenticator_map.team)
+                     | default(current_authenticator_map.team) }}"
+    revoke: "{{ template_overrides_resources.gateway_authenticator_map[current_authenticator_map.name].revoke
+                     | default(template_overrides_global.gateway_authenticator_map.revoke)
+                     | default(current_authenticator_map.revoke) }}"
+    triggers: "{{ template_overrides_resources.gateway_authenticator_map[current_authenticator_map.name].triggers
+                     | default(template_overrides_global.gateway_authenticator_map.triggers)
+                     | default(current_authenticator_map.triggers) }}"
+    order: "{{ template_overrides_resources.gateway_authenticator_map[current_authenticator_map.name].order
+                     | default(template_overrides_global.gateway_authenticator_map.order)
+                     | default(current_authenticator_map.order) }}"
+{% endfor %}
+...

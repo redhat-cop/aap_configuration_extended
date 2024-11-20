@@ -4,7 +4,7 @@
     projects_lookvar: "{{ query(controller_api_plugin, 'api/controller/v2/projects/',
                                 query_params=(query_params | combine({'organization': organization_id} if organization_id is defined else {},
                                 {'id': project_id} if project_id is defined else {})),
-                                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                 return_all=true, max_objects=query_controller_api_max_objects)
                        }}"
   vars:
@@ -32,13 +32,13 @@
         project_id: "{{ current_projects_asset_value.id }}"
         project_name: "{{ current_projects_asset_value.name | regex_replace('/', '_') }}"
         query_notification_error: "{{ query(controller_api_plugin, current_projects_asset_value.related.notification_templates_error,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_started: "{{ query(controller_api_plugin, current_projects_asset_value.related.notification_templates_started,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_success: "{{ query(controller_api_plugin, current_projects_asset_value.related.notification_templates_success,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         last_project: "{{ current_project_index == ((projects_lookvar | length) - 1) }}"
       loop: "{{ projects_lookvar }}"
@@ -84,13 +84,13 @@
         project_name: "{{ current_projects_asset_value.name | regex_replace('/', '_') }}"
         __dest: "{{ output_path }}/{{ project_organization | regex_replace('/', '_') }}/controller_projects/{{ (project_id ~ '_') if omit_id is not defined else '' }}{{ project_name | regex_replace('/', '_') }}.yaml"
         query_notification_error: "{{ query(controller_api_plugin, current_projects_asset_value.related.notification_templates_error,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_started: "{{ query(controller_api_plugin, current_projects_asset_value.related.notification_templates_started,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_success: "{{ query(controller_api_plugin, current_projects_asset_value.related.notification_templates_success,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
       loop: "{{ projects_lookvar }}"
       loop_control:

@@ -2,12 +2,12 @@
 - name: "Get current Users from the API"
   ansible.builtin.set_fact:
     user_roles_lookvar: "{{ query(controller_api_plugin, 'api/controller/v2/users/' + __user_id + '/roles/',
-                                  host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                                  host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                   return_all=true, max_objects=query_controller_api_max_objects)
                          }}"
   vars:
     __user_id: "{{ lookup(controller_api_plugin, 'users', query_params={'username': username}, expect_one=true,
-                              host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs)['id']
+                              host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)['id']
                 }}"
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
@@ -38,6 +38,7 @@
   when:
     - flatten_output is defined
     - flatten_output | bool
+    - user_roles_lookvar | length > 0
   vars:
     __dest: "{{ output_path }}/controller_user_roles.yaml"
   block:
@@ -65,7 +66,9 @@
         state: absent
 
 - name: "Block for to generate the filetre_create normal output"
-  when: flatten_output is not defined or not (flatten_output | bool)
+  when:
+    - flatten_output is not defined or not (flatten_output | bool)
+    - user_roles_lookvar | length > 0
   block:
     - name: "Create the output directory for controller_user roles: {{ output_path }}"
       ansible.builtin.file:

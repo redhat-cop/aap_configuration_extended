@@ -31,4 +31,6 @@ controller_configuration_filetree_create_secure_logging: "{{ controller_configur
 input_tag:
   - all
 organization: 'ORGANIZATIONLESS'
+
+query_gateway_api_max_objects: 10000
 ...

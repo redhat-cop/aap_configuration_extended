@@ -49,7 +49,7 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
     aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
     aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
     aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
-    controller_validate_certs: "{{ vault_controller_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
+    aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
 
   pre_tasks:
     - name: "Setup authentication (block)"
@@ -61,7 +61,7 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
             password: "{{ aap_password }}"
             method: POST
             force_basic_auth: true
-            validate_certs: "{{ controller_validate_certs }}"
+            validate_certs: "{{ aap_validate_certs }}"
             status_code: 201
           register: authtoken_res
 
@@ -85,7 +85,7 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
         password: "{{ aap_password }}"
         method: DELETE
         force_basic_auth: true
-        validate_certs: "{{ controller_validate_certs }}"
+        validate_certs: "{{ aap_validate_certs }}"
         status_code: 204
       when: aap_oauthtoken_url is defined
 ...
@@ -100,7 +100,7 @@ This role can generate output files in two different ways:
   The export can be triggered with the following command:
 
   ```console
-  ansible-playbook -i localhost, filetree_create.yml -e '{controller_validate_certs: false, aap_hostname: localhost:8443, aap_username: admin, aap_password: password}'
+  ansible-playbook -i localhost, filetree_create.yml -e '{aap_validate_certs: false, aap_hostname: localhost:8443, aap_username: admin, aap_password: password}'
   ```
 
   One example of this approach follows:
@@ -171,7 +171,7 @@ This role can generate output files in two different ways:
   The expotation can be triggered with the following command:
 
   ```console
-  ansible-playbook -i localhost, filetree_create.yml -e '{controller_validate_certs: false, aap_hostname: localhost:8443, aap_username: admin, aap_password: password, flatten_output: true}'
+  ansible-playbook -i localhost, filetree_create.yml -e '{aap_validate_certs: false, aap_hostname: localhost:8443, aap_username: admin, aap_password: password, flatten_output: true}'
   ```
 
   One example of this approach follows:
@@ -224,7 +224,7 @@ This example will export all object but some with modifications:
     aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
     aap_oauthtoken : "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_OAUTHTOKEN')) }}"
     aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
-    controller_validate_certs: "{{ vault_controller_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
+    aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
 
     templates_overrides_resources:
       job_template:

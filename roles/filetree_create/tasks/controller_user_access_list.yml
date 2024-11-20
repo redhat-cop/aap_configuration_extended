@@ -8,7 +8,7 @@
   ansible.builtin.set_fact:
     object_id: "{{ (query(controller_api_plugin, 'api/controller/v2/' + object_type,
                           query_params=({'name': object_name}),
-                          host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                          host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                           return_all=true, max_objects=query_controller_api_max_objects)).0.id
                     }}"
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
@@ -16,7 +16,7 @@
 - name: "Get access list for object from the API"
   ansible.builtin.set_fact:
     access_lookvar: "{{ query(controller_api_plugin, 'api/controller/v2/' + object_type + '/' + object_id + '/access_list',
-                               host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                               host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                return_all=true, max_objects=query_controller_api_max_objects)
                     }}"
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"

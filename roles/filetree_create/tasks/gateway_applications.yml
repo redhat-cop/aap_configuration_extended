@@ -1,31 +1,31 @@
 ---
 - name: "Get current Applications from the API"
   ansible.builtin.set_fact:
-    applications_lookvar: "{{ query(controller_api_plugin, 'applications/',
+    applications_lookvar: "{{ query('ansible.platform.gateway_api', 'api/gateway/v1/applications/',
                                 query_params=(query_params | combine({'organization': organization_id})) if organization_id is defined else query_params,
                                 host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
-                                return_all=true, max_objects=query_controller_api_max_objects)
+                                return_all=true, max_objects=query_gateway_api_max_objects)
                            }}"
   vars:
     query_params:
       order_by: 'organization,id'
-  no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+  # no_log: "{{ gateway_configuration_filetree_create_secure_logging }}"
 
 - name: "Block for to generate flatten output"
   when:
     - flatten_output is defined
     - flatten_output | bool
   vars:
-    __dest: "{{ output_path }}/controller_applications.yaml"
+    __dest: "{{ output_path }}/gateway_applications.yaml"
   block:
-    - name: "Add current applications to the controller_applications flat file"
+    - name: "Add current applications to the gateway_applications flat file"
       ansible.builtin.blockinfile:
         create: true
         mode: "0644"
         insertafter: EOF
         path: "{{ __dest }}"
         marker: ""
-        block: "{{ lookup('template', 'templates/controller_applications.j2') }}"
+        block: "{{ lookup('template', 'templates/gateway_applications.j2') }}"
       vars:
         application_organization: "{{ current_applications_asset_value.summary_fields.organization.name | default(organization, true) }}"
         application_id: "{{ current_applications_asset_value.id }}"
@@ -46,13 +46,13 @@
 - name: "Block for to generate the filetre_create normal output"
   when: flatten_output is not defined or not (flatten_output | bool)
   block:
-    - name: "Create the <ORGANIZATION_NAME>/controller_applications output directory for applications in {{ output_path }}"
+    - name: "Create the <ORGANIZATION_NAME>/gateway_applications output directory for applications in {{ output_path }}"
       ansible.builtin.file:
         path: "{{ __path }}"
         state: directory
         mode: '0755'
       vars:
-        __path: "{{ output_path }}/{{ needed_path | regex_replace('/', '_') }}/controller_applications"
+        __path: "{{ output_path }}/{{ needed_path | regex_replace('/', '_') }}/gateway_applications"
       loop: "{{ (applications_lookvar | map(attribute='summary_fields') | selectattr('organization', 'defined') |
                 map(attribute='organization') | map(attribute='name') | list | flatten | unique)
                 + ([organization] if ((applications_lookvar | map(attribute='summary_fields')
@@ -62,16 +62,16 @@
         loop_var: needed_path
         label: "{{ __path }}"
 
-    - name: "Add current applications to the <ORGANIZATION_NAME>/controller_applications output file in {{ output_path }}"
+    - name: "Add current applications to the <ORGANIZATION_NAME>/gateway_applications output file in {{ output_path }}"
       ansible.builtin.template:
-        src: "templates/controller_applications.j2"
+        src: "templates/gateway_applications.j2"
         dest: "{{ __dest }}"
         mode: '0644'
       vars:
         application_organization: "{{ current_applications_asset_value.summary_fields.organization.name | default(organization, true) }}"
         application_id: "{{ current_applications_asset_value.id }}"
         application_name: "{{ current_applications_asset_value.name | regex_replace('/', '_') }}"
-        __dest: "{{ output_path }}/{{ application_organization | regex_replace('/', '_') }}/controller_applications/{{ (application_id ~ '_') if omit_id is not defined else '' }}{{ application_name | regex_replace('/', '_') }}.yaml"
+        __dest: "{{ output_path }}/{{ application_organization | regex_replace('/', '_') }}/gateway_applications/{{ (application_id ~ '_') if omit_id is not defined else '' }}{{ application_name | regex_replace('/', '_') }}.yaml"
       loop: "{{ applications_lookvar }}"
       loop_control:
         loop_var: current_applications_asset_value

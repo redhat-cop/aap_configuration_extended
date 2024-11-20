@@ -1,0 +1,14 @@
+---
+gateway_teams:
+{% for current_team in current_gateway_teams_asset_value %}
+  - name: "{{ template_overrides_resources.gateway_team[current_team.name].name
+                     | default(template_overrides_global.gateway_team.name)
+                     | default(current_team.name) }}"
+    description: "{{ template_overrides_resources.gateway_team[current_team.name].description
+                     | default(template_overrides_global.gateway_team.description)
+                     | default(current_team.description) }}"
+    organization: "{{ template_overrides_resources.gateway_team[current_team.name].organization
+                     | default(template_overrides_global.gateway_team.organization)
+                     | default(current_team.organization) }}"
+{% endfor %}
+...

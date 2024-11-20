@@ -4,7 +4,7 @@
     workflow_job_templates_lookvar: "{{ query(controller_api_plugin, 'api/controller/v2/workflow_job_templates/',
                                               query_params=(query_params | combine({'organization': organization_id} if organization_id is defined else {},
                                               {'id': workflow_job_template_id} if workflow_job_template_id is defined else {})),
-                                              host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                                              host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                               return_all=true, max_objects=query_controller_api_max_objects)
                                      }}"
   vars:
@@ -18,7 +18,7 @@
     - name: "Get current Job Templates related to workflow from the API"
       ansible.builtin.set_fact:
         workflow_node_job_templates_lookvar: "{{ query(controller_api_plugin, workflow_job_templates_lookvar[0]['related']['workflow_nodes'],
-                                                 host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                                                 host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                                  return_all=true, max_objects=query_controller_api_max_objects)
                                               }}"
       no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
@@ -52,19 +52,19 @@
         workflow_job_template_id: "{{ current_workflow_job_templates_asset_value.id }}"
         workflow_job_template_name: "{{ current_workflow_job_templates_asset_value.name | regex_replace('/', '_') }}"
         query_labels: "{{ query(controller_api_plugin, current_workflow_job_templates_asset_value.related.labels,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_error: "{{ query(controller_api_plugin, current_workflow_job_templates_asset_value.related.notification_templates_error,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_started: "{{ query(controller_api_plugin, current_workflow_job_templates_asset_value.related.notification_templates_started,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_success: "{{ query(controller_api_plugin, current_workflow_job_templates_asset_value.related.notification_templates_success,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_approvals: "{{ query(controller_api_plugin, current_workflow_job_templates_asset_value.related.notification_templates_approvals,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         last_workflow_job_template: "{{ current_workflow_job_template_index == ((workflow_job_templates_lookvar | length) - 1) }}"
       loop: "{{ workflow_job_templates_lookvar }}"
@@ -110,19 +110,19 @@
         workflow_job_template_name: "{{ current_workflow_job_templates_asset_value.name | regex_replace('/', '_') }}"
         __dest: "{{ output_path }}/{{ workflow_job_template_organization | regex_replace('/', '_') }}/controller_workflow_job_templates/{{ (workflow_job_template_id ~ '_') if omit_id is not defined else '' }}{{ workflow_job_template_name | regex_replace('/', '_') }}.yaml"
         query_labels: "{{ query(controller_api_plugin, current_workflow_job_templates_asset_value.related.labels,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_error: "{{ query(controller_api_plugin, current_workflow_job_templates_asset_value.related.notification_templates_error,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_started: "{{ query(controller_api_plugin, current_workflow_job_templates_asset_value.related.notification_templates_started,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_success: "{{ query(controller_api_plugin, current_workflow_job_templates_asset_value.related.notification_templates_success,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_approvals: "{{ query(controller_api_plugin, current_workflow_job_templates_asset_value.related.notification_templates_approvals,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
       loop: "{{ workflow_job_templates_lookvar }}"
       loop_control:

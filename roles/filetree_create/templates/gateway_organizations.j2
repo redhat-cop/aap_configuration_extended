@@ -1,0 +1,11 @@
+---
+gateway_organizations:
+{% for current_organization in current_gateway_organizations_asset_value %}
+  - name: "{{ template_overrides_resources.gateway_organization[current_organization.name].name
+                     | default(template_overrides_global.gateway_organization.name)
+                     | default(current_organization.name) }}"
+    description: "{{ template_overrides_resources.gateway_organization[current_organization.name].description
+                     | default(template_overrides_global.gateway_organization.description)
+                     | default(current_organization.description) }}"
+{% endfor %}
+...

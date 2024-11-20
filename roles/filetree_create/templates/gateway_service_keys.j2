@@ -1,0 +1,23 @@
+---
+gateway_service_keys:
+{% for current_service_key in current_gateway_service_keys_asset_value %}
+  - name: "{{ template_overrides_resources.gateway_service_key[current_service_key.name].name
+                     | default(template_overrides_global.gateway_service_key.name)
+                     | default(current_service_key.name) }}"
+    service_cluster: "{{ template_overrides_resources.gateway_route[current_service_key.name].service_cluster
+                     | default(template_overrides_global.gateway_route.service_cluster)
+                     | default(current_service_key.service_cluster) }}"
+    is_active: "{{ template_overrides_resources.gateway_route[current_service_key.name].is_active
+                     | default(template_overrides_global.gateway_route.is_active)
+                     | default(current_service_key.is_active) }}"
+    algorithm: "{{ template_overrides_resources.gateway_route[current_service_key.name].algorithm
+                     | default(template_overrides_global.gateway_route.algorithm)
+                     | default(current_service_key.algorithm) }}"
+{# NOT RETURNED BY THE API   secret_length: "{{ template_overrides_resources.gateway_route[current_service_key.name].secret_length
+                     | default(template_overrides_global.gateway_route.secret_length)
+                     | default(current_service_key.secret_length) }}"
+    mark_previous_inactive: "{{ template_overrides_resources.gateway_route[current_service_key.name].mark_previous_inactive
+                     | default(template_overrides_global.gateway_route.mark_previous_inactive)
+                     | default(current_service_key.mark_previous_inactive) }}" #}
+{% endfor %}
+...

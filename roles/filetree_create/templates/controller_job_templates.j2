@@ -193,7 +193,7 @@ controller_templates:
 {% set survey_spec_contents = template_overrides_resources.job_template[current_job_templates_asset_value.name].survey_spec
                               | default(template_overrides_global.job_template.survey_spec)
                               | default(query(controller_api_plugin, current_job_templates_asset_value.related.survey_spec,
-                                              host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs)[0])
+                                              host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)[0])
                               | from_yaml | to_nice_yaml(indent=2,width=500,sort_keys=False) | regex_replace("\n\n[ ]*", "\\\\n")
                               | indent(width=6, first=False) | regex_replace('(^[^:]*): (.*){([{%])', '\\g<1>: !unsafe \\g<2>{\\g<3>', multiline=True)
                               | replace("^$", "") | replace("$encrypted$", "\'\'"))

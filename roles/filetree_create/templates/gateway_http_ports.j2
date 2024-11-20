@@ -1,0 +1,17 @@
+---
+gateway_http_ports:
+{% for current_http_port in current_gateway_http_ports_asset_value %}
+  - name: "{{ template_overrides_resources.gateway_http_port[current_http_port.name].name
+                     | default(template_overrides_global.gateway_http_port.name)
+                     | default(current_http_port.name) }}"
+    number: "{{ template_overrides_resources.gateway_http_port[current_http_port.name].number
+                     | default(template_overrides_global.gateway_http_port.number)
+                     | default(current_http_port.number) }}"
+    use_https: "{{ template_overrides_resources.gateway_http_port[current_http_port.name].use_https
+                     | default(template_overrides_global.gateway_http_port.use_https)
+                     | default(current_http_port.use_https) }}"
+    is_api_port: "{{ template_overrides_resources.gateway_http_port[current_http_port.name].is_api_port
+                     | default(template_overrides_global.gateway_http_port.is_api_port)
+                     | default(current_http_port.is_api_port) }}"
+{% endfor %}
+...

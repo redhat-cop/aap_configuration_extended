@@ -1,0 +1,35 @@
+---
+gateway_routes:
+{% for current_route in current_gateway_routes_asset_value %}
+  - name: "{{ template_overrides_resources.gateway_route[current_route.name].name
+                     | default(template_overrides_global.gateway_route.name)
+                     | default(current_route.name) }}"
+    description: "{{ template_overrides_resources.gateway_route[current_route.name].description
+                     | default(template_overrides_global.gateway_route.description)
+                     | default(current_route.description) }}"
+    http_port: "{{ template_overrides_resources.gateway_route[current_route.name].http_port
+                     | default(template_overrides_global.gateway_route.http_port)
+                     | default(current_route.http_port) }}"
+    service_cluster: "{{ template_overrides_resources.gateway_route[current_route.name].service_cluster
+                     | default(template_overrides_global.gateway_route.service_cluster)
+                     | default(current_route.service_cluster) }}"
+    service_port: "{{ template_overrides_resources.gateway_route[current_route.name].service_port
+                     | default(template_overrides_global.gateway_route.service_port)
+                     | default(current_route.service_port) }}"
+    is_service_https: "{{ template_overrides_resources.gateway_route[current_route.name].is_service_https
+                     | default(template_overrides_global.gateway_route.is_service_https)
+                     | default(current_route.is_service_https) }}"
+    service_path: "{{ template_overrides_resources.gateway_route[current_route.name].service_path
+                     | default(template_overrides_global.gateway_route.service_path)
+                     | default(current_route.service_path) }}"
+    gateway_path: "{{ template_overrides_resources.gateway_route[current_route.name].gateway_path
+                     | default(template_overrides_global.gateway_route.gateway_path)
+                     | default(current_route.gateway_path) }}"
+    enable_gateway_auth: "{{ template_overrides_resources.gateway_route[current_route.name].enable_gateway_auth
+                     | default(template_overrides_global.gateway_route.enable_gateway_auth)
+                     | default(current_route.enable_gateway_auth) }}"
+    node_tags: "{{ template_overrides_resources.gateway_route[current_route.name].node_tags
+                     | default(template_overrides_global.gateway_route.node_tags)
+                     | default(current_route.node_tags) }}"
+{% endfor %}
+...

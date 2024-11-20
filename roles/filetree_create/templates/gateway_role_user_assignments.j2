@@ -1,0 +1,20 @@
+---
+gateway_role_user_assignments:
+{% for current_role_user_assignment in current_gateway_role_user_assignments_asset_value %}
+  - object_id: "{{ template_overrides_resources.gateway_role_user_assignment[current_role_user_assignment.object_id].object_id
+                     | default(template_overrides_global.gateway_role_user_assignment.object_id)
+                     | default(current_role_user_assignment.object_id) }}"
+    object_ansible_id: "{{ template_overrides_resources.gateway_role_user_assignment[current_role_user_assignment.object_id].object_ansible_id
+                     | default(template_overrides_global.gateway_role_user_assignment.object_ansible_id)
+                     | default(current_role_user_assignment.object_ansible_id) }}"
+    role_definition: "{{ template_overrides_resources.gateway_role_user_assignment[current_role_user_assignment.object_id].role_definition
+                     | default(template_overrides_global.gateway_role_user_assignment.role_definition)
+                     | default(current_role_user_assignment.role_definition) }}"
+    user: "{{ template_overrides_resources.gateway_role_user_assignment[current_role_user_assignment.object_id].user
+                     | default(template_overrides_global.gateway_role_user_assignment.user)
+                     | default(current_role_user_assignment.user) }}"
+    user_ansible_id: "{{ template_overrides_resources.gateway_role_user_assignment[current_role_user_assignment.object_id].user_ansible_id
+                     | default(template_overrides_global.gateway_role_user_assignment.user_ansible_id)
+                     | default(current_role_user_assignment.user_ansible_id) }}"
+{% endfor %}
+...

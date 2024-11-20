@@ -1,0 +1,17 @@
+---
+gateway_service_nodes:
+{% for current_service_node in current_gateway_service_nodes_asset_value %}
+  - name: "{{ template_overrides_resources.gateway_service_node[current_service_node.name].name
+                     | default(template_overrides_global.gateway_service_node.name)
+                     | default(current_service_node.name) }}"
+    address: "{{ template_overrides_resources.gateway_route[current_service_node.name].address
+                     | default(template_overrides_global.gateway_route.address)
+                     | default(current_service_node.address) }}"
+    service_cluster: "{{ template_overrides_resources.gateway_route[current_service_node.name].service_cluster
+                     | default(template_overrides_global.gateway_route.service_cluster)
+                     | default(current_service_node.service_cluster) }}"
+    tags: "{{ template_overrides_resources.gateway_route[current_service_node.name].tags
+                     | default(template_overrides_global.gateway_route.tags)
+                     | default(current_service_node.tags) }}"
+{% endfor %}
+...
