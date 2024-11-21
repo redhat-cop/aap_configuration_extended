@@ -7,8 +7,6 @@
                          }}"
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
-- debug: var=team_roles_lookvar
-
 - name: "Define object_roles variable"
   ansible.builtin.set_fact:
     object_roles: []
