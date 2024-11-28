@@ -63,6 +63,12 @@ controller_workflows:
     scm_branch: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].scm_branch
                     | default(template_overrides_global.workflow_template.scm_branch)
                     | default(current_workflow_job_templates_asset_value.scm_branch) }}"
+    limit: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].limit
+                  | default(template_overrides_global.workflow_job_template.limit)
+                  | default(current_workflow_job_templates_asset_value.limit) }}"
+    ask_limit_on_launch: {{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].ask_limit_on_launch
+                            | default(template_overrides_global.workflow_job_template.ask_limit_on_launch)
+                            | default(current_workflow_job_templates_asset_value.ask_limit_on_launch | bool | lower) }}
     webhook_service: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].description
                          | default(template_overrides_global.workflow_template.webhook_service)
                          | default(current_workflow_job_templates_asset_value.webhook_service) }}"
