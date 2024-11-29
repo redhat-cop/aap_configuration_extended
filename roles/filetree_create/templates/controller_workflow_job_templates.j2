@@ -69,6 +69,9 @@ controller_workflows:
     ask_limit_on_launch: {{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].ask_limit_on_launch
                             | default(template_overrides_global.workflow_job_template.ask_limit_on_launch)
                             | default(current_workflow_job_templates_asset_value.ask_limit_on_launch | bool | lower) }}
+    ask_inventory_on_launch: {{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].ask_inventory_on_launch
+                                | default(template_overrides_global.workflow_job_template.ask_inventory_on_launch)
+                                | default(current_workflow_job_templates_asset_value.ask_inventory_on_launch | bool | lower) }}
     webhook_service: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].description
                          | default(template_overrides_global.workflow_template.webhook_service)
                          | default(current_workflow_job_templates_asset_value.webhook_service) }}"
