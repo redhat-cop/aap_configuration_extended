@@ -1,4 +1,5 @@
 ---
 bugfixes:
   - filetree_create export missing inventory ask settings of workflows
+  - filetree_create export missing inventory for workflow node
 ...
