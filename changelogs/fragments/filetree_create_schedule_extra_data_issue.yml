@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - filetree_create no longer export schedules extra data when extra_vars of job template is empty (null issue)
+...
