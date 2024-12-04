@@ -66,7 +66,7 @@ controller_schedules:
 {% endif %}
 {% if template_overrides_resources.schedule[current_schedules_asset_value.name].extra_data is defined
       or template_overrides_global.schedule.extra_data is defined
-      or current_schedules_asset_value.extra_data is defined %}
+      or current_schedules_asset_value.extra_data is defined and current_schedules_asset_value.extra_data | length > 0 %}
     extra_data:
       {{ template_overrides_resources.schedule[current_schedules_asset_value.name].extra_data
          | default(template_overrides_global.schedule.extra_data)
