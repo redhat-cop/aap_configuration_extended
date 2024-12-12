@@ -62,19 +62,19 @@ controller_inventory_sources:
                      return_all=true, max_objects=query_controller_api_max_objects) %}
 {% if query_notification_error | length > 0 %}
     notification_templates_error:
-{% for notification_error  in query_notification_error %}
+{% for notification_error in query_notification_error %}
       - "{{ notification_error.name }}"
 {% endfor %}
 {% endif %}
 {% if query_notification_started | length > 0 %}
     notification_templates_started:
-{% for notification_started  in query_notification_started %}
+{% for notification_started in query_notification_started %}
       - "{{ notification_started.name }}"
 {% endfor %}
 {% endif %}
 {% if query_notification_success | length > 0 %}
     notification_templates_success:
-{% for notification_success  in query_notification_success %}
+{% for notification_success in query_notification_success %}
       - "{{ notification_success.name }}"
 {% endfor %}
 {% endif %}

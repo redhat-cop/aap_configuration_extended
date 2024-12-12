@@ -1,0 +1,17 @@
+---
+controller_projects:
+  - name: "Demo Project @ 08:33:46"
+    description: ""
+    organization: "tests/orgname"
+    scm_type: "git"
+    scm_url: "https://github.com/ansible/ansible-tower-samples"
+    scm_branch: ""
+    scm_clean: "false"
+    scm_delete_on_update: "false"
+    scm_update_on_launch: "false"
+    scm_update_cache_timeout: "0"
+    scm_refspec: ""
+    allow_override: "false"
+    update_project: "false"
+    timeout: "0"
+...

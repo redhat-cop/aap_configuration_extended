@@ -36,7 +36,20 @@ controller_workflows:
         all_parents_must_converge: "{{ node.all_parents_must_converge }}"
 {% if node.extra_data is defined and node.extra_data | length > 0 %}
         extra_data:
-          {{ node.extra_data | to_nice_yaml(sort_keys=false) | indent(10) | regex_replace('(^[^:]*): (.*){([{%])', '\\g<1>: !unsafe \\g<2>{\\g<3>', multiline=True)| replace("$encrypted$", "\'\'") }}
+{%   set extra_data_contents = template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].extra_data
+                               | default(template_overrides_global.workflow_job_template.extra_data)
+                               | default(node.extra_data)
+-%}
+{%   for extra_data_item in (extra_data_contents | dict2items) if ((extra_data_item.value | string | length) > 0 and (extra_data_item.value | string) is not match('None')) %}
+{%     if extra_data_item.value | type_debug is match('list') %}
+          {{ extra_data_item.key }}:
+{%       for current_list_item in extra_data_item.value if ((extra_data_item.value | string | length) > 0 and (extra_data_item.value | string) is not match('None')) %}
+            - {{ (current_list_item | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('(^[^{]*){([{%])(.*)', '!unsafe "\\g<1>{\\g<2>\\g<3>"', multiline=True) }}
+{%       endfor %}
+{%     else %}
+          {{ extra_data_item.key }}: {{ (extra_data_item.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('(^[^{]*){([{%])(.*)', '!unsafe "\\g<1>{\\g<2>\\g<3>"', multiline=True) }}
+{%     endif %}
+{%   endfor %}
 {%- endif %}
 {% if node.success_nodes is defined and node.success_nodes | length > 0 %}
         success_nodes:
@@ -82,10 +95,20 @@ controller_workflows:
       or template_overrides_global.workflow_template.extra_vars is defined
       or (current_workflow_job_templates_asset_value.extra_vars and current_workflow_job_templates_asset_value.extra_vars | length > 3) %}
     extra_vars:
-      {{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].extra_vars
-         | default(template_overrides_global.workflow_template.extra_vars)
-         | default(current_workflow_job_templates_asset_value.extra_vars)
-         | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) | regex_replace('(^[^:]*): (.*){([{%])', '\\g<1>: !unsafe \\g<2>{\\g<3>', multiline=True) }}
+{% set extra_vars_contents = template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].extra_vars
+                             | default(template_overrides_global.workflow_job_template.extra_vars)
+                             | default(current_workflow_job_templates_asset_value.extra_vars) | from_yaml
+-%}
+{%   for extra_vars_item in (extra_vars_contents | dict2items) if ((extra_vars_item.value | string | length) > 0 and (extra_vars_item.value | string) is not match('None')) %}
+{%     if extra_vars_item.value | type_debug is match('list') %}
+      {{ extra_vars_item.key }}:
+{%       for current_list_item in extra_vars_item.value if ((extra_vars_item.value | string | length) > 0 and (extra_vars_item.value | string) is not match('None')) %}
+        - {{ (current_list_item | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('(^[^{]*){([{%])(.*)', '!unsafe "\\g<1>{\\g<2>\\g<3>"', multiline=True) }}
+{%       endfor %}
+{%     else %}
+      {{ extra_vars_item.key }}: {{ (extra_vars_item.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('(^[^{]*){([{%])(.*)', '!unsafe "\\g<1>{\\g<2>\\g<3>"', multiline=True) }}
+{%     endif %}
+{%   endfor %}
 {%- endif %}
 {% if query_labels | length > 0 %}
     labels:
@@ -95,25 +118,25 @@ controller_workflows:
 {% endif %}
 {% if query_notification_error | length > 0 %}
     notification_templates_error:
-{% for notification_error  in query_notification_error %}
+{% for notification_error in query_notification_error %}
       - "{{ notification_error.name }}"
 {% endfor %}
 {% endif %}
 {% if query_notification_started | length > 0 %}
     notification_templates_started:
-{% for notification_started  in query_notification_started %}
+{% for notification_started in query_notification_started %}
       - "{{ notification_started.name }}"
 {% endfor %}
 {% endif %}
 {% if query_notification_success | length > 0 %}
     notification_templates_success:
-{% for notification_success  in query_notification_success %}
+{% for notification_success in query_notification_success %}
       - "{{ notification_success.name }}"
 {% endfor %}
 {% endif %}
 {% if query_notification_approvals | length > 0 %}
     notification_templates_approvals:
-{% for notification_approval  in query_notification_approvals %}
+{% for notification_approval in query_notification_approvals %}
       - "{{ notification_approval.name }}"
 {% endfor %}
 {% endif %}
@@ -123,17 +146,42 @@ controller_workflows:
 {% set survey_spec_contents = template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].survey_spec
                               | default(template_overrides_global.workflow_job_template.survey_spec)
                               | default(query(controller_api_plugin, current_workflow_job_templates_asset_value.related.survey_spec,
-                                              host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)[0])
-                              | from_yaml | to_nice_yaml(indent=2,width=500, sort_keys=False) | regex_replace("\n\n[ ]*", "\\\\n")
-                              | indent(width=6, first=False) | regex_replace('(^[^:]*): (.*){([{%])', '\\g<1>: !unsafe \\g<2>{\\g<3>', multiline=True)
-                              | replace("^$", "") | replace("$encrypted$", "\'\'")
-                              | replace("'", '"') | regex_replace('default: ([^"].*)', 'default: "\\g<1>"')
+                                              host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs))
 -%}
 {% if template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].survey_spec is defined
       or template_overrides_global.workflow_job_template.survey_spec is defined
-      or (current_workflow_job_templates_asset_value.related.survey_spec is defined and survey_spec_contents | length > 3) %}
+      or (current_workflow_job_templates_asset_value.related.survey_spec is defined and survey_spec_contents | length > 0) %}
     survey_spec:
-      {{ survey_spec_contents }}
+{% for spec_item in survey_spec_contents %}
+      name: "{{ spec_item.name }}"
+      spec:
+{%   for survey_item in spec_item.spec if ((survey_item | string | length) > 0 and (survey_item | string) is not match('None')) %}
+{%     set _var = namespace(first_survey_item = true) %}
+{%     for survey_item_content in (survey_item | dict2items) if ((survey_item_content.value | string | length) > 0 and (survey_item_content.value | string) is not match('None')) %}
+{%       if survey_item_content.key | regex_search('question_description|default') %}
+{%         set current_content = survey_item_content.key + ': !unsafe "' + (survey_item_content.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) + '"' %}
+{%       elif survey_item_content.key is not match('choices') %}
+{%         set current_content = survey_item_content.key + ': ' + survey_item_content.value | string %}
+{%       endif %}
+{%       if _var.first_survey_item %}
+{%         set _var.first_survey_item = false %}
+        - {{ current_content }}
+{%       else %}
+{%         if current_content is defined %}
+          {{ current_content | replace("$encrypted$", "\'\'") }}
+{%         else %}
+{%           if survey_item_content.key is match('choices') and survey_item_content.value[0] is defined %}
+          {{ survey_item_content.key }}:
+{%             for choice in survey_item_content.value if ((survey_item_content.value | string | length) > 0 and (survey_item_content.value | string) is not match('None')) %}
+            - {{ choice | regex_replace('(^[^{]*){([{%])(.*)', '!unsafe "\\g<1>{\\g<2>\\g<3>"', multiline=True) }}
+{%             endfor %}
+{%           endif %}
+{%         endif %}
+{%       endif %}
+{%     endfor %}
+{%   endfor %}
+      description: "{{ spec_item.description }}"
+{% endfor %}
 {% endif %}
 {% if last_workflow_job_template | default(true) | bool %}
 ...

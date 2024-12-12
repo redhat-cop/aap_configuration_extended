@@ -1,0 +1,129 @@
+---
+controller_workflows:
+  - name: "test_workflow"
+    description: ""
+    organization: "tests/orgname"
+    state: "present"
+    simplified_workflow_nodes:
+      - identifier: "527904ba-27bf-4532-8624-8c8fdfb2a568"
+        workflow_job_template: "test_workflow"
+        unified_job_template: "Demo Job Template"
+        organization: "tests/orgname"
+        all_parents_must_converge: "false"
+        extra_data:
+          test_issue39: b
+          test_multiplechoice:
+            - hola
+            - mundo
+          test_textarea: Hola\nMon
+          test_vars: !unsafe "{{ text_value }}"
+          test_multiselect_vars:
+            - !unsafe "{{ var_a }}"
+            - !unsafe "{{ var_b }}"
+          test_multiselect_vars2:
+            - !unsafe "{% if var_a == 'a' %} A {% else %} B {% endif %}"
+          test_text: test_text
+    ask_variables_on_launch: "false"
+    allow_simultaneous: "false"
+    scm_branch: ""
+    limit: ""
+    ask_limit_on_launch: false
+    webhook_service: ""
+    extra_vars:
+      my_extra_var:
+        - this
+        - is
+        - a
+        - list
+      my_extra_complex_var: !unsafe "{{ my_extra_var[0] }}"
+      my_extra_ultra_complex_var: !unsafe "{% if my_extra_var | length > 3 %}LARGE{% else %}SMALL"
+    survey_enabled: false
+    survey_spec:
+      name: ""
+      spec:
+        - max: 1024
+          min: 0
+          type: multiplechoice
+          choices:
+            - a
+            - b
+            - c
+          default: !unsafe "b"
+          required: true
+          variable: test_issue39
+          new_question: false
+          question_name: test issue39
+          question_description: !unsafe "please copy-paste here the job id.  You'll find a \"JOBS / ########\" it in the top-left area of job's page: the #s are the job id."
+        - max: 1024
+          min: 0
+          type: multiselect
+          choices:
+            - hola
+            - mundo
+          default: !unsafe "hola\nmundo"
+          required: true
+          variable: test_multiplechoice
+          new_question: false
+          question_name: test multiplechoice
+          question_description: !unsafe ""
+        - max: 1024
+          min: 0
+          type: text
+          default: !unsafe ""
+          required: true
+          variable: test_text
+          new_question: false
+          question_name: test_text
+          question_description: !unsafe ""
+        - max: 1024
+          min: 0
+          type: password
+          default: !unsafe ""
+          required: true
+          variable: test_pass
+          new_question: false
+          question_name: test_pass
+          question_description: !unsafe ""
+        - max: 1024
+          min: 0
+          type: textarea
+          default: !unsafe "Hola\nMon"
+          required: true
+          variable: test_textarea
+          new_question: true
+          question_name: test textarea
+          question_description: !unsafe ""
+        - max: 1024
+          min: 0
+          type: text
+          default: !unsafe "{{ text_value }}"
+          required: true
+          variable: test_vars
+          new_question: false
+          question_name: test_vars
+          question_description: !unsafe ""
+        - max: 1024
+          min: 0
+          type: multiselect
+          choices:
+            - !unsafe "{{ var_a }}"
+            - !unsafe "{{ var_b }}"
+          default: !unsafe "{{ var_a }}\n{{ var_b }}"
+          required: true
+          variable: test_multiselect_vars
+          new_question: true
+          question_name: test_multiselect_vars
+          question_description: !unsafe ""
+        - max: 1024
+          min: 0
+          type: multiselect
+          choices:
+            - !unsafe "{% if var_a == 'a' %} A {% else %} B {% endif %}"
+          default: !unsafe "{% if var_a == 'a' %} A {% else %} B {% endif %}"
+          required: true
+          variable: test_multiselect_vars2
+          new_question: true
+          question_name: test_multiselect_vars2
+          question_description: !unsafe ""
+      description: ""
+...

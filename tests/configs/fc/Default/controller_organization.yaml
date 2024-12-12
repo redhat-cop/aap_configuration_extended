@@ -1,0 +1,5 @@
+---
+aap_organizations:
+  - name: "Default"
+    description: "The default organization for Ansible Automation Platform"
+...

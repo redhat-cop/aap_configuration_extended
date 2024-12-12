@@ -1,4 +1,50 @@
 ---
+- name: "Get the oauth token to be used since now"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tags:
+    - always
+  vars:
+    # Controller connection variables
+    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+    aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
+  tasks:
+    - name: "Setup authentication (block)"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging | default(true) }}"
+      when: aap_oauthtoken is not defined
+      block:
+        # - name: "Create a new token using username/password"
+        #   awx.awx.token:
+        #     description: 'Token for Automated Management'
+        #     scope: "write"
+        #     state: present
+        #     controller_host: "{{ aap_hostname }}"
+        #     aap_username: "{{ aap_username }}"
+        #     aap_password: "{{ aap_password }}"
+        #     validate_certs: "{{ aap_validate_certs }}"
+        #   register: authtoken_res_new
+        # - debug: var=authtoken_res_new
+
+        - name: "Get the Authentication Token for the future requests"
+          ansible.builtin.uri:
+            url: "https://{{ aap_hostname }}/api/gateway/v1/tokens/"
+            user: "{{ aap_username }}"
+            password: "{{ aap_password }}"
+            method: POST
+            force_basic_auth: true
+            validate_certs: "{{ aap_validate_certs }}"
+            status_code: 201
+          register: authtoken_res
+
+        - name: "Set the oauth token to be used since now"
+          ansible.builtin.set_fact:
+            aap_oauthtoken: "{{ authtoken_res.json.token }}"
+            aap_token: "{{ authtoken_res.json.token }}"
+            aap_oauthtoken_url: "{{ authtoken_res.json.url }}"
+
 # Run example (All the plays): ansible-playbook -i configs/gv/inventory_test.yml test_filetree_read.yaml -e@configs/gv/vaults/test.yml
 - name: "Test the filetree_read reading custom inputs"
   # Run example: ansible-playbook test_filetree_read.yaml --tags custom
@@ -37,6 +83,7 @@
     filetree_controller_roles: *custom_configs_path
   roles:
     - infra.aap_configuration_extended.filetree_read
+    - infra.aap_configuration.dispatch
 
 - name: "Test the filetree_read reading the filetree_create default output"
   # Run example: ansible-playbook test_filetree_read.yaml --tags fc
@@ -71,8 +118,14 @@
     filetree_controller_workflow_job_templates: *fc_configs_path
     filetree_controller_schedules: *fc_configs_path
     filetree_controller_roles: *fc_configs_path
+    # Controller connection variables
+    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+    aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
   roles:
     - infra.aap_configuration_extended.filetree_read
+    - infra.aap_configuration.dispatch
 
 - name: "Test the filetree_read reading the filetree_create flatten output"
   # Run example: ansible-playbook test_filetree_read.yaml --tags fcf
@@ -109,6 +162,7 @@
     filetree_controller_roles: *fcf_configs_path
   roles:
     - infra.aap_configuration_extended.filetree_read
+    - infra.aap_configuration.dispatch
 
 - name: "Test the filetree_read reading from group_vars folder"
   # Run example: ansible-playbook -i configs/gv/inventory_test.yml test_filetree_read.yaml -e@configs/gv/vaults/test.yml --tags gv
@@ -154,4 +208,5 @@
 
   roles:
     - infra.aap_configuration_extended.filetree_read
+    - infra.aap_configuration.dispatch
 ...

@@ -6,6 +6,6 @@ aap_applications:
     authorization_grant_type: "password"
     redirect_uris: ""
     skip_authorization: "false"
-    client_id: "VwxVUPTcruNKIDYVZXuFDSeDE5S0QkRwl7AZBoRz"
+    # client_id: "VwxVUPTcruNKIDYVZXuFDSeDE5S0QkRwl7AZBoRz"
     client_type: "public"
 ...

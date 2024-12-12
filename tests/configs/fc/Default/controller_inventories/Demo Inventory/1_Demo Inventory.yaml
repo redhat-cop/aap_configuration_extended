@@ -1,0 +1,8 @@
+---
+controller_inventories:
+  - name: "Demo Inventory"
+    description: ""
+    organization: "Default"
+    host_filter: ""
+    prevent_instance_group_fallback: false
+...

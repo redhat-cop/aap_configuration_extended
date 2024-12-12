@@ -1,0 +1,7 @@
+---
+controller_roles:
+  - team: "team_test_1"
+    projects:
+      - "Demo Project"
+    role: "admin"
+...

@@ -1,0 +1,9 @@
+---
+controller_hosts:
+  - name: "localhost"
+    description: ""
+    inventory: "Demo Inventory"
+    variables:
+      ansible_connection: local
+      ansible_python_interpreter: !unsafe '{{ ansible_playbook_python }}'
+...

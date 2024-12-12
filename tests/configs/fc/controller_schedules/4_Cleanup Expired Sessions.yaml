@@ -4,10 +4,10 @@ controller_schedules:
     description: "Cleans out expired browser sessions"
     enabled: true
     unified_job_template: "Cleanup Expired Sessions"
-    dtstart: "2023-12-13T08:17:50Z"
+    dtstart: "2024-10-15T07:05:55Z"
     dtend: ""
     timezone: "UTC"
-    rrule: "DTSTART:20231213T081750Z RRULE:FREQ=WEEKLY;INTERVAL=1"
+    rrule: "DTSTART:20241015T070555Z RRULE:FREQ=WEEKLY;INTERVAL=1"
     extra_data:
       {}
     scm_branch: ""

@@ -1,5 +1,5 @@
 ---
 aap_organizations:
-  - name: "Default"
+  - name: "tests/orgname"
     description: ""
 ...

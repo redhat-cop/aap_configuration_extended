@@ -12,7 +12,7 @@ controller_inventories:
       or current_inventories_asset_value.host_filter is defined %}
     host_filter: {{ template_overrides_resources.inventory[current_inventories_asset_value.name].host_filter
                      | default(template_overrides_global.inventory.host_filter)
-                     | default(current_inventories_asset_value.host_filter) | replace("'",'"') }}
+                     | default(current_inventories_asset_value.host_filter if (current_inventories_asset_value.host_filter|type_debug != 'NoneType') else '""') | replace("'",'"') }}
 {% endif %}
 {% if current_inventories_asset_value.kind %}
     kind: "{{ current_inventories_asset_value.kind }}"
