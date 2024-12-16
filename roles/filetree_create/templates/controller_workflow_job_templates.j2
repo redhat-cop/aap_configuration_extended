@@ -23,6 +23,9 @@ controller_workflows:
 {% if node.summary_fields.unified_job_template.unified_job_type is not match('approval') %}
         unified_job_template: "{{ node.summary_fields.unified_job_template.name | default('ToDo: The node is pointing to a deleted Job Template') }}"
 {% endif %}
+{% if node.limit is defined) %}
+        limit: "{{ node.limit }}"
+{% endif %}
 {% if node.job_type %}
         job_type: "{{ node.job_type }}"
 {% if node.summary_fields.unified_job_template.unified_job_type is match('approval') %}
