@@ -114,7 +114,7 @@ controller_workflows:
 {%   endfor %}
 {% else %}
     extra_vars: ""
-{%- endif %}
+{% endif %}
 {% if query_labels | length > 0 %}
     labels:
 {% for label in query_labels %}
