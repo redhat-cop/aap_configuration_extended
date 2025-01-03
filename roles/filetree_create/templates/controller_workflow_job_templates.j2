@@ -112,6 +112,8 @@ controller_workflows:
       {{ extra_vars_item.key }}: {{ (extra_vars_item.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('(^[^{]*){([{%])(.*)', '!unsafe "\\g<1>{\\g<2>\\g<3>"', multiline=True) }}
 {%     endif %}
 {%   endfor %}
+{% else %}
+    extra_vars: ""
 {%- endif %}
 {% if query_labels | length > 0 %}
     labels:

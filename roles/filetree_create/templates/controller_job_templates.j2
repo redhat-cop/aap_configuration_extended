@@ -140,7 +140,9 @@ controller_templates:
       {{ extra_vars_item.key }}: {{ (extra_vars_item.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('(^[^{]*){([{%])(.*)', '!unsafe "\\g<1>{\\g<2>\\g<3>"', multiline=True) }}
 {%     endif %}
 {%   endfor %}
-{%- endif %}
+{% else %}
+    extra_vars: ""
+{% endif %}
     job_tags: "{{ template_overrides_resources.job_template[current_job_templates_asset_value.name].job_tags
                   | default(template_overrides_global.job_template.job_tags)
                   | default(current_job_templates_asset_value.job_tags) }}"
