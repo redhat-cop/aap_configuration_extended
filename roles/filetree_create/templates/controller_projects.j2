@@ -30,13 +30,13 @@ controller_projects:
                     | default(current_projects_asset_value.scm_branch) }}"
     scm_clean: {{ template_overrides_resources.project[current_projects_asset_value.name].scm_clean
                    | default(template_overrides_global.project.scm_clean)
-                   | default(current_projects_asset_value.scm_clean) | bool | lower }}
+                   | default(current_projects_asset_value.scm_clean | bool | lower) }}
     scm_delete_on_update: {{ template_overrides_resources.project[current_projects_asset_value.name].scm_delete_on_update
                               | default(template_overrides_global.project.scm_delete_on_update)
-                              | default(current_projects_asset_value.scm_delete_on_update) | bool | lower }}
+                              | default(current_projects_asset_value.scm_delete_on_update | bool | lower) }}
     scm_update_on_launch: {{ template_overrides_resources.project[current_projects_asset_value.name].scm_update_on_launch
                               | default(template_overrides_global.project.scm_update_on_launch)
-                              | default(current_projects_asset_value.scm_update_on_launch) | bool | lower }}
+                              | default(current_projects_asset_value.scm_update_on_launch | bool | lower) }}
     scm_update_cache_timeout: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_update_cache_timeout
                                   | default(template_overrides_global.project.scm_update_cache_timeout)
                                   | default(current_projects_asset_value.scm_update_cache_timeout) }}"
@@ -54,10 +54,10 @@ controller_projects:
 {% endif %}
     allow_override: {{ template_overrides_resources.project[current_projects_asset_value.name].allow_override
                         | default(template_overrides_global.project.allow_override)
-                        | default(current_projects_asset_value.allow_override) | bool | lower }}
+                        | default(current_projects_asset_value.allow_override | bool | lower) }}
     update_project: {{ template_overrides_resources.project[current_projects_asset_value.name].update_project
                         | default(template_overrides_global.project.update_project)
-                        | default(update_project_state | default(false)) | bool | lower }}
+                        | default(update_project_state | default(false) | bool | lower) }}
     timeout: "{{ template_overrides_resources.project[current_projects_asset_value.name].timeout
                  | default(template_overrides_global.project.timeout)
                  | default(current_projects_asset_value.timeout) }}"
