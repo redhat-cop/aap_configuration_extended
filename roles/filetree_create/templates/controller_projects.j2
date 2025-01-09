@@ -52,12 +52,12 @@ controller_projects:
                              | default(template_overrides_global.project.default_environment)
                              | default(current_job_templates_asset_value.summary_fields.default_environment.name) }}"
 {% endif %}
-    allow_override: "{{ template_overrides_resources.project[current_projects_asset_value.name].allow_override
+    allow_override: {{ template_overrides_resources.project[current_projects_asset_value.name].allow_override
                         | default(template_overrides_global.project.allow_override)
-                        | default(current_projects_asset_value.allow_override) }}"
-    update_project: "{{ template_overrides_resources.project[current_projects_asset_value.name].update_project
+                        | default(current_projects_asset_value.allow_override) | bool | lower }}
+    update_project: {{ template_overrides_resources.project[current_projects_asset_value.name].update_project
                         | default(template_overrides_global.project.update_project)
-                        | default(update_project_state | default(false)) }}"
+                        | default(update_project_state | default(false)) | bool | lower }}
     timeout: "{{ template_overrides_resources.project[current_projects_asset_value.name].timeout
                  | default(template_overrides_global.project.timeout)
                  | default(current_projects_asset_value.timeout) }}"
