@@ -20,7 +20,7 @@
 
 - name: "Set Roles Data Structure"
   ansible.builtin.set_fact:
-    controller_roles: >-
+    aap_teams: >-
       {{
         __contents_filetree_aap_teams.results |
         rejectattr('ansible_facts.aap_teams', 'undefined') |
