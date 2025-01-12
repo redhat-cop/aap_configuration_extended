@@ -18,7 +18,7 @@
   register: __contents_filetree_aap_teams
   failed_when: "'VARIABLE IS NOT DEFINED' in __contents_filetree_aap_teams"
 
-- name: "Set Roles Data Structure"
+- name: "Set Teams Data Structure"
   ansible.builtin.set_fact:
     aap_teams: >-
       {{
