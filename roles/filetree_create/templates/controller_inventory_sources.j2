@@ -16,7 +16,7 @@ controller_inventory_sources:
                 | default('ToDo: The source of the inventory_source was originally missing and must be specified', true) }}"
 {% if template_overrides_resources.inventory_source[inventory_source.name].source_project is defined
       or template_overrides_global.inventory_source.source_project is defined
-      or inventory_source.source_project is defined %}
+      or (inventory_source.source_project is defined and inventory_source.source_project != None) %}
     source_project: "{{ template_overrides_resources.inventory_source[inventory_source.name].source_project
                         | default(template_overrides_global.inventory_source.source_project)
                         | default(inventory_source.summary_fields.source_project.name) }}"
