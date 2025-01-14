@@ -207,7 +207,7 @@ controller_templates:
 -%}
 {% if template_overrides_resources.job_template[current_job_templates_asset_value.name].survey_spec is defined
       or template_overrides_global.job_template.survey_spec is defined
-      or (current_job_templates_asset_value.related.survey_spec is defined and survey_spec_contents | length > 0) %}
+      or (current_job_templates_asset_value.related.survey_spec is defined and survey_spec_contents | length > 0 and survey_spec_contents[0].name is defined) %}
     survey_spec:
 {% for spec_item in survey_spec_contents %}
       name: "{{ spec_item.name }}"
