@@ -30,7 +30,7 @@ controller_workflows:
                           host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                           return_all=true, max_objects=query_controller_api_max_objects)[0] %}
 {%     if jt_var.ask_verbosity_on_launch %}
-        verbosity = "0"
+        verbosity = "{{ jt_var.verbosity }}"
 {%     endif %}
 {%   endif %}
 {% endif %}
