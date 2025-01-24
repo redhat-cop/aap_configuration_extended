@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - filetree_create missing single quotes for hostfilter in smart inventories
+...
