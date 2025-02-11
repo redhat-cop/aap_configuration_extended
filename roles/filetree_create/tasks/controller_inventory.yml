@@ -117,7 +117,7 @@
   vars:
     inventory_organization: "{{ current_inventory_hosts.summary_fields.organization.name | default(organization) }}"
     inventory_name: "{{ current_inventory_hosts.name | regex_replace('/', '_') }}"
-    hosts_output_path: "{{   (output_path + '/' + inventory_organization | regex_replace('/', '_') + '/controller_inventories/' + inventory_name | regex_replace('/', '_'))
+    hosts_output_path: "{{ (output_path + '/' + inventory_organization | regex_replace('/', '_') + '/controller_inventories/' + inventory_name | regex_replace('/', '_'))
                           if (flatten_output is not defined or (flatten_output | bool) == false)
                           else
                             output_path + '/controller_hosts.yaml' }}"
