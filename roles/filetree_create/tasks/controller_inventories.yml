@@ -113,11 +113,11 @@
 
 - name: "Set the inventory's hosts"
   ansible.builtin.include_tasks: "controller_hosts.yml"
-  when: not skip_inventory_hosts
+  when: (not skip_inventory_hosts and current_inventory_hosts.kind is not search('smart|constructed')) or (not skip_inventory_hosts and inventory_id is defined)
   vars:
     inventory_organization: "{{ current_inventory_hosts.summary_fields.organization.name | default(organization) }}"
     inventory_name: "{{ current_inventory_hosts.name | regex_replace('/', '_') }}"
-    hosts_output_path: "{{   (output_path + '/' + inventory_organization | regex_replace('/', '_') + '/controller_inventories/' + inventory_name | regex_replace('/', '_'))
+    hosts_output_path: "{{ (output_path + '/' + inventory_organization | regex_replace('/', '_') + '/controller_inventories/' + inventory_name | regex_replace('/', '_'))
                           if (flatten_output is not defined or (flatten_output | bool) == false)
                           else
                             output_path + '/controller_hosts.yaml' }}"

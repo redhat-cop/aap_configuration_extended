@@ -8,7 +8,7 @@ controller_inventories:
                      | default(current_inventories_asset_value.description) | regex_replace("'", "''") }}'
     organization: "{{ inventory_organization }}"
 {% if template_overrides_resources.inventory[current_inventories_asset_value.name].host_filter is defined
-      or template_overrides_global_global.inventory.host_filter is defined
+      or template_overrides_global.inventory.host_filter is defined
       or (current_inventories_asset_value.host_filter is defined and current_inventories_asset_value.host_filter | type_debug != 'NoneType') %}
     host_filter: '{{ template_overrides_resources.inventory[current_inventories_asset_value.name].host_filter
                      | default(template_overrides_global.inventory.host_filter)
@@ -18,14 +18,14 @@ controller_inventories:
     kind: "{{ current_inventories_asset_value.kind }}"
 {% endif %}
 {% if template_overrides_resources.inventory[current_inventories_asset_value.name].prevent_instance_group_fallback is defined
-      or template_overrides_global_global.inventory.prevent_instance_group_fallback is defined
+      or template_overrides_global.inventory.prevent_instance_group_fallback is defined
       or current_inventories_asset_value.prevent_instance_group_fallback is defined %}
     prevent_instance_group_fallback: {{ template_overrides_resources.inventory[current_inventories_asset_value.name].prevent_instance_group_fallback
                                         | default(template_overrides_global.inventory.prevent_instance_group_fallback)
                                         | default(current_inventories_asset_value.prevent_instance_group_fallback) }}
 {% endif %}
 {% if template_overrides_resources.inventory[current_inventories_asset_value.name].source_vars is defined
-      or template_overrides_global_global.inventory.source_vars is defined
+      or template_overrides_global.inventory.source_vars is defined
       or current_inventories_asset_value.source_vars is defined %}
     source_vars:
        {{ template_overrides_resources.inventory[current_inventories_asset_value.name].source_vars
@@ -34,28 +34,28 @@ controller_inventories:
           | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) |  regex_replace('(^[^:]*): (.*){([{%])', '\\g<1>: !unsafe \\g<2>{\\g<3>', multiline=True)}}
 {% endif %}
 {% if template_overrides_resources.inventory[current_inventories_asset_value.name].update_cache_timeout is defined
-      or template_overrides_global_global.inventory.update_cache_timeout is defined
+      or template_overrides_global.inventory.update_cache_timeout is defined
       or current_inventories_asset_value.update_cache_timeout is defined %}
     update_cache_timeout: {{ template_overrides_resources.inventory[current_inventories_asset_value.name].update_cache_timeout
                              | default(template_overrides_global.inventory.update_cache_timeout)
                              | default(current_inventories_asset_value.update_cache_timeout) }}
 {% endif %}
 {% if template_overrides_resources.inventory[current_inventories_asset_value.name].limit is defined
-      or template_overrides_global_global.inventory.limit is defined
+      or template_overrides_global.inventory.limit is defined
       or current_inventories_asset_value.limit is defined %}
     limit: "{{ template_overrides_resources.inventory[current_inventories_asset_value.name].limit
                | default(template_overrides_global.inventory.limit)
                | default(current_inventories_asset_value.limit) }}"
 {% endif %}
 {% if template_overrides_resources.inventory[current_inventories_asset_value.name].verbosity is defined
-      or template_overrides_global_global.inventory.verbosity is defined
+      or template_overrides_global.inventory.verbosity is defined
       or current_inventories_asset_value.verbosity is defined %}
     verbosity: {{ template_overrides_resources.inventory[current_inventories_asset_value.name].verbosity
                   | default(template_overrides_global.inventory.verbosity)
                   | default(current_inventories_asset_value.verbosity) }}
 {% endif %}
 {% if template_overrides_resources.inventory[current_inventories_asset_value.name].variables is defined
-      or template_overrides_global_global.inventory.variables is defined
+      or template_overrides_global.inventory.variables is defined
       or (current_inventories_asset_value.variables is defined and current_inventories_asset_value.variables != '---' and current_inventories_asset_value.variables != '') %}
     variables:
       {{ template_overrides_resources.inventory[current_inventories_asset_value.name].variables
