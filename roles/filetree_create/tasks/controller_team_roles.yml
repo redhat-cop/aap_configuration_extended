@@ -27,7 +27,7 @@
                                                       'resource_names': (team_roles_lookvar | selectattr('name','equalto', item.0) |
                                                                          selectattr('summary_fields.resource_type','equalto', item.1) |
                                                                          map(attribute='summary_fields.resource_name')),
-                                                      'resource_type': item.1,
+                                                      'resource_type': item.1
                                                     }
                                          }]
                       }}"
