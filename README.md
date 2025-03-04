@@ -2,7 +2,6 @@
 
 ![pre-commit tests](https://github.com/redhat-cop/aap_configuration_extended/actions/workflows/pre-commit.yml/badge.svg)
 ![Release](https://github.com/redhat-cop/aap_configuration_extended/actions/workflows/release.yml/badge.svg)
-<!-- markdownlint-disable-line MD033 MD034 --><a href="https://raw.githubusercontent.com/redhat-cop/aap_configuration_extended/devel/docs/aap_config_as_code_public_meeting.ics"><img border="0" alt="Google Calendar invite" src="https://www.google.com/calendar/images/ext/gc_button1_en-GB.gif"></a>
 <!-- Further CI badges go here as above -->
 
 This Ansible collection extends the `infra.aap_configuration` collection by providing extra functionalities that allows advanced operations on the Ansible Automation Platform Configuration as Code.
@@ -181,9 +180,6 @@ We welcome community contributions to this collection. If you find problems, ple
 More information about contributing can be found in our [Contribution Guidelines.](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/.github/CONTRIBUTING.md)
 
 We have a community meeting every 4 weeks. Find the agenda in the [issues](https://github.com/redhat-cop/aap_configuration_extended/issues) and the calendar invitation below:
-
-<!-- markdownlint-disable-next-line MD033 MD034 -->
-<a target="_blank" href="https://raw.githubusercontent.com/redhat-cop/aap_configuration/devel/docs/aap_config_as_code_public_meeting.ics"><img border="0" alt="Google Calendar invite" src="https://www.google.com/calendar/images/ext/gc_button1_en-GB.gif"></a>
 
 ## Code of Conduct
 
