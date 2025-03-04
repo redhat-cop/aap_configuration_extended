@@ -33,7 +33,7 @@
   block:
     - name: "Export Controller Inventories and related Groups and Hosts"
       ansible.builtin.include_tasks: "controller_inventories.yml"
-      when: "'controller_inventory' in input_tag or 'all' in input_tag"
+      when: "'controller_inventories' in input_tag or 'all' in input_tag"
     - name: "Export Controller Constructed Inventories"
       ansible.builtin.include_tasks: "controller_constructed_inventories.yml"
       when: "('controller_inventories' in input_tag or 'all' in input_tag) and have_constructed"
