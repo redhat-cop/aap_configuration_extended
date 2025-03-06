@@ -50,7 +50,6 @@
   args:
     apply:
       tags: "{{ input_tag | to_yaml }}"
-  tags: "{{ valid_tags }}"
 
 - name: "Remind to check all the 'ToDo:' entries in the output files"
   ansible.builtin.debug:

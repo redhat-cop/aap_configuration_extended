@@ -29,10 +29,7 @@ controller_workflows:
 {%     set jt_var = query(controller_api_plugin, 'api/controller/v2/job_templates',
                           query_params={'name': node.summary_fields.unified_job_template.name},
                           host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
-                          return_all=true, max_objects=query_controller_api_max_objects)[0] %}
-{%     if jt_var.ask_verbosity_on_launch %}
-        verbosity = "{{ jt_var.verbosity }}"
-{%     endif %}
+                          return_all=true, max_objects=query_controller_api_max_objects) %}
 {%   endif %}
 {% endif %}
 {% if node.limit is defined %}
