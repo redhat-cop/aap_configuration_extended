@@ -38,9 +38,6 @@ controller_workflows:
 {% if node.limit is defined %}
         limit: "{{ node.limit }}"
 {% endif %}
-{% if node.limit is defined %}
-        limit: "{{ node.limit }}"
-{% endif %}
 {% if node.job_type %}
         job_type: "{{ node.job_type }}"
 {% if node.summary_fields.unified_job_template.unified_job_type is match('approval') %}
@@ -72,19 +69,19 @@ controller_workflows:
 {% if node.success_nodes is defined and node.success_nodes | length > 0 %}
         success_nodes:
 {% for success in node.success_nodes %}
-          - {{ query(controller_api_plugin, 'workflow_job_template_nodes/'+(success | string), host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)[0].identifier }}
+          - "{{ query(controller_api_plugin, 'workflow_job_template_nodes/'+(success | string), host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)[0].identifier }}"
 {% endfor %}
 {% endif %}
 {% if node.always_nodes and node.always_nodes | length > 0 %}
         always_nodes:
 {% for always in node.always_nodes %}
-          - {{ query(controller_api_plugin, 'workflow_job_template_nodes/'+(always | string), host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)[0].identifier }}
+          - "{{ query(controller_api_plugin, 'workflow_job_template_nodes/'+(always | string), host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)[0].identifier }}"
 {% endfor %}
 {% endif %}
 {% if node.failure_nodes and node.failure_nodes | length > 0 %}
         failure_nodes:
 {% for failure in node.failure_nodes %}
-          - {{ query(controller_api_plugin, 'workflow_job_template_nodes/'+(failure | string), host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)[0].identifier }}
+          - "{{ query(controller_api_plugin, 'workflow_job_template_nodes/'+(failure | string), host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)[0].identifier }}"
 {% endfor %}
 {% endif %}
 {% endfor %}
@@ -162,7 +159,7 @@ controller_workflows:
 {% endif %}
     survey_enabled: {{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].survey_enabled
                        | default(template_overrides_global.workflow_template.survey_enabled)
-                       | default(current_workflow_job_templates_asset_value.survey_enabled) }}
+                       | default(current_workflow_job_templates_asset_value.survey_enabled) | lower }}
 {% set survey_spec_contents = template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].survey_spec
                               | default(template_overrides_global.workflow_job_template.survey_spec)
                               | default(query(controller_api_plugin, current_workflow_job_templates_asset_value.related.survey_spec,
