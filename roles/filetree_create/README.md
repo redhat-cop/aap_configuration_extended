@@ -4,7 +4,11 @@ The role `filetree_create` is intended to be used as the first step to begin usi
 
 ## Requirements
 
-This role requires the [awx.awx](https://docs.ansible.com/ansible/latest/collections/awx/awx/index.html) or [ansible.controller](https://console.redhat.com/ansible/automation-hub/repo/published/ansible/controller) ansible collection.
+* collection [infra.aap_configuration](https://galaxy.ansible.com/ui/repo/published/infra/aap_configuration/), and
+* for AWX, collection [awx.awx](https://docs.ansible.com/ansible/latest/collections/awx/awx/index.html), or
+* for Red Hat Ansible Automation Platform 2.5, collections:
+  - [ansible.controller](https://console.redhat.com/ansible/automation-hub/repo/published/ansible/controller), and
+  - [ansible.platform](https://console.redhat.com/ansible/automation-hub/repo/published/ansible/platform/)
 
 ## Role Variables
 
