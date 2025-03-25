@@ -27,6 +27,11 @@ controller_workflows:
                           query_params={'name': node.summary_fields.unified_job_template.name},
                           host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                           return_all=true, max_objects=query_controller_api_max_objects) %}
+{%     if jt_var | length > 0 %}
+{%       if jt_var[0]['ask_verbosity_on_launch'] %}
+        verbosity = "{{ jt_var[0]['verbosity'] }}"
+{%       endif %}
+{%     endif %}
 {%   endif %}
 {% endif %}
 {% if node.limit is defined %}
