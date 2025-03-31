@@ -4,7 +4,11 @@ The role `filetree_create` is intended to be used as the first step to begin usi
 
 ## Requirements
 
-This role requires the [awx.awx](https://docs.ansible.com/ansible/latest/collections/awx/awx/index.html) or [ansible.controller](https://console.redhat.com/ansible/automation-hub/repo/published/ansible/controller) ansible collection.
+* collection [infra.aap_configuration](https://galaxy.ansible.com/ui/repo/published/infra/aap_configuration/), and
+* for AWX, collection [awx.awx](https://docs.ansible.com/ansible/latest/collections/awx/awx/index.html), or
+* for Red Hat Ansible Automation Platform 2.5, collections:
+  * [ansible.controller](https://console.redhat.com/ansible/automation-hub/repo/published/ansible/controller), and
+  * [ansible.platform](https://console.redhat.com/ansible/automation-hub/repo/published/ansible/platform/)
 
 ## Role Variables
 
@@ -93,7 +97,7 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
 
 This role can generate output files in two different ways:
 
-- **Structured output**:
+* **Structured output**:
 
   The output files are distributed in separate directories, by organization first, and then by object type. Into each of these directories, one file per object is generated. This way allows to organize the files using different criteria, for example, by functionalities or applications.
 
@@ -164,7 +168,7 @@ This role can generate output files in two different ways:
       └── current_roles_controller_user.yaml
   ```
 
-- **Flatten files**:
+* **Flatten files**:
 
   The output files are all located in the same directory. Each file contains a YAML list with all the objects belonging to the same object type. This output format allows to load all the objects both from the standard Ansible `group_vars` and from the `infra.aap_configuration_extended.filetree_read` role.
 
@@ -211,9 +215,9 @@ ansible-playbook infra.aap_configuration_extended.flatten_filetree_create_output
 
 This example will export all object but some with modifications:
 
-- job template called `job_template_example` will be exported with the `dev` branch, while the rest of the job templates will use the `main` branch — the resources dictionary takes precedence over the global dictionary.
-- all projects will have a Jinja2 expression assigned to the `scm_branch`.
-- all schedules enabled state will be set as `false`.
+* job template called `job_template_example` will be exported with the `dev` branch, while the rest of the job templates will use the `main` branch — the resources dictionary takes precedence over the global dictionary.
+* all projects will have a Jinja2 expression assigned to the `scm_branch`.
+* all schedules enabled state will be set as `false`.
 
 ```yaml
 ---
@@ -251,4 +255,4 @@ GPLv3+
 
 ## Author Information
 
-- [Ivan Aragonés](https://github.com/ivarmu)
+* [Ivan Aragonés](https://github.com/ivarmu)
