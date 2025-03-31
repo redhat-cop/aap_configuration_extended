@@ -16,17 +16,17 @@ We are on the Ansible Forums and Matrix, if you want to discuss something, ask f
 
 ## Requirements
 
-The awx.awx or ansible.controller collections MUST be installed in order for this collection to work. It is recommended they be invoked in the playbook in the following way.
+The supported collections that contains the modules are required for this collection to work, and the validated collection infra.aap_configuration that this collection depends upon, you can copy this requirements.yml file example.
 
 ```yaml
 ---
-- name: Playbook to configure ansible controller post installation
-  hosts: localhost
-  connection: local
-  vars:
-    controller_validate_certs: true
-  collections:
-    - awx.awx
+collections:
+  - name: ansible.platform
+  - name: ansible.hub
+  - name: ansible.controller
+  - name: ansible.eda
+  - name: infra.aap_configuration
+...
 ```
 
 ## Links to Ansible Automation Platform Collections
