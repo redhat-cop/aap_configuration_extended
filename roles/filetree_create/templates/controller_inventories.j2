@@ -78,6 +78,21 @@ controller_inventories:
 {%    endfor %}
 {%   endif %}
 {% endif %}
+{% if template_overrides_resources.inventory[current_inventories_asset_value.name].related.instance_groups is defined
+      or template_overrides_global_global.inventory.related.instance_groups is defined
+      or (current_inventories_asset_value.related.instance_groups is defined and current_inventories_asset_value.related.instance_groups != '---' and current_inventories_asset_value.related.instance_groups != '') %}
+{% set _instance_groups = template_overrides_resources.inventory[current_inventories_asset_value.name].instance_groups
+                              | default(template_overrides_global.inventory.instance_groups)
+                              | default(query(controller_api_plugin, current_inventories_asset_value.related.instance_groups,
+                                              host=controller_hostname, oauth_token=controller_oauthtoken, verify_ssl=controller_validate_certs))
+-%}
+{%   if _instance_groups | length > 0 %}
+    instance_groups:
+{%    for _input_inventory in _instance_groups %}
+      - {{ _input_inventory.name }}
+{%    endfor %}
+{%   endif %}
+{% endif %}
 {% if last_inventory | default(true) | bool %}
 ...
 {% endif %}
