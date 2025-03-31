@@ -7,3 +7,4 @@ tests/output
 .vscode
 ansible.cfg
 vault-aap-controller.yaml
+.ansible/
