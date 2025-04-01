@@ -6,7 +6,7 @@ Configuration as code (referred to as CasC or CAC) and Infrastructure as Code (I
 
 Configuration as code is about how your software components interact with each other. If you change a setting on your application or product, it can be built and tested earlier in the pipeline and released with a higher confidence.
 
-Now that some concepts are clear, let's summarize what the collection will do. Basically, the collection is compose by three ansible roles:
+Now that some concepts are clear, let's summarize what the collection will do. Basically, the collection is comprised of four ansible roles:
 
 - **filetree_read**: An ansible role which reads variables from a hierarchical and scalable directory structure which is grouped based on the configuration code life-cycle. It could be used to run the role filetree_read to load variables followed by dispatch role to apply the configuration.
 - **filetree_create**: The role filetree_create is intended to be used as the first step to begin using the Configuration as Code on Ansible Tower or Ansible Automation Controller, when you already have a running instance of any of them. Obviously, you also could start to write your objects as code from scratch, but the idea behind the creation of that role is to simplify your lives and make that task a little bit easier.
