@@ -1,0 +1,3 @@
+---
+minor changes:
+  - Corrected th4e following vars; controller_hostname, controller_oauthtoken, and controller_validate_certs
