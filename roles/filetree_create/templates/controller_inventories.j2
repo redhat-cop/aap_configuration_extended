@@ -28,10 +28,10 @@ controller_inventories:
       or template_overrides_global.inventory.source_vars is defined
       or current_inventories_asset_value.source_vars is defined %}
     source_vars:
-       {{ template_overrides_resources.inventory[current_inventories_asset_value.name].source_vars
-          | default(template_overrides_global.inventory.source_vars)
-          | default(current_inventories_asset_value.source_vars)
-          | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) |  regex_replace('(^[^:]*): (.*){([{%])', '\\g<1>: !unsafe \\g<2>{\\g<3>', multiline=True)}}
+      {{ template_overrides_resources.inventory[current_inventories_asset_value.name].source_vars
+         | default(template_overrides_global.inventory.source_vars)
+         | default(current_inventories_asset_value.source_vars)
+         | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) |  regex_replace('(^[^:]*): (.*){([{%])', '\\g<1>: !unsafe \\g<2>{\\g<3>', multiline=True)}}
 {% endif %}
 {% if template_overrides_resources.inventory[current_inventories_asset_value.name].update_cache_timeout is defined
       or template_overrides_global.inventory.update_cache_timeout is defined

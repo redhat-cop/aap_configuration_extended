@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - filetree_create export inventories source vars with proper indention
+...
