@@ -1,4 +1,0 @@
----
-bugfixes:
-  - filetree_create is able to export empty extra vars of JT and WF
-...

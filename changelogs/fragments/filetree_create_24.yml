@@ -1,6 +1,0 @@
----
-bugfixes:
-  - filetree_create - Corrected th4e following vars; controller_hostname, controller_oauthtoken, and controller_validate_certs
-minor_changes:
-  - Constructed inventories now produce an inventory source which can be used to control items such as limit and source_vars for the constructed inventory
-...

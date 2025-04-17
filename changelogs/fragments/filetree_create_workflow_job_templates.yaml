@@ -1,4 +1,0 @@
----
-bugfixes:
-  - filetree_create remove state from workflow job templates output to avoid problems when importing those files
-...

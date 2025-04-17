@@ -1,4 +1,0 @@
----
-minor_changes:
-  - filetree_create is able to export variables without key sorting
-...

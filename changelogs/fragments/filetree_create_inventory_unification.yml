@@ -1,4 +1,0 @@
----
-minor_changes:
-  - filetree_create should use plural inventories word instead of singular inventory
-...
