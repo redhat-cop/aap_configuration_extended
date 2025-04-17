@@ -69,7 +69,7 @@ controller_inventories:
 {% set _input_inventories = template_overrides_resources.inventory[current_inventories_asset_value.name].input_inventories
                               | default(template_overrides_global.inventory.input_inventories)
                               | default(query(controller_api_plugin, current_inventories_asset_value.related.input_inventories,
-                                              host=controller_hostname, oauth_token=controller_oauthtoken, verify_ssl=controller_validate_certs))
+                                              host=aap_hostname, oauth_token=controller_oauthtoken, verify_ssl=controller_validate_certs))
 -%}
 {%   if _input_inventories | length > 0 %}
     input_inventories:
@@ -84,12 +84,12 @@ controller_inventories:
 {% set _instance_groups = template_overrides_resources.inventory[current_inventories_asset_value.name].instance_groups
                               | default(template_overrides_global.inventory.instance_groups)
                               | default(query(controller_api_plugin, current_inventories_asset_value.related.instance_groups,
-                                              host=controller_hostname, oauth_token=controller_oauthtoken, verify_ssl=controller_validate_certs))
+                                              host=aap_hostname, oauth_token=controller_oauthtoken, verify_ssl=controller_validate_certs))
 -%}
 {%   if _instance_groups | length > 0 %}
     instance_groups:
-{%    for _input_inventory in _instance_groups %}
-      - {{ _input_inventory.name }}
+{%    for _instance_group in _instance_groups %}
+      - {{ _instance_group.name }}
 {%    endfor %}
 {%   endif %}
 {% endif %}
