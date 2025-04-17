@@ -11,6 +11,8 @@ exclude_paths:
   - 'tests/templated_role_example'
 parseable: true
 use_default_rules: true
+strict: true
+profile: production
 # https://github.com/ansible/ansible-lint/issues/808
 # with verbosity set to 1, its dumping 'unknown file type messages'
 # verbosity: 1
@@ -33,4 +35,9 @@ kinds:
   - vars: "**/examples/configs_export_model/*.yml"
   - vars: "**/examples/vars/*.yml"
   - vars: "**/roles/**/tests/configs/*.yml"
+mock_roles:
+  - infra.aap_configuration.meta_dependency_check
+  - infra.aap_configuration.dispatch
+mock_modules:
+  - ansible.hub.ah_token
 ...

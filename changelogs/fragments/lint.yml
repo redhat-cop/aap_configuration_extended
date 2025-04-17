@@ -1,0 +1,4 @@
+---
+minor_changes:
+  - Updated linting rules to mock infra.aap_configuration collection
+...
