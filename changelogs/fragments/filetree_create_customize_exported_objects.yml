@@ -1,4 +1,0 @@
----
-major_changes:
-  - filetree_create is able to use external dictionary to modify object during the export
-...

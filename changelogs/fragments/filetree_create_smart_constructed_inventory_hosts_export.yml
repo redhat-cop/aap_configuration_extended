@@ -1,4 +1,0 @@
----
-minor_changes:
-  - filetree_create should not export hosts of smart/constructed inventories as they are based on existing inventories
-...

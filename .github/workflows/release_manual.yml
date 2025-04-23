@@ -29,7 +29,7 @@ jobs:
       collection_version: ${{ github.event.inputs.tagged_version }}
       collection_repo: https://github.com/redhat-cop/aap_configuration_extended/
       quay_username: redhat_cop
-      collection_dependencies: awx.awx
+      collection_dependencies: awx.awx ansible.hub infra.aap_configuration
       matrix_message: This Ansible collection allows for easy interaction with an AWX or Ansible Controller server via Ansible roles using the AWX/Controller collection modules.
     secrets:
       collection_api_key_1: ${{ secrets.GALAXY_INFRA_KEY }}

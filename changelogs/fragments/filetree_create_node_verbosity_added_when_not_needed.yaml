@@ -1,4 +1,0 @@
----
-bugfixes:
-  - filetree_create export verbosity for node when ask_verbosity_on_launch is defined
-...

@@ -10,10 +10,23 @@ controller_inventory_sources:
 {% if inventory_source.summary_fields.organization is defined %}
     organization: "{{ inventory_source.summary_fields.organization.name }}"
 {% endif %}
+{% set _source_type = template_overrides_resources.inventory_source[inventory_source.name].source
+                | default(template_overrides_global.inventory_source.source)
+                | default(inventory_source.source)
+                | default('ToDo: The source of the inventory_source was originally missing and must be specified', true) %}
+{% if _source_type != 'constructed' %}
     source: "{{ template_overrides_resources.inventory_source[inventory_source.name].source
                 | default(template_overrides_global.inventory_source.source)
                 | default(inventory_source.source)
                 | default('ToDo: The source of the inventory_source was originally missing and must be specified', true) }}"
+{% endif %}
+{% if template_overrides_resources.inventory_source[inventory_source.name].limit is defined
+      or template_overrides_global.inventory_source.limit is defined
+      or inventory_source.limit is defined %}
+    limit: "{{ template_overrides_resources.inventory_source[inventory_source.name].limit
+                     | default(template_overrides_global.inventory_source.limit)
+                     | default(inventory_source.limit) }}"
+{% endif %}
 {% if template_overrides_resources.inventory_source[inventory_source.name].source_project is defined
       or template_overrides_global.inventory_source.source_project is defined
       or (inventory_source.source_project is defined and inventory_source.source_project != None) %}

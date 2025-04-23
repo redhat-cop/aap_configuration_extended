@@ -1,4 +1,0 @@
----
-bugfixes:
-  - filetree_create use proper global template variable name
-...

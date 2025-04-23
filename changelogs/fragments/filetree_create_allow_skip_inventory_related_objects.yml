@@ -1,4 +1,0 @@
----
-minor_changes:
-  - filetree_create is able to export inventory without sources/hosts/groups.
-...

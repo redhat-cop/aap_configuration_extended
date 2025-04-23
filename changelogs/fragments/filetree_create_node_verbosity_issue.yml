@@ -1,4 +1,0 @@
----
-bugfixes:
-  - filetree_create export missing verbosity for node
-...

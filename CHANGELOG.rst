@@ -1,8 +1,61 @@
-============================================
-infra.aap_configuration_extended Release Notes
-============================================
+================================================
+infra.aap\_configuration\_extended Release Notes
+================================================
 
 .. contents:: Topics
+
+v1.0.0
+======
+
+Major Changes
+-------------
+
+- filetree_create is able to use external dictionary to modify object during the export
+
+Minor Changes
+-------------
+
+- Add credential_input_sources to the filetree create
+- Constructed inventories now produce an inventory source which can be used to control items such as limit and source_vars for the constructed inventory
+- filetree_create able to export single inventory
+- filetree_create is able to export approval node of workflow
+- filetree_create is able to export inventory without sources/hosts/groups.
+- filetree_create is able to export variables without key sorting
+- filetree_create projects bool variables are stored without quotes
+- filetree_create should not export hosts of smart/constructed inventories as they are based on existing inventories
+- filetree_create should use plural inventories word instead of singular inventory
+
+Bugfixes
+--------
+
+- Add input_inventories to the output of Constructed Inventories.
+- Add instance_groups to the output of Constructed Inventories.
+- Fixes issue where the input tags were not accepted or being skipped
+- filetree_create - Corrected th4e following vars; controller_hostname, controller_oauthtoken, and controller_validate_certs
+- filetree_create export inventories source vars with proper indention
+- filetree_create export missing inventory ask settings of workflows
+- filetree_create export missing inventory for workflow node
+- filetree_create export missing limit of workflow nodes
+- filetree_create export missing limits settings of workflows
+- filetree_create export missing verbosity for node
+- filetree_create export verbosity for node when ask_verbosity_on_launch is defined
+- filetree_create exported properly smart inventories host filter (double quotes issue)
+- filetree_create extra_vars regex issue
+- filetree_create fix wrong object type name in user roles template
+- filetree_create is able to export empty extra vars of JT and WF
+- filetree_create job_template and workflow_job_template issues with complex fields
+- filetree_create job_template and workflow_job_template survey default values issue when they are multiline
+- filetree_create job_template and workflow_job_template survey issue when the survey_spec was empty (but defined)
+- filetree_create job_template and workflow_job_template survey was failing when it was empty
+- filetree_create job_template double quote issue
+- filetree_create missing single quotes for hostfilter in smart inventories
+- filetree_create no longer export schedules extra data when extra_vars of job template is empty (null issue)
+- filetree_create properly escape every variable with unsafe
+- filetree_create remove state from workflow job templates output to avoid problems when importing those files
+- filetree_create roles export issue
+- filetree_create roles export issues introduced by PR
+- filetree_create use proper global template variable name
+- fix empty and malformed file for credential_types
 
 v0.1.0
 ======
