@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - port https://github.com/redhat-cop/infra.controller_configuration/pull/39 to this repo
+...

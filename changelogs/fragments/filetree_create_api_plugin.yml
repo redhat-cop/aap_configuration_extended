@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - Set the actual plugin to connect to the gateway API
+...
