@@ -1,4 +1,0 @@
----
-minor_changes:
-  - remove instance_groups file as shouldn't be directly imported.
-...
