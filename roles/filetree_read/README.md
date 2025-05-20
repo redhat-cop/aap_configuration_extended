@@ -21,7 +21,7 @@ The following Variables set the organization where should be applied the configu
 |`filetree_controller_settings`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_settings.d/|no|Directory path to load controller object variables|
 |`filetree_aap_organizations`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_organizations.d/|no|Directory path to load controller object variables|
 |`filetree_controller_labels`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_labels.d/|no|Directory path to load controller object variables|
-|`filetree_aap_user_accounts`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_users.d/|no|Directory path to load controller object variables|
+|`filetree_aap_user_accounts`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/aap_users.d/|no|Directory path to load controller object variables|
 |`filetree_aap_teams`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_teams.d/|no|Directory path to load controller object variables|
 |`filetree_controller_credential_types`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_credential_types.d/|no|Directory path to load controller object variables|
 |`filetree_controller_credentials`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_credentials.d/|no|Directory path to load controller object variables|
@@ -198,7 +198,7 @@ orgs_vars/Organization1
     │   │   ├── app-example
     │   │   │   └── controller_instance_groups_otlc.yml
     │   │   └── controller_instance_groups.yml
-    │   ├── controller_users.d
+    │   ├── app_users.d
     │   │   ├── app-demo
     │   │   │   ├── aap_user_accounts_org1.yml
     │   │   │   └── aap_user_accounts_org2.yml
@@ -246,7 +246,7 @@ orgs_vars/Organization1
         │   ├── app-example
         │   │   └── controller_instance_groups_otlc.yml
         │   └── controller_instance_groups.yml
-        ├── controller_users.d
+        ├── aap_users.d
         │   ├── app-demo
         │   │   ├── aap_user_accounts_org1.yml
         │   │   └── aap_user_accounts_org2.yml

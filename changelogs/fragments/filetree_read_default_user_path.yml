@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - BREAKING - filetree_read default var updated to align with new aap_users — may break old user definitions if they're using default path for users definition.
+...
