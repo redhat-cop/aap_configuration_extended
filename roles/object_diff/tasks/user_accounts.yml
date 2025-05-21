@@ -2,15 +2,15 @@
 # tasks file for controller_ldap_settings
 - name: "Get the current controller user to determine if it is super-admin"
   ansible.builtin.set_fact:
-    __controller_api_current_user_check_is_admin: "{{ lookup(controller_api_plugin, 'me',
-                                                             host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs)
+    __controller_api_current_user_check_is_admin: "{{ lookup(controller_api_plugin, 'api/gateway/' + gateway_api_version + '/me',
+                                                             host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)
                                                    }}"
   no_log: "{{ controller_configuration_object_diff_secure_logging }}"
 
 - name: "Get all users from the API"
   ansible.builtin.set_fact:
-    __controller_api_user_accounts: "{{ query(controller_api_plugin, 'users',
-                                              host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=controller_validate_certs,
+    __controller_api_user_accounts: "{{ query(controller_api_plugin, 'api/controller/' + controller_api_version + '/users',
+                                              host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                               return_all=true, max_objects=query_controller_api_max_objects)
                                      }}"
   no_log: "{{ controller_configuration_object_diff_secure_logging }}"

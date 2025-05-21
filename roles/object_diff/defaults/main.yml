@@ -52,6 +52,7 @@ controller_configuration_object_diff_tasks:
 controller_configuration_object_diff_secure_logging: "{{ controller_configuration_secure_logging | default(true) }}"
 
 controller_api_version: "v2"
+gateway_api_version: "v1"
 
 include_present_state: false
 ...
