@@ -148,11 +148,11 @@ The input data can be organized in a very flexible way, letting the user use any
 
 The awx command line can export json that is compatible with this collection.
 In addition there is an awx.awx/ansible.controller export module that use the awx command line to export.
-More details can be found [here](EXPORT_README.md)
+See [the export guide](EXPORT_README.md) for more details
 
 ### Template Example
 
-A Template to use in order to start using the collections can be found [here](https://github.com/redhat-cop/aap_configuration_template)
+See [our template](https://github.com/redhat-cop/aap_configuration_template) to use in order to start using the collections can be found
 
 ### See Also
 
