@@ -34,4 +34,6 @@ eda_configuration_filetree_create_secure_logging: "{{ controller_configuration_s
 input_tag:
   - all
 organization: 'ORGANIZATIONLESS'
+
+secrets_as_variables_prefix: "vaulted"
 ...

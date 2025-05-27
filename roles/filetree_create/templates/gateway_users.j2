@@ -1,9 +1,10 @@
 ---
 aap_user_accounts:
 {% for current_user in current_gateway_users_asset_value %}
-  - username: "{{ template_overrides_resources.gateway_user[current_user.username].username
+{%   set _username = template_overrides_resources.gateway_user[current_user.username].username
                      | default(template_overrides_global.gateway_user.username)
-                     | default(current_user.username) }}"
+                     | default(current_user.username) %}
+  - username: "{{ _username }}"
     email: "{{ template_overrides_resources.gateway_user[current_user.name].email
                      | default(template_overrides_global.gateway_user.email)
                      | default(current_user.email) }}"
@@ -13,9 +14,19 @@ aap_user_accounts:
     last_name: "{{ template_overrides_resources.gateway_user[current_user.name].last_name
                      | default(template_overrides_global.gateway_user.last_name)
                      | default(current_user.last_name) }}"
+{%  if show_encrypted is defined and show_encrypted %}
     password: "{{ template_overrides_resources.gateway_user[current_user.name].password
                      | default(template_overrides_global.gateway_user.password)
-                     | default(current_user.password) | replace("$encrypted$", "\'\'") }}"
+                     | default(current_user.password) }}"
+{%  elif secrets_as_variables is defined and secrets_as_variables %}
+    password: "{{ template_overrides_resources.gateway_user[current_user.name].password
+                     | default(template_overrides_global.gateway_user.password)
+                     | default(current_user.password) | replace("$encrypted$", "{{ " + secrets_as_variables_prefix + "_gateway_users_" + (_username | replace(' ', '_') | lower) + "_password }}") }}"
+{%  else %}
+    password: "{{ template_overrides_resources.gateway_user[current_user.name].password
+                     | default(template_overrides_global.gateway_user.password)
+                     | default(current_user.password) | replace("$encrypted$", "") }}"
+{%  endif %}
     is_superuser: "{{ template_overrides_resources.gateway_user[current_user.name].is_superuser
                      | default(template_overrides_global.gateway_user.is_superuser)
                      | default(current_user.is_superuser) }}"

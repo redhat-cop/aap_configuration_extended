@@ -24,6 +24,12 @@ valid_tags:
   - controller_schedules
   - controller_gateway_authenticator
   - controller_gateway_authenticator_maps
+  - eda_credentials
+  - eda_credential_types
+  - eda_decision_environments
+  - eda_event_streams
+  - eda_projects
+  - eda_rulebook_activations
   - gateway_applications
   - gateway_authenticator_maps
   - gateway_authenticators
