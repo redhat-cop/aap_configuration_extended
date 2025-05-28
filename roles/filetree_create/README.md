@@ -259,7 +259,6 @@ To let the credentials and the users to be exported and imported 'as is', withou
 Sample playbook:
 
 ```yaml
-ansible-playbook -i localhost, filetree_create.yml -e '{controller_configuration_inventories_enforce_defaults: false, controller_configuration_inventory_sources_enforce_defaults: false, aap_validate_certs: false, aap_hostname: localhost:8443, aap_username: <user_name>, aap_password: <password>, flatten_output: true, output_path: /tmp/filetree_output_25, input_tag: ["controller_credentials","eda_credentials","controller_users","gateway_users"], secrets_as_variables: true}'
 ---
 - name: Filetree Create Test
   hosts: all
