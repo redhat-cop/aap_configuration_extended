@@ -8,3 +8,4 @@ tests/output
 ansible.cfg
 vault-aap-controller.yaml
 .ansible/
+.vault-password

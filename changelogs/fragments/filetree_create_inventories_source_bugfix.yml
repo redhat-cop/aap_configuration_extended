@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - Fix the wrong variable path used at inventory_sources to access the source_project field
+...
