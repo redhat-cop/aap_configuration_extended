@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - fix a truthy value at the survey for the workflow job templates. Set it to lowercase.
+...

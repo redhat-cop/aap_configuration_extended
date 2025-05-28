@@ -1,0 +1,4 @@
+---
+minor_changes:
+  - Add a filter to allow exporting the Job Templates based on an assigned label
+...
