@@ -157,8 +157,8 @@ controller_workflows:
 {% endfor %}
 {% endif %}
     survey_enabled: {{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].survey_enabled
-                       | default(template_overrides_global.workflow_template.survey_enabled)
-                       | default(current_workflow_job_templates_asset_value.survey_enabled) | lower }}
+                       | default(template_overrides_global.workflow_job_template.survey_enabled)
+                       | default(current_workflow_job_templates_asset_value.survey_enabled | bool | lower) }}
 {% set survey_spec_contents = template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].survey_spec
                               | default(template_overrides_global.workflow_job_template.survey_spec)
                               | default(query(controller_api_plugin, current_workflow_job_templates_asset_value.related.survey_spec,
@@ -166,7 +166,7 @@ controller_workflows:
 -%}
 {% if template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].survey_spec is defined
       or template_overrides_global.workflow_job_template.survey_spec is defined
-      or (current_workflow_job_templates_asset_value.related.survey_spec is defined and survey_spec_contents | length > 0 and survey_spec_contents | first | length > 0) %}
+      or (current_workflow_job_templates_asset_value.related.survey_spec is defined and (survey_spec_contents | length > 0 and survey_spec_contents | first | length > 0)) %}
     survey_spec:
 {% for spec_item in survey_spec_contents %}
       name: "{{ spec_item.name }}"
