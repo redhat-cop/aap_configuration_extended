@@ -23,7 +23,7 @@ jobs:
       publish_url_collection_2: https://cloud.redhat.com/api/automation-hub/
       galaxy_publish_2: false
       ah_publish_2: true
-      collection_repo: https://github.com/redhat-cop/aap_configuration_extended/
+      collection_repo: https://github.com/redhat-cop/aap_configuration_extended
       quay_username: redhat_cop
       collection_dependencies: ansible.controller ansible.platform ansible.eda ansible.hub infra.aap_configuration
       matrix_message: This Ansible collection allows for easy interaction with an AWX or Ansible Controller server via Ansible roles using the AWX/Controller collection modules.
