@@ -1,4 +1,0 @@
----
-bugfixes:
-  - Set the lookup plugin in filetree_create to use the ansible.platform.gateway_api plugin to capture the AAP version
-...

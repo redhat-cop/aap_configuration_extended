@@ -1,7 +1,7 @@
 ---
 namespace: infra
 name: aap_configuration_extended
-version: 1.0.0-devel
+version: 1.1.0-devel
 description: A collection of roles to extend functionality of aap_configuration collection
 readme: README.md
 authors:
@@ -14,8 +14,8 @@ authors:
     - Ivan Aragonés
     - Silvio Perez
     - Adonis García
-repository: https://github.com/redhat-cop/aap_configuration_extended/
-issues: https://github.com/redhat-cop/aap_configuration_extended/issues
+repository: https://github.com/redhat-cop/aap_configuration_extended//
+issues: https://github.com/redhat-cop/aap_configuration_extended//issues
 build_ignore:
     - galaxy.yml.j2
     - release.yml
