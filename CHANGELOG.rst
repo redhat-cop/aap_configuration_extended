@@ -4,6 +4,26 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v1.1.0
+======
+
+Minor Changes
+-------------
+
+- Add a filter to allow exporting the Job Templates based on an assigned label
+- Updated linting rules to mock infra.aap_configuration collection
+
+Bugfixes
+--------
+
+- BREAKING - filetree_read default var updated to align with new aap_users — may break old user definitions if they're using default path for users definition.
+- Fix the organization ID variable used to look for the organization name of the current decision environment
+- Fix the wrong variable path used at inventory_sources to access the source_project field
+- Set the lookup plugin in filetree_create to use the ansible.platform.gateway_api plugin to capture the AAP version
+- filetree_create no longer has issue with backslashes in survey and extra vars
+- filetree_create no longer has issue with strings like 123-123-123 in survey and extra vars
+- fix a truthy value at the survey for the workflow job templates. Set it to lowercase.
+
 v1.0.0
 ======
 

@@ -1,5 +1,0 @@
----
-bugfixes:
-  - filetree_create no longer has issue with backslashes in survey and extra vars
-  - filetree_create no longer has issue with strings like 123-123-123 in survey and extra vars
-...

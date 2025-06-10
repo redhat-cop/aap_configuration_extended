@@ -1,4 +1,0 @@
----
-bugfixes:
-  - Fix the organization ID variable used to look for the organization name of the current decision environment
-...
