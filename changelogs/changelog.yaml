@@ -143,3 +143,11 @@ releases:
     - filetree_read_default_user_path.yml
     - lint.yml
     release_date: '2025-06-06'
+  1.1.1:
+    changes:
+      bugfixes:
+      - object_diff adapt object diff api calls to fit with AAP 2.5 api changes. It
+        means to use api/controller or api/gateway for each particular case.
+    fragments:
+    - object_diff_fix_api_endpoints.yml
+    release_date: '2025-06-15'

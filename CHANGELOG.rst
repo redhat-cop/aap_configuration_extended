@@ -4,6 +4,14 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v1.1.1
+======
+
+Bugfixes
+--------
+
+- object_diff adapt object diff api calls to fit with AAP 2.5 api changes. It means to use api/controller or api/gateway for each particular case.
+
 v1.1.0
 ======
 
