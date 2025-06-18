@@ -10,7 +10,7 @@
     path: "{{ aap25_configs_dir }}/aap_{{ current_common_item.object }}.yaml"
     regex: '^controller_(.*):\s*$'
     line: 'aap_\g<1>:'
-    backrefs: yes
+    backrefs: true
   when: current_common_item.object not in ['notifications']
 
 - name: "Replace the variable name: {{ current_common_item.object }}"
@@ -18,6 +18,6 @@
     path: "{{ aap25_configs_dir }}/aap_{{ current_common_item.object }}.yaml"
     regex: '^controller_notifications:\s*$'
     line: 'notification_templates:'
-    backrefs: yes
+    backrefs: true
   when: current_common_item.object in ['notifications']
 ...
