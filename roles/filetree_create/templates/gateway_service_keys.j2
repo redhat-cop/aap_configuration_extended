@@ -20,5 +20,6 @@ gateway_service_keys:
                      | default(template_overrides_global.gateway_route.mark_previous_inactive)
                      | default(current_service_key.mark_previous_inactive)
                      | default(false) }}" {# default(false) because it is required but not returned by the API #}
+
 {% endfor %}
 ...

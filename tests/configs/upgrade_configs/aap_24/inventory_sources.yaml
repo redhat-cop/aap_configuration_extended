@@ -1,0 +1,14 @@
+---
+controller_inventory_sources:
+  - name: "RHVM-01"
+    description: ""
+    organization: "Satellite"
+    source: "scm"
+    limit: ""
+    source_project: "Test Inventory source project"
+    source_path: "phillips_hue/hosts"
+    inventory: "RHVM-01"
+    update_on_launch: "true"
+    overwrite: "true"
+    credential: "admin@internal-RHVM-01"
+...

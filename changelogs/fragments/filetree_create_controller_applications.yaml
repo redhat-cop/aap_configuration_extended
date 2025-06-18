@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - Set the correct API URL for the controller applications endpoint
+...

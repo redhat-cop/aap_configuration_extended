@@ -1,0 +1,45 @@
+---
+- name: "Upgrade_config | Common Item - Copy the original file to the destination one: {{ current_common_item.object }}"
+  ansible.builtin.copy:
+    src: "{{ aap24_configs_dir }}/{{ input_filename_prefix | default('') }}{{ current_common_item.object }}.yaml"
+    dest: "{{ aap25_configs_dir }}/aap_{{ current_common_item.object }}.yaml"
+
+- name: "Replace the variable name: {{ current_common_item.object }}"
+  ansible.builtin.lineinfile:
+    path: "{{ aap25_configs_dir }}/aap_{{ current_common_item.object }}.yaml"
+    regex: '^controller_(.*):\s*$'
+    line: 'aap_\g<1>:'
+    backrefs: yes
+  when: current_common_item.object not in ['notifications']
+
+- name: "Replace the variable name: {{ current_common_item.object }}"
+  ansible.builtin.lineinfile:
+    path: "{{ aap25_configs_dir }}/aap_{{ current_common_item.object }}.yaml"
+    regex: '^controller_notifications:\s*$'
+    line: 'notification_templates:'
+    backrefs: yes
+  when: current_common_item.object in ['notifications']
+
+# - name: "upgrade_config | Common Item - Include the current output file (if exists) - {{ current_common_item.object }}"
+#   ansible.builtin.include_vars:
+#     dir: "{{ aap25_configs_dir }}"
+#     files_matching: ".*{{ current_common_item.object }}.*.yaml"
+#
+# - name: "upgrade_config | Common Item - Reset the list of the current {{ current_common_item.object }}"
+#   ansible.builtin.set_fact:
+#     __aap_common_item: []
+#
+# - name: "upgrade_config | Common Item - Add the current {{ current_common_item.object }}"
+#   ansible.builtin.set_fact:
+#     __aap_common_item: "{{ (__aap_common_item | default([])) + [__current_common_item] }}"
+#   loop: "{{ lookup('vars', 'controller_' + current_common_item.object) }}"
+#   loop_control:
+#     loop_var: __current_common_item
+#     label: "{{ __current_common_item.name | default(current_common_item.alt_name) | default(__current_common_item) }}"
+#
+# - name: "upgrade_config | Common Item - Write down the new data structure - {{ current_common_item.object }}"
+#   ansible.builtin.template:
+#     src: "aap_common_items.yaml.j2"
+#     dest: "{{ aap25_configs_dir }}/aap_{{ current_common_item.object }}.yaml"
+#     mode: "0644"
+...

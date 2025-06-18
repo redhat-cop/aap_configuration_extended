@@ -1,0 +1,15 @@
+---
+controller_roles:
+  - team: "dummy"
+    credentials:
+      - "dummy"
+    role: "admin"
+  - team: "dummy"
+    organizations:
+      - "Default"
+    role: "execute"
+  - team: "team_test_1"
+    projects:
+      - "Demo Project"
+    role: "admin"
+...
