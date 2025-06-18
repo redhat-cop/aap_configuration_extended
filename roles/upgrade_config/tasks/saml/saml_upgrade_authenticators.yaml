@@ -1,10 +1,10 @@
 ---
-- name: "upgrade_config | SAML authenticators - Include the current output file (if exists)"
+- name: "Upgrade_config | SAML authenticators - Include the current output file (if exists)"
   ansible.builtin.include_vars:
     dir: "{{ aap25_configs_dir }}"
     files_matching: "gateway_authenticators.yaml"
 
-- name: "upgrade_config | SAML authenticators - Add the current authenticator"
+- name: "Upgrade_config | SAML authenticators - Add the current authenticator"
   ansible.builtin.set_fact:
     gateway_authenticators: "{{ (gateway_authenticators | default([])) + [__current_authenticator_value] }}"
   vars:
@@ -77,7 +77,7 @@
         TECHNICAL_CONTACT: "{{ controller_settings[0].settings.SOCIAL_AUTH_SAML_TECHNICAL_CONTACT }}"
       type: ansible_base.authentication.authenticator_plugins.saml
 
-- name: "upgrade_config | SAML authenticators - Write down the new data structure"
+- name: "Upgrade_config | SAML authenticators - Write down the new data structure"
   ansible.builtin.template:
     src: "gateway_authenticators.yaml.j2"
     dest: "{{ aap25_configs_dir }}/gateway_authenticators.yaml"

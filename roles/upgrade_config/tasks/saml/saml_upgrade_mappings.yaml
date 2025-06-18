@@ -1,10 +1,10 @@
 ---
-- name: "upgrade_config | SAML mappings - Include the current output file (if exists)"
+- name: "Upgrade_config | SAML mappings - Include the current output file (if exists)"
   ansible.builtin.include_vars:
     dir: "{{ aap25_configs_dir }}"
     files_matching: "gateway_authenticator_maps.yaml"
 
-- name: "upgrade_config | SAML mappings - Add the is_superuser mapping"
+- name: "Upgrade_config | SAML mappings - Add the is_superuser mapping"
   ansible.builtin.set_fact:
     gateway_authenticator_maps: "{{ (gateway_authenticator_maps | default([])) + [__current_map_value] }}"
   vars:
@@ -19,7 +19,7 @@
                                     'join_condition': 'or'}})
                  }}"
 
-- name: "upgrade_config | SAML mappings - Add the is_auditor mapping"
+- name: "Upgrade_config | SAML mappings - Add the is_auditor mapping"
   ansible.builtin.set_fact:
     gateway_authenticator_maps: "{{ (gateway_authenticator_maps | default([])) + [__current_map_value] }}"
   vars:
@@ -34,7 +34,7 @@
                                     'join_condition': 'or'}})
                  }}"
 
-- name: "upgrade_config | SAML mappings - Add the SAML Team Mappings"
+- name: "Upgrade_config | SAML mappings - Add the SAML Team Mappings"
   ansible.builtin.set_fact:
     gateway_authenticator_maps: "{{ (gateway_authenticator_maps | default([])) + [__current_map_value] }}"
   vars:
@@ -55,7 +55,7 @@
     loop_var: __current_map
     index_var: __current_team_map_index
 
-- name: "upgrade_config | SAML mappings - Add the LDAP Organization Mappings (Administrators)"
+- name: "Upgrade_config | SAML mappings - Add the LDAP Organization Mappings (Administrators)"
   ansible.builtin.set_fact:
     gateway_authenticator_maps: "{{ (gateway_authenticator_maps | default([])) + [__current_map_value_admins] }}"
   vars:
@@ -78,7 +78,7 @@
     - __current_map.value.admins is defined
     - __current_map.value.admins | string | length > 0
 
-- name: "upgrade_config | SAML mappings - Add the LDAP Organization Mappings (Members)"
+- name: "Upgrade_config | SAML mappings - Add the LDAP Organization Mappings (Members)"
   ansible.builtin.set_fact:
     gateway_authenticator_maps: "{{ (gateway_authenticator_maps | default([])) + [__current_map_value_members] }}"
   vars:
@@ -101,7 +101,7 @@
     - __current_map.value.users is defined
     - __current_map.value.users | string | length > 0
 
-- name: "upgrade_config | SAML mappings - Write down the new data structure"
+- name: "Upgrade_config | SAML mappings - Write down the new data structure"
   ansible.builtin.template:
     src: "gateway_authenticator_maps.yaml.j2"
     dest: "{{ aap25_configs_dir }}/gateway_authenticator_maps.yaml"

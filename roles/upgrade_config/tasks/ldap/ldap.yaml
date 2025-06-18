@@ -1,5 +1,5 @@
 ---
-- name: "upgrade_config | LDAP - Upgrade all the LDAP configs in the 2.4 settings"
+- name: "Upgrade_config | LDAP - Upgrade all the LDAP configs in the 2.4 settings"
   ansible.builtin.include_tasks:
     file: "{{ __current_ldap_server.1 }}"
   vars:

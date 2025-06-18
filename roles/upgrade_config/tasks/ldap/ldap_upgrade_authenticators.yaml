@@ -1,10 +1,10 @@
 ---
-- name: "upgrade_config | LDAP authenticators - Include the current output file (if exists)"
+- name: "Upgrade_config | LDAP authenticators - Include the current output file (if exists)"
   ansible.builtin.include_vars:
     dir: "{{ aap25_configs_dir }}"
     files_matching: "gateway_authenticators.yaml"
 
-- name: "upgrade_config | LDAP authenticators - Add the current authenticator"
+- name: "Upgrade_config | LDAP authenticators - Add the current authenticator"
   ansible.builtin.set_fact:
     gateway_authenticators: "{{ (gateway_authenticators | default([])) + [__current_authenticator_value] }}"
   vars:
@@ -29,7 +29,7 @@
       type: "ansible_base.authentication.authenticator_plugins.ldap"
       # Let auto-ordering... # order: "{{ (gateway_authenticators | default([]) | length) + 1 | int }}"
 
-- name: "upgrade_config | LDAP authenticators - Write down the new data structure"
+- name: "Upgrade_config | LDAP authenticators - Write down the new data structure"
   ansible.builtin.template:
     src: "gateway_authenticators.yaml.j2"
     dest: "{{ aap25_configs_dir }}/gateway_authenticators.yaml"
