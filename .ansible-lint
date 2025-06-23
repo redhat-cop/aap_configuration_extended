@@ -9,6 +9,7 @@ exclude_paths:
   - 'roles/master_role_example/'
   - 'changelogs/'
   - 'tests/templated_role_example'
+  - .ansible/
 parseable: true
 use_default_rules: true
 strict: true
@@ -35,9 +36,4 @@ kinds:
   - vars: "**/examples/configs_export_model/*.yml"
   - vars: "**/examples/vars/*.yml"
   - vars: "**/roles/**/tests/configs/*.yml"
-mock_roles:
-  - infra.aap_configuration.meta_dependency_check
-  - infra.aap_configuration.dispatch
-mock_modules:
-  - ansible.hub.ah_token
 ...
