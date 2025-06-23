@@ -4,7 +4,7 @@
     user_roles_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/users/' + __user_id + '/roles/',
                                   host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                   return_all=true, max_objects=query_controller_api_max_objects)
-                         }}"
+                         }}"  # noqa: jinja[invalid]
   vars:
     __user_id: "{{ lookup('ansible.platform.gateway_api', 'users', query_params={'username': username}, expect_one=true,
                               host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)['id']
