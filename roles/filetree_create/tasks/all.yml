@@ -1,9 +1,9 @@
 ---
 - name: "Get the Tower/AAP instance version"
   ansible.builtin.set_fact:
-    aap_version: "{{ lookup('ansible.platform.gateway_api', 'ping',
-                       host=aap_hostname, oauth_token=aap_oauthtoken,
-                       verify_ssl=aap_validate_certs).version }}"
+    aap_version: "{{ lookup('ansible.platform.gateway_api', 'api/gateway/v1/ping',
+                            host=aap_hostname, oauth_token=aap_oauthtoken,
+                            verify_ssl=aap_validate_certs).version }}"
 - name: "Check if the connection is to an Ansible Tower or to Automation Platform"
   ansible.builtin.set_fact:
     is_aap: "{{ aap_version is version('4.0.0', '>=') }}"
@@ -17,7 +17,7 @@
   block:
     - name: "Get the organization_filter ID to restrict the API queries"
       ansible.builtin.set_fact:
-        organization_id: "{{ lookup(controller_api_plugin, 'organizations',
+        organization_id: "{{ lookup('ansible.platform.gateway_api', 'api/gateway/v1/organizations',
                                     query_params={'name': organization_filter},
                                     host=aap_hostname, oauth_token=aap_oauthtoken,
                                     verify_ssl=aap_validate_certs).id

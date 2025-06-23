@@ -5,28 +5,30 @@ version: {{ collection_version }}
 description: A collection of roles to extend functionality of aap_configuration collection
 readme: README.md
 authors:
-    - Andrew Huffman
-    - Adebisi Oyawale @aoyawale
-    - Kedar Kulkarni @kedark3
-    - Tom Page @Tompage1994
-    - Sean Sullivan @sean-m-sullivan
-    - David Danielsson @djdanielsson
-    - Ivan Aragonés
-    - Silvio Perez
-    - Adonis García
+  - Andrew Huffman
+  - Adebisi Oyawale @aoyawale
+  - Kedar Kulkarni @kedark3
+  - Tom Page @Tompage1994
+  - Sean Sullivan @sean-m-sullivan
+  - David Danielsson @djdanielsson
+  - Ivan Aragonés @ivarmu
+  - Silvio Perez
+  - Adonis García
 repository: {{ collection_repo }}/
 issues: {{ collection_repo }}/issues
 build_ignore:
-    - galaxy.yml.j2
-    - release.yml
-    - .github
-    - '*.tar.gz'
+  - galaxy.yml.j2
+  - release.yml
+  - .github
+  - '*.tar.gz'
 license:
-    - GPL-3.0-or-later
+  - GPL-3.0-or-later
 tags:
-    - controller
-    - collection
-    - aap_configuration_extended
-    - automation_platform
-    - infrastructure
+  - controller
+  - collection
+  - aap_configuration_extended
+  - automation_platform
+  - infrastructure
+dependencies:
+  "infra.aap_configuration": ">=3.4.0"
 ...

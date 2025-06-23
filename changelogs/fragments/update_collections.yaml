@@ -1,0 +1,4 @@
+---
+major_changes:
+  - Remove controller_api_plugin and eda_api_plugin variables in favour of ansible.platform.gateway_api
+...

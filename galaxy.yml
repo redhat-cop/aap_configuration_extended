@@ -29,4 +29,10 @@ tags:
     - aap_configuration_extended
     - automation_platform
     - infrastructure
+dependencies:
+  "infra.aap_configuration": ">=3.4.0"
+  # - ansible.platform: ">=2.5.0"
+  # - ansible.hub: ">=1.0.0"
+  # - ansible.controller: ">=4.6.0"
+  # - ansible.eda: ">=2.5.0"
 ...
