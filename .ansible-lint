@@ -26,6 +26,7 @@ skip_list:
   - role-name[path]
   - sanity[cannot-ignore]  # We're only ignoring sanity rules when we have to
   - var-naming[no-role-prefix]
+  - jinja[invalid]
 kinds:
   - playbooks: "**/examples/templates/*.{yml,yaml}"
   - playbooks: "**/examples/*.{yml,yaml}"
