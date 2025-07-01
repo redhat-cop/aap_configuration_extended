@@ -2,10 +2,10 @@
 - name: "Get current Service keys from the Gateway API"
   ansible.builtin.set_fact:
     gateway_service_keys_lookvar: "{{ query('ansible.platform.gateway_api', 'api/gateway/v1/service_keys/',
-                                        query_params=(query_params | combine({'id': service_key_id})) if service_key_id is defined else query_params,
-                                        host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
-                                        return_all=true, max_objects=query_controller_api_max_objects)
-                                    }}"
+                                            query_params=(query_params | combine({'id': service_key_id})) if service_key_id is defined else query_params,
+                                            host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                            return_all=true, max_objects=query_controller_api_max_objects)
+                                   }}"
   vars:
     query_params:
       order_by: 'id'

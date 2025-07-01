@@ -1,7 +1,7 @@
 ---
 - name: "Get the inventories from the API"
   ansible.builtin.set_fact:
-    inventory_lookvar: "{{ query(controller_api_plugin, 'api/controller/v2/inventories/',
+    inventory_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/inventories/',
                                  query_params=(query_params | combine({'organization': organization_id} if organization_id is defined else {},
                                  {'id': inventory_id} if inventory_id is defined else {})),
                                  host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
@@ -98,7 +98,7 @@
                                       if (flatten_output is not defined or (flatten_output | bool) == false)
                                       else
                                         output_path + '/inventory_sources.yaml' }}"
-    current_inventory_sources_asset_value: "{{ query(controller_api_plugin, current_inventory_sources.related.inventory_sources,
+    current_inventory_sources_asset_value: "{{ query('ansible.platform.gateway_api', current_inventory_sources.related.inventory_sources,
                                                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                                     return_all=true, max_objects=query_controller_api_max_objects)
                                               if current_inventory_sources.has_inventory_sources else []
@@ -121,7 +121,7 @@
                           if (flatten_output is not defined or (flatten_output | bool) == false)
                           else
                             output_path + '/controller_hosts.yaml' }}"
-    current_hosts_asset_value: "{{ query(controller_api_plugin, current_inventory_hosts.related.hosts,
+    current_hosts_asset_value: "{{ query('ansible.platform.gateway_api', current_inventory_hosts.related.hosts,
                                         query_params={'not__description': 'imported'},
                                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                         return_all=true, max_objects=query_controller_api_max_objects)
@@ -144,7 +144,7 @@
                           if (flatten_output is not defined or (flatten_output | bool) == false)
                           else
                             output_path + '/groups.yaml' }}"
-    current_groups_asset_value: "{{ query(controller_api_plugin, current_inventory_groups.related.groups,
+    current_groups_asset_value: "{{ query('ansible.platform.gateway_api', current_inventory_groups.related.groups,
                                           query_params={'not__description': 'imported'},
                                           host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                           return_all=true, max_objects=query_controller_api_max_objects)
