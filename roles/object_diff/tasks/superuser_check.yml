@@ -4,17 +4,8 @@
     __controller_api_current_user_check_is_admin: >-
       {{
         lookup(
-          (has_gateway) |
-          ansible.builtin.ternary(
-            'ansible.platform.gateway_api',
-            controller_api_plugin
-          ),
-          (has_gateway) |
-          ansible.builtin.ternary(
-            'api/gateway/' ~ gateway_api_version,
-            'api/' ~ controller_api_version,
-          ) ~ 
-          '/me',
+          'ansible.platform.gateway_api',
+          'api/gateway/' ~ gateway_api_version ~ '/me',
           host=aap_hostname,
           oauth_token=aap_oauthtoken,
           verify_ssl=aap_validate_certs

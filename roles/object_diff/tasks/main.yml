@@ -51,9 +51,10 @@
             msg: "Using the 'controller_role' plugin from: {{ controller_role_plugin }}"
 
 - name: "Retrieve Ansible Tower or Automation Platform version"
-  ansible.builtin.set_fact:
-    is_aap: "{{ (aap_version is version('4.0.0', '>=')) | ansible.builtin.ternary(true, false) }}"
-    has_gateway: "{{ (aap_version is version('4.6.0', '>=')) | ansible.builtin.ternary(true, false) }}"
+  ansible.builtin.assert:
+    that:
+      - "aap_version is version('4.6.0', '>=')"
+    fail_msg: "This role is only supported on AAP 2.5+"
   vars:
     aap_version: >-
       {{
