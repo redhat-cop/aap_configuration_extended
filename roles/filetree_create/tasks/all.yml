@@ -1,15 +1,4 @@
 ---
-- name: "Get the Tower/AAP instance version"
-  ansible.builtin.set_fact:
-    aap_version: "{{ lookup('ansible.platform.gateway_api', 'api/gateway/v1/ping',
-                            host=aap_hostname, oauth_token=aap_oauthtoken,
-                            verify_ssl=aap_validate_certs).version }}"
-- name: "Check if the connection is to an Ansible Tower or to Automation Platform"
-  ansible.builtin.set_fact:
-    is_aap: "{{ aap_version is version('4.0.0', '>=') }}"
-    have_constructed: "{{ aap_version is version('4.5.0', '>=') }}"
-  no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
-
 - name: "Block to get the organization_filter ID to filter all the queries"
   when:
     - organization_filter is defined
@@ -36,7 +25,7 @@
       when: "'controller_inventories' in input_tag or 'all' in input_tag"
     - name: "Export Controller Constructed Inventories"
       ansible.builtin.include_tasks: "controller_constructed_inventories.yml"
-      when: "('controller_inventories' in input_tag or 'all' in input_tag) and have_constructed"
+      when: "'controller_inventories' in input_tag or 'all' in input_tag"
     - name: "Export Controller Credentials"
       ansible.builtin.include_tasks: "controller_credentials.yml"
       when: "'controller_credentials' in input_tag or 'all' in input_tag"
@@ -63,7 +52,7 @@
       when: "'controller_projects' in input_tag or 'all' in input_tag"
     - name: "Export Controller Execution Environments"
       ansible.builtin.include_tasks: "controller_execution_environments.yml"
-      when: "('controller_execution_environments' in input_tag or 'all' in input_tag) and is_aap"
+      when: "'controller_execution_environments' in input_tag or 'all' in input_tag"
     - name: "Export Controller Workflow Job Templates"
       ansible.builtin.include_tasks: "controller_workflow_job_templates.yml"
       when: "'controller_workflow_job_templates' in input_tag or 'all' in input_tag"

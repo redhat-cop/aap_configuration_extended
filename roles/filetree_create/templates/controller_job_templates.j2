@@ -158,17 +158,12 @@ controller_templates:
     timeout: {{ template_overrides_resources.job_template[current_job_templates_asset_value.name].timeout
                 | default(template_overrides_global.job_template.timeout)
                 | default(current_job_templates_asset_value.timeout | int) }}
-{% if is_aap and (template_overrides_resources.job_template[current_job_templates_asset_value.name].execution_environment is defined
-                  or template_overrides_global.job_template.execution_environment is defined
-                  or current_job_templates_asset_value.summary_fields.execution_environment is defined) %}
+{% if (template_overrides_resources.job_template[current_job_templates_asset_value.name].execution_environment is defined
+       or template_overrides_global.job_template.execution_environment is defined
+       or current_job_templates_asset_value.summary_fields.execution_environment is defined) %}
     execution_environment: "{{ template_overrides_resources.job_template[current_job_templates_asset_value.name].execution_environment
                                | default(template_overrides_global.job_template.execution_environment)
                                | default(current_job_templates_asset_value.summary_fields.execution_environment.name) }}"
-{% endif %}
-{% if not is_aap %}
-    custom_virtualenv: "{{ template_overrides_resources.job_template[current_job_templates_asset_value.name].custom_virtualenv
-                           | default(template_overrides_global.job_template.custom_virtualenv)
-                           | default(current_job_templates_asset_value.custom_virtualenv | default(omit)) }}"
 {% endif %}
     host_config_key: "{{ template_overrides_resources.job_template[current_job_templates_asset_value.name].host_config_key
                          | default(template_overrides_global.job_template.host_config_key)
