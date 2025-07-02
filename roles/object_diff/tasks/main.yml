@@ -54,7 +54,7 @@
   ansible.builtin.assert:
     that:
       - "aap_version is version('4.6.0', '>=')"
-    fail_msg: "This role is only supported on AAP 2.5+"
+    fail_msg: "This role is only supported on AAP 2.5+. Use infra.controller_configuration.object_diff for earlier AAP/Ansible Tower versions."
   vars:
     aap_version: >-
       {{
