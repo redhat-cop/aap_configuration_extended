@@ -1,0 +1,4 @@
+---
+minor_changes:
+  - Use correct API endpoint when connecting to AAP 2.5 when determining super user privileges
+...
