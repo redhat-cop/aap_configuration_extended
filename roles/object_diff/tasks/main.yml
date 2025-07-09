@@ -50,14 +50,22 @@
           ansible.builtin.debug:
             msg: "Using the 'controller_role' plugin from: {{ controller_role_plugin }}"
 
-- name: "Check if the connection is to an Ansible Tower or to Automation Platform"
-  ansible.builtin.set_fact:
-    is_aap: "{{ lookup(controller_api_plugin, 'ping',
-                       host=aap_hostname, oauth_token=aap_oauthtoken,
-                       verify_ssl=aap_validate_certs).version is version('4.0.0', '>=') }}"
-  no_log: "{{ controller_configuration_object_diff_secure_logging }}"
-  tags:
-    - always
+- name: "Retrieve Ansible Tower or Automation Platform version"
+  ansible.builtin.assert:
+    that:
+      - "aap_version is version('4.6.0', '>=')"
+    fail_msg: "This role is only supported on AAP 2.5+. Use infra.controller_configuration.object_diff for earlier AAP/Ansible Tower versions."
+  vars:
+    aap_version: >-
+      {{
+        lookup(
+          controller_api_plugin,
+          'ping',
+          host=aap_hostname,
+          oauth_token=aap_oauthtoken,
+          verify_ssl=aap_validate_certs
+        ).version
+      }}
 
 - name: "Include Tasks to get OBJECT DIFF"
   ansible.builtin.include_tasks: "{{ __task_diff.name }}.yml"
