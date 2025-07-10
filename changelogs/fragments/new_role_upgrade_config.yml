@@ -1,0 +1,4 @@
+---
+major_changes:
+  - New role to update Configuration as Code files from 2.4 (infra.controller_configuration) format to 2.5 (infra.aap_configuration_extended)
+...

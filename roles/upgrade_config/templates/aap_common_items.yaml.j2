@@ -1,0 +1,22 @@
+---
+aap_{{ current_common_item.object }}:
+{% for __map in __aap_common_item %}
+{%   for __map_item in (__map | dict2items) %}
+{%     if __map_item.value | type_debug not in ['str','AnsibleUnsafeText'] or __map_item.value | length > 0 %}
+{%       if loop.index == 1 %}
+{%         if __map_item.value | type_debug == 'AnsibleUnsafeText' %}
+  - {{ __map_item.key }}: !unsafe {{ __map_item.value | replace("\\'", "''") }}
+{%         else %}
+  - {{ __map_item.key }}: {{ __map_item.value | replace("\\'", "''") }}
+{%         endif %}
+{%       else %}
+{%         if __map_item.value | type_debug == 'AnsibleUnsafeText' %}
+    {{ __map_item.key }}: !unsafe {{ __map_item.value | replace("\\'", "''") }}
+{%         else %}
+    {{ __map_item.key }}: {{ __map_item.value | replace("\\'", "''") }}
+{%         endif %}
+{%       endif %}
+{%     endif %}
+{%   endfor %}
+{%- endfor %}
+...

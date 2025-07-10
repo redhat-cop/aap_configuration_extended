@@ -1,0 +1,75 @@
+---
+aap_user_accounts:
+  - username: admin
+    password: redhat00
+    email: admin@example.com
+    first_name: ""
+    last_name: ""
+    auditor: "false"
+    superuser: "true"
+    update_secrets: false
+  - username: dummy
+    password: INITIAL
+    email: dummy@dummy.net
+    first_name: ""
+    last_name: ""
+    auditor: "false"
+    superuser: "false"
+    update_secrets: false
+  - username: controller_user
+    password: INITIAL
+    email: ""
+    first_name: ""
+    last_name: ""
+    auditor: "false"
+    superuser: "false"
+    update_secrets: false
+  - username: awx-org-user
+    password: INITIAL
+    email: awx-org-user@email.com
+    first_name: AWX
+    last_name: USER
+    auditor: "false"
+    superuser: "false"
+    update_secrets: false
+  - username: controller-org-user
+    password: INITIAL
+    email: controller-org-user@email.com
+    first_name: CONTROLLER
+    last_name: USER
+    auditor: "false"
+    superuser: "false"
+    update_secrets: false
+  - username: test
+    password: INITIAL
+    email: ""
+    first_name: test
+    last_name: ""
+    auditor: "false"
+    superuser: "false"
+    update_secrets: false
+  - username: satreguser
+    password: INITIAL
+    email: ""
+    first_name: Satellite Register User
+    last_name: ""
+    auditor: "false"
+    superuser: "false"
+    update_secrets: false
+  - username: ocpuser1
+    password: INITIAL
+    email: ""
+    first_name: ""
+    last_name: ""
+    auditor: "false"
+    superuser: "true"
+    update_secrets: false
+  - username: ocpuser2
+    password: INITIAL
+    email: ""
+    first_name: ""
+    last_name: ""
+    auditor: "false"
+    superuser: "false"
+    update_secrets: false
+...

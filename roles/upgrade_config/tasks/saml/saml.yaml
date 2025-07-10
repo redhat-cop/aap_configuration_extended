@@ -1,0 +1,10 @@
+---
+- name: "Upgrade_config | SAML - Upgrade all the SAML configs in the 2.4 settings"
+  ansible.builtin.include_tasks:
+    file: "{{ __current_saml_file }}"
+  loop:
+    - saml_upgrade_authenticators.yaml
+    - saml_upgrade_mappings.yaml
+  loop_control:
+    loop_var: __current_saml_file
+...

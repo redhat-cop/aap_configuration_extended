@@ -1,0 +1,98 @@
+---
+controller_notifications:
+  - name: "Email notification"
+    organization: "Default"
+    notification_type: "email"
+    notification_configuration:
+      host: "smtp.example.com"
+      port: 25
+      sender: "tower0@example.com"
+      timeout: 30
+      use_ssl: false
+      use_tls: false
+      password: ""
+      username: ""
+      recipients: ["admin@example.com"]
+    messages:
+      error:
+      started:
+      success:
+      workflow_approval:
+  - name: "Email notification differential"
+    organization: "Default"
+    notification_type: "email"
+    notification_configuration:
+      host: "smtp.example.com"
+      port: 25
+      sender: "tower0@example.com"
+      timeout: 30
+      use_ssl: false
+      use_tls: false
+      password: ""
+      username: ""
+      recipients: ["admin@example.com"]
+    messages:
+      error:
+      started:
+      success:
+      workflow_approval:
+  - name: "dummy_notification"
+    organization: "Dummy"
+    notification_type: "email"
+    notification_configuration:
+      host: "email.dummy.com"
+      port: 25
+      sender: "sender@dummy.com"
+      timeout: 30
+      use_ssl: false
+      use_tls: false
+      password: ""
+      username: ""
+      error_body: !unsafe "{{ job_friendly_name }} #{{ job.id }} had status {{ job.status }}, view details at {{ url }}\n\n{{ job_metadata }}"
+      recipients: ["receiver@dummy.com"]
+      denied_body: !unsafe "The approval node \"{{ approval_node_name }}\" was denied. {{ workflow_url }}\n\n{{ job_metadata }}"
+      running_body: !unsafe "The approval node \"{{ approval_node_name }}\" needs review. This approval node can be viewed at: {{ workflow_url }}\n\n{{ job_metadata
+        }}"
+      started_body: !unsafe "{{ job_friendly_name }} #{{ job.id }} had status {{ job.status }}, view details at {{ url }}\n\n{{ job_metadata }}"
+      success_body: !unsafe "{{ job_friendly_name }} #{{ job.id }} had status {{ job.status }}, view details at {{ url }}\n\n{{ job_metadata }}"
+      approved_body: !unsafe "The approval node \"{{ approval_node_name }}\" was approved. {{ workflow_url }}\n\n{{ job_metadata }}"
+      timed_out_body: !unsafe "The approval node \"{{ approval_node_name }}\" has timed out. {{ workflow_url }}\n\n{{ job_metadata }}"
+    messages:
+      error:
+        body:
+        message:
+      started:
+        body:
+        message:
+      success:
+        body:
+        message:
+      workflow_approval:
+        denied:
+          body:
+          message:
+        running:
+          body:
+          message:
+        approved:
+          body:
+          message:
+        timed_out:
+          body:
+          message:
+  - name: "irc-satqe-chat-notification"
+    organization: "Satellite"
+    notification_type: "irc"
+    notification_configuration:
+      port: 6667
+      server: "irc.freenode.com"
+      targets: ["#my-channel"]
+      use_ssl: false
+      use_tls: false
+      nickname: "Ansible-Tower-Stage-Bot-01"
+      password: ""
+    messages:
+      success:
+        body: !unsafe '{"fields": {"project": {"id": "11111"},"summary": "Lab {{ job.status }} Ansible Tower {{ job.name }}","description": !unsafe "{{ job.status
+          }} in {{ job.name }} {{ job.id }} {{url}}","issuetype": {"id": "1"}}}'
+...

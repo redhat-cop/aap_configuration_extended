@@ -1,0 +1,11 @@
+---
+controller_roles:
+  - user: "dummy"
+    organizations:
+      - "Dummy"
+    role: "member"
+  - user: "dummy"
+    target_teams:
+      - "dummy"
+    role: "member"
+...

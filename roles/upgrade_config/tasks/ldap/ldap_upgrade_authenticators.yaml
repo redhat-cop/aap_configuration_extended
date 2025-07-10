@@ -1,0 +1,37 @@
+---
+- name: "Upgrade_config | LDAP authenticators - Include the current output file (if exists)"
+  ansible.builtin.include_vars:
+    dir: "{{ aap25_configs_dir }}"
+    files_matching: "gateway_authenticators.yaml"
+
+- name: "Upgrade_config | LDAP authenticators - Add the current authenticator"
+  ansible.builtin.set_fact:
+    gateway_authenticators: "{{ (gateway_authenticators | default([])) + [__current_authenticator_value] }}"
+  vars:
+    __current_authenticator_value:
+      name: "{{ input_authenticator_name | default(input_config_prefix) }}"
+      enabled: "{{ input_authenticator_enabled | default(true) | bool | lower }}"
+      create_objects: "{{ input_create_objects | default(true) | bool | lower }}"
+      remove_users: "{{ input_remove_users | default(true) | bool | lower }}"
+      configuration:
+        BIND_DN: "{{ controller_settings[0].settings[input_config_prefix + '_BIND_DN'] }}"
+        BIND_PASSWORD: "{{ controller_settings[0].settings[input_config_prefix + '_BIND_PASSWORD'] }}"
+        CONNECTION_OPTIONS: "{{ (controller_settings[0].settings[input_config_prefix + '_CONNECTION_OPTIONS']) | default({}) }}"
+        GROUP_SEARCH: "{{ controller_settings[0].settings[input_config_prefix + '_GROUP_SEARCH'] }}"
+        GROUP_TYPE: "{{ controller_settings[0].settings[input_config_prefix + '_GROUP_TYPE'] }}"
+        GROUP_TYPE_PARAMS: "{{ controller_settings[0].settings[input_config_prefix + '_GROUP_TYPE_PARAMS'] }}"
+        SERVER_URI:
+          - "{{ controller_settings[0].settings[input_config_prefix + '_SERVER_URI'] }}"
+        START_TLS: "{{ controller_settings[0].settings[input_config_prefix + '_START_TLS'] }}"
+        USER_ATTR_MAP: "{{ (controller_settings[0].settings[input_config_prefix + '_USER_ATTR_MAP']) | default({}) }}"
+        USER_DN_TEMPLATE: "{{ controller_settings[0].settings[input_config_prefix + '_USER_DN_TEMPLATE'] }}"
+        USER_SEARCH: "{{ controller_settings[0].settings[input_config_prefix + '_USER_SEARCH'] }}"
+      type: "ansible_base.authentication.authenticator_plugins.ldap"
+      # Let auto-ordering... # order: "{{ (gateway_authenticators | default([]) | length) + 1 | int }}"
+
+- name: "Upgrade_config | LDAP authenticators - Write down the new data structure"
+  ansible.builtin.template:
+    src: "gateway_authenticators.yaml.j2"
+    dest: "{{ aap25_configs_dir }}/gateway_authenticators.yaml"
+    mode: "0644"
+...

@@ -1,0 +1,12 @@
+---
+gateway_authenticators:
+{% for __map in gateway_authenticators %}
+{%   for __map_item in (__map | dict2items) %}
+{%     if loop.index == 1 %}
+  - {{ __map_item.key }}: {{ __map_item.value }}
+{%     else %}
+    {{ __map_item.key }}: {{ __map_item.value }}
+{%     endif %}
+{%   endfor %}
+{%- endfor %}
+...

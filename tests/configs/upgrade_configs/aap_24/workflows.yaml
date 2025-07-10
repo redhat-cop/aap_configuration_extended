@@ -1,0 +1,404 @@
+---
+controller_workflows:
+  - name: "Default Workflow"
+    description: !unsafe "default workflow"
+    organization: "Default"
+    simplified_workflow_nodes:
+      - identifier: "node101"
+        workflow_job_template: "Default Workflow"
+        unified_job_template: "Demo Job Template"
+        organization: "Default"
+        all_parents_must_converge: false
+        success_nodes:
+          - "node201"
+      - identifier: "node201"
+        workflow_job_template: "Default Workflow"
+        unified_job_template: "Demo Job Template"
+        organization: "Default"
+        all_parents_must_converge: false
+    ask_variables_on_launch: false
+    allow_simultaneous: false
+    ask_limit_on_launch: false
+    ask_inventory_on_launch: false
+    survey_enabled: false
+    survey_spec:
+      name: "survey"
+      description: "survey"
+      spec:
+        - max: 1024
+          min: 0
+          type: multiselect
+          choices:
+            - a
+            - b
+            - c
+          required: true
+          variable: test
+          new_question: true
+          question_name: !unsafe "test"
+  - name: "Simple workflow schema no state defined"
+    description: !unsafe "a basic workflow"
+    organization: "Default"
+    simplified_workflow_nodes:
+      - identifier: "nodensd101"
+        workflow_job_template: "Simple workflow schema no state defined"
+        unified_job_template: "test-template-1"
+        organization: "Default"
+        all_parents_must_converge: false
+        success_nodes:
+          - "nodensd201"
+      - identifier: "nodensd201"
+        workflow_job_template: "Simple workflow schema no state defined"
+        unified_job_template: "test-template-1"
+        organization: "Default"
+        all_parents_must_converge: false
+    ask_variables_on_launch: false
+    allow_simultaneous: false
+    ask_limit_on_launch: false
+    ask_inventory_on_launch: false
+    labels:
+      - "Prod"
+    survey_enabled: false
+  - name: "Simple workflow schema2"
+    description: !unsafe "a basic workflow"
+    organization: "Default"
+    simplified_workflow_nodes:
+      - identifier: "nodeschema2101"
+        workflow_job_template: "Simple workflow schema2"
+        unified_job_template: "test-template-1"
+        organization: "Default"
+        all_parents_must_converge: false
+        success_nodes:
+          - "nodeschema2201"
+      - identifier: "nodeschema2201"
+        workflow_job_template: "Simple workflow schema2"
+        unified_job_template: "test-template-1"
+        organization: "Default"
+        all_parents_must_converge: false
+    ask_variables_on_launch: false
+    allow_simultaneous: false
+    ask_limit_on_launch: false
+    ask_inventory_on_launch: false
+    labels:
+      - "Prod"
+    survey_enabled: false
+  - name: "Simple workflow schema"
+    description: !unsafe "a basic workflow"
+    organization: "Default"
+    simplified_workflow_nodes:
+      - identifier: "nodeschema101"
+        workflow_job_template: "Simple workflow schema"
+        unified_job_template: "test-template-1"
+        organization: "Default"
+        all_parents_must_converge: false
+        success_nodes:
+          - "nodeschema201"
+      - identifier: "nodeschema201"
+        workflow_job_template: "Simple workflow schema"
+        unified_job_template: "test-template-1"
+        organization: "Default"
+        all_parents_must_converge: false
+    ask_variables_on_launch: false
+    allow_simultaneous: false
+    ask_limit_on_launch: false
+    ask_inventory_on_launch: false
+    labels:
+      - "Prod"
+    survey_enabled: false
+  - name: "MainWF"
+    description: !unsafe ""
+    organization: "Recursive Workflows"
+    simplified_workflow_nodes:
+      - identifier: "75044cd8-7938-4024-8e20-b148fb32292f"
+        workflow_job_template: "MainWF"
+        unified_job_template: "wf2"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: false
+      - identifier: "c8eb1471-f303-43f1-8107-80caa81709d8"
+        workflow_job_template: "MainWF"
+        unified_job_template: "wf1"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: false
+        always_nodes:
+          - "75044cd8-7938-4024-8e20-b148fb32292f"
+    ask_variables_on_launch: false
+    allow_simultaneous: false
+    ask_limit_on_launch: false
+    ask_inventory_on_launch: false
+    survey_enabled: false
+  - name: "wf2"
+    description: !unsafe ""
+    organization: "Recursive Workflows"
+    simplified_workflow_nodes:
+      - identifier: "6b19966d-958e-4b8d-9e13-06d738775e75"
+        workflow_job_template: "wf2"
+        unified_job_template: "task3"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: false
+    ask_variables_on_launch: false
+    allow_simultaneous: false
+    ask_limit_on_launch: false
+    ask_inventory_on_launch: false
+    survey_enabled: false
+  - name: "wf1"
+    description: !unsafe ""
+    organization: "Recursive Workflows"
+    simplified_workflow_nodes:
+      - identifier: "6b19966d-958e-4b8d-9e13-06d738775e75"
+        workflow_job_template: "wf1"
+        unified_job_template: "task1"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: false
+        always_nodes:
+          - "7529ff26-5ef6-4c10-84ab-320e0858f88e"
+      - identifier: "7529ff26-5ef6-4c10-84ab-320e0858f88e"
+        workflow_job_template: "wf1"
+        unified_job_template: "task2"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: false
+    ask_variables_on_launch: false
+    allow_simultaneous: false
+    ask_limit_on_launch: false
+    ask_inventory_on_launch: false
+    survey_enabled: false
+  - name: "ParameterizedWorkflow2"
+    description: !unsafe ""
+    organization: "Recursive Workflows"
+    simplified_workflow_nodes:
+      - identifier: "ParameterizedWorflow2Node1"
+        workflow_job_template: "ParameterizedWorkflow2"
+        unified_job_template: "Parameterized Job Template"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: false
+        extra_data:
+          param2: World
+        success_nodes:
+          - "ParameterizedWorflow2Node2"
+      - identifier: "ParameterizedWorflow2Node2"
+        workflow_job_template: "ParameterizedWorkflow2"
+        unified_job_template: "Parameterized Job Template"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: false
+    ask_variables_on_launch: false
+    allow_simultaneous: false
+    ask_limit_on_launch: false
+    ask_inventory_on_launch: false
+    extra_vars:
+      param1: Hello from workflow2
+    survey_enabled: false
+  - name: "ParameterizedRecursiveWorkflowsMainWorkflow"
+    description: !unsafe ""
+    organization: "Recursive Workflows"
+    simplified_workflow_nodes:
+      - identifier: "prwmw1"
+        workflow_job_template: "ParameterizedRecursiveWorkflowsMainWorkflow"
+        unified_job_template: "ParameterizedWorkflow1"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: false
+        success_nodes:
+          - "prwmw2"
+      - identifier: "prwmw2"
+        workflow_job_template: "ParameterizedRecursiveWorkflowsMainWorkflow"
+        unified_job_template: "ParameterizedWorkflow2"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: false
+    ask_variables_on_launch: false
+    allow_simultaneous: false
+    ask_limit_on_launch: false
+    ask_inventory_on_launch: false
+    extra_vars:
+      param2: world from Main
+    survey_enabled: false
+  - name: "ParameterizedWorkflow1"
+    description: !unsafe ""
+    organization: "Recursive Workflows"
+    simplified_workflow_nodes:
+      - identifier: "ParameterizedWorflow1Node1"
+        workflow_job_template: "ParameterizedWorkflow1"
+        unified_job_template: "Parameterized Job Template"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: false
+        extra_data:
+          param2: World
+    ask_variables_on_launch: false
+    allow_simultaneous: false
+    ask_limit_on_launch: false
+    ask_inventory_on_launch: false
+    survey_enabled: false
+  - name: "RecursiveWorkflowsMainWorkflow"
+    description: !unsafe ""
+    organization: "Recursive Workflows"
+    simplified_workflow_nodes:
+      - identifier: "b0f1be76-649a-4a21-9e4b-c5ca652bda95"
+        workflow_job_template: "RecursiveWorkflowsMainWorkflow"
+        unified_job_template: "RecursiveWorkflowsWorkflow2"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: false
+      - identifier: "31df88f5-d6e4-45ec-b4fa-60bbe91b6600"
+        workflow_job_template: "RecursiveWorkflowsMainWorkflow"
+        unified_job_template: "RecursiveWorkflowsWorkflow1"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: false
+        success_nodes:
+          - "b0f1be76-649a-4a21-9e4b-c5ca652bda95"
+    ask_variables_on_launch: false
+    allow_simultaneous: false
+    ask_limit_on_launch: false
+    ask_inventory_on_launch: false
+    survey_enabled: false
+  - name: "RecursiveWorkflowsWorkflow2"
+    description: !unsafe ""
+    organization: "Recursive Workflows"
+    simplified_workflow_nodes:
+      - identifier: "8be3dc3e-64cc-473a-914c-28a23177ddce"
+        workflow_job_template: "RecursiveWorkflowsWorkflow2"
+        unified_job_template: "Recursive Workflows Job Template"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: false
+      - identifier: "97783e98-f83b-4b07-9f6e-ca1ffc78af29"
+        workflow_job_template: "RecursiveWorkflowsWorkflow2"
+        unified_job_template: "Recursive Workflows Job Template"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: false
+    ask_variables_on_launch: false
+    allow_simultaneous: false
+    ask_limit_on_launch: false
+    ask_inventory_on_launch: false
+    survey_enabled: false
+  - name: "RecursiveWorkflowsWorkflow1"
+    description: !unsafe ""
+    organization: "Recursive Workflows"
+    simplified_workflow_nodes:
+      - identifier: "8be3dc3e-64cc-473a-914c-28a23177ddce"
+        workflow_job_template: "RecursiveWorkflowsWorkflow1"
+        unified_job_template: "Recursive Workflows Job Template"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: false
+        success_nodes:
+          - "97783e98-f83b-4b07-9f6e-ca1ffc78af29"
+      - identifier: "97783e98-f83b-4b07-9f6e-ca1ffc78af29"
+        workflow_job_template: "RecursiveWorkflowsWorkflow1"
+        unified_job_template: "Recursive Workflows Job Template"
+        organization: "Recursive Workflows"
+        all_parents_must_converge: false
+    ask_variables_on_launch: false
+    allow_simultaneous: false
+    ask_limit_on_launch: false
+    ask_inventory_on_launch: false
+    survey_enabled: false
+  - name: "test_workflow"
+    description: !unsafe ""
+    organization: "tests/orgname"
+    simplified_workflow_nodes:
+      - identifier: "527904ba-27bf-4532-8624-8c8fdfb2a568"
+        workflow_job_template: "test_workflow"
+        unified_job_template: "Demo Job Template"
+        organization: "tests/orgname"
+        all_parents_must_converge: false
+        extra_data:
+          test_issue39: b
+          test_multiplechoice:
+            - hola
+            - mundo
+          test_textarea: Hola\nMon
+          test_vars: !unsafe "{{ text_value }}"
+          test_multiselect_vars:
+            - !unsafe "{{ var_a }}"
+            - !unsafe "{{ var_b }}"
+          test_multiselect_vars2:
+            - !unsafe "{% if var_a == 'a' %} A {% else %} B {% endif %}"
+          test_text: test_text
+    ask_variables_on_launch: false
+    allow_simultaneous: false
+    ask_limit_on_launch: false
+    ask_inventory_on_launch: false
+    extra_vars:
+      my_extra_var:
+        - this
+        - is
+        - a
+        - list
+      my_extra_complex_var: !unsafe "{{ my_extra_var[0] }}"
+      my_extra_ultra_complex_var: !unsafe "{% if my_extra_var | length > 3 %}LARGE{% else %}SMALL"
+    survey_enabled: false
+    survey_spec:
+      name: "survey"
+      description: "survey"
+      spec:
+        - max: 1024
+          min: 0
+          type: multiplechoice
+          choices:
+            - "a"
+            - "b"
+            - "c"
+          default: !unsafe "b"
+          required: true
+          variable: test_issue39
+          new_question: false
+          question_name: !unsafe "test issue39"
+          question_description: !unsafe "please copy-paste here the job id.  You'll find a \"JOBS / ########\" it in the top-left area of job's page:
+            the #s are the job id."
+        - max: 1024
+          min: 0
+          type: multiselect
+          choices:
+            - "hola"
+            - "mundo"
+          default: !unsafe "hola\nmundo"
+          required: true
+          variable: test_multiplechoice
+          new_question: false
+          question_name: !unsafe "test multiplechoice"
+        - max: 1024
+          min: 0
+          type: text
+          required: true
+          variable: test_text
+          new_question: false
+          question_name: !unsafe "test_text"
+        - max: 1024
+          min: 0
+          type: password
+          required: true
+          variable: test_pass
+          new_question: false
+          question_name: !unsafe "test_pass"
+        - max: 1024
+          min: 0
+          type: textarea
+          default: !unsafe "Hola\nMon"
+          required: true
+          variable: test_textarea
+          new_question: true
+          question_name: !unsafe "test textarea"
+        - max: 1024
+          min: 0
+          type: text
+          default: !unsafe "{{ text_value }}"
+          required: true
+          variable: test_vars
+          new_question: false
+          question_name: !unsafe "test_vars"
+        - max: 1024
+          min: 0
+          type: multiselect
+          choices:
+            - !unsafe "{{ var_a }}"
+            - !unsafe "{{ var_b }}"
+          default: !unsafe "{{ var_a }}\n{{ var_b }}"
+          required: true
+          variable: test_multiselect_vars
+          new_question: true
+          question_name: !unsafe "test_multiselect_vars"
+        - max: 1024
+          min: 0
+          type: multiselect
+          choices:
+            - !unsafe "{% if var_a == 'a' %} A {% else %} B {% endif %}"
+          default: !unsafe "{% if var_a == 'a' %} A {% else %} B {% endif %}"
+          required: true
+          variable: test_multiselect_vars2
+          new_question: true
+          question_name: !unsafe "test_multiselect_vars2"
+...

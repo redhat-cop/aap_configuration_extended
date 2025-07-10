@@ -1,0 +1,24 @@
+---
+- name: "Upgrade_config | LDAP - Upgrade all the LDAP configs in the 2.4 settings"
+  ansible.builtin.include_tasks:
+    file: "{{ __current_ldap_server.1 }}"
+  vars:
+    input_config_prefix: "{{ __current_ldap_server.0.split('_SERVER_URI')[0] }}"
+    __loop_data:
+      - AUTH_LDAP_SERVER_URI
+      - AUTH_LDAP_1_SERVER_URI
+      - AUTH_LDAP_2_SERVER_URI
+      - AUTH_LDAP_3_SERVER_URI
+      - AUTH_LDAP_4_SERVER_URI
+      - AUTH_LDAP_5_SERVER_URI
+    __files:
+      - ldap_upgrade_authenticators.yaml
+      - ldap_upgrade_mappings.yaml
+  loop: "{{ __loop_data | product(__files) | list }}"
+  loop_control:
+    loop_var: __current_ldap_server
+  when:
+    - (controller_settings[0].settings[__current_ldap_server.0]) is defined
+    - (controller_settings[0].settings[__current_ldap_server.0]) | length > 0
+
+...

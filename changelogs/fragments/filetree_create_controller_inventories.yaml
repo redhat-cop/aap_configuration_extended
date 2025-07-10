@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - Change connection variables to AAP from 'controller_*' to 'aap_*' when exporting the 'inventory_sources'.
+...
