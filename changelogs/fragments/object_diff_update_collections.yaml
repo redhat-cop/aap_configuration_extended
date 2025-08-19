@@ -1,0 +1,4 @@
+---
+major_changes:
+  - Remove controller_api_plugin and controller_role_plugin variables in favour of ansible.platform.gateway_api and infra.aap_configuration_extended.controller_object_diff
+...

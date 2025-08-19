@@ -14,7 +14,6 @@ The following Variables set the organization where should be applied the configu
 
 | Variable Name | Default Value | Required | Description |
 | :------------ | :-----------: | :------: | :---------- |
-| `controller_api_plugin` | `ansible.controller` | yes | Full path for the controller_api_plugin to be used. <br/> Can have two possible values: <br/>&nbsp;&nbsp;- awx.awx.controller_api             # For the community Collection version <br/>&nbsp;&nbsp;- ansible.controller.controller_api  # For the Red Hat Certified Collection version |
 | `drop_user_external_accounts` | `False` | no | When is true, all users will be taken to compare with SCM configuration as code |
 | `protect_not_empty_orgs` | `N/A` | no | When is true, orgs which are not empty, will not be removed |
 | `query_controller_api_max_objects` | 10000 | no | Sets the maximum number of objects to be returned from the API |
@@ -24,11 +23,11 @@ The following Variables set the organization where should be applied the configu
 
 The role is designed to be used with tags, each tags correspond to an AWX or Automation Controller object to be managed by ansible.
 
-> :warning: List of object type managed by this role: credentials, credential_types, groups, hosts, inventories, inventory_sources, job_templates, organizations, projects, teams, users, workflow_job_templates.
+> :warning: List of object type managed by this role: controller_credentials, controller_credential_types, controller_host_groups, controller_hosts, controller_inventories, controller_inventory_sources, controller_job_templates, controller_organizations, controller_projects, controller_teams, controller_users, controller_workflow_job_templates.
 
 ```bash
 $ ansible-playbook object_diff.yml --list-tags
-      TASK TAGS: [credentials, credential_types, groups, hosts, inventories, inventory_sources, job_templates, organizations, projects, teams, users, workflow_job_templates]
+      TASK TAGS: [controller_credentials, controller_credential_types, controller_host_groups, controller_hosts, controller_inventories, controller_inventory_sources, controller_job_templates, controller_organizations, controller_projects, controller_teams, controller_users, controller_workflow_job_templates]
 
 ```
 
@@ -77,31 +76,31 @@ To correctly manage `roles`, they can only be defined by a super-admin organizat
     - role: infra.aap_configuration_extended.object_diff
       vars:
         controller_configuration_object_diff_tasks:
-          - {name: workflow_job_templates, var: controller_workflows, tags: workflow_job_templates}
-          - {name: job_templates, var: controller_templates, tags: job_templates}
-          - {name: user_accounts, var: aap_user_accounts, tags: users}
-          - {name: groups, var: controller_groups, tags: groups}
-          - {name: hosts, var: controller_hosts, tags: hosts}
-          - {name: inventory_sources, var: controller_inventory_sources, tags: inventory_sources}
-          - {name: inventories, var: controller_inventories, tags: inventories}
-          - {name: projects, var: controller_projects, tags: projects}
-          - {name: credentials, var: controller_credentials, tags: credentials}
-          - {name: credential_types, var: controller_credential_types, tags: credential_types}
-          - {name: organizations, var: aap_organizations, tags: organizations}
+          - {name: controller_workflow_job_templates, var: controller_workflows, tags: controller_workflow_job_templates}
+          - {name: controller_job_templates, var: controller_templates, tags: controller_job_templates}
+          - {name: controller_user_accounts, var: aap_user_accounts, tags: controller_users}
+          - {name: controller_host_groups, var: controller_groups, tags: controller_host_groups}
+          - {name: controller_hosts, var: controller_hosts, tags: controller_hosts}
+          - {name: controller_inventory_sources, var: controller_inventory_sources, tags: controller_inventory_sources}
+          - {name: controller_inventories, var: controller_inventories, tags: controller_inventories}
+          - {name: controller_projects, var: controller_projects, tags: controller_projects}
+          - {name: controller_credentials, var: controller_credentials, tags: controller_credentials}
+          - {name: controller_credential_types, var: controller_credential_types, tags: controller_credential_types}
+          - {name: controller_organizations, var: aap_organizations, tags: controller_organizations}
     - role: infra.aap_configuration_extended.dispatch
       vars:
         controller_configuration_dispatcher_roles:
-          - {role: workflow_job_templates, var: controller_workflows, tags: workflow_job_templates}
-          - {role: job_templates, var: controller_templates, tags: job_templates}
-          - {role: users, var: aap_user_accounts, tags: users}
-          - {role: groups, var: controller_groups, tags: inventories}
-          - {role: hosts, var: controller_hosts, tags: hosts}
-          - {role: inventory_sources, var: controller_inventory_sources, tags: inventory_sources}
-          - {role: inventories, var: controller_inventories, tags: inventories}
-          - {role: projects, var: controller_projects, tags: projects}
-          - {role: credentials, var: controller_credentials, tags: credentials}
-          - {role: credential_types, var: controller_credential_types, tags: credential_types}
-          - {role: organizations, var: aap_organizations, tags: organizations}
+          - {role: controller_workflow_job_templates, var: controller_workflows, tags: controller_workflow_job_templates}
+          - {role: controller_job_templates, var: controller_templates, tags: controller_job_templates}
+          - {role: controller_users, var: aap_user_accounts, tags: controller_users}
+          - {role: controller_host_groups, var: controller_groups, tags: controller_host_groups}
+          - {role: controller_hosts, var: controller_hosts, tags: controller_hosts}
+          - {role: controller_inventory_sources, var: controller_inventory_sources, tags: controller_inventory_sources}
+          - {role: controller_inventories, var: controller_inventories, tags: controller_inventories}
+          - {role: controller_projects, var: controller_projects, tags: controller_projects}
+          - {role: controller_credentials, var: controller_credentials, tags: controller_credentials}
+          - {role: controller_credential_types, var: controller_credential_types, tags: controller_credential_types}
+          - {role: controller_organizations, var: aap_organizations, tags: controller_organizations}
 
   post_tasks:
     - name: "Delete the Authentication Token used"
