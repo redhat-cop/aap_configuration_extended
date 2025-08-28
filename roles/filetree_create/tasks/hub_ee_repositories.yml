@@ -1,0 +1,26 @@
+---
+- name: "Get current EE Repositories from the Hub API"
+  ansible.builtin.set_fact:
+    hub_ee_repositories_lookvar: "{{ query('ansible.platform.gateway_api', '/api/galaxy/pulp/api/v3/distributions/container/container/',
+                                           query_params=({'name': hub_ee_repository_name} if hub_ee_repository_name is defined else {}
+                                                         | combine({'base_path': hub_ee_repository_base_path}) if hub_ee_repository_base_path is defined else {}
+                                                         | combine({'remote': hub_ee_repository_remote}) if hub_ee_repository_remote is defined else {}),
+                                           host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                           return_all=true, max_objects=query_hub_api_max_objects)
+                                  }}"
+  no_log: "{{ hub_configuration_filetree_create_secure_logging }}"
+
+- name: "Create the output directory for hub ee_repositories: {{ output_path }}"
+  ansible.builtin.file:
+    path: "{{ output_path }}"
+    state: directory
+    mode: '0755'
+
+- name: "Add current hub ee_repositories to the hub_ee_repositories.yaml output file in {{ output_path }}"
+  ansible.builtin.template:
+    src: "templates/hub_ee_repositories.j2"
+    dest: "{{ output_path }}/hub_ee_repositories.yaml"
+    mode: '0644'
+  vars:
+    current_hub_ee_repositories_asset_value: "{{ hub_ee_repositories_lookvar }}"
+...

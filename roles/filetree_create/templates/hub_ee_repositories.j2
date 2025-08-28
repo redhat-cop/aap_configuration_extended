@@ -1,0 +1,14 @@
+---
+hub_ee_repositories:
+{% set __excluded_fields = ['pulp_href', 'pulp_created', 'pulp_last_updated', 'versions_href', 'latest_version_href'] %}
+{% set __list_items = [] %}
+{% for current_ee_repository in current_hub_ee_repositories_asset_value %}
+{%   for __map_item in (current_ee_repository | dict2items) if __map_item.key not in __excluded_fields %}
+{%     if loop.index == 1 %}
+  - {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
+{%     else %}
+    {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
+{%     endif %}
+{%-  endfor %}
+{% endfor %}
+...

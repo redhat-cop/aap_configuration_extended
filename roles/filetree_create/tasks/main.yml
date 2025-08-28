@@ -29,6 +29,25 @@
       tags: "{{ input_tag | to_yaml }}"
   tags: "{{ valid_tags }}"
 
+- name: "Block to fix the output files' format"
+  block:
+    - name: "Search for all the generated files"
+      ansible.builtin.find:
+        paths: "{{ output_path }}"
+        recurse: true
+        patterns:
+          - '*.yaml'
+          - '*.yml'
+      register: _generated_files
+
+    - name: "Re-write all the generated files to make them more readable"
+      ansible.builtin.shell: "/usr/bin/env yq -i -P '{{ _current_file.path }}' && echo '...' >> '{{ _current_file.path }}'"
+      changed_when: true
+      loop: "{{ _generated_files.files }}"
+      loop_control:
+        loop_var: _current_file
+        label: "{{ _current_file.path }}"
+
 - name: "Remind to check all the 'ToDo:' entries in the output files"
   ansible.builtin.debug:
     msg: "Please, check the existance of 'ToDo: ' entries in the files generated at '{{ output_path }}' with the following command: grep -R 'ToDo: ' '{{ output_path }}'"

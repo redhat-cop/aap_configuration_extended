@@ -1,0 +1,22 @@
+---
+hub_namespaces:
+{% set __excluded_fields = ['id', 'pulp_href', 'related_fields', 'metadata_sha256', 'avatar_sha256'] %}
+{% set __list_items = ['users', 'groups'] %}
+{% for current_namespace in current_hub_namespaces_asset_value %}
+{%   set __current_namespace_details = lookup('ansible.platform.gateway_api', 'api/galaxy/_ui/v1/namespaces/' + current_namespace.name,
+                                              host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                              return_all=true, max_objects=query_hub_api_max_objects) %}
+{%   for __map_item in (__current_namespace_details | dict2items) if __map_item.key not in __excluded_fields %}
+{%     if loop.index == 1 %}
+  - {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
+{%     else %}
+{%       if __map_item.key == 'resources' %}
+    {{ __map_item.key }}: |
+      {{ __map_item.value | default('""', true) | replace("\\'", "''") | indent(6) }}
+{%       else %}
+    {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
+{%       endif %}
+{%     endif %}
+{%-  endfor %}
+{% endfor %}
+...

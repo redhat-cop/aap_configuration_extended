@@ -1,0 +1,19 @@
+---
+hub_collection_remotes:
+{% set __excluded_fields = ['pulp_href', 'pulp_created', 'pulp_last_updated', 'hidden_fields', 'last_sync_task'] %}
+{% set __list_items = [] %}
+{% set __dict_items = ['requirements_file'] %}
+{% for current_collection_remote in current_hub_collection_remotes_asset_value %}
+{%   for __map_item in (current_collection_remote | dict2items) if __map_item.key not in __excluded_fields %}
+{%     if loop.index == 1 %}
+  - {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
+{%     else %}
+{%       if __map_item.key in __dict_items %}
+    {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") | from_yaml }}
+{%       else %}
+    {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
+{%       endif %}
+{%     endif %}
+{%-  endfor %}
+{% endfor %}
+...

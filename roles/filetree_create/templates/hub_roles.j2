@@ -1,0 +1,14 @@
+---
+hub_roles:
+{% set __excluded_fields = ['pulp_href', 'pulp_created', 'pulp_last_updated', 'versions_href', 'latest_version_href'] %}
+{% set __list_items = [] %}
+{% for current_role in current_hub_roles_asset_value %}
+{%   for __map_item in (current_role | dict2items) if __map_item.key not in __excluded_fields %}
+{%     if loop.index == 1 %}
+  - {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
+{%     else %}
+    {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
+{%     endif %}
+{%-  endfor %}
+{% endfor %}
+...
