@@ -1,4 +1,0 @@
----
-bugfixes:
-  - There was a format error in the output after each key occurence. The template has been fixed.
-...
