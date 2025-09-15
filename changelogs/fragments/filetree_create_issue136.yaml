@@ -1,4 +1,0 @@
----
-breaking_changes:
-  - Remove aap<=2.4 api endpoints and version detections in the filetree_create role
-...
