@@ -175,7 +175,7 @@ controller_workflows:
 {%     set _var = namespace(first_survey_item = true) %}
 {%     for survey_item_content in (survey_item | dict2items) if ((survey_item_content.value | string | length) > 0 and (survey_item_content.value | string) is not match('None')) %}
 {%       if survey_item_content.key | regex_search('question_name|question_description|default') %}
-{%         if survey_item_content.value is integer %}
+{%         if survey_item_content.value is number %}
 {%           set current_content = survey_item_content.key + ': ' + survey_item_content.value | string %}
 {%         else %}
 {%           set current_content = survey_item_content.key + ': !unsafe "' + (survey_item_content.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') + '"' %}
@@ -193,10 +193,11 @@ controller_workflows:
 {%           if survey_item_content.key is match('choices') and survey_item_content.value[0] is defined %}
           {{ survey_item_content.key }}:
 {%             for choice in survey_item_content.value if ((survey_item_content.value | string | length) > 0 and (survey_item_content.value | string) is not match('None')) %}
-{%               if (choice | regex_replace('(^[^{]*){([{%])(.*)', '!unsafe "\\g<1>{\\g<2>\\g<3>"', multiline=true) != choice) %}
-            - {{ choice | regex_replace('(^[^{]*){([{%])(.*)', '!unsafe "\\g<1>{\\g<2>\\g<3>"', multiline=true) }}
-{%               else %}
-            - "{{ choice }}"
+{%                 if choice is number %}
+            - {{ choice }}
+{%                 else %}
+            - !unsafe "{{ choice | regex_replace("\n", "\\\\n", multiline=true) | regex_replace('"', '\\"', multiline=true) }}"
+{%                 endif %}
 {%               endif %}
 {%             endfor %}
 {%           endif %}
