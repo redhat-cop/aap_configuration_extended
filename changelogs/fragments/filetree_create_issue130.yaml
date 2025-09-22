@@ -1,4 +1,4 @@
 ---
-breaking_changes:
+minor_changes:
   - Export PAH objects.
 ...
