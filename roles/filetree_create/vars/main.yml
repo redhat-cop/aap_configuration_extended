@@ -2,6 +2,7 @@
 # vars file for filetree_create
 valid_tags:
   - all
+  - controller
   - controller_settings
   - controller_credentials
   - controller_credential_types
@@ -24,12 +25,7 @@ valid_tags:
   - controller_schedules
   - controller_gateway_authenticator
   - controller_gateway_authenticator_maps
-  - eda_credentials
-  - eda_credential_types
-  - eda_decision_environments
-  - eda_event_streams
-  - eda_projects
-  - eda_rulebook_activations
+  - gateway
   - gateway_applications
   - gateway_authenticator_maps
   - gateway_authenticators
@@ -44,4 +40,19 @@ valid_tags:
   - gateway_settings
   - gateway_teams
   - gateway_users
+  - eda
+  - eda_credential_types
+  - eda_credentials
+  - eda_decision_environments
+  - eda_event_streams
+  - eda_projects
+  - eda_rulebook_activations
+  - hub
+  - hub_namespaces
+  - hub_collections
+  - hub_collection_remotes
+  - hub_collection_repositories
+  - hub_ee_registries
+  - hub_ee_repositories
+  - hub_roles
 ...

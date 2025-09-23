@@ -1,0 +1,23 @@
+---
+- name: "Get current Namespaces from the Hub API"
+  ansible.builtin.set_fact:
+    hub_namespaces_lookvar: "{{ query('ansible.platform.gateway_api', '/api/galaxy/pulp/api/v3/pulp_ansible/namespaces/',
+                                      host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                      return_all=true, max_objects=query_hub_api_max_objects)
+                             }}"
+  no_log: "{{ hub_configuration_filetree_create_secure_logging }}"
+
+- name: "Create the output directory for hub namespaces: {{ output_path }}"
+  ansible.builtin.file:
+    path: "{{ output_path }}"
+    state: directory
+    mode: '0755'
+
+- name: "Add current hub namespace to the hub_namespaces.yaml output file in {{ output_path }}"
+  ansible.builtin.template:
+    src: "templates/hub_namespaces.j2"
+    dest: "{{ output_path }}/hub_namespaces.yaml"
+    mode: '0644'
+  vars:
+    current_hub_namespaces_asset_value: "{{ hub_namespaces_lookvar }}"
+...

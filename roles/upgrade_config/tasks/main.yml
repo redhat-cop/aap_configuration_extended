@@ -34,7 +34,8 @@
   loop: "{{ _files }}"
   loop_control:
     loop_var: _current_file
-  when: (controller_settings | first).settings | regex_search(_current_file.condition) | length > 0
+  when: (controller_settings | first).settings | regex_search(_current_file.condition) == _current_file.condition
+  # when: (controller_settings | first).settings | regex_search(_current_file.condition) | length > 0
   # when:    (controller_settings is defined and ((controller_settings | first).settings | regex_search(_current_file.condition) | default([], true) | length > 0))
   #       or (lookup('vars', _current_file.condition) is defined)
 

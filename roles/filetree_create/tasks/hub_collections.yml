@@ -1,0 +1,25 @@
+---
+- name: "Get current Collections from the Hub API"
+  ansible.builtin.set_fact:
+    hub_collections_lookvar: "{{ query('ansible.platform.gateway_api', '/api/galaxy/pulp/api/v3/ansible/collections/',
+                                       query_params=({'name': hub_collection_name} if hub_collection_name is defined else {}
+                                                     | combine({'namespace': hub_collection_namespace}) if hub_collection_namespace is defined else {}),
+                                       host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                       return_all=true, max_objects=query_hub_api_max_objects)
+                              }}"
+  no_log: "{{ hub_configuration_filetree_create_secure_logging }}"
+
+- name: "Create the output directory for hub collections: {{ output_path }}"
+  ansible.builtin.file:
+    path: "{{ output_path }}"
+    state: directory
+    mode: '0755'
+
+- name: "Add current hub collections to the hub_collections.yaml output file in {{ output_path }}"
+  ansible.builtin.template:
+    src: "templates/hub_collections.j2"
+    dest: "{{ output_path }}/hub_collections.yaml"
+    mode: '0644'
+  vars:
+    current_hub_collections_asset_value: "{{ hub_collections_lookvar }}"
+...
