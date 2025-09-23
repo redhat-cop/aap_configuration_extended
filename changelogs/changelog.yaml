@@ -175,8 +175,10 @@ releases:
       minor_changes:
       - Let the sensitive data of the credentials and users to be defined externally
         through a well know variables
-      - Use correct API endpoint when connecting to AAP 2.5 when determining super user privileges
+      - Use correct API endpoint when connecting to AAP 2.5 when determining super
+        user privileges
     fragments:
+    - 137-fix-use_correct_api_endpoint_superuser
     - filetree_create_controller_applications.yaml
     - filetree_create_controller_credential_types.yaml
     - filetree_create_controller_inventories.yaml
@@ -187,5 +189,24 @@ releases:
     - filetree_create_issue136.yaml
     - new_role_upgrade_config.yml
     - update_collections.yaml
-    - 137-fix-use_correct_api_endpoint_superuser
     release_date: '2025-09-01'
+  3.0.0:
+    changes:
+      bugfixes:
+      - Fixes a bug where a survey option's default choice wasn't included in the
+        choice list
+      - Fixes an issue with the filetree_create role adding a '...' separate between
+        each item in the job templates list flatten output is set to true.
+      major_changes:
+      - Remove controller_api_plugin and controller_role_plugin variables in favour
+        of ansible.platform.gateway_api and infra.aap_configuration_extended.controller_object_diff
+      minor_changes:
+      - Export PAH objects.
+      - Fix the markdown errors for the CI to work properly
+    fragments:
+    - 152-fix_filetree_create_survey_option_handling.yml
+    - 153-fix_adding_divider_between_job_templates_list.yml
+    - filetree_create_issue130.yaml
+    - mdissues.yaml
+    - object_diff_update_collections.yaml
+    release_date: '2025-09-23'

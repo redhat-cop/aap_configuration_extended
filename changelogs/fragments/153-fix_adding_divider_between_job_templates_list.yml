@@ -1,2 +1,0 @@
-bugfixes:
-  - Fixes an issue with the filetree_create role adding a '...' separate between each item in the job templates list flatten output is set to true.

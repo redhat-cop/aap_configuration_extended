@@ -4,6 +4,26 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v3.0.0
+======
+
+Major Changes
+-------------
+
+- Remove controller_api_plugin and controller_role_plugin variables in favour of ansible.platform.gateway_api and infra.aap_configuration_extended.controller_object_diff
+
+Minor Changes
+-------------
+
+- Export PAH objects.
+- Fix the markdown errors for the CI to work properly
+
+Bugfixes
+--------
+
+- Fixes a bug where a survey option's default choice wasn't included in the choice list
+- Fixes an issue with the filetree_create role adding a '...' separate between each item in the job templates list flatten output is set to true.
+
 v2.0.0
 ======
 
