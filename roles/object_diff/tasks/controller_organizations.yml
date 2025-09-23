@@ -15,7 +15,9 @@
                                          }}"
       no_log: "{{ controller_configuration_object_diff_secure_logging }}"
 
-    - ansible.builtin.debug:
+    - name: "Show the inputs for debuging"
+      verbosity: 1
+      ansible.builtin.debug:
         msg:
           - "API: {{ __controller_api_organizations }}"
           - "CODE: {{ aap_organizations }}"
