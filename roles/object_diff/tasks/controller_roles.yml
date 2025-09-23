@@ -7,7 +7,6 @@
   when:
     - __controller_api_current_user_check_is_admin.is_superuser
   block:
-
     - name: "Get the API list of all roles"
       ansible.builtin.set_fact:
         # noqa jinja[spacing]
@@ -22,15 +21,15 @@
                                     }]
                                  }}"
       vars:
-        current_users: "{{ query(controller_api_plugin, current_role.related.users,
+        current_users: "{{ query('ansible.platform.gateway_api', current_role.related.users,
                                  host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                  return_all=true, max_objects=query_controller_api_max_objects) | map(attribute='username')
                         }}"
-        current_teams: "{{ query(controller_api_plugin, current_role.related.teams,
+        current_teams: "{{ query('ansible.platform.gateway_api', current_role.related.teams,
                                  host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                  return_all=true, max_objects=query_controller_api_max_objects) | map(attribute='name')
                         }}"
-      loop: "{{ query(controller_api_plugin, 'roles',
+      loop: "{{ query('ansible.platform.gateway_api', '/api/controller/v2/roles',
                       host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                       return_all=true, max_objects=query_controller_api_max_objects)
              }}"
@@ -50,7 +49,7 @@
 
     - name: "Find the difference of Roles between what is on the Controller versus CasC on SCM"
       ansible.builtin.set_fact:
-        __roles_difference: "{{ query(controller_role_plugin,
+        __roles_difference: "{{ query('infra.aap_configuration_extended.controller_object_diff',
                                       api_list=__full_controller_api_roles, compare_list=controller_roles,
                                       with_present=include_present_state, set_absent=true) | flatten
                              }}"

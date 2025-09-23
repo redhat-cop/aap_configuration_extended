@@ -1,7 +1,7 @@
 ---
 - name: Get the organization ID
   ansible.builtin.set_fact:
-    controller_organization_id: "{{ lookup(controller_api_plugin, 'api/controller/' + controller_api_version + '/organizations',
+    controller_organization_id: "{{ lookup('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations',
                                            query_params={'name': orgs},
                                            host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)
                                  }}"
@@ -9,7 +9,7 @@
 
 - name: "Get the API list of all inventories"
   ansible.builtin.set_fact:
-    __controller_api_inventories: "{{ query(controller_api_plugin, 'api/controller/' + controller_api_version + '/inventories',
+    __controller_api_inventories: "{{ query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/inventories',
                                             query_params={'organization': controller_organization_id.id,
                                               'has_inventory_sources': 'false',
                                               'not__total_groups': '0',
@@ -22,7 +22,7 @@
 
 - name: "Get the API list of all groups in the inventories at organization {{ orgs }}"
   ansible.builtin.set_fact:
-    __controller_api_groups: "{{ (__controller_api_groups | default([])) + query(controller_api_plugin, 'api/controller/' + controller_api_version + '/groups',
+    __controller_api_groups: "{{ (__controller_api_groups | default([])) + query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/groups',
                                           query_params={'inventory': current_inventory.id},
                                           host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                           return_all=true, max_objects=query_controller_api_max_objects)
@@ -37,7 +37,7 @@
   block:
     - name: "Find the difference of Groups between what is on the Controller versus CasC on SCM"
       ansible.builtin.set_fact:
-        __groups_difference: "{{ query(controller_role_plugin,
+        __groups_difference: "{{ query('infra.aap_configuration_extended.controller_object_diff',
                                         query_params={'summary_fields.inventory.organization_id': controller_organization_id.id},
                                         api_list=__controller_api_groups, compare_list=controller_groups,
                                         with_present=include_present_state, set_absent=true) | flatten
