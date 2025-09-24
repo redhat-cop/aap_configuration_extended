@@ -21,7 +21,7 @@ Utilizing the Automation Webhook capabilities in Ansible Tower / Controller, you
 
 ## Automation Controller Workflow CasC
 
-![Automation Controller Workflow CasC](../../tests/automatetheautomation/pictures/AAP_CasC_Worflow.png)
+![Automation Controller Workflow CasC](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/tests/automatetheautomation/pictures/AAP_CasC_Worflow.png)
 *Automation Controller Workflow CasC*
 
 The workflow will have the following steps:
@@ -31,7 +31,7 @@ The workflow will have the following steps:
   - Job Template - Launch CI: The data sent from through the [payload](https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html/using_automation_execution/controller-work-with-webhooks#controller-view-payload-output) is processed and converted into Extra vars.
     - Job Template - Config Controller: These variables are applied with a Job Template which calls a playbook to create/modify the objects in the controller.
 
-Let's talk about how to achieve the ***Desired State*** idea, which is implemented through schedules at controller object type. Basically, it will schedule a recurring execution of the Job Template that applies the changes to the objects in the controller. An example of this implementation is at [drop_diff.yml](roles/../../../roles/object_diff/tests/drop_diff.yml). The job will compare the objects that exist in the controller with what exists in the repository, the logic will delete those that are not found as code. Yeah, you're right, in a way is acting as ArgoCD / Openshift GitOps, but for Controller objects and using Ansible. It should be noted that desired state feature hasn't been implemented to all objects yet, just in the following objects:
+Let's talk about how to achieve the ***Desired State*** idea, which is implemented through schedules at controller object type. Basically, it will schedule a recurring execution of the Job Template that applies the changes to the objects in the controller. An example of this implementation is at [drop_diff.yml](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/roles/object_diff/tests/drop_diff.yml). The job will compare the objects that exist in the controller with what exists in the repository, the logic will delete those that are not found as code. Yeah, you're right, in a way is acting as ArgoCD / Openshift GitOps, but for Controller objects and using Ansible. It should be noted that desired state feature hasn't been implemented to all objects yet, just in the following objects:
 
 - credential_types
 - credentials
@@ -49,11 +49,11 @@ Let's talk about how to achieve the ***Desired State*** idea, which is implement
 
 ## Sample Organization Directory Structure
 
-The directory structure is defined through variables can be found in the [defaults file](roles/../../../roles/filetree_read/defaults/main.yml), giving the user the flexibility to define their own structure.
+The directory structure is defined through variables can be found in the [defaults file](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/roles/filetree_read/defaults/main.yml), giving the user the flexibility to define their own structure.
 
 ## Playbooks
 
-The playbooks [config-controller-filetree.yml](roles/../../../roles/filetree_read/tests/config-controller-filetree.yml) and [drop_diff.yml](roles/../../../roles/object_diff/tests/drop_diff.yml) can be used as an example of how to use the configuration as code defined earlier.
+The playbooks [config-controller-filetree.yml](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/roles/filetree_read/tests/config-controller-filetree.yml) and [drop_diff.yml](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/roles/object_diff/tests/drop_diff.yml) can be used as an example of how to use the configuration as code defined earlier.
 
 ## License
 

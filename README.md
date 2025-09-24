@@ -134,7 +134,7 @@ Controller token module would be invoked with this code:
 
 Every Ansible Controller instance has it's own particularities and needs. Every administrator team has it's own practices and customs. This collection allows adaptation to every need, from small to large scale, having the objects distributed across multiple environments and leveraging Automation Webhook that can be used to link a Git repository and Ansible automation natively.
 
-A complete example of how to use all of the roles present in the collection is available at the following [README.md](roles/filetree_create/automatetheautomation.md), where all the phases to allow CI/CD for the Controller Configuration are provided.
+A complete example of how to use all of the roles present in the collection is available at the following [README.md](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/roles/filetree_create/automatetheautomation.md), where all the phases to allow CI/CD for the Controller Configuration are provided.
 
 #### Scale at your needs
 
@@ -144,7 +144,7 @@ The input data can be organized in a very flexible way, letting the user use any
 
 The awx command line can export json that is compatible with this collection.
 In addition there is an awx.awx/ansible.controller export module that use the awx command line to export.
-See [the export guide](EXPORT_README.md) for more details
+See [the export guide](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/EXPORT_README.md) for more details
 
 ### Template Example
 
@@ -156,7 +156,7 @@ See [our template](https://github.com/redhat-cop/aap_configuration_template) to 
 
 ## Release and Upgrade Notes
 
-For details on changes between versions, please see [the changelog for this collection](CHANGELOG.rst).
+For details on changes between versions, please see [the changelog for this collection](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/CHANGELOG.rst).
 
 ## Releasing, Versioning and Deprecation
 
@@ -187,4 +187,4 @@ Please read and familiarize yourself with this document.
 
 GNU General Public License v3.0 or later.
 
-See [LICENSE](LICENSE) to see the full text.
+See [LICENSE](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/LICENSE) to see the full text.
