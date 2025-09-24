@@ -28,7 +28,6 @@ The role is designed to be used with tags, each tags correspond to an AWX or Aut
 ```bash
 $ ansible-playbook object_diff.yml --list-tags
       TASK TAGS: [controller_credentials, controller_credential_types, controller_host_groups, controller_hosts, controller_inventories, controller_inventory_sources, controller_job_templates, controller_organizations, controller_projects, controller_teams, controller_users, controller_workflow_job_templates]
-
 ```
 
 ## IMPORTANT

@@ -1,0 +1,37 @@
+---
+argument_specs:
+  main:
+    short_description: An ansible role which audit the declared AAP configuration and validate it against a set of user-defined rules.
+    options:
+      aap_rules:
+        default: []
+        required: true
+        type: list
+        elements: str
+        description: The list of rules to enforce on the declared configuration
+      fail_if_violations_found:
+        default: true
+        required: false
+        type: bool
+        description: Force the role to fails if if it finds violations
+      print_rules_violations_data:
+        default: true
+        required: false
+        type: bool
+        description: Print the detailed violation data before printing the violation messages
+      audited_objects:
+        default: a list of all the objet types
+        required: false
+        type: list
+        elements: str
+        description: The objects to be audited. See the roles defaults main.yml file for the complete list
+      warn_about_audited_types_not_in_rules_objects:
+        default: false
+        required: false
+        type: bool
+        description: Treat the objects to be audited but are not in any rule as a violation
+      warn_about_rules_objects_not_in_audited_types:
+        default: false
+        required: false
+        description: Treat the objects that are defined in rules are not in the audited objects list as a violation
+...

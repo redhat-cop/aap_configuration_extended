@@ -43,5 +43,4 @@ argument_specs:
         required: false
         description: User's token on the Automation Hub Server
         type: str
-
 ...

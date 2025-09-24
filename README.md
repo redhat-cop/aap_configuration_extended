@@ -16,15 +16,11 @@ We are on the Ansible Forums and Matrix, if you want to discuss something, ask f
 
 ## Requirements
 
-The supported collections that contains the modules are required for this collection to work, and the validated collection infra.aap_configuration that this collection depends upon, you can copy this requirements.yml file example.
+The only one collection required by `infra.aap_configuration_extended` is the `infra.aap_configuration` (and that one is requiring other collections: ansible.platform, ansible.hub, ansible.controller and ansible.eda). You can copy this `requirements.yaml` file example:
 
 ```yaml
 ---
 collections:
-  - name: ansible.platform
-  - name: ansible.hub
-  - name: ansible.controller
-  - name: ansible.eda
   - name: infra.aap_configuration
 ...
 ```
