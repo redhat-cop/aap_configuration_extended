@@ -31,4 +31,6 @@ tags:
   - infrastructure
 dependencies:
   "infra.aap_configuration": ">=3.4.0"
+  "ansible.hub": ">=1.0.0"
+  "ansible.platform": ">=2.5.0"
 ...
