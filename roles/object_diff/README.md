@@ -4,7 +4,7 @@ An ansible role to manage the object diff of the AWX or Automation Controller co
 
 ## Requirements
 
-`ansible-galaxy collection install -r tests/collections/requirements.yml` to be installed. Currently: `awx.awx` or `ansible.controller` and `infra.controller_configuration`.
+`ansible-galaxy collection install -r tests/collections/requirements.yml` to be installed. Currently: `infra.controller_configuration`, `ansible.platform` and `ansible.hub`.
 
 ## Role Variables
 
