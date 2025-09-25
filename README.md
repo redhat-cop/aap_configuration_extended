@@ -21,9 +21,10 @@ The only one collection required by `infra.aap_configuration_extended` is the `i
 ```yaml
 ---
 collections:
-  - name: infra.aap_configuration
-  - name: ansible.platform
+  - name: ansible.controller
   - name: ansible.hub
+  - name: ansible.platform
+  - name: infra.aap_configuration
 ...
 ```
 
