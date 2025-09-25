@@ -4,6 +4,14 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v3.0.1
+======
+
+Bugfixes
+--------
+
+- Fix the issues detected in the last import log (galaxy)
+
 v3.0.0
 ======
 

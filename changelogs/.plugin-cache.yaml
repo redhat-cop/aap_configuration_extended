@@ -1,5 +1,10 @@
 objects:
   role:
+    aap_rules_validation:
+      description: An ansible role which audit the declared AAP configuration and
+        validate it against a set of user-defined rules.
+      name: aap_rules_validation
+      version_added: null
     filetree_create:
       description: An Ansible Role to create a local file tree of objects existing
         in Controller
@@ -50,4 +55,4 @@ plugins:
   strategy: {}
   test: {}
   vars: {}
-version: 3.0.0
+version: 3.0.1

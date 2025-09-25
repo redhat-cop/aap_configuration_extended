@@ -210,3 +210,10 @@ releases:
     - mdissues.yaml
     - object_diff_update_collections.yaml
     release_date: '2025-09-23'
+  3.0.1:
+    changes:
+      bugfixes:
+      - Fix the issues detected in the last import log (galaxy)
+    fragments:
+    - import_log_issues.yaml
+    release_date: '2025-09-25'
