@@ -1,5 +1,5 @@
 ---
-aap_labels:
+aap_labels: &_labels
   - name: test
     organization: Default
   - name: Prod
@@ -16,4 +16,5 @@ aap_labels:
     organization: Dummy
   - name: Dev
     organization: Satellite
+controller_labels: *_labels
 ...

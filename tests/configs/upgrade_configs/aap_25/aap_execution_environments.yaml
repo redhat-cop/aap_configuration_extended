@@ -1,5 +1,5 @@
 ---
-aap_execution_environments:
+aap_execution_environments: &_execution_environments
   - name: Minimal execution environment
     description: ""
     image: registry.redhat.io/ansible-automation-platform-24/ee-minimal-rhel8:latest
@@ -20,4 +20,5 @@ aap_execution_environments:
     description: ""
     image: quay.io/ansible/awx-ee
     pull: always
+controller_execution_environments: *_execution_environments
 ...

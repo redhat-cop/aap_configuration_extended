@@ -41,32 +41,30 @@
 
 - name: "Upgrade all the configs from 2.4 to 2.5 format (Common code)"
   ansible.builtin.include_tasks:
-    # file: "{{ current_common_item.object }}/{{ current_common_item.object }}.yaml"
     file: "common_item/common_item.yaml"
   loop:
-    # - settings
-    - object: instances
-    - object: instance_groups
-    - object: organizations
-    - object: labels
-    - object: user_accounts
-    - object: teams
+    - object: applications
+    - object: credential_input_sources
     - object: credential_types
     - object: credentials
-    - object: credential_input_sources
     - object: execution_environments
-    - object: notifications
-    - object: projects
+    - object: groups
+    - object: hosts
+    - object: instance_groups
+    - object: instances
     - object: inventories
     - object: inventory_sources
-    - object: applications
-    - object: hosts
-    - object: groups
-    - object: templates
-    - object: workflows
-    - object: schedules
+    - object: labels
+    - object: notifications
+    - object: organizations
+    - object: projects
     - object: roles
       alt_name: role
+    - object: schedules
+    - object: teams
+    - object: templates
+    - object: user_accounts
+    - object: workflows
   vars:
     __var_name: "{{ lookup('vars', 'controller_' + current_common_item.object, default='non_exists') }}"
   loop_control:

@@ -1,5 +1,5 @@
 ---
-aap_projects:
+aap_projects: &_projects
   - name: Demo Project
     description: ""
     organization: Default
@@ -198,4 +198,5 @@ aap_projects:
     allow_override: "false"
     update_project: "false"
     timeout: "0"
+controller_projects: *_projects
 ...
