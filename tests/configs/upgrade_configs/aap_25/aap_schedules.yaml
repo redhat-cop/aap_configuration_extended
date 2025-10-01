@@ -1,5 +1,5 @@
 ---
-aap_schedules:
+controller_schedules:
   - name: Cleanup Job Schedule
     description: Automatically Generated Schedule
     enabled: true

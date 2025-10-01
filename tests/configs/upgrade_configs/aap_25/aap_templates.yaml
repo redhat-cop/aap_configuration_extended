@@ -1,5 +1,5 @@
 ---
-aap_templates: &_templates
+controller_templates:
   - name: Demo Job Template
     description: ""
     organization: Default
@@ -567,5 +567,4 @@ aap_templates: &_templates
     diff_mode: false
     webhook_service: ""
     prevent_instance_group_fallback: false
-controller_templates: *_templates
 ...

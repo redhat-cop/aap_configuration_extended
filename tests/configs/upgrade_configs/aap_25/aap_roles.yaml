@@ -1,5 +1,5 @@
 ---
-aap_roles:
+controller_roles:
   - team: dummy
     credentials:
       - dummy

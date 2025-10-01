@@ -9,7 +9,7 @@
   ansible.builtin.lineinfile:
     path: "{{ aap25_configs_dir }}/aap_{{ current_common_item.object }}.yaml"
     regex: '^controller_(.*):\s*$'
-    line: 'aap_\g<1>:'
+    line: '{{ __prefix }}_\g<1>:'
     backrefs: true
   vars:
     __prefix: "{{ 'aap' if current_common_item.object in variable_prefix.aap else
