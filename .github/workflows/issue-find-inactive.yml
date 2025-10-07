@@ -14,7 +14,7 @@ jobs:
         uses: actions-cool/issues-helper@v3
         with:
           actions: 'check-inactive'
-          token: ${{ secrets.GITaap_token }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           inactive-day: 30
           issue-state: open
           exclude-labels: 'new,enhancement,backlog,help wanted,module-issue,blocked - upstream'

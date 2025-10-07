@@ -14,7 +14,7 @@ jobs:
         uses: actions-cool/issues-helper@v3
         with:
           actions: 'close-issues'
-          token: ${{ secrets.GITaap_token }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           labels: 'inactive'
           inactive-day: 7
 ...
