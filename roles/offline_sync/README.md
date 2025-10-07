@@ -85,11 +85,11 @@ This also speeds up the overall role.
   tasks:
     - name: Ensure the namespaces exists
       ansible.builtin.import_role:
-        name: infra.aap_configuration_extended.namespace
+        name: infra.aap_configuration.hub_namespace
 
     - name: Upload collections
       ansible.builtin.include_role:
-        name: infra.aap_configuration_extended.collection
+        name: infra.aap_configuration.hub_collection
 ```
 
 ## License
