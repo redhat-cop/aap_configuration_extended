@@ -17,7 +17,7 @@ argument_specs:
       # Generic across all roles
       aap_hostname:
         required: false
-        description: URL to the Ansible Automation Platform Server. (if 2.4 private automation hub server)
+        description: URL to the Ansible Automation Platform Server.
         type: str
         default: "{{ hub_host }}"
       hub_path_prefix:
