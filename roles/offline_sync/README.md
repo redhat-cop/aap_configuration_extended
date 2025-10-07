@@ -1,20 +1,20 @@
-# galaxy.galaxy.offline_sync
+# infra.aap_configuration_extended.offline_sync
 
 ## Description
 
-An Ansible Role to offline_sync collections to Automation Hub or Galaxies. NOTE: if you do not provide an ah_token one will be generated which will invalidate any prior token.
+An Ansible Role to offline_sync collections to Automation Hub or Galaxies. NOTE: if you do not provide an aap_token one will be generated which will invalidate any prior token.
 
 ## Variables
 
 |Variable Name|Default Value|Required|Description|Example|
 |:---:|:---:|:---:|:---:|:---:|
-|`ah_host`|""|yes|URL to the Automation Hub or Galaxy Server. (alias: `ah_hostname`)|127.0.0.1|
-|`ah_username`|""|yes|Admin User on the Automation Hub or Galaxy Server.||
-|`ah_password`|""|yes|Automation Hub Admin User's password on the Automation Hub Server. This should be stored in an Ansible Vault at vars/tower-secrets.yml or elsewhere and called from a parent playbook.||
-|`ah_token`|""|no|Admin User's token on the Automation Hub Server. This should be stored in an Ansible Vault at or elsewhere and called from a parent playbook.||
-|`ah_validate_certs`|`true`|no|Whether or not to validate the Ansible Automation Hub Server's SSL certificate.||
-|`ah_request_timeout`|`10`|no|Specify the timeout Ansible should use in requests to the Galaxy or Automation Hub host.||
-|`ah_path_prefix`|""|no|API path used to access the api. Either galaxy, automation-hub, or custom||
+|`aap_hostname`|"{{ hub_host }}"|yes|URL to the Automation Hub or Galaxy Server. |127.0.0.1|
+|`aap_username`|""|yes|Admin User on the Automation Hub or Galaxy Server.||
+|`aap_password`|""|yes|Automation Hub Admin User's password on the Automation Hub Server. This should be stored in an Ansible Vault at vars/tower-secrets.yml or elsewhere and called from a parent playbook.||
+|`aap_token`|""|no|Admin User's token on the Automation Hub Server. This should be stored in an Ansible Vault at or elsewhere and called from a parent playbook.||
+|`aap_validate_certs`|`true`|no|Whether or not to validate the Ansible Automation Hub Server's SSL certificate.||
+|`aap_request_timeout`|`10`|no|Specify the timeout Ansible should use in requests to the Galaxy or Automation Hub host.||
+|`hub_path_prefix`|""|no|API path used to access the api. Either galaxy, automation-hub, or custom||
 
 ### Asynchronous Retry Variables
 
@@ -25,19 +25,19 @@ This also speeds up the overall role.
 
 |Variable Name|Default Value|Required|Description|
 |:---:|:---:|:---:|:---:|
-|`ah_configuration_async_retries`|50|no|This variable sets the number of retries to attempt for the role globally.|
-|`ah_configuration_collection_async_retries`|`ah_configuration_async_retries`|no|This variable sets the number of retries to attempt for the role.|
-|`ah_configuration_async_delay`|1|no|This sets the delay between retries for the role globally.|
-|`ah_configuration_collection_async_delay`|`ah_configuration_async_delay`|no|This sets the delay between retries for the role.|
+|`hub_configuration_async_retries`|50|no|This variable sets the number of retries to attempt for the role globally.|
+|`hub_configuration_collection_async_retries`|`hub_configuration_async_retries`|no|This variable sets the number of retries to attempt for the role.|
+|`hub_configuration_async_delay`|1|no|This sets the delay between retries for the role globally.|
+|`hub_configuration_collection_async_delay`|`hub_configuration_async_delay`|no|This sets the delay between retries for the role.|
 
 ## Data Structure
 
-### ah_collections Variables
+### hub_collections Variables
 
 |Variable Name|Default Value|Required|Type|Description|
 |:---:|:---:|:---:|:---:|:---:|
-|`ah_configuration_working_dir`|`/var/tmp/pah_offline_sync`|no|string|The working directory where the collections will be downloaded and any required files.|
-|`ah_configuration_no_deps`|false|no|bool|Whether to download all dependencies for each collection or not, if false it may cause errors if dependency sync is off in Automation Hub.|
+|`hub_configuration_working_dir`|`/var/tmp/hub_offline_sync`|no|string|The working directory where the collections will be downloaded and any required files.|
+|`hub_configuration_no_deps`|false|no|bool|Whether to download all dependencies for each collection or not, if false it may cause errors if dependency sync is off in Automation Hub.|
 
 ## Playbook Examples
 
@@ -50,19 +50,19 @@ This also speeds up the overall role.
   connection: local
   gather_facts: false
   vars:
-    ah_validate_certs: false
-  # Define following vars here, or in ah_configs/ah_auth.yml
-  # ah_host: ansible-ah-web-svc-test-project.example.com
-  # ah_token: changeme
+    aap_validate_certs: false
+  # Define following vars here, or in hub_configs/hub_auth.yml
+  # hub_host: ansible-ah-web-svc-test-project.example.com
+  # aap_token: changeme
   pre_tasks:
-    - name: Include vars from ah_configs directory
+    - name: Include vars from hub_configs directory
       ansible.builtin.include_vars:
         dir: ./vars
         extensions: ["yml"]
       tags:
         - always
   roles:
-    - galaxy.galaxy.offline_sync
+    - infra.aap_configuration_extended.offline_sync
 ```
 
 ### Playbook to upload to offline Automation Hub after using this role to download the collections
@@ -76,7 +76,7 @@ This also speeds up the overall role.
   vars_files:
     - "collections.yml"
   pre_tasks:
-    - name: Include vars from ah_configs directory with collections.yml file added
+    - name: Include vars from hub_configs directory with collections.yml file added
       ansible.builtin.include_vars:
         dir: ./vars
         extensions: ["yml"]
@@ -85,16 +85,16 @@ This also speeds up the overall role.
   tasks:
     - name: Ensure the namespaces exists
       ansible.builtin.import_role:
-        name: galaxy.galaxy.namespace
+        name: infra.aap_configuration.hub_namespace
 
     - name: Upload collections
       ansible.builtin.include_role:
-        name: galaxy.galaxy.collection
+        name: infra.aap_configuration.hub_collection
 ```
 
 ## License
 
-[GPLv3+](https://github.com/ansible/galaxy_collection#licensing)
+[GPLv3+](https://github.com/redhat-cop/aap_configuration_extended#licensing)
 
 ## Author
 
