@@ -4,16 +4,16 @@ ignore_certs = {% if ah_validate_certs %}false{% else %}true{% endif %}
 
 [galaxy_server.rh-certified]
 url=https://{{ aap_hostname | default(hub_host) }}/pulp_ansible/galaxy/rh-certified/
-token={{ hub_token }}
+token={{ aap_token }}
 
 [galaxy_server.validated]
 url=https://{{ aap_hostname | default(hub_host) }}/pulp_ansible/galaxy/validated/
-token={{ hub_token }}
+token={{ aap_token }}
 
 [galaxy_server.community]
 url=https://{{ aap_hostname | default(hub_host) }}/pulp_ansible/galaxy/community/
-token={{ hub_token }}
+token={{ aap_token }}
 
 [galaxy_server.published]
 url=https://{{ aap_hostname | default(hub_host) }}/pulp_ansible/galaxy/published/
-token={{ hub_token }}
+token={{ aap_token }}

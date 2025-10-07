@@ -2,18 +2,18 @@
 
 ## Description
 
-An Ansible Role to offline_sync collections to Automation Hub or Galaxies. NOTE: if you do not provide an hub_token one will be generated which will invalidate any prior token.
+An Ansible Role to offline_sync collections to Automation Hub or Galaxies. NOTE: if you do not provide an aap_token one will be generated which will invalidate any prior token.
 
 ## Variables
 
 |Variable Name|Default Value|Required|Description|Example|
 |:---:|:---:|:---:|:---:|:---:|
-|`hub_host`|""|yes|URL to the Automation Hub or Galaxy Server. (alias: `hub_hostname`)|127.0.0.1|
-|`hub_username`|""|yes|Admin User on the Automation Hub or Galaxy Server.||
-|`hub_password`|""|yes|Automation Hub Admin User's password on the Automation Hub Server. This should be stored in an Ansible Vault at vars/tower-secrets.yml or elsewhere and called from a parent playbook.||
-|`hub_token`|""|no|Admin User's token on the Automation Hub Server. This should be stored in an Ansible Vault at or elsewhere and called from a parent playbook.||
-|`hub_validate_certs`|`true`|no|Whether or not to validate the Ansible Automation Hub Server's SSL certificate.||
-|`hub_request_timeout`|`10`|no|Specify the timeout Ansible should use in requests to the Galaxy or Automation Hub host.||
+|`aap_hostname`|"{{ hub_host }}"|yes|URL to the Automation Hub or Galaxy Server. |127.0.0.1|
+|`aap_username`|""|yes|Admin User on the Automation Hub or Galaxy Server.||
+|`aap_password`|""|yes|Automation Hub Admin User's password on the Automation Hub Server. This should be stored in an Ansible Vault at vars/tower-secrets.yml or elsewhere and called from a parent playbook.||
+|`aap_token`|""|no|Admin User's token on the Automation Hub Server. This should be stored in an Ansible Vault at or elsewhere and called from a parent playbook.||
+|`aap_validate_certs`|`true`|no|Whether or not to validate the Ansible Automation Hub Server's SSL certificate.||
+|`aap_request_timeout`|`10`|no|Specify the timeout Ansible should use in requests to the Galaxy or Automation Hub host.||
 |`hub_path_prefix`|""|no|API path used to access the api. Either galaxy, automation-hub, or custom||
 
 ### Asynchronous Retry Variables
@@ -50,10 +50,10 @@ This also speeds up the overall role.
   connection: local
   gather_facts: false
   vars:
-    hub_validate_certs: false
+    aap_validate_certs: false
   # Define following vars here, or in hub_configs/hub_auth.yml
   # hub_host: ansible-ah-web-svc-test-project.example.com
-  # hub_token: changeme
+  # aap_token: changeme
   pre_tasks:
     - name: Include vars from hub_configs directory
       ansible.builtin.include_vars:

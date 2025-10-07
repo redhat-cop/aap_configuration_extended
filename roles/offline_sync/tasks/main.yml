@@ -11,21 +11,21 @@
   register: r_ansible_cfg
 
 - name: Figuring out AH token
-  when: (not r_ansible_cfg['stat']['exists']) and (hub_token is not defined or hub_token['token'] is defined)
+  when: (not r_ansible_cfg['stat']['exists']) and (aap_token is not defined or ah_token['token'] is defined)
   block:
     - name: Authenticate and get an API token from Automation Hub
       ansible.hub.ah_token:
         ah_host: "{{ aap_hostname | default(hub_host) }}"
-        ah_username: "{{ hub_username }}"
-        ah_password: "{{ hub_password }}"
+        ah_username: "{{ aap_username }}"
+        ah_password: "{{ aap_password }}"
         ah_path_prefix: galaxy  # this is for private automation hub
         validate_certs: false
-      register: r_hub_token
+      register: r_aap_token
 
     - name: Fixing format
       ansible.builtin.set_fact:
-        hub_token: "{{ ah_token['token'] }}"
-      when: r_hub_token['changed']  # noqa: no-handler
+        aap_token: "{{ ah_token['token'] }}"
+      when: r_aap_token['changed']  # noqa: no-handler
 
 - name: Create ansible.cfg
   ansible.builtin.template:
@@ -37,11 +37,11 @@
 - name: Get list of all collections
   ansible.builtin.uri:
     url: "https://{{ aap_hostname | default(hub_host) }}/api/galaxy/pulp/api/v3/ansible/collections/?limit=1000"
-    user: "{{ hub_username }}"
-    password: "{{ hub_password }}"
+    user: "{{ aap_username }}"
+    password: "{{ aap_password }}"
     method: GET
     force_basic_auth: true
-    validate_certs: "{{ hub_validate_certs }}"
+    validate_certs: "{{ aap_validate_certs }}"
   register: r_collections
 
 - name: Create requirements.yml

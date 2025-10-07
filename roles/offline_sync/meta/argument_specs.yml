@@ -23,24 +23,24 @@ argument_specs:
       hub_path_prefix:
         required: false
         description: The path for the Automation Hub API. Usually galaxy or automation-hub unless custom set in AH settings.
-      hub_validate_certs:
+      aap_validate_certs:
         required: false
         description: Whether or not to validate the Automation Hub Server's SSL certificate.
         type: str
-      hub_request_timeout:
+      aap_request_timeout:
         default: 10
         required: false
         description: Specify the timeout Ansible should use in requests to the Galaxy or Automation Hub host.
         type: float
-      hub_username:
+      aap_username:
         required: false
         description: User for authentication on Automation Hub
         type: str
-      hub_password:
+      aap_password:
         required: false
         description: User's password For Automation Hub
         type: str
-      hub_token:
+      aap_token:
         required: false
         description: User's token on the Automation Hub Server
         type: str
