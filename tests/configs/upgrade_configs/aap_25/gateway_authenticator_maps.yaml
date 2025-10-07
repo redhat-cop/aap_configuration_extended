@@ -74,56 +74,56 @@ gateway_authenticator_maps:
       groups:
         has_and:
           - cn=organization2,cn=groups,cn=accounts,dc=c,dc=openenv-6hrc4,dc=internal
-  - name: Is Superuser
-    authenticator: RHSSO
-    map_type: is_superuser
-    revoke: true
-    triggers:
-      attributes:
-        member:
-          contains: /AAPAdmins
-        join_condition: or
-  - name: Is Auditor
-    authenticator: RHSSO
-    map_type: role
-    role: Platform Auditor
-    revoke: true
-    triggers:
-      attributes:
-        member:
-          contains: /AAPAuditors
-        join_condition: or
-  - name: Dummy
-    authenticator: RHSSO
-    map_type: team
-    role: Team Member
-    organization: Dummy
-    team: Dummy
-    revoke: true
-    triggers:
-      never: {}
-  - name: Default
-    authenticator: RHSSO
-    map_type: team
-    role: Team Member
-    organization: Default
-    team: Default
-    revoke: true
-    triggers:
-      groups:
-        has_and:
-          - arnold.schwarzenegger@example.net
-  - name: Systems Engineering
-    authenticator: RHSSO
-    map_type: team
-    role: Team Member
-    organization: Systems Engineering
-    team: Systems Engineering
-    revoke: true
-    triggers:
-      groups:
-        has_and:
-          - /^[^@]+?@example\\.net$/
+  # - name: Is Superuser
+  #   authenticator: RHSSO
+  #   map_type: is_superuser
+  #   revoke: true
+  #   triggers:
+  #     attributes:
+  #       member:
+  #         contains: /AAPAdmins
+  #       join_condition: or
+  # - name: Is Auditor
+  #   authenticator: RHSSO
+  #   map_type: role
+  #   role: Platform Auditor
+  #   revoke: true
+  #   triggers:
+  #     attributes:
+  #       member:
+  #         contains: /AAPAuditors
+  #       join_condition: or
+  # - name: Dummy
+  #   authenticator: RHSSO
+  #   map_type: team
+  #   role: Team Member
+  #   organization: Dummy
+  #   team: Dummy
+  #   revoke: true
+  #   triggers:
+  #     never: {}
+  # - name: Default
+  #   authenticator: RHSSO
+  #   map_type: team
+  #   role: Team Member
+  #   organization: Default
+  #   team: Default
+  #   revoke: true
+  #   triggers:
+  #     groups:
+  #       has_and:
+  #         - arnold.schwarzenegger@example.net
+  # - name: Systems Engineering
+  #   authenticator: RHSSO
+  #   map_type: team
+  #   role: Team Member
+  #   organization: Systems Engineering
+  #   team: Systems Engineering
+  #   revoke: true
+  #   triggers:
+  #     groups:
+  #       has_and:
+  #         - /^[^@]+?@example\\.net$/
   - name: Dummy Admins
     authenticator: IDM LDAP
     map_type: organization

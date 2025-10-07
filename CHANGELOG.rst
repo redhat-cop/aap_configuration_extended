@@ -4,6 +4,64 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v3.0.1
+======
+
+Bugfixes
+--------
+
+- Fix the issues detected in the last import log (galaxy)
+
+v3.0.0
+======
+
+Major Changes
+-------------
+
+- Remove controller_api_plugin and controller_role_plugin variables in favour of ansible.platform.gateway_api and infra.aap_configuration_extended.controller_object_diff
+
+Minor Changes
+-------------
+
+- Export PAH objects.
+- Fix the markdown errors for the CI to work properly
+
+Bugfixes
+--------
+
+- Fixes a bug where a survey option's default choice wasn't included in the choice list
+- Fixes an issue with the filetree_create role adding a '...' separate between each item in the job templates list flatten output is set to true.
+
+v2.0.0
+======
+
+Major Changes
+-------------
+
+- New role to update Configuration as Code files from 2.4 (infra.controller_configuration) format to 2.5 (infra.aap_configuration_extended)
+- Remove controller_api_plugin and eda_api_plugin variables in favour of ansible.platform.gateway_api
+
+Minor Changes
+-------------
+
+- Let the sensitive data of the credentials and users to be defined externally through a well know variables
+- Use correct API endpoint when connecting to AAP 2.5 when determining super user privileges
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- Remove aap<=2.4 api endpoints and version detections in the filetree_create role
+
+Bugfixes
+--------
+
+- Change connection variables to AAP from 'controller_*' to 'aap_*' when exporting the 'inventory_sources'.
+- Fix the exported contents of survey's choices in workflow job templates to avoid to have the clause '!unsafe' inside the generated string.
+- Set the correct API URL for the controller applications endpoint
+- There was a format error in the output after each key occurence. The template has been fixed.
+- There was an indentation error in the output at the `inputs` and `injectors` sections. The template has been fixed.
+- There was an indentation error in the output at the `inputs` and `injectors` sections. The template has been fixed.
+
 v1.1.1
 ======
 

@@ -1,5 +1,5 @@
 ---
-aap_labels:
+controller_labels:
   - name: test
     organization: Default
   - name: Prod

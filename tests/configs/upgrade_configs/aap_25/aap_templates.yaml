@@ -1,5 +1,5 @@
 ---
-aap_templates:
+controller_templates:
   - name: Demo Job Template
     description: ""
     organization: Default

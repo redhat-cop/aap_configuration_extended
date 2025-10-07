@@ -1,5 +1,5 @@
 ---
-aap_hosts:
+controller_hosts:
   - name: localhost
     description: ""
     inventory: Demo Inventory

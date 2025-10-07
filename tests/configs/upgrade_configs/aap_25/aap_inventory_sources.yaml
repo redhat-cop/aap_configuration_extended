@@ -1,5 +1,5 @@
 ---
-aap_inventory_sources:
+controller_inventory_sources:
   - name: RHVM-01
     description: ""
     organization: Satellite

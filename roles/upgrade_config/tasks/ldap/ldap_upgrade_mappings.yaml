@@ -32,7 +32,7 @@
       role: "Team Member"
       organization: "{{ __current_map.value.organization }}"
       team: "{{ __current_map.key }}"
-      revoke: "{{ __current_map.value.remove | bool | lower }}"
+      revoke: "{{ __current_map.value.remove | default(false) | bool | lower }}"
       triggers:
         groups:
           has_and:
@@ -64,7 +64,9 @@
   loop_control:
     loop_var: __current_map
     index_var: __current_org_map_index
-  when: __current_map.value.admins | length > 0
+  when:
+    - __current_map.value.admins is defined
+    - __current_map.value.admins | length > 0
 
 - name: "Upgrade_config | LDAP mappings - Add the LDAP Organization Mappings (Members)"
   ansible.builtin.set_fact:
@@ -77,7 +79,7 @@
       role: "Organization Member"
       organization: "{{ __current_map.key }}"
       team: "{{ __current_map.key }}"
-      revoke: "{{ __current_map.value.remove_users | bool | lower }}"
+      revoke: "{{ __current_map.value.remove_users | default(false) | bool | lower }}"
       triggers:
         groups:
           has_and:
@@ -87,7 +89,9 @@
   loop_control:
     loop_var: __current_map
     index_var: __current_org_map_index
-  when: __current_map.value.users | length > 0
+  when:
+    - __current_map.value.users is defined
+    - __current_map.value.users | length > 0
 
 - name: "Upgrade_config | LDAP mappings - Write down the new data structure"
   ansible.builtin.template:

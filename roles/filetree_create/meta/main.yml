@@ -42,7 +42,7 @@ galaxy_info:
   #       Maximum 20 tags per role.
 
 collections:
-  - ansible.controller
+  - infra.aap_configuration
 
 dependencies:
   # List your role dependencies here, one per line. Be sure to remove the '[]' above,

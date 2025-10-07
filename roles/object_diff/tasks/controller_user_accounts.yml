@@ -1,0 +1,44 @@
+---
+- name: "Include tasks to check if user is a superuser"
+  ansible.builtin.include_tasks:
+    file: 'superuser_check.yml'
+
+- name: "Get all users from the API"
+  ansible.builtin.set_fact:
+    __controller_api_user_accounts: "{{ query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/users',
+                                              host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                              return_all=true, max_objects=query_controller_api_max_objects)
+                                     }}"
+  no_log: "{{ controller_configuration_object_diff_secure_logging }}"
+
+- name: "Populate user accounts (block)"
+  when: not drop_user_external_accounts
+  block:
+    - name: "Populate User Accounts list"
+      ansible.builtin.set_fact:
+        populate_controller_api_user_accounts_without_external_accounts: "{{ __controller_api_user_accounts | selectattr('external_account', 'none') | list }}"
+      no_log: "{{ controller_configuration_object_diff_secure_logging }}"
+
+    - name: "Set User Accounts from API without External Accounts Data Structure"
+      ansible.builtin.set_fact:
+        __controller_api_user_accounts: "{{ populate_controller_api_user_accounts_without_external_accounts }}"
+      no_log: "{{ controller_configuration_object_diff_secure_logging }}"
+      when: populate_controller_api_user_accounts_without_external_accounts is defined
+
+- name: "User account differences (block)"
+  when:
+    - __controller_api_current_user_check_is_admin.is_superuser
+  block:
+    - name: "Find the difference of User Accounts between what is on the Controller versus CasC on SCM"
+      ansible.builtin.set_fact:
+        __user_accounts_difference: "{{ query('infra.aap_configuration_extended.controller_object_diff',
+                                              api_list=__controller_api_user_accounts, compare_list=aap_user_accounts,
+                                              with_present=include_present_state, set_absent=true) | flatten
+                                     }}"
+      no_log: "{{ controller_configuration_object_diff_secure_logging }}"
+
+    - name: "Sets the difference of User Accounts between what is on the Controller versus CasC on SCM"
+      ansible.builtin.set_fact:
+        aap_user_accounts: "{{ __user_accounts_difference }}"
+      no_log: "{{ controller_configuration_object_diff_secure_logging }}"
+...

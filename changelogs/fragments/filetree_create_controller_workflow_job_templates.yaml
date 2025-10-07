@@ -1,4 +1,0 @@
----
-bugfixes:
-  - Fix the exported contents of survey's choices in workflow job templates to avoid to have the clause '!unsafe' inside the generated string.
-...

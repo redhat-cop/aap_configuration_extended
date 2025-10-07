@@ -1,0 +1,29 @@
+---
+variable_prefix:
+  aap:
+    - applications
+    - organizations
+    - teams
+    - user_accounts
+  gateway:
+    - authenticator_maps
+    - authenticators
+  controller:
+    - credential_input_sources
+    - credential_types
+    - credentials
+    - execution_environments
+    - groups
+    - hosts
+    - instance_groups
+    - instances
+    - inventories
+    - inventory_sources
+    - labels
+    - notifications
+    - projects
+    - roles
+    - schedules
+    - templates
+    - workflows
+...

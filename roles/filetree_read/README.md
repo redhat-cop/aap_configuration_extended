@@ -86,7 +86,6 @@ vault_aap_password: 'password'
 vault_aap_hostname: controller-dev.lab.example.com
 vault_controller_validate_certs: false
 ...
-
 ```
 
 ### Directory and Variables Data Structure
@@ -359,12 +358,10 @@ The role is designed to be used with tags, each tags correspond to an AWX or Aut
         status_code: 204
       when: aap_oauthtoken_url is defined
 ...
-
 ```
 
 ```bash
 ansible-playbook config-controller-filetree.yml --tags ${CONTROLLER_OBJECT} -e "{orgs: ${ORGANIZATION}, dir_orgs_vars: orgs_vars, env: ${ENVIRONMENT} }" --vault-password-file ./.vault_pass.txt -e @orgs_vars/env/${ENVIRONMENT}/configure_connection_controller_credentials.yml
-
 ```
 
 ## License

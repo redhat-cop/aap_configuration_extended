@@ -1,5 +1,5 @@
 ---
-aap_groups:
+controller_groups:
   - name: dummy_group
     description: ""
     inventory: Inventory_Dummy_1

@@ -1,0 +1,19 @@
+---
+hub_collections:
+{% set __excluded_fields = [] %}
+{% set __list_items = [] %}
+{% for current_collection in current_hub_collections_asset_value %}
+{%   for __map_item in (current_collection | dict2items) if __map_item.key not in __excluded_fields %}
+{%     if loop.index == 1 %}
+  - {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
+{%     else %}
+{%       if __map_item.key == 'resources' %}
+    {{ __map_item.key }}: |
+      {{ __map_item.value | default('""', true) | replace("\\'", "''") | indent(6) }}
+{%       else %}
+    {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
+{%       endif %}
+{%     endif %}
+{%-  endfor %}
+{% endfor %}
+...

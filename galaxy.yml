@@ -1,7 +1,7 @@
 ---
 namespace: infra
 name: aap_configuration_extended
-version: 1.1.1-devel
+version: 3.0.1-devel
 description: A collection of roles to extend functionality of aap_configuration collection
 readme: README.md
 authors:
@@ -30,9 +30,8 @@ tags:
   - automation_platform
   - infrastructure
 dependencies:
+  "ansible.controller": ">=4.6.0"
+  "ansible.hub": ">=1.0.0"
+  "ansible.platform": ">=2.5.0"
   "infra.aap_configuration": ">=3.4.0"
-  # - ansible.platform: ">=2.5.0"
-  # - ansible.hub: ">=1.0.0"
-  # - ansible.controller: ">=4.6.0"
-  # - ansible.eda: ">=2.5.0"
 ...

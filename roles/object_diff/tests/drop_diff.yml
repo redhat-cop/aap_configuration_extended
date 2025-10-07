@@ -7,7 +7,7 @@
     aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
     aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
     aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
-    controller_validate_certs: "{{ vault_controller_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
+    aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
 
   pre_tasks:
     - name: "Setup authentication (block)"
@@ -23,7 +23,7 @@
             password: "{{ aap_password }}"
             method: POST
             force_basic_auth: true
-            validate_certs: "{{ controller_validate_certs }}"
+            validate_certs: "{{ aap_validate_certs }}"
             status_code: 201
           register: authtoken_res
 
@@ -38,19 +38,19 @@
     - role: infra.aap_configuration.dispatch
       vars:
         controller_configuration_dispatcher_roles:
-          - {role: workflow_job_templates, var: controller_workflows, tags: workflow_job_templates}
-          - {role: job_templates, var: controller_templates, tags: job_templates}
-          - {role: roles, var: controller_roles, tags: roles}
-          - {role: teams, var: aap_teams, tags: teams}
-          - {role: users, var: aap_user_accounts, tags: users}
-          - {role: groups, var: controller_groups, tags: inventories}
-          - {role: hosts, var: controller_hosts, tags: hosts}
-          - {role: inventory_sources, var: controller_inventory_sources, tags: inventory_sources}
-          - {role: inventories, var: controller_inventories, tags: inventories}
-          - {role: projects, var: controller_projects, tags: projects}
-          - {role: credentials, var: controller_credentials, tags: credentials}
-          - {role: credential_types, var: controller_credential_types, tags: credential_types}
-          - {role: organizations, var: aap_organizations, tags: organizations}
+          - {role: controller_workflow_job_templates, var: controller_workflows, tags: controller_workflow_job_templates}
+          - {role: controller_job_templates, var: controller_templates, tags: controller_job_templates}
+          - {role: controller_roles, var: controller_roles, tags: controller_roles}
+          - {role: controller_teams, var: aap_teams, tags: controller_teams}
+          - {role: controller_users, var: aap_user_accounts, tags: controller_users}
+          - {role: controller_host_groups, var: controller_groups, tags: controller_host_groups}
+          - {role: controller_hosts, var: controller_hosts, tags: controller_hosts}
+          - {role: controller_inventory_sources, var: controller_inventory_sources, tags: controller_inventory_sources}
+          - {role: controller_inventories, var: controller_inventories, tags: controller_inventories}
+          - {role: controller_projects, var: controller_projects, tags: controller_projects}
+          - {role: controller_credentials, var: controller_credentials, tags: controller_credentials}
+          - {role: controller_credential_types, var: controller_credential_types, tags: controller_credential_types}
+          - {role: controller_organizations, var: aap_organizations, tags: controller_organizations}
 
   post_tasks:
     - name: "Delete the Authentication Token used"
@@ -60,7 +60,7 @@
         password: "{{ aap_password }}"
         method: DELETE
         force_basic_auth: true
-        validate_certs: "{{ controller_validate_certs }}"
+        validate_certs: "{{ aap_validate_certs }}"
         status_code: 204
       when: aap_oauthtoken_url is defined
       tags:

@@ -1,5 +1,5 @@
 ---
-aap_projects:
+controller_projects:
   - name: Demo Project
     description: ""
     organization: Default

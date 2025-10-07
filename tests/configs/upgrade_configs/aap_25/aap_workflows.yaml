@@ -1,5 +1,5 @@
 ---
-aap_workflows:
+controller_workflows:
   - name: Default Workflow
     description: !unsafe default workflow
     organization: Default

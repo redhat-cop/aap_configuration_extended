@@ -1,5 +1,5 @@
 ---
-aap_execution_environments:
+controller_execution_environments:
   - name: Minimal execution environment
     description: ""
     image: registry.redhat.io/ansible-automation-platform-24/ee-minimal-rhel8:latest

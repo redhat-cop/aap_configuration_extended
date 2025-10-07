@@ -1,0 +1,30 @@
+---
+- name: Get the organization ID
+  ansible.builtin.set_fact:
+    __controller_organization_id: "{{ lookup('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations',
+                                             query_params={'name': orgs},
+                                             host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)
+                                   }}"
+  no_log: "{{ controller_configuration_object_diff_secure_logging }}"
+
+- name: "Get the API list of all Inventory Sources"
+  ansible.builtin.set_fact:
+    __controller_api_inventory_sources: "{{ query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/inventory_sources',
+                                                  query_params={'organization': __controller_organization_id.id},
+                                                  host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                                  return_all=true, max_objects=query_controller_api_max_objects)
+                                         }}"
+  no_log: "{{ controller_configuration_object_diff_secure_logging }}"
+
+- name: "Find the difference of Inventory Sources between what is on the Controller versus CasC on SCM"
+  ansible.builtin.set_fact:
+    __inventory_sources_difference: "{{ query('infra.aap_configuration_extended.controller_object_diff',
+                                              api_list=__controller_api_inventory_sources,
+                                              compare_list=controller_inventory_sources,
+                                              with_present=include_present_state, set_absent=true) | flatten
+                                     }}"
+
+- name: "Set inventory_sources' list to be configured"
+  ansible.builtin.set_fact:
+    controller_inventory_sources: "{{ __inventory_sources_difference }}"
+...
