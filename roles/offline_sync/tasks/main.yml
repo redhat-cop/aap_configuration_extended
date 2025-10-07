@@ -14,7 +14,7 @@
   when: (not r_ansible_cfg['stat']['exists']) and (hub_token is not defined or hub_token['token'] is defined)
   block:
     - name: Authenticate and get an API token from Automation Hub
-      ansible.hub.hub_token:
+      ansible.hub.ah_token:
         ah_host: "{{ aap_hostname | default(hub_host) }}"
         ah_username: "{{ hub_username }}"
         ah_password: "{{ hub_password }}"
@@ -24,7 +24,7 @@
 
     - name: Fixing format
       ansible.builtin.set_fact:
-        hub_token: "{{ hub_token['token'] }}"
+        hub_token: "{{ ah_token['token'] }}"
       when: r_hub_token['changed']  # noqa: no-handler
 
 - name: Create ansible.cfg
@@ -36,7 +36,7 @@
 
 - name: Get list of all collections
   ansible.builtin.uri:
-    url: "https://{{ aap_hostname | default(hub_host) }}{{ '/api/galaxy/pulp/api/v3/ansible/collections/?limit=1000' if aap_version > 2.4 else '/api/galaxy/pulp/api/v3/ansible/collections/?limit=1000' }}"
+    url: "https://{{ aap_hostname | default(hub_host) }}/api/galaxy/pulp/api/v3/ansible/collections/?limit=1000"
     user: "{{ hub_username }}"
     password: "{{ hub_password }}"
     method: GET

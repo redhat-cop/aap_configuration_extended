@@ -2,7 +2,6 @@
 server_list = rh-certified,validated,community,published
 ignore_certs = {% if ah_validate_certs %}false{% else %}true{% endif %}
 
-{% if aap_version > 2.4 %}
 [galaxy_server.rh-certified]
 url=https://{{ aap_hostname | default(hub_host) }}/pulp_ansible/galaxy/rh-certified/
 token={{ hub_token }}
@@ -18,20 +17,3 @@ token={{ hub_token }}
 [galaxy_server.published]
 url=https://{{ aap_hostname | default(hub_host) }}/pulp_ansible/galaxy/published/
 token={{ hub_token }}
-{% else %}
-[galaxy_server.rh-certified]
-url=https://{{ aap_hostname | default(hub_host) }}/api/galaxy/content/rh-certified/
-token={{ hub_token }}
-
-[galaxy_server.validated]
-url=https://{{ aap_hostname | default(hub_host) }}/api/galaxy/content/validated/
-token={{ hub_token }}
-
-[galaxy_server.community]
-url=https://{{ aap_hostname | default(hub_host) }}/api/galaxy/content/community/
-token={{ hub_token }}
-
-[galaxy_server.published]
-url=https://{{ aap_hostname | default(hub_host) }}/api/galaxy/content/published/
-token={{ hub_token }}
-{% endif %}
