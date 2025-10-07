@@ -4,7 +4,7 @@ argument_specs:
     short_description: An Ansible Role to offline sync collections in Automation Hub.
     options:
       hub_configuration_working_dir:
-        default: /var/tmp/phub_offline_sync
+        default: /var/tmp/hub_offline_sync
         type: str
         required: false
         description: The working directory where the collections will be downloaded and any required files.

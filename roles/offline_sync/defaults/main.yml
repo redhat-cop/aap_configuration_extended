@@ -6,7 +6,7 @@
 # aap_oauthtoken: ""
 # aap_validate_certs: false
 
-hub_configuration_working_dir: /var/tmp/phub_offline_sync
+hub_configuration_working_dir: /var/tmp/hub_offline_sync
 hub_configuration_no_deps: false
 # hub_overwrite_existing: false
 

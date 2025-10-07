@@ -36,7 +36,7 @@ This also speeds up the overall role.
 
 |Variable Name|Default Value|Required|Type|Description|
 |:---:|:---:|:---:|:---:|:---:|
-|`hub_configuration_working_dir`|`/var/tmp/phub_offline_sync`|no|string|The working directory where the collections will be downloaded and any required files.|
+|`hub_configuration_working_dir`|`/var/tmp/hub_offline_sync`|no|string|The working directory where the collections will be downloaded and any required files.|
 |`hub_configuration_no_deps`|false|no|bool|Whether to download all dependencies for each collection or not, if false it may cause errors if dependency sync is off in Automation Hub.|
 
 ## Playbook Examples
