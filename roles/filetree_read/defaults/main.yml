@@ -55,7 +55,7 @@ filetree_controller_roles: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller
 # filetree_read tasks order and name
 controller_configuration_filetree_read_tasks:
   - {name: controller_settings, var: controller_settings, tags: settings}
-  - {name: gateway_organizationsc, var: aap_organizations, tags: organizations}
+  - {name: gateway_organizations, var: aap_organizations, tags: organizations}
   - {name: controller_labels, var: controller_labels, tags: labels}
   - {name: gateway_users, var: aap_user_accounts, tags: users}
   - {name: gateway_teams, var: aap_teams, tags: teams}
