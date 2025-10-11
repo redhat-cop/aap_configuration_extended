@@ -193,11 +193,10 @@ controller_workflows:
 {%           if survey_item_content.key is match('choices') and survey_item_content.value[0] is defined %}
           {{ survey_item_content.key }}:
 {%             for choice in survey_item_content.value if ((survey_item_content.value | string | length) > 0 and (survey_item_content.value | string) is not match('None')) %}
-{%                 if choice is number %}
+{%               if choice is number %}
             - {{ choice }}
-{%                 else %}
+{%               else %}
             - !unsafe "{{ choice | regex_replace("\n", "\\\\n", multiline=true) | regex_replace('"', '\\"', multiline=true) }}"
-{%                 endif %}
 {%               endif %}
 {%             endfor %}
 {%           endif %}
