@@ -1,0 +1,32 @@
+---
+- name: "Get list of files inside {{ filetree_gateway_http_ports }}"
+  ansible.builtin.find:
+    paths: "{{ filetree_gateway_http_ports }}"
+    file_type: file
+    patterns: "{{ filetree_controller_include | default(omit) }}"
+    excludes: "{{ filetree_controller_exclude | default(omit) }}"
+    use_regex: "{{ filetree_controller_regex | default(false) }}"
+    recurse: true
+  register: __list_files_gateway_http_ports
+
+- name: "Read HTTP Ports definitions"
+  ansible.builtin.include_vars:
+    file: "{{ __read_http_ports_definitions_item.path }}"
+  loop: "{{ __list_files_gateway_http_ports.files }}"
+  loop_control:
+    loop_var: __read_http_ports_definitions_item
+  register: __contents_filetree_gateway_http_ports
+  failed_when: "'VARIABLE IS NOT DEFINED' in __contents_filetree_gateway_http_ports"
+
+- name: "Set HTTP Ports Data Structure"
+  ansible.builtin.set_fact:
+    gateway_http_ports: >-
+      {{
+        __contents_filetree_gateway_http_ports.results |
+        rejectattr('ansible_facts.gateway_http_ports', 'undefined') |
+        map(attribute='ansible_facts.gateway_http_ports') |
+        ansible.builtin.flatten
+      }}
+  no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
+  when: __contents_filetree_gateway_http_ports.results
+...

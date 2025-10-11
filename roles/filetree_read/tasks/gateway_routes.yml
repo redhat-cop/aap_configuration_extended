@@ -1,0 +1,32 @@
+---
+- name: "Get list of files inside {{ filetree_gateway_routes }}"
+  ansible.builtin.find:
+    paths: "{{ filetree_gateway_routes }}"
+    file_type: file
+    patterns: "{{ filetree_controller_include | default(omit) }}"
+    excludes: "{{ filetree_controller_exclude | default(omit) }}"
+    use_regex: "{{ filetree_controller_regex | default(false) }}"
+    recurse: true
+  register: __list_files_gateway_routes
+
+- name: "Read Routes definitions"
+  ansible.builtin.include_vars:
+    file: "{{ __read_routes_definitions_item.path }}"
+  loop: "{{ __list_files_gateway_routes.files }}"
+  loop_control:
+    loop_var: __read_routes_definitions_item
+  register: __contents_filetree_gateway_routes
+  failed_when: "'VARIABLE IS NOT DEFINED' in __contents_filetree_gateway_routes"
+
+- name: "Set Routes Data Structure"
+  ansible.builtin.set_fact:
+    gateway_routes: >-
+      {{
+        __contents_filetree_gateway_routes.results |
+        rejectattr('ansible_facts.gateway_routes', 'undefined') |
+        map(attribute='ansible_facts.gateway_routes') |
+        ansible.builtin.flatten
+      }}
+  no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
+  when: __contents_filetree_gateway_routes.results
+...
