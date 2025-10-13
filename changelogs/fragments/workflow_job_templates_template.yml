@@ -1,0 +1,3 @@
+bugfixes:
+  - Fix default value for webhook_service in workflow job templates
+  - Fix verbosity key in workflow job templates
