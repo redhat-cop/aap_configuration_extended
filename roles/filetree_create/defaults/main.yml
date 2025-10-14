@@ -20,6 +20,32 @@ controller_workflows: []
 # Output directory path
 output_path: "/tmp/filetree_output"
 
+# Gateway - Non-Flat Folder Names
+filetree_create_aap_applications: "aap_applications.d"
+
+# Controller - Non-Flat Folder Names
+filetree_create_controller_applications: "controller_applications.d"
+filetree_create_controller_labels: "controller_labels.d"
+filetree_create_controller_credentials: "controller_credentials.d"
+filetree_create_controller_credential_input_sources: "controller_credential_input_sources.d"
+filetree_create_controller_notifications: "controller_notification_templates.d"
+filetree_create_controller_projects: "controller_projects.d"
+filetree_create_controller_inventories: "controller_inventories.d"
+filetree_create_controller_inventory_sources: "controller_inventory_sources.d"
+filetree_create_controller_hosts: "controller_hosts.d"
+filetree_create_controller_groups: "controller_groups.d"
+filetree_create_controller_templates: "controller_job_templates.d"
+filetree_create_controller_workflow_job_templates: "controller_workflow_job_templates.d"
+filetree_create_controller_schedules: "controller_schedules.d"
+filetree_create_controller_user_accounts: "controller_users.d"
+filetree_create_controller_teams: "controller_teams.d"
+filetree_create_controller_user_roles: "controller_roles.d/user_roles.d"
+filetree_create_controller_team_roles: "controller_roles.d/team_roles.d"
+
+# EDA - Non-Flat Folder Names
+filetree_create_eda_projects: "eda_projects.d"
+filetree_create_eda_rulebook_activations: "eda_rulebook_activations.d"
+
 # Maximum number of objects to return from the list. If a list view returns more an max_objects an exception will be raised
 query_controller_api_max_objects: 10000
 query_gateway_api_max_objects: 10000
