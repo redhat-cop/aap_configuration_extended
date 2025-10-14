@@ -29,7 +29,7 @@ controller_workflows:
                           return_all=true, max_objects=query_controller_api_max_objects) %}
 {%     if jt_var | length > 0 %}
 {%       if jt_var[0]['ask_verbosity_on_launch'] %}
-        verbosity = "{{ jt_var[0]['verbosity'] }}"
+        verbosity: "{{ jt_var[0]['verbosity'] }}"
 {%       endif %}
 {%     endif %}
 {%   endif %}
@@ -102,7 +102,7 @@ controller_workflows:
     ask_inventory_on_launch: {{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].ask_inventory_on_launch
                                 | default(template_overrides_global.workflow_job_template.ask_inventory_on_launch)
                                 | default(current_workflow_job_templates_asset_value.ask_inventory_on_launch | bool | lower) }}
-    webhook_service: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].description
+    webhook_service: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].webhook_service
                          | default(template_overrides_global.workflow_template.webhook_service)
                          | default(current_workflow_job_templates_asset_value.webhook_service) }}"
 {% if template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].extra_vars is defined
