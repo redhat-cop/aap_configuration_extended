@@ -67,12 +67,13 @@
     - name: "Block for to generate the filetree_create normal output"
       when: flatten_output is not defined or not (flatten_output | bool)
       block:
-        - name: "Create the <ORGANIZATION_NAME>/{{ filetree_create_eda_rulebook_activations }} output directory for rulebook_activations in {{ output_path }}"
+        - name: "Create the <ORGANIZATION_NAME>/{{ __task_name_append }}"
           ansible.builtin.file:
             path: "{{ __path }}"
             state: directory
             mode: '0755'
           vars:
+            __task_name_append: "{{ filetree_create_eda_rulebook_activations }} output directory for rulebook_activations in {{ output_path }}"
             __path: "{{ output_path }}/{{ needed_path | regex_replace('/', '_') }}/{{ filetree_create_eda_rulebook_activations }}"
           loop: "{{ (rulebook_activations_lookvar | selectattr('organization_id', 'defined') |
                     map(attribute='organization_id') | list | flatten | unique) +
@@ -82,12 +83,13 @@
             loop_var: needed_path
             label: "{{ __path }}"
 
-        - name: "Add current rulebook_activations to the <ORGANIZATION_NAME>/{{ filetree_create_eda_rulebook_activations }} output file in {{ output_path }}"
+        - name: "Add current rulebook_activations to the <ORGANIZATION_NAME>/{{ __task_name_append }}"
           ansible.builtin.template:
             src: "templates/eda_rulebook_activations.j2"
             dest: "{{ __dest }}"
             mode: '0644'
           vars:
+            __task_name_append: "{{ filetree_create_eda_rulebook_activations }} output file in {{ output_path }}"
             rulebook_activation_organization: "{{ current_rulebook_activations_asset_value.organization_id | default(organization, true) }}"
             rulebook_activation_id: "{{ current_rulebook_activations_asset_value.id }}"
             rulebook_activation_name: "{{ current_rulebook_activations_asset_value.name | regex_replace('/', '_') }}"

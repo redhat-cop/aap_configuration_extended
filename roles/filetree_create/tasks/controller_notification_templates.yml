@@ -43,12 +43,13 @@
 - name: "Block for to generate the filetree_create normal output"
   when: flatten_output is not defined or not (flatten_output | bool)
   block:
-    - name: "Create the <ORGANIZATION_NAME>/{{ filetree_create_controller_notifications }} output directory for notification templates in {{ output_path }}"
+    - name: "Create the <ORGANIZATION_NAME>/{{ __task_name_append }}"
       ansible.builtin.file:
         path: "{{ __path }}"
         state: directory
         mode: '0755'
       vars:
+        __task_name_append: "{{ filetree_create_controller_notifications }} output directory for notification templates in {{ output_path }}"
         __path: "{{ output_path }}/{{ needed_path | regex_replace('/', '_') }}/{{ filetree_create_controller_notifications }}"
       loop: "{{ (notification_templates_lookvar | map(attribute='summary_fields') | selectattr('organization', 'defined') |
                 map(attribute='organization') | map(attribute='name') | list | flatten | unique) +

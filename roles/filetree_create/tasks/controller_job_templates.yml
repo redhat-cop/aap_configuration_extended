@@ -81,12 +81,13 @@
 - name: "Block for to generate the filetree_create normal output"
   when: flatten_output is not defined or not (flatten_output | bool)
   block:
-    - name: "Create the <ORGANIZATION_NAME>/{{ filetree_create_controller_templates }} output directories for job templates in {{ output_path }}"
+    - name: "Create the <ORGANIZATION_NAME>/{{ __task_name_append }}"
       ansible.builtin.file:
         path: "{{ __path }}"
         state: directory
         mode: '0755'
       vars:
+        __task_name_append: "{{ filetree_create_controller_templates }} output directories for job templates in {{ output_path }}"
         __path: "{{ output_path }}/{{ needed_path | regex_replace('/', '_') }}/{{ filetree_create_controller_templates }}"
       loop: "{{ (job_templates_lookvar | map(attribute='summary_fields') | selectattr('organization', 'defined') |
                 map(attribute='organization') | map(attribute='name') | list | flatten | unique) +
@@ -97,12 +98,13 @@
         loop_var: needed_path
         label: "{{ __path }}"
 
-    - name: "Add current job_templates to the <ORGANIZATION_NAME>/{{ filetree_create_controller_templates }} output file in {{ output_path }}"
+    - name: "Add current job_templates to the <ORGANIZATION_NAME>/{{ __task_name_append }}"
       ansible.builtin.template:
         src: "templates/controller_job_templates.j2"
         dest: "{{ __dest }}"
         mode: '0644'
       vars:
+        __task_name_append: "{{ filetree_create_controller_templates }} output file in {{ output_path }}"
         job_template_organization: "{{ current_job_templates_asset_value.summary_fields.organization.name | default(organization) }}"
         job_template_id: "{{ current_job_templates_asset_value.id }}"
         job_template_name: "{{ current_job_templates_asset_value.name | regex_replace('/', '_') }}"
