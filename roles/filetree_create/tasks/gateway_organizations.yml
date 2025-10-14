@@ -11,17 +11,22 @@
       order_by: 'id'
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
-- name: "Create the output directory for gateway organizations: {{ output_path }}"
-  ansible.builtin.file:
-    path: "{{ output_path }}"
-    state: directory
-    mode: '0755'
+- name: "Run only if there's any Organization to write down"
+  when:
+    - gateway_organizations_lookvar | length > 0
+    - gateway_organizations_lookvar | first | length > 0
+  block:
+    - name: "Create the output directory for gateway organizations: {{ output_path }}"
+      ansible.builtin.file:
+        path: "{{ output_path }}"
+        state: directory
+        mode: '0755'
 
-- name: "Add current gateway organization to the gateway_organizations.yaml output file in {{ output_path }}"
-  ansible.builtin.template:
-    src: "templates/gateway_organizations.j2"
-    dest: "{{ output_path }}/gateway_organizations.yaml"
-    mode: '0644'
-  vars:
-    current_gateway_organizations_asset_value: "{{ gateway_organizations_lookvar }}"
+    - name: "Add current gateway organization to the gateway_organizations.yaml output file in {{ output_path }}"
+      ansible.builtin.template:
+        src: "templates/gateway_organizations.j2"
+        dest: "{{ output_path }}/gateway_organizations.yaml"
+        mode: '0644'
+      vars:
+        current_gateway_organizations_asset_value: "{{ gateway_organizations_lookvar }}"
 ...

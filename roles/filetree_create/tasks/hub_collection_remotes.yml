@@ -9,17 +9,22 @@
                                      }}"
   no_log: "{{ hub_configuration_filetree_create_secure_logging }}"
 
-- name: "Create the output directory for hub collection_remotes: {{ output_path }}"
-  ansible.builtin.file:
-    path: "{{ output_path }}"
-    state: directory
-    mode: '0755'
+- name: "Run only if there's any Collection Remote to write down"
+  when:
+    - hub_collection_remotes_lookvar | length > 0
+    - hub_collection_remotes_lookvar | first | length > 0
+  block:
+    - name: "Create the output directory for hub collection_remotes: {{ output_path }}"
+      ansible.builtin.file:
+        path: "{{ output_path }}"
+        state: directory
+        mode: '0755'
 
-- name: "Add current hub collection_remotes to the hub_collection_remotes.yaml output file in {{ output_path }}"
-  ansible.builtin.template:
-    src: "templates/hub_collection_remotes.j2"
-    dest: "{{ output_path }}/hub_collection_remotes.yaml"
-    mode: '0644'
-  vars:
-    current_hub_collection_remotes_asset_value: "{{ hub_collection_remotes_lookvar }}"
+    - name: "Add current hub collection_remotes to the hub_collection_remotes.yaml output file in {{ output_path }}"
+      ansible.builtin.template:
+        src: "templates/hub_collection_remotes.j2"
+        dest: "{{ output_path }}/hub_collection_remotes.yaml"
+        mode: '0644'
+      vars:
+        current_hub_collection_remotes_asset_value: "{{ hub_collection_remotes_lookvar }}"
 ...
