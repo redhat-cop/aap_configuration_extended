@@ -25,7 +25,7 @@
         __contents_filetree_gateway_settings.results |
         rejectattr('ansible_facts.gateway_settings', 'undefined') |
         map(attribute='ansible_facts.gateway_settings') |
-        ansible.builtin.flatten
+        combine
       }}
   no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
   when: __contents_filetree_gateway_settings.results
