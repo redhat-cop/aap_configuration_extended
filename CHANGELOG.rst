@@ -4,6 +4,17 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v3.0.2
+======
+
+Bugfixes
+--------
+
+- Fix default value for webhook_service in workflow job templates
+- Fix verbosity key in workflow job templates
+- Upgraded offline_sync to work with AAP 2.5+
+- upgrade_config fix the names of the variables in the generated files
+
 v3.0.1
 ======
 
