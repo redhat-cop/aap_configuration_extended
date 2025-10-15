@@ -82,8 +82,8 @@ filetree_controller_roles: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller
 # filetree_read tasks order and name
 controller_configuration_filetree_read_tasks:
   # Gateway tasks
-  - {name: gateway_authenticators, var: gateway_authenticators, tags: authenticator_maps}
-  - {name: gateway_authenticator_maps, var: gateway_authenticator_maps, tags: authenticators}
+  - {name: gateway_authenticators, var: gateway_authenticators, tags: authenticators}
+  - {name: gateway_authenticator_maps, var: gateway_authenticator_maps, tags: authenticator_maps}
   - {name: gateway_settings, var: gateway_settings, tags: settings}
   - {name: gateway_organizations, var: aap_organizations, tags: organizations}
   - {name: gateway_applications, var: aap_applications, tags: applications}
