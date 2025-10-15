@@ -63,20 +63,20 @@
         line: ''
         state: absent
 
-- name: "Block for to generate the filetre_create normal output"
+- name: "Block for to generate the filetree_create normal output"
   when:
     - flatten_output is not defined or not (flatten_output | bool)
   block:
     - name: "Create the output directory for controller_team roles: {{ output_path }}"
       ansible.builtin.file:
-        path: "{{ output_path }}/controller_team_roles"
+        path: "{{ output_path }}/{{ filetree_create_controller_team_roles }}"
         state: directory
         mode: '0755'
 
     - name: "Add current roles to the output yaml file"
       ansible.builtin.template:
         src: "templates/controller_team_roles.j2"
-        dest: "{{ output_path }}/controller_team_roles/controller_roles_{{ team_name | regex_replace('/', '_') }}.yaml"
+        dest: "{{ output_path }}/{{ filetree_create_controller_team_roles }}/{{ team_name | regex_replace('/', '_') }}.yaml"
         mode: '0644'
       when: object_roles | length > 0
 ...

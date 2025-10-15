@@ -36,7 +36,7 @@
         line: ''
         state: absent
 
-- name: "Block for to generate the filetre_create normal output"
+- name: "Block for to generate the filetree_create normal output"
   when: flatten_output is not defined or not (flatten_output | bool)
   block:
     - name: "Create the output directory for inventory sources: {{ inventory_sources_output_path }}"

@@ -54,16 +54,17 @@
         line: ''
         state: absent
 
-- name: "Block for to generate the filetre_create normal output"
+- name: "Block for to generate the filetree_create normal output"
   when: flatten_output is not defined or not (flatten_output | bool)
   block:
-    - name: "Create the <ORGANIZATION_NAME>/controller_projects output directory for projects in {{ output_path }}"
+    - name: "Create the <ORGANIZATION_NAME>/{{ __task_name_append }}"
       ansible.builtin.file:
         path: "{{ __path }}"
         state: directory
         mode: '0755'
       vars:
-        __path: "{{ output_path }}/{{ needed_path | regex_replace('/', '_') }}/controller_projects"
+        __task_name_append: "{{ filetree_create_controller_projects }} output directory for projects in {{ output_path }}"
+        __path: "{{ output_path }}/{{ needed_path | regex_replace('/', '_') }}/{{ filetree_create_controller_projects }}"
       loop: "{{ (projects_lookvar | map(attribute='summary_fields') | selectattr('organization', 'defined') |
                 map(attribute='organization') | map(attribute='name') | list | flatten | unique) +
                 ([organization] if ((projects_lookvar | map(attribute='summary_fields') |
@@ -73,16 +74,17 @@
         loop_var: needed_path
         label: "{{ __path }}"
 
-    - name: "Add current projects to the <ORGANIZATION_NAME>/controller_projects output file in {{ output_path }}"
+    - name: "Add current projects to the <ORGANIZATION_NAME>/{{ __task_name_append }}"
       ansible.builtin.template:
         src: "templates/controller_projects.j2"
         dest: "{{ __dest }}"
         mode: '0644'
       vars:
+        __task_name_append: "{{ filetree_create_controller_projects }} output file in {{ output_path }}"
         project_organization: "{{ current_projects_asset_value.summary_fields.organization.name | default(organization, true) }}"
         project_id: "{{ current_projects_asset_value.id }}"
         project_name: "{{ current_projects_asset_value.name | regex_replace('/', '_') }}"
-        __dest: "{{ output_path }}/{{ project_organization | regex_replace('/', '_') }}/controller_projects/{{ (project_id ~ '_') if omit_id is not defined else '' }}{{ project_name | regex_replace('/', '_') }}.yaml"
+        __dest: "{{ output_path }}/{{ project_organization | regex_replace('/', '_') }}/{{ filetree_create_controller_projects }}/{{ (project_id ~ '_') if omit_id is not defined else '' }}{{ project_name | regex_replace('/', '_') }}.yaml"
         query_notification_error: "{{ query('ansible.platform.gateway_api', current_projects_asset_value.related.notification_templates_error,
                          host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
