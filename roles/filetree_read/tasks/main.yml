@@ -15,8 +15,8 @@
     gateway_services: []
     aap_teams: []
     aap_user_accounts: []
-    gateway_role_definitions: []
-    gateway_role_team_assignments: []
+    # gateway_role_definitions: []
+    # gateway_role_team_assignments: []
     gateway_role_user_assignments: []
     gateway_routes: []
 
