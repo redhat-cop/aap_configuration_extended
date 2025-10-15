@@ -15,6 +15,7 @@
     gateway_services: []
     aap_teams: []
     aap_user_accounts: []
+    # these two vars can't be init for ansible.platform <2.6
     # gateway_role_definitions: []
     # gateway_role_team_assignments: []
     gateway_role_user_assignments: []
