@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - Added missing `gateway_*` var/yaml file reading tasks to `filetree_read`
+...

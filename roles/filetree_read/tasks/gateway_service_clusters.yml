@@ -1,0 +1,32 @@
+---
+- name: "Get list of files inside {{ filetree_gateway_service_clusters }}"
+  ansible.builtin.find:
+    paths: "{{ filetree_gateway_service_clusters }}"
+    file_type: file
+    patterns: "{{ filetree_controller_include | default(omit) }}"
+    excludes: "{{ filetree_controller_exclude | default(omit) }}"
+    use_regex: "{{ filetree_controller_regex | default(false) }}"
+    recurse: true
+  register: __list_files_gateway_service_clusters
+
+- name: "Read Service Clusters definitions"
+  ansible.builtin.include_vars:
+    file: "{{ __read_service_clusters_definitions_item.path }}"
+  loop: "{{ __list_files_gateway_service_clusters.files }}"
+  loop_control:
+    loop_var: __read_service_clusters_definitions_item
+  register: __contents_filetree_gateway_service_clusters
+  failed_when: "'VARIABLE IS NOT DEFINED' in __contents_filetree_gateway_service_clusters"
+
+- name: "Set Service Clusters Data Structure"
+  ansible.builtin.set_fact:
+    gateway_service_clusters: >-
+      {{
+        __contents_filetree_gateway_service_clusters.results |
+        rejectattr('ansible_facts.gateway_service_clusters', 'undefined') |
+        map(attribute='ansible_facts.gateway_service_clusters') |
+        ansible.builtin.flatten
+      }}
+  no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
+  when: __contents_filetree_gateway_service_clusters.results
+...
