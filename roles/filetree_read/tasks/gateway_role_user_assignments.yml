@@ -1,0 +1,32 @@
+---
+- name: "Get list of files inside {{ filetree_gateway_role_user_assignments }}"
+  ansible.builtin.find:
+    paths: "{{ filetree_gateway_role_user_assignments }}"
+    file_type: file
+    patterns: "{{ filetree_controller_include | default(omit) }}"
+    excludes: "{{ filetree_controller_exclude | default(omit) }}"
+    use_regex: "{{ filetree_controller_regex | default(false) }}"
+    recurse: true
+  register: __list_files_gateway_role_user_assignments
+
+- name: "Read Role User Assignments definitions"
+  ansible.builtin.include_vars:
+    file: "{{ __read_role_user_assignments_definitions_item.path }}"
+  loop: "{{ __list_files_gateway_role_user_assignments.files }}"
+  loop_control:
+    loop_var: __read_role_user_assignments_definitions_item
+  register: __contents_filetree_gateway_role_user_assignments
+  failed_when: "'VARIABLE IS NOT DEFINED' in __contents_filetree_gateway_role_user_assignments"
+
+- name: "Set Role User Assignments Data Structure"
+  ansible.builtin.set_fact:
+    gateway_role_user_assignments: >-
+      {{
+        __contents_filetree_gateway_role_user_assignments.results |
+        rejectattr('ansible_facts.gateway_role_user_assignments', 'undefined') |
+        map(attribute='ansible_facts.gateway_role_user_assignments') |
+        ansible.builtin.flatten
+      }}
+  no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
+  when: __contents_filetree_gateway_role_user_assignments.results
+...

@@ -43,16 +43,17 @@
         line: ''
         state: absent
 
-- name: "Block for to generate the filetre_create normal output"
+- name: "Block for to generate the filetree_create normal output"
   when: flatten_output is not defined or not (flatten_output | bool)
   block:
-    - name: "Create the <ORGANIZATION_NAME>/controller_labels output directory for labels in {{ output_path }}"
+    - name: "Create the <ORGANIZATION_NAME>/{{ __task_name_append }}"
       ansible.builtin.file:
         path: "{{ __path }}"
         state: directory
         mode: '0755'
       vars:
-        __path: "{{ output_path }}/{{ needed_path | regex_replace('/', '_') }}/controller_labels"
+        __task_name_append: "{{ filetree_create_controller_labels }} output directory for labels in {{ output_path }}"
+        __path: "{{ output_path }}/{{ needed_path | regex_replace('/', '_') }}/{{ filetree_create_controller_labels }}"
       loop: "{{ (labels_lookvar | map(attribute='summary_fields') | selectattr('organization', 'defined') | map(attribute='organization') | map(attribute='name') | list | flatten | unique)
                 + ([organization] if ((labels_lookvar | map(attribute='summary_fields') | selectattr('organization', 'undefined') | list | flatten) | length > 0) else [])
              }}"
@@ -60,16 +61,17 @@
         loop_var: needed_path
         label: "{{ __path }}"
 
-    - name: "Add current labels to the <ORGANIZATION_NAME>/controller_labels output file in {{ output_path }}"
+    - name: "Add current labels to the <ORGANIZATION_NAME>/{{ __task_name_append }}"
       ansible.builtin.template:
         src: "templates/controller_labels.j2"
         dest: "{{ __dest }}"
         mode: '0644'
       vars:
+        __task_name_append: "{{ filetree_create_controller_labels }} output file in {{ output_path }}"
         label_organization: "{{ current_labels_asset_value.summary_fields.organization.name | default(organization, true) }}"
         label_id: "{{ current_labels_asset_value.id }}"
         label_name: "{{ current_labels_asset_value.name | regex_replace('/', '_') }}"
-        __dest: "{{ output_path }}/{{ label_organization | regex_replace('/', '_') }}/controller_labels/{{ (label_id ~ '_') if omit_id is not defined else '' }}{{ label_name | regex_replace('/', '_') }}.yaml"
+        __dest: "{{ output_path }}/{{ label_organization | regex_replace('/', '_') }}/{{ filetree_create_controller_labels }}/{{ (label_id ~ '_') if omit_id is not defined else '' }}{{ label_name | regex_replace('/', '_') }}.yaml"
       loop: "{{ labels_lookvar }}"
       loop_control:
         loop_var: current_labels_asset_value

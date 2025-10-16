@@ -5,20 +5,34 @@
 env: dev
 controller_configuration_filetree_read_secure_logging: "{{ controller_configuration_secure_logging | default(true) }}"
 
-# Controller lists
-
-controller_settings: []
+# Gateway lists
+gateway_authenticators: []
+gateway_authenticator_maps: []
+gateway_settings: []
 aap_organizations: []
-controller_labels: []
-aap_user_accounts: []
+aap_applications: []
+gateway_http_ports: []
+gateway_service_clusters: []
+gateway_service_keys: []
+gateway_service_nodes: []
+gateway_services: []
 aap_teams: []
+aap_user_accounts: []
+# these two vars can't be init for ansible.platform <2.6
+# gateway_role_definitions: []
+# gateway_role_team_assignments: []
+gateway_role_user_assignments: []
+gateway_routes: []
+
+# Controller lists
+controller_settings: []
+controller_labels: []
 controller_credential_types: []
 controller_credentials: []
 controller_credential_input_sources: []
 controller_notifications: []
 controller_projects: []
 controller_execution_environments: []
-aap_applications: []
 controller_inventories: []
 controller_inventory_sources: []
 controller_instance_groups: []
@@ -29,19 +43,33 @@ controller_workflows: []
 controller_schedules: []
 controller_roles: []
 
-# Controller Directory Path
-filetree_controller_settings: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_settings.d/"
+# Gateway Directory Paths
+filetree_gateway_authenticators: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_authenticators.d/"
+filetree_gateway_authenticator_maps: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_authenticator_maps.d/"
+filetree_gateway_settings: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_settings.d/"
 filetree_aap_organizations: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_organizations.d/"
-filetree_controller_labels: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_labels.d/"
-filetree_aap_user_accounts: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/aap_users.d/"
+filetree_aap_applications: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_applications.d/"
+filetree_gateway_http_ports: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_http_ports.d/"
+filetree_gateway_service_clusters: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_service_clusters.d/"
+filetree_gateway_service_keys: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_service_keys.d/"
+filetree_gateway_service_nodes: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_service_nodes.d/"
+filetree_gateway_services: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_services.d/"
 filetree_aap_teams: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_teams.d/"
+filetree_aap_user_accounts: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/aap_users.d/"
+filetree_gateway_role_definitions: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_role_definitions.d/"
+filetree_gateway_role_team_assignments: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_role_team_assignments.d/"
+filetree_gateway_role_user_assignments: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_role_user_assignments.d/"
+filetree_gateway_routes: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_routes.d/"
+
+# Controller Directory Paths
+filetree_controller_settings: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_settings.d/"
+filetree_controller_labels: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_labels.d/"
 filetree_controller_credential_types: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_credential_types.d/"
 filetree_controller_credentials: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_credentials.d/"
 filetree_controller_credential_input_sources: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_credential_input_sources.d/"
 filetree_controller_notifications: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_notification_templates.d/"
 filetree_controller_projects: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_projects.d/"
 filetree_controller_execution_environments: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_execution_environments.d/"
-filetree_aap_applications: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_applications.d/"
 filetree_controller_inventories: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_inventories.d/"
 filetree_controller_inventory_sources: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_inventory_sources.d/"
 filetree_controller_instance_groups: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_instance_groups.d/"
@@ -54,18 +82,33 @@ filetree_controller_roles: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller
 
 # filetree_read tasks order and name
 controller_configuration_filetree_read_tasks:
-  - {name: controller_settings, var: controller_settings, tags: settings}
+  # Gateway tasks
+  - {name: gateway_authenticators, var: gateway_authenticators, tags: authenticators}
+  - {name: gateway_authenticator_maps, var: gateway_authenticator_maps, tags: authenticator_maps}
+  - {name: gateway_settings, var: gateway_settings, tags: settings}
   - {name: gateway_organizations, var: aap_organizations, tags: organizations}
-  - {name: controller_labels, var: controller_labels, tags: labels}
-  - {name: gateway_users, var: aap_user_accounts, tags: users}
+  - {name: gateway_applications, var: aap_applications, tags: applications}
+  - {name: gateway_http_ports, var: gateway_http_ports, tags: http_ports}
+  - {name: gateway_service_clusters, var: gateway_service_clusters, tags: service_clusters}
+  - {name: gateway_service_keys, var: gateway_service_keys, tags: service_keys}
+  - {name: gateway_service_nodes, var: gateway_service_nodes, tags: service_nodes}
+  - {name: gateway_services, var: gateway_services, tags: services}
   - {name: gateway_teams, var: aap_teams, tags: teams}
+  - {name: gateway_users, var: aap_user_accounts, tags: users}
+  - {name: gateway_role_definitions, var: gateway_role_definitions, tags: role_definitions}
+  - {name: gateway_role_team_assignments, var: gateway_role_team_assignments, tags: role_team_assignments}
+  - {name: gateway_role_user_assignments, var: gateway_role_user_assignments, tags: role_user_assignments}
+  - {name: gateway_routes, var: gateway_routes, tags: routes}
+
+  # Controller tasks
+  - {name: controller_settings, var: controller_settings, tags: settings}
+  - {name: controller_labels, var: controller_labels, tags: labels}
   - {name: controller_credential_types, var: controller_credential_types, tags: credential_types}
   - {name: controller_credential_input_sources, var: controller_credential_input_sources, tags: credential_input_sources}
   - {name: controller_credentials, var: controller_credentials, tags: credentials}
   - {name: controller_notification_templates, var: controller_notifications, tags: notification_templates}
   - {name: controller_projects, var: controller_projects, tags: ['projects', 'inventories']}
   - {name: controller_execution_environments, var: controller_execution_environments, tags: execution_environments}
-  - {name: gateway_applications, var: aap_applications, tags: applications}
   - {name: controller_inventories, var: controller_inventories, tags: inventories}
   - {name: controller_inventory_sources, var: controller_inventory_sources, tags: ['inventory_sources', 'inventories']}
   - {name: controller_instance_groups, var: controller_instance_groups, tags: instance_groups}
