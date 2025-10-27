@@ -217,3 +217,15 @@ releases:
     fragments:
     - import_log_issues.yaml
     release_date: '2025-09-25'
+  3.0.2:
+    changes:
+      bugfixes:
+      - Fix default value for webhook_service in workflow job templates
+      - Fix verbosity key in workflow job templates
+      - Upgraded offline_sync to work with AAP 2.5+
+      - upgrade_config fix the names of the variables in the generated files
+    fragments:
+    - upgrade_config.yaml
+    - upgrade_offline_sync.yml
+    - workflow_job_templates_template.yml
+    release_date: '2025-10-15'

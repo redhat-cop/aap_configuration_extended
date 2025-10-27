@@ -1,4 +1,0 @@
----
-bugfixes:
-  - upgrade_config fix the names of the variables in the generated files
-...
