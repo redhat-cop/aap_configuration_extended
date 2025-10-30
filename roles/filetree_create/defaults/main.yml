@@ -63,5 +63,6 @@ input_tag:
   - all
 organization: 'ORGANIZATIONLESS'
 
+secrets_as_variables: true
 secrets_as_variables_prefix: "vaulted"
 ...

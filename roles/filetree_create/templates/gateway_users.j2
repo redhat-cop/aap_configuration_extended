@@ -18,7 +18,7 @@ aap_user_accounts:
     password: "{{ template_overrides_resources.gateway_user[current_user.name].password
                      | default(template_overrides_global.gateway_user.password)
                      | default(current_user.password) }}"
-{%  elif secrets_as_variables is defined and secrets_as_variables %}
+{%  elif secrets_as_variables | bool %}
     password: "{{ template_overrides_resources.gateway_user[current_user.name].password
                      | default(template_overrides_global.gateway_user.password)
                      | default(current_user.password) | replace("$encrypted$", "{{ " + secrets_as_variables_prefix + "_gateway_users_" + (_username | replace(' ', '_') | lower) + "_password }}") }}"

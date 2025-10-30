@@ -1,0 +1,2 @@
+bugfixes:
+  - Ensure approval nodes are now exported using the `approval_node:` block instead of `unified_job_template:`.

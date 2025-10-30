@@ -5,7 +5,7 @@ aap_user_accounts:
 - username: "{{ current_users_asset_value.username }}"
 {%  if show_encrypted is defined and show_encrypted %}
   password: "{{ current_users_asset_value.password }}"
-{%  elif secrets_as_variables is defined and secrets_as_variables %}
+{%  elif secrets_as_variables | bool %}
   password: "{{ current_users_asset_value.password | replace("$encrypted$", "{{ " + secrets_as_variables_prefix + "controller_users_" + (current_users_asset_value.username | replace(' ', '_') | lower) + "_password }}") }}"
 {%  else %}
   password: "INITIAL"
