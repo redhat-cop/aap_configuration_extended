@@ -25,7 +25,7 @@ The following variables are required for that role to work properly:
 | `output_path` | `/tmp/filetree_output` | yes | str | The path to the output directory where all the generated `yaml` files with the corresponding Objects as code will be written to. |
 | `input_tag` | `['all']` | no | List of Strings | The tags which are applied to the 'sub-roles'. If 'all' is in the list (the default value) then all roles will be called.  Valid tags can be found under `vars/valid_tags`. |
 | `flatten_output` | N/A | no | bool | Whether to flatten the output in single files per each object type instead of the normal exportation structure. |
-| `secrets_as_variables` | N/A | no | bool | Whether to export the secrets as variables that can be populated from existing variables/files. An example: `vaulted_eda_credentials_my_eda_credential_password`, that follows the syntax: `<secrets_as_variables_prefix>_<object_type>_<object_name>_<field_name>`. |
+| `secrets_as_variables` | True | no | bool | Whether to export the secrets as variables that can be populated from existing variables/files. An example: `vaulted_eda_credentials_my_eda_credential_password`, that follows the syntax: `<secrets_as_variables_prefix>_<object_type>_<object_name>_<field_name>`. |
 | `secrets_as_variables_prefix` | vaulted | no | str | The prefix to use for the variables defined by `secrets_as_variables` feature. |
 | `show_encrypted` | N/A | no | bool | Whether to remove the string '\$encrypted\$' in credentials output (not the actual credential value). |
 | `omit_id` | N/A | no | bool | Whether to create output files without objects id. |
