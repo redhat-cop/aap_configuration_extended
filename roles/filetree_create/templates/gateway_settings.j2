@@ -1,14 +1,14 @@
 ---
 gateway_settings:
 {% for key,value in all_settings[0].items() %}
-{% if value is mapping or value | type_debug == "list" %}
+{%   if value is mapping or value | type_debug == "list" %}
 {{ key | indent(width=2, first=True) }}:
 {{ value | to_nice_yaml(indent=2, sort_keys=false) | indent(width=4, first=True) }}
-{%- elif key == "jwt_public_key" %}{#
+{%-  elif key == "jwt_public_key" %}{#
 {{ key | indent(width=2, first=True) }}: |-
 {{ value | indent(width=4, first=True) }}
-#}{%- else %}
+#}{%-  else %}
 {{ key | indent(width=2, first=True) }}: "{{ value | replace('True', 'true') | replace('False', 'false') | replace('None', 'null') }}"
-{% endif %}
+{%   endif %}
 {% endfor %}
 ...
