@@ -11,22 +11,17 @@
       order_by: 'id'
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
-- name: "Run only if there's any Authenticator to write down"
-  when:
-    - gateway_authenticators_lookvar | length > 0
-    - gateway_authenticators_lookvar | first | length > 0
-  block:
-    - name: "Create the output directory for gateway authenticators: {{ output_path }}"
-      ansible.builtin.file:
-        path: "{{ output_path }}"
-        state: directory
-        mode: '0755'
+- name: "Create the output directory for gateway authenticators: {{ output_path }}"
+  ansible.builtin.file:
+    path: "{{ output_path }}"
+    state: directory
+    mode: '0755'
 
-    - name: "Add current gateway authenticator to the gateway_authenticators.yaml output file in {{ output_path }}"
-      ansible.builtin.template:
-        src: "templates/gateway_authenticators.j2"
-        dest: "{{ output_path }}/gateway_authenticators.yaml"
-        mode: '0644'
-      vars:
-        current_gateway_authenticators_asset_value: "{{ gateway_authenticators_lookvar }}"
+- name: "Add current gateway authenticator to the gateway_authenticators.yaml output file in {{ output_path }}"
+  ansible.builtin.template:
+    src: "templates/gateway_authenticators.j2"
+    dest: "{{ output_path }}/gateway_authenticators.yaml"
+    mode: '0644'
+  vars:
+    current_gateway_authenticators_asset_value: "{{ gateway_authenticators_lookvar }}"
 ...

@@ -9,22 +9,17 @@
                               }}"
   no_log: "{{ hub_configuration_filetree_create_secure_logging }}"
 
-- name: "Run only if there's any Collection to write down"
-  when:
-    - hub_collections_lookvar | length > 0
-    - hub_collections_lookvar | first | length > 0
-  block:
-    - name: "Create the output directory for hub collections: {{ output_path }}"
-      ansible.builtin.file:
-        path: "{{ output_path }}"
-        state: directory
-        mode: '0755'
+- name: "Create the output directory for hub collections: {{ output_path }}"
+  ansible.builtin.file:
+    path: "{{ output_path }}"
+    state: directory
+    mode: '0755'
 
-    - name: "Add current hub collections to the hub_collections.yaml output file in {{ output_path }}"
-      ansible.builtin.template:
-        src: "templates/hub_collections.j2"
-        dest: "{{ output_path }}/hub_collections.yaml"
-        mode: '0644'
-      vars:
-        current_hub_collections_asset_value: "{{ hub_collections_lookvar }}"
+- name: "Add current hub collections to the hub_collections.yaml output file in {{ output_path }}"
+  ansible.builtin.template:
+    src: "templates/hub_collections.j2"
+    dest: "{{ output_path }}/hub_collections.yaml"
+    mode: '0644'
+  vars:
+    current_hub_collections_asset_value: "{{ hub_collections_lookvar }}"
 ...

@@ -11,22 +11,17 @@
       order_by: 'id'
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
-- name: "Run only if there's any HTTP Port to write down"
-  when:
-    - gateway_http_ports_lookvar | length > 0
-    - gateway_http_ports_lookvar | first | length > 0
-  block:
-    - name: "Create the output directory for gateway http_ports: {{ output_path }}"
-      ansible.builtin.file:
-        path: "{{ output_path }}"
-        state: directory
-        mode: '0755'
+- name: "Create the output directory for gateway http_ports: {{ output_path }}"
+  ansible.builtin.file:
+    path: "{{ output_path }}"
+    state: directory
+    mode: '0755'
 
-    - name: "Add current gateway http_port to the gateway_http_ports.yaml output file in {{ output_path }}"
-      ansible.builtin.template:
-        src: "templates/gateway_http_ports.j2"
-        dest: "{{ output_path }}/gateway_http_ports.yaml"
-        mode: '0644'
-      vars:
-        current_gateway_http_ports_asset_value: "{{ gateway_http_ports_lookvar }}"
+- name: "Add current gateway http_port to the gateway_http_ports.yaml output file in {{ output_path }}"
+  ansible.builtin.template:
+    src: "templates/gateway_http_ports.j2"
+    dest: "{{ output_path }}/gateway_http_ports.yaml"
+    mode: '0644'
+  vars:
+    current_gateway_http_ports_asset_value: "{{ gateway_http_ports_lookvar }}"
 ...

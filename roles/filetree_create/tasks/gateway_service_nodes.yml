@@ -11,22 +11,17 @@
       order_by: 'id'
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
-- name: "Run only if there's any Service Node to write down"
-  when:
-    - gateway_service_nodes_lookvar | length > 0
-    - gateway_service_nodes_lookvar | first | length > 0
-  block:
-    - name: "Create the output directory for gateway service_nodes: {{ output_path }}"
-      ansible.builtin.file:
-        path: "{{ output_path }}"
-        state: directory
-        mode: '0755'
+- name: "Create the output directory for gateway service_nodes: {{ output_path }}"
+  ansible.builtin.file:
+    path: "{{ output_path }}"
+    state: directory
+    mode: '0755'
 
-    - name: "Add current gateway service_node to the gateway_service_nodes.yaml output file in {{ output_path }}"
-      ansible.builtin.template:
-        src: "templates/gateway_service_nodes.j2"
-        dest: "{{ output_path }}/gateway_service_nodes.yaml"
-        mode: '0644'
-      vars:
-        current_gateway_service_nodes_asset_value: "{{ gateway_service_nodes_lookvar }}"
+- name: "Add current gateway service_node to the gateway_service_nodes.yaml output file in {{ output_path }}"
+  ansible.builtin.template:
+    src: "templates/gateway_service_nodes.j2"
+    dest: "{{ output_path }}/gateway_service_nodes.yaml"
+    mode: '0644'
+  vars:
+    current_gateway_service_nodes_asset_value: "{{ gateway_service_nodes_lookvar }}"
 ...
