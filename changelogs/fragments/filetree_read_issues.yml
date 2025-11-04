@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - fix checking issues in the when clauses
+...
