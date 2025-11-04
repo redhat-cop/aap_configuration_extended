@@ -1,6 +1,6 @@
 {% if first_group | default(true) | bool %}
 ---
-controller_groups:
+controller_groups: {{ [] if current_groups_asset_value | length == 0 }}
 {% endif %}
 {% for group in current_groups_asset_value %}
   - name: "{{ group.name }}"

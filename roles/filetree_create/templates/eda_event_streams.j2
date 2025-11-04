@@ -1,5 +1,5 @@
 ---
-eda_event_streams:
+eda_event_streams: {{ [] if current_eda_event_streams_asset_value | length == 0 }}
 {% for eda_event_stream in current_eda_event_streams_asset_value %}
   - name: "{{ eda_event_stream.name }}"
     test_mode: {{ template_overrides_resources.eda_event_stream[eda_event_stream.name].test_mode

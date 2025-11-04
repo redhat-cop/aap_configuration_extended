@@ -1,6 +1,6 @@
 {% if first_hosts | default(true) | bool %}
 ---
-controller_hosts:
+controller_hosts: {{ [] if current_hosts_asset_value | length == 0 }}
 {% endif %}
 {% for host in current_hosts_asset_value if not host.has_inventory_sources %}
   - name: "{{ host.name }}"

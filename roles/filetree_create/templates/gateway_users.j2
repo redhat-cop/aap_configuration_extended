@@ -1,5 +1,5 @@
 ---
-aap_user_accounts:
+aap_user_accounts: {{ [] if current_gateway_users_asset_value | length == 0 }}
 {% for current_user in current_gateway_users_asset_value %}
 {%   set _username = template_overrides_resources.gateway_user[current_user.username].username
                      | default(template_overrides_global.gateway_user.username)
