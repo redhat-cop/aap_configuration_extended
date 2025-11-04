@@ -28,5 +28,8 @@
         ansible.builtin.flatten
       }}
   no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
-  when: __contents_filetree_gateway_role_team_assignments.results
+  when:
+    - __contents_filetree_gateway_role_team_assignments is defined
+    - __contents_filetree_gateway_role_team_assignments.results is defined
+    - __contents_filetree_gateway_role_team_assignments.results | length > 0
 ...

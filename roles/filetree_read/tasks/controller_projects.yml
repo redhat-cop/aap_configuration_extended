@@ -28,5 +28,8 @@
         ansible.builtin.flatten
       }}
   no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
-  when: __contents_filetree_controller_projects.results
+  when:
+    - __contents_filetree_controller_projects is defined
+    - __contents_filetree_controller_projects.results is defined
+    - __contents_filetree_controller_projects.results | length > 0
 ...

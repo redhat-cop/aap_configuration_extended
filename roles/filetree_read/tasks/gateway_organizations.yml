@@ -25,7 +25,11 @@
   loop_control:
     loop_var: __populate_organizations_list_item
   no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
-  when: __contents_filetree_aap_organizations.results is defined and __populate_organizations_list_item.ansible_facts.aap_organizations is defined
+  when:
+    - __contents_filetree_aap_organizations is defined
+    - __contents_filetree_aap_organizations.results is defined
+    - __contents_filetree_aap_organizations.results | length > 0
+    - __populate_organizations_list_item.ansible_facts.aap_organizations is defined
 
 - name: "Set Organization Data Structure"
   ansible.builtin.set_fact:

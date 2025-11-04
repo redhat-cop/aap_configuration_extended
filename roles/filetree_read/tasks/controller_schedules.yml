@@ -25,7 +25,11 @@
   loop_control:
     loop_var: __populate_schedules_list_item
   no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
-  when: __contents_filetree_controller_schedules.results is defined and __populate_schedules_list_item.ansible_facts.controller_schedules is defined
+  when:
+    - __contents_filetree_controller_schedules is defined
+    - __contents_filetree_controller_schedules.results is defined
+    - __contents_filetree_controller_schedules.results | length > 0
+    - __populate_schedules_list_item.ansible_facts.controller_schedules is defined
 
 - name: "Set Schedules Data Structure"
   ansible.builtin.set_fact:

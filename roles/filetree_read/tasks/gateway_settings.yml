@@ -28,5 +28,8 @@
         combine
       }}
   no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
-  when: __contents_filetree_gateway_settings.results
+  when:
+    - __contents_filetree_gateway_settings is defined
+    - __contents_filetree_gateway_settings.results is defined
+    - __contents_filetree_gateway_settings.results | length > 0
 ...

@@ -25,7 +25,11 @@
   loop_control:
     loop_var: __populate_user_accounts_list_item
   no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
-  when: __contents_filetree_aap_user_accounts.results is defined and __populate_user_accounts_list_item.ansible_facts.aap_user_accounts is defined
+  when:
+    - __contents_filetree_aap_user_accounts is defined
+    - __contents_filetree_aap_user_accounts.results is defined
+    - __contents_filetree_aap_user_accounts.results | length > 0
+    - __populate_user_accounts_list_item.ansible_facts.aap_user_accounts is defined
 
 - name: "Set User Accounts Data Structure"
   ansible.builtin.set_fact:

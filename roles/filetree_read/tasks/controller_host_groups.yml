@@ -25,7 +25,11 @@
   loop_control:
     loop_var: __populate_groups_list_item
   no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
-  when: __contents_filetree_controller_groups.results is defined and __populate_groups_list_item.ansible_facts.controller_groups is defined
+  when:
+    - __contents_filetree_controller_groups is defined
+    - __contents_filetree_controller_groups.results is defined
+    - __contents_filetree_controller_groups.results | length > 0
+    - __populate_groups_list_item.ansible_facts.controller_groups is defined
 
 - name: "Set Groups Data Structure"
   ansible.builtin.set_fact:

@@ -28,7 +28,10 @@
         ansible.builtin.flatten
       }}
   no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
-  when: __contents_filetree_controller_hosts.results
+  when:
+    - __contents_filetree_controller_hosts is defined
+    - __contents_filetree_controller_hosts.results is defined
+    - __contents_filetree_controller_hosts.results | length > 0
 
 - name: "Segregated Hosts list when controller_location is defined"
   when: controller_location is defined and __populate_controller_hosts is defined

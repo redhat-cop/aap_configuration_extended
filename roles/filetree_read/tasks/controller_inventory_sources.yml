@@ -25,7 +25,11 @@
   loop_control:
     loop_var: __populate_inventory_sources_list_item
   no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
-  when: __contents_filetree_controller_inventory_sources.results is defined and __populate_inventory_sources_list_item.ansible_facts.controller_inventory_sources is defined
+  when:
+    - __contents_filetree_controller_inventory_sources is defined
+    - __contents_filetree_controller_inventory_sources.results is defined
+    - __contents_filetree_controller_inventory_sources.results | length > 0
+    - __populate_inventory_sources_list_item.ansible_facts.controller_inventory_sources is defined
 
 - name: "Segregated Inventory Sources list when controller_location is defined"
   when: controller_location is defined and __populate_controller_inventory_sources is defined

@@ -28,5 +28,8 @@
         ansible.builtin.flatten
       }}
   no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
-  when: __contents_filetree_gateway_service_keys.results
+  when:
+    - __contents_filetree_gateway_service_keys is defined
+    - __contents_filetree_gateway_service_keys.results is defined
+    - __contents_filetree_gateway_service_keys.results | length > 0
 ...
