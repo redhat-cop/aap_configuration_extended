@@ -1,4 +1,4 @@
 ---
 bugfixes:
-  - Don't create output files if there's no content to be added to them
+  - If there's no content to be added to any file, create the file with the variable assigned to an empty list.
 ...
