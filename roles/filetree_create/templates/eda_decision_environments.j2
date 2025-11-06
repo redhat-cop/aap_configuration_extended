@@ -1,5 +1,5 @@
 ---
-eda_decision_environments:
+eda_decision_environments: {{ [] if current_eda_decision_environments_asset_value | length == 0 }}
 {% for eda_decision_environment in current_eda_decision_environments_asset_value %}
   - name: "{{ eda_decision_environment.name }}"
     description: "{{ template_overrides_resources.eda_decision_environment[eda_decision_environment.name].description

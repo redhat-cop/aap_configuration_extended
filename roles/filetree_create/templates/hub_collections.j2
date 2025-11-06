@@ -1,5 +1,5 @@
 ---
-hub_collections:
+hub_collections: {{ [] if current_hub_collections_asset_value | length == 0 }}
 {% set __excluded_fields = [] %}
 {% set __list_items = [] %}
 {% for current_collection in current_hub_collections_asset_value %}

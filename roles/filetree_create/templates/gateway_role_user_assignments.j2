@@ -1,5 +1,5 @@
 ---
-gateway_role_user_assignments:
+gateway_role_user_assignments: {{ [] if current_gateway_role_user_assignments_asset_value | length == 0 }}
 {% for current_role_user_assignment in current_gateway_role_user_assignments_asset_value %}
   - role_definition: "{{ template_overrides_resources.gateway_role_user_assignment[current_role_user_assignment.object_id].role_definition
                      | default(template_overrides_global.gateway_role_user_assignment.role_definition)

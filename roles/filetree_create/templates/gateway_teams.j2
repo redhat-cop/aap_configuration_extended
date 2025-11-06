@@ -1,5 +1,5 @@
 ---
-aap_teams:
+aap_teams: {{ [] if current_gateway_teams_asset_value | length == 0 }}
 {% for current_team in current_gateway_teams_asset_value %}
   - name: "{{ template_overrides_resources.gateway_team[current_team.name].name
                      | default(template_overrides_global.gateway_team.name)

@@ -1,5 +1,5 @@
 ---
-gateway_routes:
+gateway_routes: {{ [] if current_gateway_routes_asset_value | length == 0 }}
 {% for current_route in current_gateway_routes_asset_value %}
   - name: "{{ template_overrides_resources.gateway_route[current_route.name].name
                      | default(template_overrides_global.gateway_route.name)

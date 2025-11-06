@@ -1,5 +1,5 @@
 ---
-gateway_service_clusters:
+gateway_service_clusters: {{ [] if current_gateway_service_clusters_asset_value | length == 0 }}
 {% for current_service_cluster in current_gateway_service_clusters_asset_value %}
   - name: "{{ template_overrides_resources.gateway_service_cluster[current_service_cluster.name].name
                      | default(template_overrides_global.gateway_service_cluster.name)
