@@ -1,5 +1,5 @@
 ---
-- name: "Block to be executed only when connected against an AAP instance (not Tower)"
+- name: "Block to be executed only when connected against an AAP instance"
   block:
     - name: Get the organization ID
       ansible.builtin.set_fact:
@@ -7,11 +7,14 @@
                                                  query_params={'name': orgs},
                                                  host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)
                                        }}"
+      when:
+        - orgs is defined
+        - orgs | length > 0
 
     - name: "Get the API list of all Execution Environments in Organization {{ orgs }}"
       ansible.builtin.set_fact:
         __controller_api_execution_environments: "{{ query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/execution_environments',
-                                                           query_params={'organization': __controller_organization_id.id},
+                                                           query_params={'organization': __controller_organization_id.id} if __controller_organization_id is defined else {},
                                                            host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                                            return_all=true, max_objects=query_controller_api_max_objects)
                                                   }}"
