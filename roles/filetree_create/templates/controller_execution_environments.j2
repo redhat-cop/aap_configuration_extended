@@ -9,7 +9,7 @@ controller_execution_environments:
 {%     if ee.summary_fields.organization.name is defined %}
     organization: "{{ ee.summary_fields.organization.name }}"
 {%     else %}
-    organization:
+    organization:  # Leave this empty organization to let the object_diff role to work properly
 {%     endif %}
     image: "{{ template_overrides_resources.ee[ee.name].image
                | default(template_overrides_global.ee.image)
