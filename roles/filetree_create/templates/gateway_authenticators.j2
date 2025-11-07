@@ -1,5 +1,5 @@
 ---
-gateway_authenticators:
+gateway_authenticators: {{ [] if current_gateway_authenticators_asset_value | length == 0 }}
 {% for current_authenticator in current_gateway_authenticators_asset_value %}
   - name: "{{ template_overrides_resources.gateway_authenticator[current_authenticator.name].name
                      | default(template_overrides_global.gateway_authenticator.name)

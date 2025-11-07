@@ -1,5 +1,5 @@
 ---
-hub_namespaces:
+hub_namespaces: {{ [] if current_hub_namespaces_asset_value | length == 0 }}
 {% set __excluded_fields = ['id', 'pulp_href', 'related_fields', 'metadata_sha256', 'avatar_sha256'] %}
 {% set __list_items = ['users', 'groups'] %}
 {% for current_namespace in current_hub_namespaces_asset_value %}

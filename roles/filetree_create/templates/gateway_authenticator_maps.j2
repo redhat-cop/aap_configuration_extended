@@ -1,5 +1,5 @@
 ---
-gateway_authenticator_maps:
+gateway_authenticator_maps: {{ [] if current_gateway_authenticator_maps_asset_value | length == 0 }}
 {% for current_authenticator_map in current_gateway_authenticator_maps_asset_value %}
   - name: "{{ current_authenticator_map.name }}"
     authenticator: "{{ template_overrides_resources.gateway_authenticator_map[current_authenticator_map.name].authenticator
