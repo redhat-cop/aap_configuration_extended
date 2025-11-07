@@ -1,5 +1,5 @@
 ---
-hub_ee_registries:
+hub_ee_registries: {{ [] if current_hub_ee_registries_asset_value | length == 0 }}
 {% set __excluded_fields = ['id', 'pulp_href', 'created_at', 'updated_at', 'last_sync_task', 'write_only_fields'] %}
 {% set __list_items = [] %}
 {% for current_ee_registry in current_hub_ee_registries_asset_value %}
