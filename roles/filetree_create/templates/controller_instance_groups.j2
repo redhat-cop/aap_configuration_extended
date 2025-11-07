@@ -1,5 +1,5 @@
 ---
-controller_instance_groups:
+controller_instance_groups: {{ [] if current_instance_groups_asset_value | length == 0 }}
 {% for ig in current_instance_groups_asset_value %}
   - name: "{{ ig.name }}"
     policy_instance_minimum: "{{ ig.policy_instance_minimum }}"

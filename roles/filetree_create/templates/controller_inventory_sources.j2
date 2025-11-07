@@ -1,6 +1,6 @@
 {% if first_inventory_source | default(true) | bool %}
 ---
-controller_inventory_sources:
+controller_inventory_sources: {{ [] if current_inventory_sources_asset_value | length == 0 }}
 {% endif %}
 {% for inventory_source in current_inventory_sources_asset_value %}
   - name: "{{ inventory_source.name }}"

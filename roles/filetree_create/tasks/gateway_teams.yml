@@ -1,5 +1,5 @@
 ---
-- name: "Get current Organizations from the Gateway API"
+- name: "Get current Teams from the Gateway API"
   ansible.builtin.set_fact:
     gateway_teams_lookvar: "{{ query('ansible.platform.gateway_api', 'api/gateway/v1/teams/',
                                      query_params=(query_params | combine({'id': team_id})) if team_id is defined else query_params,
