@@ -1,5 +1,5 @@
 ---
-hub_collection_repositories:
+hub_collection_repositories: {{ [] if current_hub_collection_repositories_asset_value | length == 0 }}
 {% set __excluded_fields = ['pulp_href', 'pulp_created', 'pulp_last_updated', 'hidden_fields', 'last_sync_task'] %}
 {% set __list_items = [] %}
 {% for current_collection_repository in current_hub_collection_repositories_asset_value %}

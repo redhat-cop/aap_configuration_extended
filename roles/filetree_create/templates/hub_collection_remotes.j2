@@ -1,5 +1,5 @@
 ---
-hub_collection_remotes:
+hub_collection_remotes: {{ [] if current_hub_collection_remotes_asset_value | length == 0 }}
 {% set __excluded_fields = ['pulp_href', 'pulp_created', 'pulp_last_updated', 'hidden_fields', 'last_sync_task'] %}
 {% set __list_items = [] %}
 {% set __dict_items = ['requirements_file'] %}
