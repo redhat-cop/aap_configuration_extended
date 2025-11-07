@@ -1,5 +1,5 @@
 ---
-gateway_services:
+gateway_services: {{ [] if current_gateway_services_asset_value | length == 0 }}
 {% for current_service in current_gateway_services_asset_value if current_service.name is not match('gateway api') %}
   - name: "{{ template_overrides_resources.gateway_service[current_service.name].name
                      | default(template_overrides_global.gateway_service.name)

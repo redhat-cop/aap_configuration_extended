@@ -28,7 +28,7 @@
         marker: ""
         block: "{{ lookup('template', 'templates/controller_hosts.j2') }}"
       vars:
-        first_group: "{{ not (__hosts_file.stat.exists | bool) }}"
+        first_host: "{{ not (__hosts_file.stat.exists | bool) }}"
 
     - name: "Remove all the blank lines introduced by the last task"
       ansible.builtin.lineinfile:
