@@ -4,7 +4,6 @@ argument_specs:
     short_description: An ansible role which audit the declared AAP configuration and validate it against a set of user-defined rules.
     options:
       aap_rules:
-        default: []
         required: true
         type: list
         elements: str
