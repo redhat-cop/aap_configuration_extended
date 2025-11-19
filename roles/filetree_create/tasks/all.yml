@@ -17,6 +17,23 @@
       ansible.builtin.debug:
         msg: "The organization {{ organization_filter }} has the ID {{ organization_id }}"
 
+- name: "Block to check if the PAH instance is available"
+  block:
+    - name: "Get if PAH is available"
+      ansible.builtin.uri:
+        url: "https://{{ aap_hostname }}/api/"
+        user: "{{ aap_username }}"
+        password: "{{ aap_password }}"
+        method: GET
+        force_basic_auth: true
+        validate_certs: "{{ aap_validate_certs }}"
+        status_code: 200
+      register: __pah_check
+
+    - name: "Set the fact to control whether the PAH is available or not"
+      ansible.builtin.set_fact:
+        __pah_available: "{{ 'galaxy' in __pah_check.json.apis }}"
+
 - name: Include tasks (block)
   when: "valid_tags | intersect(input_tag) | length > 0"
   block:
@@ -131,28 +148,32 @@
     - name: "Export EDA Rulebook Activations"
       ansible.builtin.include_tasks: "eda_rulebook_activations.yml"
       when: "'eda_rulebook_activations' in input_tag or 'eda' in input_tag or 'all' in input_tag"
-    - name: "Export HUB Namespaces"
-      ansible.builtin.include_tasks: "hub_namespaces.yml"
-      when: "'hub_namespaces' in input_tag or 'hub' in input_tag or 'all' in input_tag"
-    - name: "Export HUB Collections"
-      ansible.builtin.include_tasks: "hub_collections.yml"
-      when: "'hub_collections' in input_tag or 'hub' in input_tag or 'all' in input_tag"
-    - name: "Export HUB Collection Remotes"
-      ansible.builtin.include_tasks: "hub_collection_remotes.yml"
-      when: "'hub_collection_remotes' in input_tag or 'hub' in input_tag or 'all' in input_tag"
-    - name: "Export HUB Collection Repositories"
-      ansible.builtin.include_tasks: "hub_collection_repositories.yml"
-      when: "'hub_collection_repositories' in input_tag or 'hub' in input_tag or 'all' in input_tag"
-    - name: "Export HUB EE Registries"
-      ansible.builtin.include_tasks: "hub_ee_registries.yml"
-      when: "'hub_ee_registries' in input_tag or 'hub' in input_tag or 'all' in input_tag"
-    - name: "Export HUB EE Repositories"
-      ansible.builtin.include_tasks: "hub_ee_repositories.yml"
-      when: "'hub_ee_repositories' in input_tag or 'hub' in input_tag or 'all' in input_tag"
-    - name: "Export HUB EE Images"
-      ansible.builtin.include_tasks: "hub_ee_images.yml"
-      when: "'hub_ee_images' in input_tag or 'hub' in input_tag or 'all' in input_tag"
-    - name: "Export HUB Roles"
-      ansible.builtin.include_tasks: "hub_roles.yml"
-      when: "'hub_roles' in input_tag or 'hub' in input_tag or 'all' in input_tag"
+    - name: "Block to export HUB content when available"
+      when:
+        - __pah_available
+      block:
+        - name: "Export HUB Namespaces"
+          ansible.builtin.include_tasks: "hub_namespaces.yml"
+          when: "'hub_namespaces' in input_tag or 'hub' in input_tag or 'all' in input_tag"
+        - name: "Export HUB Collections"
+          ansible.builtin.include_tasks: "hub_collections.yml"
+          when: "'hub_collections' in input_tag or 'hub' in input_tag or 'all' in input_tag"
+        - name: "Export HUB Collection Remotes"
+          ansible.builtin.include_tasks: "hub_collection_remotes.yml"
+          when: "'hub_collection_remotes' in input_tag or 'hub' in input_tag or 'all' in input_tag"
+        - name: "Export HUB Collection Repositories"
+          ansible.builtin.include_tasks: "hub_collection_repositories.yml"
+          when: "'hub_collection_repositories' in input_tag or 'hub' in input_tag or 'all' in input_tag"
+        - name: "Export HUB EE Registries"
+          ansible.builtin.include_tasks: "hub_ee_registries.yml"
+          when: "'hub_ee_registries' in input_tag or 'hub' in input_tag or 'all' in input_tag"
+        - name: "Export HUB EE Repositories"
+          ansible.builtin.include_tasks: "hub_ee_repositories.yml"
+          when: "'hub_ee_repositories' in input_tag or 'hub' in input_tag or 'all' in input_tag"
+        - name: "Export HUB EE Images"
+          ansible.builtin.include_tasks: "hub_ee_images.yml"
+          when: "'hub_ee_images' in input_tag or 'hub' in input_tag or 'all' in input_tag"
+        - name: "Export HUB Roles"
+          ansible.builtin.include_tasks: "hub_roles.yml"
+          when: "'hub_roles' in input_tag or 'hub' in input_tag or 'all' in input_tag"
 ...
