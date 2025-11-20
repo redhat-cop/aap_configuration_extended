@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - fix global execution environments comparison and exportation. Update the filetree_create role acordingly.
+...

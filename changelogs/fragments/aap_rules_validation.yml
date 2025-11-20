@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - Remove the default for aap_rules in aap_rules_validation role as it is a required field.
+...
