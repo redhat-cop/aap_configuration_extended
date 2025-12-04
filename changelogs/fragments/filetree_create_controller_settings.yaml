@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - Fix the exportation of the controller_settings that was failing when the parameter AUTOMATION_ANALYTICS_LAST_ENTRIES was empty
+...
