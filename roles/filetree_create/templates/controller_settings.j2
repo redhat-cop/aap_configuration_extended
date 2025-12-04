@@ -1,7 +1,6 @@
 ---
 controller_settings:
   - settings:
-{#      {{ all_settings[0] }} #}
 {% for key,value in all_settings[0].items() %}
 {%   if value is mapping or value | type_debug == "list" %}
 {{ key | indent(width=6, first=True) }}:
