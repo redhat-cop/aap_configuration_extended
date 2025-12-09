@@ -30,7 +30,7 @@ eda_rulebook_activations:
 {% if template_overrides_resources.eda_rulebook_activation[current_rulebook_activations_asset_value.name].rulebook_name is defined
       or template_overrides_global.eda_rulebook_activation.rulebook_name is defined
       or current_rulebook_activations_asset_value.rulebook_name is defined %}
-    rulebook_name: "{{ current_rulebook_activations_asset_value.rulebook_name }}"
+    rulebook: "{{ current_rulebook_activations_asset_value.rulebook_name }}"
 {% endif %}
 {% if template_overrides_resources.eda_rulebook_activation[current_rulebook_activations_asset_value.name].organization_name is defined
       or template_overrides_global.eda_rulebook_activation.organization_name is defined

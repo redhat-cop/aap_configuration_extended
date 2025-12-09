@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - Change the exported output from using 'rulebook_name' to 'rulebook', according to the input expected by infra.aap_configuration.eda_rulebook_activations role
+...
