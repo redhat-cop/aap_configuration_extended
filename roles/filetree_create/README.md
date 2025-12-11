@@ -29,14 +29,14 @@ The following variables are required for that role to work properly:
 | `secrets_as_variables_prefix` | vaulted | no | str | The prefix to use for the variables defined by `secrets_as_variables` feature. |
 | `show_encrypted` | N/A | no | bool | Whether to remove the string '\$encrypted\$' in credentials output (not the actual credential value). |
 | `omit_id` | N/A | no | bool | Whether to create output files without objects id. |
-| `organization`| N/A | no | str | Default organization for all objects that have not been set in the source controller. |
+| `organization` | N/A | no | str | Default organization for all objects that have not been set in the source controller. |
 | `export_related_objects` | False | no | bool | Whether to export related objects (job templates related to certain workflows and the projects associated with these job templates) when a single JT or a single WFJT are being exported. |
 | `update_project_state` | False | no | bool | Whether the project should be updated after import to the target controller. |
 | `skip_inventory_sources` | False | no | bool | Whether the inventory sources should be exported with inventory. |
 | `skip_inventory_hosts` | False | no | bool | Whether the inventory hosts should be exported with inventory. |
 | `skip_inventory_groups` | False | no | bool | Whether the inventory groups should be exported with inventory. |
-| `templates_overrides_resources`| N/A | no | dict | Whether the certain objects should be modified during the export. |
-| `templates_overrides_global`| N/A | no | dict | Whether the all objects should be modified during the export. |
+| `templates_overrides_resources` | N/A | no | dict | Whether the certain objects should be modified during the export. |
+| `templates_overrides_global` | N/A | no | dict | Whether the all objects should be modified during the export. |
 | `hub_collection_name` | N/A | no | str | Filter the collections to be exported from the PAH through it's name. |
 | `hub_collection_namespace` | N/A | no | str | Filter the collections to be exported from the PAH through it's namespace. |
 | `hub_collection_remote_name` | N/A | no | str | Filter the collection remotes to be exported from the PAH through it's name. |

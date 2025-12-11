@@ -8,7 +8,7 @@ An Ansible Role to offline_sync collections to Automation Hub or Galaxies. NOTE:
 
 |Variable Name|Default Value|Required|Description|Example|
 |:---:|:---:|:---:|:---:|:---:|
-|`aap_hostname`|"{{ hub_host }}"|yes|URL to the Automation Hub or Galaxy Server. |127.0.0.1|
+|`aap_hostname`|"{{ hub_host }}"|yes|URL to the Automation Hub or Galaxy Server.|127.0.0.1|
 |`aap_username`|""|yes|Admin User on the Automation Hub or Galaxy Server.||
 |`aap_password`|""|yes|Automation Hub Admin User's password on the Automation Hub Server. This should be stored in an Ansible Vault at vars/tower-secrets.yml or elsewhere and called from a parent playbook.||
 |`aap_token`|""|no|Admin User's token on the Automation Hub Server. This should be stored in an Ansible Vault at or elsewhere and called from a parent playbook.||

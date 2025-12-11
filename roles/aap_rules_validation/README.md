@@ -12,21 +12,21 @@ n/a
 
 ## Role Input Variables
 
-| Variable Name | Default Value | Required | Description |
-| :------------ | :-----------: | :------: | :---------- |
-| `aap_rules` | `[]`     | yes      | The list of rules to enforce on the declared configuration |
-| `fail_if_violations_found` | `true` | no  | Force the role to fails if if it finds violations  |
-| `print_rules_violations_data` | `true` | no  | Print the detailed violation data before printing the violation messages  |
-| `audited_objects` | a list of all the objet types | no  | The objects to be audited. See the roles defaults main.yml file for the complete list  |
-| `warn_about_audited_types_not_in_rules_objects` | `false` | no | Treat the objects to be audited but are not in any rule as a violation |
-| `warn_about_rules_objects_not_in_audited_types` | `false` | no | Treat the objects that are defined in rules are not in the audited objects list as a violation  |
+| Variable Name                                   | Default Value                 | Required | Description                                                                                    |
+| :---------------------------------------------- | :---------------------------: | :------: | :--------------------------------------------------------------------------------------------- |
+| `aap_rules`                                     | `[]`                          | yes      | The list of rules to enforce on the declared configuration                                     |
+| `fail_if_violations_found`                      | `true`                        | no       | Force the role to fails if if it finds violations                                              |
+| `print_rules_violations_data`                   | `true`                        | no       | Print the detailed violation data before printing the violation messages                       |
+| `audited_objects`                               | a list of all the objet types | no       | The objects to be audited. See the roles defaults main.yml file for the complete list          |
+| `warn_about_audited_types_not_in_rules_objects` | `false`                       | no       | Treat the objects to be audited but are not in any rule as a violation                         |
+| `warn_about_rules_objects_not_in_audited_types` | `false`                       | no       | Treat the objects that are defined in rules are not in the audited objects list as a violation |
 
 ## Role Output Variables
 
-| Variable Name |  Description |
-| :------------ |  :---------- |
-| `rules_violations_data`  | a list of dictionaries containing all the found rules violation details    |
-| `rules_violations_msgs`  | a list of all the found rules violation messages |
+| Variable Name           | Description                                                             |
+| :---------------------- | :---------------------------------------------------------------------- |
+| `rules_violations_data` | a list of dictionaries containing all the found rules violation details |
+| `rules_violations_msgs` | a list of all the found rules violation messages                        |
 
 ### rules_violations_msgs format
 
@@ -53,16 +53,16 @@ fatal: [localhost]: FAILED! => {
 
 Each `rules_violations_data` list element contains the following elements :
 
-| Sub-element Name |  Description |
-| :------------ |  :---------- |
-| `msg`  | The violation message relative to this object. Same format as in `rules_violations_msgs` |
-| `object_name`  | Name of the non-compliant object |
-| `object_organization`  | Name of the organization to which belong the affected object if available. |
-| `object_scope`  | Scope of the non-compliant object, one of two values : `global` or `organization` |
-| `object_type`  | Type of the non-compliant object |
-| `rule_broken`  | The rule not respected by the non-compliant object |
-| `rule_id`  | Rule name if available otherwise the rule order (index + 1) |
-| `rule_index`  | Index of rule (starting from 0) |
+| Sub-element Name      | Description                                                                              |
+| :-------------------- | :--------------------------------------------------------------------------------------- |
+| `msg`                 | The violation message relative to this object. Same format as in `rules_violations_msgs` |
+| `object_name`         | Name of the non-compliant object                                                         |
+| `object_organization` | Name of the organization to which belong the affected object if available.               |
+| `object_scope`        | Scope of the non-compliant object, one of two values : `global` or `organization`        |
+| `object_type`         | Type of the non-compliant object                                                         |
+| `rule_broken`         | The rule not respected by the non-compliant object                                       |
+| `rule_id`             | Rule name if available otherwise the rule order (index + 1)                              |
+| `rule_index`          | Index of rule (starting from 0)                                                          |
 
 Example of `rules_violations_data` :
 
@@ -91,18 +91,18 @@ There is generic rules fields which are object-type-agnostic and other fields th
 
 ### Generic Rules
 
-| Variable Name | Type     | Description |
-| :------------ | :------: | :---------- |
-| `rule_name`   |  string   | A descriptive string set by the user to better identify the rule  |
-| `organizations` | list     | Limit the audit to the objects belonging to the organizations specified in this list. Not applicable to every rule. See the rules below for mor details.  |
-| `objects`   | list   | The object types to be audited  |
-| `exceptions` | dictionary   | The specific objects to be discarded from the audit. Applicable only to specific rules. See specific rules details below.  |
-| `mandatory_fields`  | list   | The fields that are mandatory. It is a violation if they are empty or undefined. At the moment, `organizations` is ineffective with this rule. |
-| `minimum_defined_globally`  | integer   | The minimum objects count allowed to be defined globally for the objects specified in `objects` |
-| `maximum_defined_globally`  | integer   | The maximum objects count allowed to be defined globally for the objects specified in `objects` |
-| `minimum_defined_per_org`  | integer   | The minimum objects count allowed to be defined in the organizations specified in `organizations` for the objects specified in `objects` |
-| `maximum_defined_per_org`  | integer   | The maximum objects count allowed to be defined in the organizations specified in `organizations` for the objects specified in `objects` |
-| `fields_regex`  | dictionary  | control if the fields of the objects defined in `objects` respect the declared regular expression. The dictionary keys are the fields to be monitored and the values are the corresponding regex. See examples below. |
+| Variable Name              | Type       | Description                                                                                                                                                                                                           |
+| :------------              | :------:   | :----------                                                                                                                                                                                                           |
+| `rule_name`                |  string    | A descriptive string set by the user to better identify the rule                                                                                                                                                      |
+| `organizations`            | list       | Limit the audit to the objects belonging to the organizations specified in this list. Not applicable to every rule. See the rules below for mor details.                                                              |
+| `objects`                  | list       | The object types to be audited                                                                                                                                                                                        |
+| `exceptions`               | dictionary | The specific objects to be discarded from the audit. Applicable only to specific rules. See specific rules details below.                                                                                             |
+| `mandatory_fields`         | list       | The fields that are mandatory. It is a violation if they are empty or undefined. At the moment, `organizations` is ineffective with this rule.                                                                        |
+| `minimum_defined_globally` | integer    | The minimum objects count allowed to be defined globally for the objects specified in `objects`                                                                                                                       |
+| `maximum_defined_globally` | integer    | The maximum objects count allowed to be defined globally for the objects specified in `objects`                                                                                                                       |
+| `minimum_defined_per_org`  | integer    | The minimum objects count allowed to be defined in the organizations specified in `organizations` for the objects specified in `objects`                                                                              |
+| `maximum_defined_per_org`  | integer    | The maximum objects count allowed to be defined in the organizations specified in `organizations` for the objects specified in `objects`                                                                              |
+| `fields_regex`             | dictionary | control if the fields of the objects defined in `objects` respect the declared regular expression. The dictionary keys are the fields to be monitored and the values are the corresponding regex. See examples below. |
 
 #### Generic Rule Examples
 
@@ -166,11 +166,11 @@ The following rules are specific to organizations and are ineffective for other 
 
 The organizations specific rules are compatible with the `exceptions` field
 
-| Variable Name | Type     | Description |
-| :------------ | :------: | :---------- |
-| `max_hosts_per_organization`   |  integer   | The maximum hosts count allowed for the organization  |
-| `allowed_organization_default_environments`   |  list   | The only possible EEs to be used in the organization  |
-| `forbidden_organization_default_environments` |  integer  | The maximum hosts count allowed for the organization  |
+| Variable Name                                 | Type     | Description                                          |
+| :-------------------------------------------- | :------: | :--------------------------------------------------- |
+| `max_hosts_per_organization`                  |  integer | The maximum hosts count allowed for the organization |
+| `allowed_organization_default_environments`   |  list    | The only possible EEs to be used in the organization |
+| `forbidden_organization_default_environments` |  integer | The maximum hosts count allowed for the organization |
 
 ##### Organizations specific rules example 1 : Allow only the specified EEs and deny everything else
 
@@ -209,9 +209,9 @@ The following rule is specific to the inventories. However it needs both `contro
 
 The inventories specific rules are compatible with the `exceptions` field
 
-| Variable Name | Type     | Description |
-| :------------ | :------: | :---------- |
-| `max_hosts_per_inventory`   |  integer   | The maximum hosts count allowed for the organization  |
+| Variable Name             | Type    | Description                                          |
+| :------------------------ | :-----: | :--------------------------------------------------- |
+| `max_hosts_per_inventory` | integer | The maximum hosts count allowed for the organization |
 
 ##### Inventories specific rules examples
 
@@ -235,9 +235,9 @@ aap_rules:
 
 The following rule is specific to hosts. However it needs both `controller_groups` and `controller_hosts` to be defined to work correctly.
 
-| Variable Name | Type     | Description |
-| :------------ | :------: | :---------- |
-| `allow_ungrouped_hosts`|  boolean | Set to `true` to flag ungrouped hosts as violations  |
+| Variable Name           | Type     | Description                                         |
+| :---------------------- | :------: | :-------------------------------------------------- |
+| `allow_ungrouped_hosts` |  boolean | Set to `true` to flag ungrouped hosts as violations |
 
 ##### Hosts specific rules examples
 
@@ -254,10 +254,10 @@ aap_rules:
 
 The following rules are specific to credentials.
 
-| Variable Name | Type     | Description |
-| :------------ | :------: | :---------- |
-| `encrypt_credentials_sensitive_data`  |  boolean   | Set to `true` to activate sensitive data encryption check |
-| `credential_sensitive_data`   |  dictionary   | The credential types and the lists of the sensitive fields to check. The dictionary keys are the credential type to check and the values are the list of the input sub-fields. See the example below.   |
+| Variable Name                         | Type          | Description                                                                                                                                                                                           |
+| :------------------------------------ | :-----------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `encrypt_credentials_sensitive_data`  |  boolean      | Set to `true` to activate sensitive data encryption check                                                                                                                                             |
+| `credential_sensitive_data`           |  dictionary   | The credential types and the lists of the sensitive fields to check. The dictionary keys are the credential type to check and the values are the list of the input sub-fields. See the example below. |
 
 **Important Note**: The sensitive data encryption check **will not work** if the credentials transit through intermediary variables, like when the `filetree_read` role is used.
 
@@ -288,11 +288,11 @@ The following rules are specific to users.
 
 The users rules are compatible with the `exceptions` option.
 
-| Variable Name | Type     | Description |
-| :------------ | :------: | :---------- |
-| `allow_superusers`|  boolean | Set to `false` to flag superusers as a violation  |
-| `allow_system_auditors`|  boolean | Set to `false` to flag system auditors as a violation  |
-| `encrypt_user_passwords`|  boolean | Set to `true` to flag unvaulted users passwords as a violation  |
+| Variable Name            | Type     | Description                                                     |
+| :----------------------- | :------: | :-------------------------------------------------------------- |
+| `allow_superusers`       |  boolean | Set to `false` to flag superusers as a violation                |
+| `allow_system_auditors`  |  boolean | Set to `false` to flag system auditors as a violation           |
+| `encrypt_user_passwords` |  boolean | Set to `true` to flag unvaulted users passwords as a violation  |
 
 **Important Note**: The `encrypt_user_passwords` option **will not work** if the users transit through intermediary variables, like when the `filetree_read` role is used.
 
@@ -317,10 +317,10 @@ aap_rules:
 
 The following rules are specific to roles.
 
-| Variable Name | Type     | Description |
-| :------------ | :------: | :---------- |
-| `allowed_roles`|  dictionary   | The allowed objects roles. Any role not explicitly listed in this dictionary will be flagged as a violation. The dictionary keys are the object types and the values are the list of the allowed roles. See the example below.   |
-| `forbidden_roles`|  dictionary   | The forbidden objects roles. The roles listed in this dictionary will be considered as a violation. Any other role not specified in this dictionary is allowed. The dictionary keys are the object types and the values are the list of the forbidden roles. See the example below. |
+| Variable Name     | Type       | Description                                                                                                                                                                                                                                                                         |
+| :---------------- | :--------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `allowed_roles`   | dictionary | The allowed objects roles. Any role not explicitly listed in this dictionary will be flagged as a violation. The dictionary keys are the object types and the values are the list of the allowed roles. See the example below.                                                      |
+| `forbidden_roles` | dictionary | The forbidden objects roles. The roles listed in this dictionary will be considered as a violation. Any other role not specified in this dictionary is allowed. The dictionary keys are the object types and the values are the list of the forbidden roles. See the example below. |
 
 ##### Roles specific rules example 1 : Allow only the specified roles. Deny anything else
 

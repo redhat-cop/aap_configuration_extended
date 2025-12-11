@@ -39,12 +39,12 @@ collections:
 
 ## Links to other Validated Configuration Collections for Ansible Automation Platform
 
-|                                      Collection Name                                       |                      Purpose                      |
-|:------------------------------------------------------------------------------------------:|:-------------------------------------------------:|
-| [AAP Configuration](https://github.com/redhat-cop/infra.aap_configuration)                 | Easy interaction with Ansible Automation Platform via Ansible roles |
-| [EE Utilities](https://github.com/redhat-cop/ee_utilities)                                 | Execution Environment creation utilities          |
-| [AAP installation Utilities](https://github.com/redhat-cop/aap_utilities)                  | Ansible Automation Platform Utilities             |
-| [AAP Configuration Template](https://github.com/redhat-cop/aap_configuration_template)     | Configuration Template for this suite             |
+|                                      Collection Name                                   |                      Purpose                                        |
+| :------------------------------------------------------------------------------------: | :-----------------------------------------------------------------: |
+| [AAP Configuration](https://github.com/redhat-cop/infra.aap_configuration)             | Easy interaction with Ansible Automation Platform via Ansible roles |
+| [EE Utilities](https://github.com/redhat-cop/ee_utilities)                             | Execution Environment creation utilities                            |
+| [AAP installation Utilities](https://github.com/redhat-cop/aap_utilities)              | Ansible Automation Platform Utilities                               |
+| [AAP Configuration Template](https://github.com/redhat-cop/aap_configuration_template) | Configuration Template for this suite                               |
 
 ## Included content
 
