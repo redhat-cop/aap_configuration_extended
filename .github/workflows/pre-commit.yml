@@ -19,12 +19,14 @@ on:
 
 jobs:
   pre-commit_and_sanity:
-    uses: "redhat-cop/ansible_collections_tooling/.github/workflows/pre_commit_workflow_crc.yml@main"
+    # uses: "redhat-cop/ansible_collections_tooling/.github/workflows/pre_commit_workflow_crc.yml@main"
+    uses: ./.github/workflows/pre_commit_workflow_crc.yml
     with:
       collection_namespace: infra
       collection_name: aap_configuration_extended
       collection_version: 1.1.1
       collection_repo: https://github.com/redhat-cop/aap_configuration_extended/
+      base_branch: devel
     secrets:
       ansible_ah_token: ${{ secrets.CRC_PUBLISH_KEY }}
 
