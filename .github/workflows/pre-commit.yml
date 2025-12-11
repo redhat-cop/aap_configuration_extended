@@ -20,7 +20,7 @@ on:
 jobs:
   pre-commit_and_sanity:
     # uses: "redhat-cop/ansible_collections_tooling/.github/workflows/pre_commit_workflow_crc.yml@main"
-    uses: lennysh/aap_configuration_extended/.github/workflows/pre_commit_workflow_crc.yml@markdown-link-workflow-fixes
+    uses: "lennysh/ansible_collections_tooling/.github/workflows/pre_commit_workflow_crc.yml@add-base-branch-override"
     with:
       collection_namespace: infra
       collection_name: aap_configuration_extended
