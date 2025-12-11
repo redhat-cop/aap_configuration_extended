@@ -1,4 +1,0 @@
----
-bugfixes:
-  - Fix checking issues in the when clauses in `filetree_read` role
-...

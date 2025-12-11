@@ -229,3 +229,47 @@ releases:
     - upgrade_offline_sync.yml
     - workflow_job_templates_template.yml
     release_date: '2025-10-15'
+  4.0.0:
+    changes:
+      bugfixes:
+      - Added missing `gateway_*` var/yaml file reading tasks to `filetree_read`
+      - Adds a check for the PAH instance existence. If this is not available at the
+        AAP target instance, it won't make the filetree_create role to fail
+      - Change the exported output from using 'rulebook_name' to 'rulebook', according
+        to the input expected by infra.aap_configuration.eda_rulebook_activations
+        role
+      - Fix a variable in the filetree_create role that was causing wrong output contents
+        for controller_hosts
+      - Fix checking issues in the when clauses in `filetree_read` role
+      - Fix the exportation of the controller_settings that was failing when the parameter
+        AUTOMATION_ANALYTICS_LAST_ENTRIES was empty
+      - Fixes one problem concatenating string and integer when building a URI
+      - If there's no content to be added to any file, create the file with the variable
+        assigned to an empty list.
+      - Remove the default for aap_rules in aap_rules_validation role as it is a required
+        field.
+      - fix global execution environments comparison and exportation. Update the filetree_create
+        role acordingly.
+      - fix notification template output messages
+      major_changes:
+      - Remove `| default('$encrypted$')` when `secrets_as_variables` is `true`. This
+        will cause `dispatch` to fail with `variable undefined` instead of accidentally
+        changing the secret.
+      - Set `secrets_as_variables` to `true` in defaults/main.yml as this is safer
+        instead of accidentally importing `''` or `'$encrypted$`
+      minor_changes:
+      - Added the ability to change the output folder names in `filetree_create`
+    fragments:
+    - aap_rules_validation.yml
+    - filetree_create_controller_hosts.yml
+    - filetree_create_controller_settings.yaml
+    - filetree_create_eda_rulebook_activations.yaml
+    - filetree_create_folders.yml
+    - filetree_create_issue169.yaml
+    - filetree_create_notification_templates.yml
+    - filetree_read_gateway_vars.yml
+    - filetree_read_issues.yml
+    - filetree_read_when_issues.yml
+    - object_diff.yml
+    - secrets_as_variables_changes.yml
+    release_date: '2025-12-11'

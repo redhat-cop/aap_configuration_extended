@@ -1,4 +1,0 @@
----
-bugfixes:
-  - Fix a variable in the filetree_create role that was causing wrong output contents for controller_hosts
-...

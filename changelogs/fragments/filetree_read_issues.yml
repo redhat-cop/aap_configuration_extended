@@ -1,5 +1,0 @@
----
-bugfixes:
-  - Adds a check for the PAH instance existence. If this is not available at the AAP target instance, it won't make the filetree_create role to fail
-  - Fixes one problem concatenating string and integer when building a URI
-...

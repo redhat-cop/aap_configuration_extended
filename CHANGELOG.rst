@@ -4,6 +4,35 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v4.0.0
+======
+
+Major Changes
+-------------
+
+- Remove `| default('$encrypted$')` when `secrets_as_variables` is `true`. This will cause `dispatch` to fail with `variable undefined` instead of accidentally changing the secret.
+- Set `secrets_as_variables` to `true` in defaults/main.yml as this is safer instead of accidentally importing `''` or `'$encrypted$`
+
+Minor Changes
+-------------
+
+- Added the ability to change the output folder names in `filetree_create`
+
+Bugfixes
+--------
+
+- Added missing `gateway_*` var/yaml file reading tasks to `filetree_read`
+- Adds a check for the PAH instance existence. If this is not available at the AAP target instance, it won't make the filetree_create role to fail
+- Change the exported output from using 'rulebook_name' to 'rulebook', according to the input expected by infra.aap_configuration.eda_rulebook_activations role
+- Fix a variable in the filetree_create role that was causing wrong output contents for controller_hosts
+- Fix checking issues in the when clauses in `filetree_read` role
+- Fix the exportation of the controller_settings that was failing when the parameter AUTOMATION_ANALYTICS_LAST_ENTRIES was empty
+- Fixes one problem concatenating string and integer when building a URI
+- If there's no content to be added to any file, create the file with the variable assigned to an empty list.
+- Remove the default for aap_rules in aap_rules_validation role as it is a required field.
+- fix global execution environments comparison and exportation. Update the filetree_create role acordingly.
+- fix notification template output messages
+
 v3.0.2
 ======
 
