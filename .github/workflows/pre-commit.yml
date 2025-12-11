@@ -20,7 +20,7 @@ on:
 jobs:
   pre-commit_and_sanity:
     # uses: "redhat-cop/ansible_collections_tooling/.github/workflows/pre_commit_workflow_crc.yml@main"
-    uses: .github/workflows/pre_commit_workflow_crc.yml
+    uses: pre_commit_workflow_crc.yml
     with:
       collection_namespace: infra
       collection_name: aap_configuration_extended
