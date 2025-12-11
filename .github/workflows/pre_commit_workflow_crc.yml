@@ -57,7 +57,7 @@ jobs:
           use-verbose-mode: 'yes'
           check-modified-files-only: 'yes'
           config-file: '.mlc_config.json'
-          base-branch: ${{ inputs.base_branch || github.event.repository.default_branch || 'main' }}
+          base-branch: ${{ inputs.base_branch || 'main' }}
   all_green:
     if: ${{ always() }}
     needs:
@@ -72,4 +72,4 @@ jobs:
           '${{ needs.build-import.result }}',
           '${{ needs.markdown-link-check.result }}',
           ]) == {'success'}"
-
+...
