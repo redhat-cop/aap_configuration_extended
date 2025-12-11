@@ -223,8 +223,8 @@ class LookupModule(LookupBase):
                 item.pop("summary_fields")
         elif api_list[0]["type"] == "execution_environment":
             for item in api_list_reduced:
-                if 'organization' in item['summary_fields']:
-                    item.update({"organization": item['summary_fields']['organization']['name']})
+                if "organization" in item["summary_fields"]:
+                    item.update({"organization": item["summary_fields"]["organization"]["name"]})
                 else:
                     item.update({"organization": None})
                 item.pop("summary_fields")
