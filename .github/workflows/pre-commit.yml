@@ -6,6 +6,7 @@ name: pre-commit tests
 on:
   push:
     branches:
+      - markdown-link-workflow-fixes
       - '*_'  # ending underscore for trying things
       - devel
     tags:
