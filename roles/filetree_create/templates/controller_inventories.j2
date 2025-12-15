@@ -3,9 +3,12 @@
 controller_inventories:
 {% endif %}
   - name: "{{ current_inventories_asset_value.name }}"
-    description: !unsafe '{{ template_overrides_resources.inventory[current_inventories_asset_value.name].description
+    description: |-
+      {{ '{%- raw -%}' }}
+      {{ template_overrides_resources.inventory[current_inventories_asset_value.name].description
                      | default(template_overrides_global.inventory.description)
-                     | default(current_inventories_asset_value.description) | regex_replace("'", "''") }}'
+                     | default(current_inventories_asset_value.description) | regex_replace("'", "''") }}
+      {{ '{%- endraw -%}' }}
     organization: "{{ inventory_organization }}"
 {% if template_overrides_resources.inventory[current_inventories_asset_value.name].host_filter is defined
       or template_overrides_global.inventory.host_filter is defined

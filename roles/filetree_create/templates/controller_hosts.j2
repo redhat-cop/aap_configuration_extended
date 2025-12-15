@@ -4,9 +4,12 @@ controller_hosts: {{ [] if current_hosts_asset_value | length == 0 }}
 {% endif %}
 {% for host in current_hosts_asset_value if not host.has_inventory_sources %}
   - name: "{{ host.name }}"
-    description: !unsafe '{{ template_overrides_resources.host[host.name].description
+    description: |-
+      {{ '{%- raw -%}' }}
+      {{ template_overrides_resources.host[host.name].description
                      | default(template_overrides_global.host.description)
-                     | default(host.description) | regex_replace("'", "''") }}'
+                     | default(host.description) | regex_replace("'", "''") }}
+      {{ '{%- endraw -%}' }}
     inventory: "{{ host.summary_fields.inventory.name | default('ToDo: The host \'' + host.name + '\' must have an associated inventory') }}"
 {% if template_overrides_resources.host[host.name].variables is defined
       or template_overrides_global.host.variables is defined

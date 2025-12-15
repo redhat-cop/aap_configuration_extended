@@ -4,9 +4,12 @@ controller_inventory_sources: {{ [] if current_inventory_sources_asset_value | l
 {% endif %}
 {% for inventory_source in current_inventory_sources_asset_value %}
   - name: "{{ inventory_source.name }}"
-    description: !unsafe '{{ template_overrides_resources.inventory_source[inventory_source.name].description
+    description: |-
+      {{ '{%- raw -%}' }}
+      {{ template_overrides_resources.inventory_source[inventory_source.name].description
                      | default(template_overrides_global.inventory_source.description)
-                     | default(inventory_source.description) | regex_replace("'", "''") }}'
+                     | default(inventory_source.description) | regex_replace("'", "''") }}
+      {{ '{%- endraw -%}' }}
 {% if inventory_source.summary_fields.organization is defined %}
     organization: "{{ inventory_source.summary_fields.organization.name }}"
 {% endif %}
