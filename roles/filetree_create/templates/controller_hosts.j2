@@ -23,7 +23,7 @@ controller_hosts: {{ [] if current_hosts_asset_value | length == 0 }}
       {{ template_overrides_resources.host[host.name].variables
          | default(template_overrides_global.host.variables)
          | default(host.variables)
-         | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) | regex_replace('(^[^:]*): (.*){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=True)}}
+         | from_yaml | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true)}}
 {%- endif %}
 {% endfor %}
 ...

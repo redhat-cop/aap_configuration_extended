@@ -33,7 +33,7 @@ controller_notifications:
 {%       for key3,value3 in value2.items() %}
           {{ key3 }}: |-
             {{ '{%- raw -%}' }}
-            {{ value3 | to_nice_yaml(indent=2, sort_keys=false) | indent(width=25, first=False) }}
+            {{ value3 | to_nice_yaml(indent=2, sort_keys=false) | indent(width=25, first=false) }}
             {{ '{%- endraw -%}' }}
 {%       endfor %}
 {%     endfor -%}
@@ -41,7 +41,7 @@ controller_notifications:
 {%     for key2,value2 in value.items() %}
         {{ key2 }}: |-
           {{ '{%- raw -%}' }}
-          {{ value2 | to_nice_yaml(indent=2, sort_keys=false) | indent(width=21, first=False) }}
+          {{ value2 | to_nice_yaml(indent=2, sort_keys=false) | indent(width=21, first=false) }}
           {{ '{%- endraw -%}' }}
 {%     endfor -%}
 {%   endif %}
