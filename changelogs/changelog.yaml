@@ -273,3 +273,12 @@ releases:
     - object_diff.yml
     - secrets_as_variables_changes.yml
     release_date: '2025-12-11'
+  4.0.2:
+    changes:
+      bugfixes:
+      - infra.aap_configuration_extended.filetree_create now generates a dict instead
+        of a list for controller_settings, so infra.aap_configuration.dispatch can
+        use it directly
+    fragments:
+    - filtree_create_controller_settings.yaml
+    release_date: '2026-01-01'

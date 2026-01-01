@@ -4,6 +4,14 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v4.0.2
+======
+
+Bugfixes
+--------
+
+- infra.aap_configuration_extended.filetree_create now generates a dict instead of a list for controller_settings, so infra.aap_configuration.dispatch can use it directly
+
 v4.0.0
 ======
 
