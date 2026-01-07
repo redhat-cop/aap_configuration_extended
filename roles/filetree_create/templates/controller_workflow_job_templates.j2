@@ -18,26 +18,30 @@ controller_workflows:
         inventory: "{{ node.summary_fields.inventory.name }}"
 {% endif %}
         workflow_job_template: "{{ node.summary_fields.workflow_job_template.name }}"
-{% if node.summary_fields.unified_job_template.unified_job_type == 'workflow_approval' %}
+{% if node.summary_fields.unified_job_template is defined %}
+{%   if node.summary_fields.unified_job_template.unified_job_type == 'workflow_approval' %}
         approval_node:
           description: "{{ node.summary_fields.unified_job_template.description }}"
           name: "{{ node.summary_fields.unified_job_template.name }}"
           timeout: {{ node.summary_fields.unified_job_template.timeout }}
-{% else %}
-        unified_job_template: "{{ node.summary_fields.unified_job_template.name | default('ToDo: The node is pointing to a deleted Job Template') }}"
-{%   if node.verbosity != None %}
-        verbosity: "{{ node.verbosity }}"
 {%   else %}
+        unified_job_template: "{{ node.summary_fields.unified_job_template.name | default('ToDo: The node is pointing to a deleted Job Template') }}"
+{%     if node.verbosity != None %}
+        verbosity: "{{ node.verbosity }}"
+{%     else %}
 {%     set jt_var = query('ansible.platform.gateway_api', 'api/controller/v2/job_templates',
                           query_params={'name': node.summary_fields.unified_job_template.name},
                           host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                           return_all=true, max_objects=query_controller_api_max_objects) %}
-{%     if jt_var | length > 0 %}
-{%       if jt_var[0]['ask_verbosity_on_launch'] %}
+{%       if jt_var | length > 0 %}
+{%         if jt_var[0]['ask_verbosity_on_launch'] %}
         verbosity: "{{ jt_var[0]['verbosity'] }}"
+{%         endif %}
 {%       endif %}
 {%     endif %}
 {%   endif %}
+{% else %}
+        unified_job_template: "ToDo: The node is pointing to a deleted Job Template"
 {% endif %}
 {% if node.limit is defined %}
         limit: "{{ node.limit }}"
