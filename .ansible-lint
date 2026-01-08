@@ -10,7 +10,7 @@ exclude_paths:
   - 'changelogs/'
   - 'tests/templated_role_example'
   - .ansible/
-parseable: true
+# parseable: true
 use_default_rules: true
 strict: true
 profile: production
