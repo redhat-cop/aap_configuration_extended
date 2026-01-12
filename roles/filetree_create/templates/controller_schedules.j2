@@ -6,9 +6,12 @@ controller_schedules:
 {% if template_overrides_resources.schedule[current_schedules_asset_value.name].description is defined
       or template_overrides_global.schedule.description is defined
       or current_schedules_asset_value.description is defined %}
-    description: !unsafe '{{ template_overrides_resources.schedule[current_schedules_asset_value.name].description
+    description: |-
+      {{ '{%- raw -%}' }}
+      {{ template_overrides_resources.schedule[current_schedules_asset_value.name].description
                      | default(template_overrides_global.schedule.description)
-                     | default(current_schedules_asset_value.description) | regex_replace("'", "''") }}'
+                     | default(current_schedules_asset_value.description) | regex_replace("'", "''") }}
+      {{ '{%- endraw -%}' }}
 {% endif %}
     enabled: {{ template_overrides_resources.schedule[current_schedules_asset_value.name].enabled
                 | default(template_overrides_global.schedule.enabled)
@@ -71,7 +74,7 @@ controller_schedules:
       {{ template_overrides_resources.schedule[current_schedules_asset_value.name].extra_data
          | default(template_overrides_global.schedule.extra_data)
          | default(current_schedules_asset_value.extra_data)
-         | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) | regex_replace('(^[^:]*): (.*){([{%])', '\\g<1>: !unsafe \\g<2>{\\g<3>', multiline=True) | replace("$encrypted$", "\'\'") }}
+         | from_yaml | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true) | replace("$encrypted$", "\'\'")}}
 {%- endif -%}
 {% if query_credentials | length > 0 %}
     credentials:

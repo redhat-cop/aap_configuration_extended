@@ -2,11 +2,12 @@
 ---
 controller_notifications:
 {% endif %}
+{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
   - name: "{{ current_notification_templates_asset_value.name }}"
     organization: "{{ current_notification_templates_asset_value.summary_fields.organization.name }}"
     notification_type: "{{ current_notification_templates_asset_value.notification_type }}"
     notification_configuration:
-{% for key,value in current_notification_templates_asset_value.notification_configuration.items() %}
+{% for key,value in current_notification_templates_asset_value.notification_configuration.items() if value not in __empty_values %}
 {%   if value is mapping or (value | type_debug == 'list') %}
       {{ key }}: {{ value }}
 {%   elif (value | type_debug == 'int') %}
@@ -14,23 +15,34 @@ controller_notifications:
 {%   elif (value | lower) is match('true') or (value | lower) is match('false') %}
       {{ key }}: {{ value | bool | lower }}
 {%   else %}
-      {{ key }}: {{ '!unsafe ' if (value | regex_search('{{')) }}"{{ value | replace('\n','\\n') | replace('"', '\\"') }}"
+      {{ key }}: |-
+        {{ '{%- raw -%}' }}
+        {{ value | replace('\n','\\n') | replace('"', '\\"') }}
+        {{ '{%- endraw -%}' }}
 {%   endif %}
 {% endfor %}
-{% if current_notification_templates_asset_value.messages is defined and current_notification_templates_asset_value.messages %}
+{% if     current_notification_templates_asset_value.messages is defined
+      and current_notification_templates_asset_value.messages
+      and current_notification_templates_asset_value.messages | dict2items | rejectattr('value', 'in', __empty_values) | list | items2dict %}
     messages:
-{% for key,value in (current_notification_templates_asset_value.messages.items()) %}
+{% for key,value in (current_notification_templates_asset_value.messages.items()) if value not in __empty_values %}
       {{ key }}:
 {%   if key == 'workflow_approval' %}
 {%     for key2,value2 in value.items() %}
         {{ key2 }}:
 {%       for key3,value3 in value2.items() %}
-          {{ key3 }}: !unsafe {{ value3 | to_nice_yaml(indent=2, sort_keys=false) | indent(width=25, first=False) }}
+          {{ key3 }}: |-
+            {{ '{%- raw -%}' }}
+            {{ value3 | to_nice_yaml(indent=2, sort_keys=false) | indent(width=25, first=false) }}
+            {{ '{%- endraw -%}' }}
 {%       endfor %}
 {%     endfor -%}
 {%   else %}
 {%     for key2,value2 in value.items() %}
-        {{ key2 }}: !unsafe {{ value2 | to_nice_yaml(indent=2, sort_keys=false) | indent(width=21, first=False) }}
+        {{ key2 }}: |-
+          {{ '{%- raw -%}' }}
+          {{ value2 | to_nice_yaml(indent=2, sort_keys=false) | indent(width=21, first=false) }}
+          {{ '{%- endraw -%}' }}
 {%     endfor -%}
 {%   endif %}
 {% endfor %}

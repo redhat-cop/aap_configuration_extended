@@ -1,7 +1,7 @@
 ---
 - name: "Get current Team Roles from the API"
   ansible.builtin.set_fact:
-    team_roles_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/teams/' + teamid + '/roles/',
+    team_roles_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/teams/' + (teamid | string) + '/roles/',
                                   host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                   return_all=true, max_objects=query_controller_api_max_objects)
                          }}"

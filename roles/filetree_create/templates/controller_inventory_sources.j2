@@ -4,9 +4,12 @@ controller_inventory_sources: {{ [] if current_inventory_sources_asset_value | l
 {% endif %}
 {% for inventory_source in current_inventory_sources_asset_value %}
   - name: "{{ inventory_source.name }}"
-    description: !unsafe '{{ template_overrides_resources.inventory_source[inventory_source.name].description
+    description: |-
+      {{ '{%- raw -%}' }}
+      {{ template_overrides_resources.inventory_source[inventory_source.name].description
                      | default(template_overrides_global.inventory_source.description)
-                     | default(inventory_source.description) | regex_replace("'", "''") }}'
+                     | default(inventory_source.description) | regex_replace("'", "''") }}
+      {{ '{%- endraw -%}' }}
 {% if inventory_source.summary_fields.organization is defined %}
     organization: "{{ inventory_source.summary_fields.organization.name }}"
 {% endif %}
@@ -48,7 +51,7 @@ controller_inventory_sources: {{ [] if current_inventory_sources_asset_value | l
       {{ template_overrides_resources.inventory_source[inventory_source.name].source_vars
          | default(template_overrides_global.inventory_source.source_vars)
          | default(inventory_source.source_vars)
-         | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) | regex_replace('(^[^:]*): (.*){([{%])', '\\g<1>: !unsafe \\g<2>{\\g<3>', multiline=True)}}
+         | from_yaml | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true)}}
 {%- endif %}
     inventory: "{{ inventory_source.summary_fields.inventory.name }}"
     update_on_launch: "{{ template_overrides_resources.inventory_source[inventory_source.name].update_on_launch

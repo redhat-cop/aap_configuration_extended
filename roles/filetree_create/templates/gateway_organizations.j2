@@ -4,8 +4,15 @@ gateway_organizations: {{ [] if current_gateway_organizations_asset_value | leng
   - name: "{{ template_overrides_resources.gateway_organization[current_organization.name].name
                      | default(template_overrides_global.gateway_organization.name)
                      | default(current_organization.name) }}"
-    description: !unsafe '{{ template_overrides_resources.gateway_organization[current_organization.name].description
-                     | default(template_overrides_global.gateway_organization.description)
-                     | default(current_organization.description) | regex_replace("'", "''") }}'
+{%   if template_overrides_resources.gateway_organization[current_organization.name].description
+           | default(template_overrides_global.gateway_organization.description)
+           | default(current_organization.description) | regex_replace("'", "''") != '' %}
+    description: |-
+      {{ '{%- raw -%}' }}
+      {{ template_overrides_resources.gateway_organization[current_organization.name].description
+           | default(template_overrides_global.gateway_organization.description)
+           | default(current_organization.description) | regex_replace("'", "''") }}
+      {{ '{%- endraw -%}' }}
+{%   endif %}
 {% endfor %}
 ...

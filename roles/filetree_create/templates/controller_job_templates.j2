@@ -2,11 +2,18 @@
 ---
 controller_templates:
 {% endif %}
+{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
   - name: "{{ current_job_templates_asset_value.name }}"
-    description: !unsafe '{{ template_overrides_resources.job_template[current_job_templates_asset_value.name].description
+{% if template_overrides_resources.job_template[current_job_templates_asset_value.name].description
                              | default(template_overrides_global.job_template.description)
-                             | default(current_job_templates_asset_value.description) | regex_replace("'", "''")
-    }}'
+                             | default(current_job_templates_asset_value.description) | regex_replace("'", "''") not in __empty_values %}
+    description: |-
+      {{ '{%- raw -%}' }}
+      {{ template_overrides_resources.job_template[current_job_templates_asset_value.name].description
+                             | default(template_overrides_global.job_template.description)
+                             | default(current_job_templates_asset_value.description) | regex_replace("'", "''") }}
+      {{ '{%- endraw -%}' }}
+{% endif %}
     organization: "{{ current_job_templates_asset_value.summary_fields.organization.name | default(organization if organization != 'ORGANIZATIONLESS' else 'ToDo: The job template \'' + current_job_templates_asset_value.name + '\' must belong to an organization') }}"
     project: "{{ current_job_templates_asset_value.summary_fields.project.name | default('ToDo: The job template \'' + current_job_templates_asset_value.name + '\' must have a project assigned') }}"
 {% if template_overrides_resources.job_template[current_job_templates_asset_value.name].inventory is defined
@@ -134,10 +141,11 @@ controller_templates:
 {%     if extra_vars_item.value | type_debug is match('list') %}
       {{ extra_vars_item.key }}:
 {%       for current_list_item in extra_vars_item.value if ((extra_vars_item.value | string | length) > 0 and (extra_vars_item.value | string) is not match('None')) %}
-        - {{ (current_list_item | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') | regex_replace('(^[^{]*){([{%])(.*)', '!unsafe "\\g<1>{\\g<2>\\g<3>"', multiline=True) }}
+        - {{ '"{%- raw -%}' }}{{ (current_list_item | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
 {%       endfor %}
 {%     else %}
-      {{ extra_vars_item.key }}: {{ (extra_vars_item.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') | regex_replace('(^[^{]*){([{%])(.*)', '!unsafe "\\g<1>{\\g<2>\\g<3>"', multiline=True) }}
+      {{ extra_vars_item.key }}: {{ '"{%- raw -%}' }}{{ (extra_vars_item.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
+
 {%     endif %}
 {%   endfor %}
 {% else %}
@@ -214,7 +222,7 @@ controller_templates:
 {%         if survey_item_content.value is number %}
 {%           set current_content = survey_item_content.key + ': ' + survey_item_content.value | string %}
 {%         else %}
-{%           set current_content = survey_item_content.key + ': !unsafe "' + (survey_item_content.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') + '"' %}
+{%           set current_content = survey_item_content.key + ': "{%- raw -%}' + (survey_item_content.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') + '{%- endraw -%}"' %}
 {%         endif %}
 {%       elif survey_item_content.key is not match('choices') %}
 {%         set current_content = survey_item_content.key + ': ' + survey_item_content.value | string %}
@@ -232,7 +240,7 @@ controller_templates:
 {%                 if choice is number %}
             - {{ choice }}
 {%                 else %}
-            - !unsafe "{{ choice | regex_replace("\n", "\\\\n", multiline=true) | regex_replace('"', '\\"', multiline=true) }}"
+            - "{{ '{%- raw -%}' }}{{ choice | regex_replace("\n", "\\\\n", multiline=true) | regex_replace('"', '\\"', multiline=true) }}{{ '{%- endraw -%}' }}"
 {%                 endif %}
 {%             endfor %}
 {%           endif %}

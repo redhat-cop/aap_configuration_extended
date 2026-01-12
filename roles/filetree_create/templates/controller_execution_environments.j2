@@ -1,11 +1,19 @@
 ---
 controller_execution_environments: {{ [] if current_execution_environments_asset_value | length == 0 }}
+{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
 {% for ee in current_execution_environments_asset_value %}
 {%   if organization_filter is not defined or (ee.summary_fields.organization is defined and ee.summary_fields.organization.name is match(organization_filter)) %}
   - name: "{{ ee.name }}"
-    description: !unsafe '{{ template_overrides_resources.ee[ee.name].description
+{%     if template_overrides_resources.ee[ee.name].description
                      | default(template_overrides_global.ee.description)
-                     | default(ee.description) | regex_replace("'", "''") }}'
+                     | default(ee.description) | regex_replace("'", "''") not in __empty_values %}
+    description: |-
+      {{ '{%- raw -%}' }}
+      {{ template_overrides_resources.ee[ee.name].description
+                     | default(template_overrides_global.ee.description)
+                     | default(ee.description) | regex_replace("'", "''") }}
+      {{ '{%- endraw -%}' }}
+{%     endif %}
 {%     if ee.summary_fields.organization.name is defined %}
     organization: "{{ ee.summary_fields.organization.name }}"
 {%     else %}

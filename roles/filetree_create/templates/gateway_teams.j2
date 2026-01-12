@@ -4,9 +4,12 @@ aap_teams: {{ [] if current_gateway_teams_asset_value | length == 0 }}
   - name: "{{ template_overrides_resources.gateway_team[current_team.name].name
                      | default(template_overrides_global.gateway_team.name)
                      | default(current_team.name) }}"
-    description: !unsafe '{{ template_overrides_resources.gateway_team[current_team.name].description
+    description: |-
+      {{ '{%- raw -%}' }}
+      {{ template_overrides_resources.gateway_team[current_team.name].description
                      | default(template_overrides_global.gateway_team.description)
-                     | default(current_team.description) | regex_replace("'", "''") }}'
+                     | default(current_team.description) | regex_replace("'", "''") }}
+      {{ '{%- endraw -%}' }}
     organization: "{{ template_overrides_resources.gateway_team[current_team.name].organization
                      | default(template_overrides_global.gateway_team.organization)
                      | default(current_team.summary_fields.organization.name) }}"

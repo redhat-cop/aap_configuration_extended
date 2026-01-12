@@ -2,11 +2,19 @@
 ---
 controller_hosts: {{ [] if current_hosts_asset_value | length == 0 }}
 {% endif %}
+{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
 {% for host in current_hosts_asset_value if not host.has_inventory_sources %}
   - name: "{{ host.name }}"
-    description: !unsafe '{{ template_overrides_resources.host[host.name].description
+{% if template_overrides_resources.host[host.name].description
                      | default(template_overrides_global.host.description)
-                     | default(host.description) | regex_replace("'", "''") }}'
+                     | default(host.description) | regex_replace("'", "''") not in __empty_values %}
+    description: |-
+      {{ '{%- raw -%}' }}
+      {{ template_overrides_resources.host[host.name].description
+                     | default(template_overrides_global.host.description)
+                     | default(host.description) | regex_replace("'", "''") }}
+      {{ '{%- endraw -%}' }}
+{% endif %}
     inventory: "{{ host.summary_fields.inventory.name | default('ToDo: The host \'' + host.name + '\' must have an associated inventory') }}"
 {% if template_overrides_resources.host[host.name].variables is defined
       or template_overrides_global.host.variables is defined
@@ -15,7 +23,7 @@ controller_hosts: {{ [] if current_hosts_asset_value | length == 0 }}
       {{ template_overrides_resources.host[host.name].variables
          | default(template_overrides_global.host.variables)
          | default(host.variables)
-         | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) | regex_replace('(^[^:]*): (.*){([{%])', '\\g<1>: !unsafe \\g<2>{\\g<3>', multiline=True)}}
+         | from_yaml | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true)}}
 {%- endif %}
 {% endfor %}
 ...

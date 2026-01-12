@@ -1,12 +1,20 @@
 ---
 gateway_services: {{ [] if current_gateway_services_asset_value | length == 0 }}
+{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
 {% for current_service in current_gateway_services_asset_value if current_service.name is not match('gateway api') %}
   - name: "{{ template_overrides_resources.gateway_service[current_service.name].name
                      | default(template_overrides_global.gateway_service.name)
                      | default(current_service.name) }}"
-    description: !unsafe '{{ template_overrides_resources.gateway_service[current_service.name].description
+{%   if template_overrides_resources.gateway_service[current_service.name].description
                      | default(template_overrides_global.gateway_service.description)
-                     | default(current_service.description) | regex_replace("'", "''") }}'
+                     | default(current_service.description) | regex_replace("'", "''") not in __empty_values %}
+    description: |-
+      {{ '{%- raw -%}' }}
+      {{ template_overrides_resources.gateway_service[current_service.name].description
+                     | default(template_overrides_global.gateway_service.description)
+                     | default(current_service.description) | regex_replace("'", "''") }}
+      {{ '{%- endraw -%}' }}
+{%   endif %}
     http_port: "{{ template_overrides_resources.gateway_service[current_service.name].http_port
                      | default(template_overrides_global.gateway_service.http_port)
                      | default(current_service.http_port) }}"
