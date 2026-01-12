@@ -1,0 +1,101 @@
+---
+- name: "Upgrade_config | LDAP mappings - Include the current output file (if exists)"
+  ansible.builtin.include_vars:
+    dir: "{{ aap25_configs_dir }}"
+    files_matching: "gateway_authenticator_maps.yaml"
+
+- name: "Upgrade_config | LDAP mappings - Add the is_superuser mapping"
+  ansible.builtin.set_fact:
+    gateway_authenticator_maps: "{{ (gateway_authenticator_maps | default([])) + [__current_map_value] }}"
+  vars:
+    __current_map_value:
+      name: "{{ 'administrators' if __current_map.key is match('is_superuser') else __current_map.key }}"
+      authenticator: "{{ input_authenticator_name | default(input_config_prefix) }}"
+      map_type: "{{ __current_map.key }}"
+      revoke: "{{ input_revoke | default(true) | bool | lower }}"
+      triggers:
+        groups:
+          has_and: "{{ __current_map.value }}"
+  # Let auto-ordering... # order: "{{ (gateway_authenticator_maps | default([]) | length) + 1 | int }}"
+  loop: "{{ controller_settings[0].settings[input_config_prefix + '_USER_FLAGS_BY_GROUP'] | dict2items }}"
+  loop_control:
+    loop_var: __current_map
+
+- name: "Upgrade_config | LDAP mappings - Add the LDAP Team Mappings"
+  ansible.builtin.set_fact:
+    gateway_authenticator_maps: "{{ (gateway_authenticator_maps | default([])) + [__current_map_value] }}"
+  vars:
+    __current_map_value:
+      name: "{{ __current_map.key }}"
+      authenticator: "{{ input_authenticator_name | default(input_config_prefix) }}"
+      map_type: "team"
+      role: "Team Member"
+      organization: "{{ __current_map.value.organization }}"
+      team: "{{ __current_map.key }}"
+      revoke: "{{ __current_map.value.remove | default(false) | bool | lower }}"
+      triggers:
+        groups:
+          has_and:
+            - "{{ __current_map.value.users }}"
+  # Let auto-ordering... # order: "{{ (gateway_authenticator_maps | default([]) | length) + 1 | int }}"
+  loop: "{{ controller_settings[0].settings[input_config_prefix + '_TEAM_MAP'] | dict2items }}"
+  loop_control:
+    loop_var: __current_map
+    index_var: __current_team_map_index
+
+- name: "Upgrade_config | LDAP mappings - Add the LDAP Organization Mappings (Administrators)"
+  ansible.builtin.set_fact:
+    gateway_authenticator_maps: "{{ (gateway_authenticator_maps | default([])) + [__current_map_value_admins] }}"
+  vars:
+    __current_map_value_admins:
+      name: "{{ __current_map.key }} Admins"
+      authenticator: "{{ input_authenticator_name | default(input_config_prefix) }}"
+      map_type: "organization"
+      role: "Organization Admin"
+      organization: "{{ __current_map.key }}"
+      team: "{{ __current_map.key }}"
+      revoke: "{{ __current_map.value.remove_admins | bool | lower }}"
+      triggers:
+        groups:
+          has_and:
+            - "{{ __current_map.value.admins }}"
+  # Let auto-ordering... # order: "{{ (gateway_authenticator_maps | default([]) | length) + 1 | int }}"
+  loop: "{{ controller_settings[0].settings[input_config_prefix + '_ORGANIZATION_MAP'] | dict2items }}"
+  loop_control:
+    loop_var: __current_map
+    index_var: __current_org_map_index
+  when:
+    - __current_map.value.admins is defined
+    - __current_map.value.admins | length > 0
+
+- name: "Upgrade_config | LDAP mappings - Add the LDAP Organization Mappings (Members)"
+  ansible.builtin.set_fact:
+    gateway_authenticator_maps: "{{ (gateway_authenticator_maps | default([])) + [__current_map_value_members] }}"
+  vars:
+    __current_map_value_members:
+      name: "{{ __current_map.key }} Members"
+      authenticator: "{{ input_authenticator_name | default(input_config_prefix) }}"
+      map_type: "organization"
+      role: "Organization Member"
+      organization: "{{ __current_map.key }}"
+      team: "{{ __current_map.key }}"
+      revoke: "{{ __current_map.value.remove_users | default(false) | bool | lower }}"
+      triggers:
+        groups:
+          has_and:
+            - "{{ __current_map.value.users }}"
+  # Let auto-ordering... # order: "{{ (gateway_authenticator_maps | default([]) | length) + 1 | int }}"
+  loop: "{{ controller_settings[0].settings[input_config_prefix + '_ORGANIZATION_MAP'] | dict2items }}"
+  loop_control:
+    loop_var: __current_map
+    index_var: __current_org_map_index
+  when:
+    - __current_map.value.users is defined
+    - __current_map.value.users | length > 0
+
+- name: "Upgrade_config | LDAP mappings - Write down the new data structure"
+  ansible.builtin.template:
+    src: "gateway_authenticator_maps.yaml.j2"
+    dest: "{{ aap25_configs_dir }}/gateway_authenticator_maps.yaml"
+    mode: "0644"
+...

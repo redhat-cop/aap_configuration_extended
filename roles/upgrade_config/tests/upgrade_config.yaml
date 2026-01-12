@@ -1,0 +1,17 @@
+---
+#
+# ansible-playbook -i localhost, upgrade_config.yaml -e '{sanitize: true}'
+#
+- name: "Playbook to upgrade CaC from AAP <= 2.4 to AAP >= 2.5 format"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: "Call upgrade_config role"
+      ansible.builtin.include_role:
+        name: infra.aap_configuration_extended.upgrade_config
+      vars:
+        aap24_configs_dir: "{{ playbook_dir }}/../../../tests/configs/upgrade_configs/aap_24"
+        aap25_configs_dir: "{{ playbook_dir }}/../../../tests/configs/upgrade_configs/aap_25"
+        input_authenticator_name: "IDM LDAP"
+...

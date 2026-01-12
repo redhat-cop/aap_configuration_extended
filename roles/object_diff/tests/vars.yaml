@@ -1,0 +1,26 @@
+---
+controller_configuration_filetree_read_secure_logging: "{{ controller_configuration_secure_logging | default(true) }}"
+
+# Controller Directory Path
+filetree_controller_settings: &a "/tmp/filetree_output/"
+filetree_aap_organizations: *a
+filetree_controller_labels: *a
+filetree_aap_user_accounts: *a
+filetree_aap_teams: *a
+filetree_controller_credential_types: *a
+filetree_controller_credentials: *a
+filetree_controller_credential_input_sources: *a
+filetree_controller_notifications: *a
+filetree_controller_projects: *a
+filetree_controller_execution_environments: *a
+filetree_aap_applications: *a
+filetree_controller_inventories: *a
+filetree_controller_inventory_sources: *a
+filetree_controller_instance_groups: *a
+filetree_controller_hosts: *a
+filetree_controller_groups: *a
+filetree_controller_templates: *a
+filetree_controller_workflow_job_templates: *a
+filetree_controller_schedules: *a
+filetree_controller_roles: *a
+...

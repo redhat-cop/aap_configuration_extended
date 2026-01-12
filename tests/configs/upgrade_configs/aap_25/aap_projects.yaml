@@ -1,0 +1,201 @@
+---
+controller_projects:
+  - name: Demo Project
+    description: ""
+    organization: Default
+    scm_type: git
+    scm_url: https://github.com/ansible/ansible-tower-samples
+    scm_branch: ""
+    scm_clean: "false"
+    scm_delete_on_update: "false"
+    scm_update_on_launch: "false"
+    scm_update_cache_timeout: "0"
+    scm_refspec: ""
+    allow_override: "false"
+    update_project: "false"
+    timeout: "0"
+  - name: Test Inventory source project
+    description: ansible-examples
+    organization: Default
+    scm_type: git
+    scm_url: https://github.com/ansible/ansible-examples.git
+    scm_branch: ""
+    scm_clean: "false"
+    scm_delete_on_update: "false"
+    scm_update_on_launch: "false"
+    scm_update_cache_timeout: "0"
+    scm_refspec: ""
+    allow_override: "false"
+    update_project: "false"
+    timeout: "0"
+  - name: Test Inventory source project with credential
+    description: ansible-examples
+    organization: Default
+    scm_type: git
+    scm_url: https://github.com/ansible/ansible-examples.git
+    scm_credential: gitlab-personal-access-token for satqe_auto_droid
+    scm_branch: ""
+    scm_clean: "false"
+    scm_delete_on_update: "false"
+    scm_update_on_launch: "false"
+    scm_update_cache_timeout: "0"
+    scm_refspec: ""
+    allow_override: "false"
+    update_project: "false"
+    timeout: "0"
+  - name: Test Project 2
+    description: Test Project 2
+    organization: Default
+    scm_type: git
+    scm_url: https://github.com/ansible/tower-example.git
+    scm_branch: ""
+    scm_clean: "false"
+    scm_delete_on_update: "false"
+    scm_update_on_launch: "false"
+    scm_update_cache_timeout: "0"
+    scm_refspec: ""
+    allow_override: "false"
+    update_project: "false"
+    timeout: "0"
+  - name: Test Project
+    description: Test Project 1
+    organization: Default
+    scm_type: git
+    scm_url: https://github.com/ansible/tower-example.git
+    scm_branch: master
+    scm_clean: "true"
+    scm_delete_on_update: "false"
+    scm_update_on_launch: "false"
+    scm_update_cache_timeout: "0"
+    scm_refspec: ""
+    allow_override: "false"
+    update_project: "false"
+    timeout: "0"
+  - name: Project_Dummy_1
+    description: ""
+    organization: Dummy
+    scm_type: git
+    scm_url: https://github.com/automationiberia/dummy-playbooks.git
+    scm_branch: ""
+    scm_clean: "false"
+    scm_delete_on_update: "false"
+    scm_update_on_launch: "false"
+    scm_update_cache_timeout: "0"
+    scm_refspec: ""
+    allow_override: "false"
+    update_project: "false"
+    timeout: "0"
+  - name: Project_Dummy_2
+    description: ""
+    organization: Dummy
+    scm_type: git
+    scm_url: https://github.com/automationiberia/dummy-playbooks.git
+    scm_branch: ""
+    scm_clean: "false"
+    scm_delete_on_update: "false"
+    scm_update_on_launch: "false"
+    scm_update_cache_timeout: "0"
+    scm_refspec: ""
+    allow_override: "false"
+    update_project: "false"
+    timeout: "0"
+  - name: Project_Dummy_3
+    description: ""
+    organization: Dummy
+    scm_type: git
+    scm_url: https://github.com/automationiberia/dummy-playbooks.git
+    scm_branch: ""
+    scm_clean: "false"
+    scm_delete_on_update: "false"
+    scm_update_on_launch: "false"
+    scm_update_cache_timeout: "0"
+    scm_refspec: ""
+    allow_override: "false"
+    update_project: "false"
+    timeout: "0"
+  - name: Demo Project @ 08:33:46 @ 09:05:48
+    description: ""
+    organization: Network - Router/Switch
+    scm_type: git
+    scm_url: https://github.com/ansible/ansible-tower-samples
+    scm_branch: ""
+    scm_clean: "false"
+    scm_delete_on_update: "false"
+    scm_update_on_launch: "false"
+    scm_update_cache_timeout: "0"
+    scm_refspec: ""
+    allow_override: "false"
+    update_project: "false"
+    timeout: "0"
+  - name: Controller CasC Examples Project
+    description: ""
+    organization: Recursive Workflows
+    scm_type: git
+    scm_url: https://github.com/automationiberia/controller-casc-examples.git
+    scm_branch: ""
+    scm_clean: "false"
+    scm_delete_on_update: "false"
+    scm_update_on_launch: "false"
+    scm_update_cache_timeout: "0"
+    scm_refspec: ""
+    allow_override: "false"
+    update_project: "false"
+    timeout: "0"
+  - name: Recursive Workflows Project
+    description: ""
+    organization: Recursive Workflows
+    scm_type: git
+    scm_url: https://github.com/ansible/ansible-tower-samples
+    scm_branch: ""
+    scm_clean: "false"
+    scm_delete_on_update: "false"
+    scm_update_on_launch: "false"
+    scm_update_cache_timeout: "0"
+    scm_refspec: ""
+    allow_override: "false"
+    update_project: "false"
+    timeout: "0"
+  - name: Test Inventory source project with credential
+    description: ansible-examples
+    organization: Satellite
+    scm_type: git
+    scm_url: https://github.com/ansible/ansible-examples.git
+    scm_credential: gitlab-personal-access-token for satqe_auto_droid
+    scm_branch: ""
+    scm_clean: "false"
+    scm_delete_on_update: "false"
+    scm_update_on_launch: "false"
+    scm_update_cache_timeout: "0"
+    scm_refspec: ""
+    allow_override: "false"
+    update_project: "false"
+    timeout: "0"
+  - name: Test Inventory source project
+    description: ansible-examples
+    organization: Satellite
+    scm_type: git
+    scm_url: https://github.com/ansible/ansible-examples.git
+    scm_branch: ""
+    scm_clean: "false"
+    scm_delete_on_update: "false"
+    scm_update_on_launch: "false"
+    scm_update_cache_timeout: "0"
+    scm_refspec: ""
+    allow_override: "false"
+    update_project: "false"
+    timeout: "0"
+  - name: Demo Project @ 08:33:46
+    description: ""
+    organization: tests/orgname
+    scm_type: git
+    scm_url: https://github.com/ansible/ansible-tower-samples
+    scm_branch: ""
+    scm_clean: "false"
+    scm_delete_on_update: "false"
+    scm_update_on_launch: "false"
+    scm_update_cache_timeout: "0"
+    scm_refspec: ""
+    allow_override: "false"
+    update_project: "false"
+    timeout: "0"
+...

@@ -13,7 +13,7 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+'  # final version
       - 'v[0-9]+.[0-9]+.[0-9]+[abrc]+[0-9]+'  # alpha, beta, release candidate (rc)
       - 'v[0-9]+.[0-9]+.[0-9]+.dev[0-9]+'  # development versions
-  pull_request:
+  pull_request_target:
   schedule:
     - cron: "0 6 * * *"
 
@@ -25,6 +25,7 @@ jobs:
       collection_name: aap_configuration_extended
       collection_version: 1.1.1
       collection_repo: https://github.com/redhat-cop/aap_configuration_extended/
+      base_branch: devel
     secrets:
       ansible_ah_token: ${{ secrets.CRC_PUBLISH_KEY }}
 

@@ -1,0 +1,18 @@
+---
+controller_groups:
+  - name: "dummy_group"
+    description: ""
+    inventory: "Inventory_Dummy_1"
+    hosts:
+      - dummy
+  - name: "dummy_group"
+    description: ""
+    inventory: "Inventory_Dummy_2"
+    hosts:
+      - dummy
+  - name: "dummy_group"
+    description: ""
+    inventory: "Inventory_Dummy_3"
+    hosts:
+      - dummy
+...

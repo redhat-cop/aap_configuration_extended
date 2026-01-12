@@ -1,0 +1,66 @@
+---
+controller_hosts:
+  - name: localhost
+    description: ""
+    inventory: Demo Inventory
+    variables:
+      ansible_connection: local
+      ansible_python_interpreter: !unsafe '{{ ansible_playbook_python }}'
+  - name: localhost2
+    description: ""
+    inventory: Demo Inventory
+    variables:
+      ansible_connection: local
+      ansible_python_interpreter: !unsafe '{{ ansible_playbook_python }}'
+  - name: localhost3
+    description: ""
+    inventory: Demo Inventory
+    variables:
+      ansible_connection: local
+      ansible_python_interpreter: !unsafe '{{ ansible_playbook_python }}'
+  - name: localhost
+    description: ""
+    inventory: Demo Inventory
+    variables:
+      ansible_connection: local
+      ansible_python_interpreter: !unsafe '{{ ansible_playbook_python }}'
+  - name: localhost2
+    description: ""
+    inventory: Demo Inventory
+    variables:
+      ansible_connection: local
+      ansible_python_interpreter: !unsafe '{{ ansible_playbook_python }}'
+  - name: localhost3
+    description: ""
+    inventory: Demo Inventory
+    variables:
+      ansible_connection: local
+      ansible_python_interpreter: !unsafe '{{ ansible_playbook_python }}'
+  - name: dummy
+    description: ""
+    inventory: Inventory_Dummy_1
+    variables:
+      ansible_host: 127.0.0.1
+  - name: dummy
+    description: ""
+    inventory: Inventory_Dummy_2
+    variables:
+      ansible_host: 127.0.0.1
+  - name: dummy
+    description: ""
+    inventory: Inventory_Dummy_3
+    variables:
+      ansible_host: 127.0.0.1
+  - name: localhost
+    description: ""
+    inventory: Recursive Workflows Inventory
+    variables:
+      ansible_connection: local
+      ansible_python_interpreter: !unsafe '{{ ansible_playbook_python }}'
+  - name: localhost
+    description: ""
+    inventory: localhost
+    variables:
+      ansible_connection: local
+      some_var: some_val
+...

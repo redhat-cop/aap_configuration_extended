@@ -4,6 +4,115 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v4.0.2
+======
+
+v4.0.1
+======
+
+Bugfixes
+--------
+
+- infra.aap_configuration_extended.filetree_create now generates a dict instead of a list for controller_settings, so infra.aap_configuration.dispatch can use it directly
+
+v4.0.0
+======
+
+Major Changes
+-------------
+
+- Remove `| default('$encrypted$')` when `secrets_as_variables` is `true`. This will cause `dispatch` to fail with `variable undefined` instead of accidentally changing the secret.
+- Set `secrets_as_variables` to `true` in defaults/main.yml as this is safer instead of accidentally importing `''` or `'$encrypted$`
+
+Minor Changes
+-------------
+
+- Added the ability to change the output folder names in `filetree_create`
+
+Bugfixes
+--------
+
+- Added missing `gateway_*` var/yaml file reading tasks to `filetree_read`
+- Adds a check for the PAH instance existence. If this is not available at the AAP target instance, it won't make the filetree_create role to fail
+- Change the exported output from using 'rulebook_name' to 'rulebook', according to the input expected by infra.aap_configuration.eda_rulebook_activations role
+- Fix a variable in the filetree_create role that was causing wrong output contents for controller_hosts
+- Fix checking issues in the when clauses in `filetree_read` role
+- Fix the exportation of the controller_settings that was failing when the parameter AUTOMATION_ANALYTICS_LAST_ENTRIES was empty
+- Fixes one problem concatenating string and integer when building a URI
+- If there's no content to be added to any file, create the file with the variable assigned to an empty list.
+- Remove the default for aap_rules in aap_rules_validation role as it is a required field.
+- fix global execution environments comparison and exportation. Update the filetree_create role acordingly.
+- fix notification template output messages
+
+v3.0.2
+======
+
+Bugfixes
+--------
+
+- Fix default value for webhook_service in workflow job templates
+- Fix verbosity key in workflow job templates
+- Upgraded offline_sync to work with AAP 2.5+
+- upgrade_config fix the names of the variables in the generated files
+
+v3.0.1
+======
+
+Bugfixes
+--------
+
+- Fix the issues detected in the last import log (galaxy)
+
+v3.0.0
+======
+
+Major Changes
+-------------
+
+- Remove controller_api_plugin and controller_role_plugin variables in favour of ansible.platform.gateway_api and infra.aap_configuration_extended.controller_object_diff
+
+Minor Changes
+-------------
+
+- Export PAH objects.
+- Fix the markdown errors for the CI to work properly
+
+Bugfixes
+--------
+
+- Fixes a bug where a survey option's default choice wasn't included in the choice list
+- Fixes an issue with the filetree_create role adding a '...' separate between each item in the job templates list flatten output is set to true.
+
+v2.0.0
+======
+
+Major Changes
+-------------
+
+- New role to update Configuration as Code files from 2.4 (infra.controller_configuration) format to 2.5 (infra.aap_configuration_extended)
+- Remove controller_api_plugin and eda_api_plugin variables in favour of ansible.platform.gateway_api
+
+Minor Changes
+-------------
+
+- Let the sensitive data of the credentials and users to be defined externally through a well know variables
+- Use correct API endpoint when connecting to AAP 2.5 when determining super user privileges
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- Remove aap<=2.4 api endpoints and version detections in the filetree_create role
+
+Bugfixes
+--------
+
+- Change connection variables to AAP from 'controller_*' to 'aap_*' when exporting the 'inventory_sources'.
+- Fix the exported contents of survey's choices in workflow job templates to avoid to have the clause '!unsafe' inside the generated string.
+- Set the correct API URL for the controller applications endpoint
+- There was a format error in the output after each key occurence. The template has been fixed.
+- There was an indentation error in the output at the `inputs` and `injectors` sections. The template has been fixed.
+- There was an indentation error in the output at the `inputs` and `injectors` sections. The template has been fixed.
+
 v1.1.1
 ======
 

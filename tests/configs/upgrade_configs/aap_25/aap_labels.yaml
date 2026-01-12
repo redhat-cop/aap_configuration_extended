@@ -1,0 +1,19 @@
+---
+controller_labels:
+  - name: test
+    organization: Default
+  - name: Prod
+    organization: Default
+  - name: differential
+    organization: Default
+  - name: differential2
+    organization: Default
+  - name: dummy_1
+    organization: Dummy
+  - name: dummy_2
+    organization: Dummy
+  - name: dummy_3
+    organization: Dummy
+  - name: Dev
+    organization: Satellite
+...

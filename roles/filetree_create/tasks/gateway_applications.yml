@@ -43,16 +43,17 @@
         line: ''
         state: absent
 
-- name: "Block for to generate the filetre_create normal output"
+- name: "Block for to generate the filetree_create normal output"
   when: flatten_output is not defined or not (flatten_output | bool)
   block:
-    - name: "Create the <ORGANIZATION_NAME>/gateway_applications output directory for applications in {{ output_path }}"
+    - name: "Create the <ORGANIZATION_NAME>/{{ __task_name_append }}"
       ansible.builtin.file:
         path: "{{ __path }}"
         state: directory
         mode: '0755'
       vars:
-        __path: "{{ output_path }}/{{ needed_path | regex_replace('/', '_') }}/gateway_applications"
+        __task_name_append: "{{ filetree_create_aap_applications }} output directory for applications in {{ output_path }}"
+        __path: "{{ output_path }}/{{ needed_path | regex_replace('/', '_') }}/{{ filetree_create_aap_applications }}"
       loop: "{{ (applications_lookvar | map(attribute='summary_fields') | selectattr('organization', 'defined') |
                 map(attribute='organization') | map(attribute='name') | list | flatten | unique)
                 + ([organization] if ((applications_lookvar | map(attribute='summary_fields')
@@ -62,16 +63,17 @@
         loop_var: needed_path
         label: "{{ __path }}"
 
-    - name: "Add current applications to the <ORGANIZATION_NAME>/gateway_applications output file in {{ output_path }}"
+    - name: "Add current applications to the <ORGANIZATION_NAME>/{{ __task_name_append }}"
       ansible.builtin.template:
         src: "templates/gateway_applications.j2"
         dest: "{{ __dest }}"
         mode: '0644'
       vars:
+        __task_name_append: "{{ filetree_create_aap_applications }} output file in {{ output_path }}"
         application_organization: "{{ current_applications_asset_value.summary_fields.organization.name | default(organization, true) }}"
         application_id: "{{ current_applications_asset_value.id }}"
         application_name: "{{ current_applications_asset_value.name | regex_replace('/', '_') }}"
-        __dest: "{{ output_path }}/{{ application_organization | regex_replace('/', '_') }}/gateway_applications/{{ (application_id ~ '_') if omit_id is not defined else '' }}{{ application_name | regex_replace('/', '_') }}.yaml"
+        __dest: "{{ output_path }}/{{ application_organization | regex_replace('/', '_') }}/{{ filetree_create_aap_applications }}/{{ (application_id ~ '_') if omit_id is not defined else '' }}{{ application_name | regex_replace('/', '_') }}.yaml"
       loop: "{{ applications_lookvar }}"
       loop_control:
         loop_var: current_applications_asset_value

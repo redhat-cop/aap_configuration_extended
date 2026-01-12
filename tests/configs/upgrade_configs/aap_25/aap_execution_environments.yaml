@@ -1,0 +1,23 @@
+---
+controller_execution_environments:
+  - name: Minimal execution environment
+    description: ""
+    image: registry.redhat.io/ansible-automation-platform-24/ee-minimal-rhel8:latest
+    pull: missing
+  - name: Default execution environment
+    description: ""
+    image: registry.redhat.io/ansible-automation-platform-24/ee-supported-rhel8:latest
+    pull: missing
+  - name: Automation Hub Minimal execution environment
+    description: ""
+    image: aap-all-in-one.iam.lab/ee-minimal-rhel8:latest
+    pull: missing
+  - name: Automation Hub Default execution environment
+    description: ""
+    image: aap-all-in-one.iam.lab/ee-supported-rhel8:latest
+    pull: missing
+  - name: My EE
+    description: ""
+    image: quay.io/ansible/awx-ee
+    pull: always
+...

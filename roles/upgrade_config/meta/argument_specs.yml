@@ -1,0 +1,14 @@
+---
+argument_specs:
+  main:
+    short_description: An Ansible Role to migrate configuration files from AAP <= 2.4 format to AAP >= 2.5
+    options:
+      aap24_configs_dir:
+        required: true
+        type: str
+        description: The path to the input directory where all the Configuration as Code files with AAP <= 2.4 format.
+      aap25_configs_dir:
+        required: true
+        type: str
+        description: The path to the output directory where all the Configuration as Code files AAP >= 2.5 format will be written to.
+...

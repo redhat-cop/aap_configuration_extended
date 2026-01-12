@@ -16,15 +16,14 @@ We are on the Ansible Forums and Matrix, if you want to discuss something, ask f
 
 ## Requirements
 
-The supported collections that contains the modules are required for this collection to work, and the validated collection infra.aap_configuration that this collection depends upon, you can copy this requirements.yml file example.
+The only one collection required by `infra.aap_configuration_extended` is the `infra.aap_configuration` (and that one is requiring other collections: ansible.platform, ansible.hub, ansible.controller and ansible.eda). You can copy this `requirements.yaml` file example:
 
 ```yaml
 ---
 collections:
-  - name: ansible.platform
-  - name: ansible.hub
   - name: ansible.controller
-  - name: ansible.eda
+  - name: ansible.hub
+  - name: ansible.platform
   - name: infra.aap_configuration
 ...
 ```
@@ -33,19 +32,19 @@ collections:
 
 |                                      Collection Name                                |            Purpose            |
 |:-----------------------------------------------------------------------------------:|:-----------------------------:|
-| ansible.platform repo (no public repo for this collection)                          | gateway/platform modules      |
+| [ansible.platform repo](https://github.com/ansible/ansible.platform)                | gateway/platform modules      |
 | [ansible.hub repo](https://github.com/ansible-collections/ansible_hub)              | Automation hub modules        |
 | [ansible.controller repo](https://github.com/ansible/awx/tree/devel/awx_collection) | Automation controller modules |
 | [ansible.eda repo](https://github.com/ansible/event-driven-ansible)                 | Event Driven Ansible modules  |
 
 ## Links to other Validated Configuration Collections for Ansible Automation Platform
 
-|                                      Collection Name                                       |                      Purpose                      |
-|:------------------------------------------------------------------------------------------:|:-------------------------------------------------:|
-| [AAP Configuration](https://github.com/redhat-cop/infra.aap_configuration)                 | Easy interaction with Ansible Automation Platform via Ansible roles |
-| [EE Utilities](https://github.com/redhat-cop/ee_utilities)                                 | Execution Environment creation utilities          |
-| [AAP installation Utilities](https://github.com/redhat-cop/aap_utilities)                  | Ansible Automation Platform Utilities             |
-| [AAP Configuration Template](https://github.com/redhat-cop/aap_configuration_template)     | Configuration Template for this suite             |
+|                                      Collection Name                                   |                      Purpose                                        |
+| :------------------------------------------------------------------------------------: | :-----------------------------------------------------------------: |
+| [AAP Configuration](https://github.com/redhat-cop/infra.aap_configuration)             | Easy interaction with Ansible Automation Platform via Ansible roles |
+| [EE Utilities](https://github.com/redhat-cop/ee_utilities)                             | Execution Environment creation utilities                            |
+| [AAP installation Utilities](https://github.com/redhat-cop/aap_utilities)              | Ansible Automation Platform Utilities                               |
+| [AAP Configuration Template](https://github.com/redhat-cop/aap_configuration_template) | Configuration Template for this suite                               |
 
 ## Included content
 
@@ -138,7 +137,7 @@ Controller token module would be invoked with this code:
 
 Every Ansible Controller instance has it's own particularities and needs. Every administrator team has it's own practices and customs. This collection allows adaptation to every need, from small to large scale, having the objects distributed across multiple environments and leveraging Automation Webhook that can be used to link a Git repository and Ansible automation natively.
 
-A complete example of how to use all of the roles present in the collection is available at the following [README.md](roles/filetree_create/automatetheautomation.md), where all the phases to allow CI/CD for the Controller Configuration are provided.
+A complete example of how to use all of the roles present in the collection is available at the following [README.md](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/roles/filetree_create/automatetheautomation.md), where all the phases to allow CI/CD for the Controller Configuration are provided.
 
 #### Scale at your needs
 
@@ -148,7 +147,7 @@ The input data can be organized in a very flexible way, letting the user use any
 
 The awx command line can export json that is compatible with this collection.
 In addition there is an awx.awx/ansible.controller export module that use the awx command line to export.
-See [the export guide](EXPORT_README.md) for more details
+See [the export guide](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/EXPORT_README.md) for more details
 
 ### AAP Instance Migration
 
@@ -177,7 +176,7 @@ See [our template](https://github.com/redhat-cop/aap_configuration_template) to 
 
 ## Release and Upgrade Notes
 
-For details on changes between versions, please see [the changelog for this collection](CHANGELOG.rst).
+For details on changes between versions, please see [the changelog for this collection](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/CHANGELOG.rst).
 
 ## Releasing, Versioning and Deprecation
 
@@ -208,4 +207,4 @@ Please read and familiarize yourself with this document.
 
 GNU General Public License v3.0 or later.
 
-See [LICENSE](LICENSE) to see the full text.
+See [LICENSE](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/LICENSE) to see the full text.

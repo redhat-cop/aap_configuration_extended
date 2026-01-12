@@ -1,0 +1,63 @@
+---
+- name: "Include tasks to check if user is a superuser"
+  ansible.builtin.include_tasks:
+    file: 'superuser_check.yml'
+
+- name: "Role differences (block)"
+  when:
+    - __controller_api_current_user_check_is_admin.is_superuser
+  block:
+    - name: "Gets current Organizations configured"
+      ansible.builtin.set_fact:
+        __controller_api_organizations: "{{ query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations',
+                                                  host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                                  return_all=true, max_objects=query_controller_api_max_objects)
+                                         }}"
+      no_log: "{{ controller_configuration_object_diff_secure_logging }}"
+
+    - name: "Find the difference of Organizations between what is on the Controller versus curated list."
+      ansible.builtin.set_fact:
+        __organizations_difference: "{{ query('infra.aap_configuration_extended.controller_object_diff',
+                                              api_list=__controller_api_organizations, compare_list=aap_organizations,
+                                              with_present=include_present_state, set_absent=true) | flatten
+                                     }}"
+
+    - name: "Set list __list_empty_orgs when protect_not_empty_orgs"
+      ansible.builtin.set_fact:
+        __list_empty_orgs: "{{ __list_empty_orgs | default([]) + [__organizations_difference_list_empty_item.name] }}"
+      loop: "{{ __organizations_difference }}"
+      loop_control:
+        loop_var: __organizations_difference_list_empty_item
+      no_log: "{{ controller_configuration_object_diff_secure_logging }}"
+      when:
+        - protect_not_empty_orgs is defined
+        - protect_not_empty_orgs
+        - query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations/' + (__organizations_difference_list_empty_item.name | urlencode) + '/users/',
+                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs) | length == 0
+        - query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations/' + (__organizations_difference_list_empty_item.name | urlencode) + '/admins/',
+                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs) | length == 0
+        - query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations/' + (__organizations_difference_list_empty_item.name | urlencode) + '/inventories/',
+                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs) | length == 0
+        - query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations/' + (__organizations_difference_list_empty_item.name | urlencode) + '/teams/',
+                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs) | length == 0
+        - query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations/' + (__organizations_difference_list_empty_item.name | urlencode) + '/projects/',
+                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs) | length == 0
+        - query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations/' + (__organizations_difference_list_empty_item.name | urlencode) + '/job_templates/',
+                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs) | length == 0
+        - query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations/' + (__organizations_difference_list_empty_item.name | urlencode) + '/workflow_job_templates/',
+                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs) | length == 0
+
+    - name: "Set Organization differences"
+      ansible.builtin.set_fact:
+        __aap_organizations: "{{ __aap_organizations | default([]) + [__organizations_difference_item] }}"
+      loop: "{{ __organizations_difference }}"
+      loop_control:
+        loop_var: __organizations_difference_item
+      when:
+        - __organizations_difference is defined
+        - protect_not_empty_orgs is not defined or not protect_not_empty_orgs or (__list_empty_orgs is defined and __organizations_difference_item.name in __list_empty_orgs)
+
+    - name: "Set organization's list to be configured"
+      ansible.builtin.set_fact:
+        aap_organizations: "{{ __aap_organizations | default([]) }}"
+...

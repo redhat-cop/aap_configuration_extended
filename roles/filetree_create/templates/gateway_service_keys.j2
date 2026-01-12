@@ -1,5 +1,5 @@
 ---
-gateway_service_keys:
+gateway_service_keys: {{ [] if current_gateway_service_keys_asset_value | length == 0 }}
 {% for current_service_key in current_gateway_service_keys_asset_value %}
   - name: "{{ template_overrides_resources.gateway_service_key[current_service_key.name].name
                      | default(template_overrides_global.gateway_service_key.name)
@@ -20,5 +20,6 @@ gateway_service_keys:
                      | default(template_overrides_global.gateway_route.mark_previous_inactive)
                      | default(current_service_key.mark_previous_inactive)
                      | default(false) }}" {# default(false) because it is required but not returned by the API #}
+
 {% endfor %}
 ...

@@ -158,17 +158,12 @@ controller_templates:
     timeout: {{ template_overrides_resources.job_template[current_job_templates_asset_value.name].timeout
                 | default(template_overrides_global.job_template.timeout)
                 | default(current_job_templates_asset_value.timeout | int) }}
-{% if is_aap and (template_overrides_resources.job_template[current_job_templates_asset_value.name].execution_environment is defined
-                  or template_overrides_global.job_template.execution_environment is defined
-                  or current_job_templates_asset_value.summary_fields.execution_environment is defined) %}
+{% if (template_overrides_resources.job_template[current_job_templates_asset_value.name].execution_environment is defined
+       or template_overrides_global.job_template.execution_environment is defined
+       or current_job_templates_asset_value.summary_fields.execution_environment is defined) %}
     execution_environment: "{{ template_overrides_resources.job_template[current_job_templates_asset_value.name].execution_environment
                                | default(template_overrides_global.job_template.execution_environment)
                                | default(current_job_templates_asset_value.summary_fields.execution_environment.name) }}"
-{% endif %}
-{% if not is_aap %}
-    custom_virtualenv: "{{ template_overrides_resources.job_template[current_job_templates_asset_value.name].custom_virtualenv
-                           | default(template_overrides_global.job_template.custom_virtualenv)
-                           | default(current_job_templates_asset_value.custom_virtualenv | default(omit)) }}"
 {% endif %}
     host_config_key: "{{ template_overrides_resources.job_template[current_job_templates_asset_value.name].host_config_key
                          | default(template_overrides_global.job_template.host_config_key)
@@ -216,7 +211,7 @@ controller_templates:
 {%     set _var = namespace(first_survey_item = true) %}
 {%     for survey_item_content in (survey_item | dict2items) if ((survey_item_content.value | string | length) > 0 and (survey_item_content.value | string) is not match('None')) %}
 {%       if survey_item_content.key | regex_search('question_name|question_description|default') %}
-{%         if survey_item_content.value is integer %}
+{%         if survey_item_content.value is number %}
 {%           set current_content = survey_item_content.key + ': ' + survey_item_content.value | string %}
 {%         else %}
 {%           set current_content = survey_item_content.key + ': !unsafe "' + (survey_item_content.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') + '"' %}
@@ -234,7 +229,11 @@ controller_templates:
 {%           if survey_item_content.key is match('choices') and survey_item_content.value[0] is defined %}
           {{ survey_item_content.key }}:
 {%             for choice in survey_item_content.value if ((survey_item_content.value | string | length) > 0 and (survey_item_content.value | string) is not match('None')) %}
-            - "{{ choice | regex_replace('(^[^{]*){([{%])(.*)', '!unsafe "\\g<1>{\\g<2>\\g<3>"', multiline=True) }}"
+{%                 if choice is number %}
+            - {{ choice }}
+{%                 else %}
+            - !unsafe "{{ choice | regex_replace("\n", "\\\\n", multiline=true) | regex_replace('"', '\\"', multiline=true) }}"
+{%                 endif %}
 {%             endfor %}
 {%           endif %}
 {%         endif %}
@@ -267,6 +266,6 @@ controller_templates:
                                         | default(template_overrides_global.job_template.prevent_instance_group_fallback)
                                         | default(current_job_templates_asset_value.prevent_instance_group_fallback | bool | lower) }}
 {% endif %}
-{% if last_job_template | default(true) | bool | lower %}
+{% if last_job_template | default(true) | bool %}
 ...
 {% endif %}

@@ -1,0 +1,29 @@
+---
+- name: "Upgrade_config | Common Item - Copy the original file to the destination one: {{ current_common_item.object }}"
+  ansible.builtin.copy:
+    src: "{{ aap24_configs_dir }}/{{ input_filename_prefix | default('') }}{{ current_common_item.object }}.yaml"
+    dest: "{{ aap25_configs_dir }}/aap_{{ current_common_item.object }}.yaml"
+    mode: "0644"
+
+- name: "Replace the variable name: {{ current_common_item.object }}"
+  ansible.builtin.lineinfile:
+    path: "{{ aap25_configs_dir }}/aap_{{ current_common_item.object }}.yaml"
+    regex: '^controller_(.*):\s*$'
+    line: '{{ __prefix }}_\g<1>:'
+    backrefs: true
+  vars:
+    __prefix: "{{ 'aap' if current_common_item.object in variable_prefix.aap else
+                  'gateway' if current_common_item.object in variable_prefix.gateway else
+                  'controller' if current_common_item.object in variable_prefix.controller else
+                  'UNKNOWN'
+               }}"
+  when: current_common_item.object not in ['notifications']
+
+- name: "Replace the variable name: {{ current_common_item.object }}"
+  ansible.builtin.lineinfile:
+    path: "{{ aap25_configs_dir }}/aap_{{ current_common_item.object }}.yaml"
+    regex: '^controller_notifications:\s*$'
+    line: 'notification_templates:'
+    backrefs: true
+  when: current_common_item.object in ['notifications']
+...

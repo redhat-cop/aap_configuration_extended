@@ -1,5 +1,5 @@
 ---
-- name: "Get the oauth token to be used since now"
+- name: "Get the oauth token to be used since now (always)"
   hosts: localhost
   connection: local
   gather_facts: false
@@ -7,11 +7,18 @@
     - always
   vars:
     # Controller connection variables
-    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
-    aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
-    aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
-    aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
+    __aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    __aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+    __aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    __aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
   tasks:
+    - name: "Declare the connection variables for all the plays"
+      ansible.builtin.set_fact:
+        aap_username: "{{ __aap_username }}"
+        aap_password: "{{ __aap_password }}"
+        aap_hostname: "{{ __aap_hostname }}"
+        aap_validate_certs: "{{ __aap_validate_certs }}"
+
     - name: "Setup authentication (block)"
       no_log: "{{ controller_configuration_filetree_create_secure_logging | default(true) }}"
       when: aap_oauthtoken is not defined
@@ -46,7 +53,7 @@
             aap_oauthtoken_url: "{{ authtoken_res.json.url }}"
 
 # Run example (All the plays): ansible-playbook -i configs/gv/inventory_test.yml test_filetree_read.yaml -e@configs/gv/vaults/test.yml
-- name: "Test the filetree_read reading custom inputs"
+- name: "Test the filetree_read reading custom inputs (custom)"
   # Run example: ansible-playbook test_filetree_read.yaml --tags custom
   hosts: localhost
   connection: local
@@ -85,7 +92,7 @@
     - infra.aap_configuration_extended.filetree_read
     - infra.aap_configuration.dispatch
 
-- name: "Test the filetree_read reading the filetree_create default output"
+- name: "Test the filetree_read reading the filetree_create default output (fc)"
   # Run example: ansible-playbook test_filetree_read.yaml --tags fc
   hosts: localhost
   connection: local
@@ -118,16 +125,11 @@
     filetree_controller_workflow_job_templates: *fc_configs_path
     filetree_controller_schedules: *fc_configs_path
     filetree_controller_roles: *fc_configs_path
-    # Controller connection variables
-    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
-    aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
-    aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
-    aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
   roles:
     - infra.aap_configuration_extended.filetree_read
     - infra.aap_configuration.dispatch
 
-- name: "Test the filetree_read reading the filetree_create flatten output"
+- name: "Test the filetree_read reading the filetree_create flatten output (fcf)"
   # Run example: ansible-playbook test_filetree_read.yaml --tags fcf
   hosts: localhost
   connection: local
@@ -164,7 +166,7 @@
     - infra.aap_configuration_extended.filetree_read
     - infra.aap_configuration.dispatch
 
-- name: "Test the filetree_read reading from group_vars folder"
+- name: "Test the filetree_read reading from group_vars folder (gv)"
   # Run example: ansible-playbook -i configs/gv/inventory_test.yml test_filetree_read.yaml -e@configs/gv/vaults/test.yml --tags gv
   hosts: localhost
   connection: local
@@ -209,4 +211,29 @@
   roles:
     - infra.aap_configuration_extended.filetree_read
     - infra.aap_configuration.dispatch
+
+- name: "Delete the Authentication Token used (always)"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tags:
+    - always
+  vars:
+    # Controller connection variables
+    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+    aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
+  tasks:
+    - name: "Delete the Authentication Token used"
+      ansible.builtin.uri:
+        url: "https://{{ aap_hostname }}{{ aap_oauthtoken_url }}"
+        user: "{{ aap_username }}"
+        password: "{{ aap_password }}"
+        method: DELETE
+        force_basic_auth: true
+        validate_certs: "{{ aap_validate_certs }}"
+        status_code: 204
+      when: aap_oauthtoken_url is defined
+
 ...

@@ -1,0 +1,24 @@
+---
+aap_teams:
+  - name: awx-team
+    description: ""
+    organization: AWX-ORG
+  - name: controller-team
+    description: ""
+    organization: CONTROLLER-ORG
+  - name: differential-1
+    description: ""
+    organization: Default
+  - name: differential-2
+    description: ""
+    organization: Default
+  - name: dummy
+    description: ""
+    organization: Dummy
+  - name: Systems Engineering
+    description: ""
+    organization: Systems Engineering
+  - name: team_test_1
+    description: ""
+    organization: test
+...

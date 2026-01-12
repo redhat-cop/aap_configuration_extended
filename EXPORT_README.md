@@ -2,7 +2,7 @@
 
 ## Description
 
-This is documentation on how to use a the Automation Controller export commands in development. You can also look at the [filetree_create](roles/filetree_create/README.md) role as another method to export data.
+This is documentation on how to use a the Automation Controller export commands in development. You can also look at the [filetree_create](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/roles/filetree_create/README.md) role as another method to export data.
 
 This command allows exporting all available endpoints for Automation Controller for use in importing, templates, backups and many other uses.
 
@@ -36,7 +36,7 @@ awx export --conf.host https://localhost --conf.username admin --conf.password *
      CONTROLLER_HOST: https://localhost
      CONTROLLER_USERNAME: admin
      CONTROLLER_PASSWORD: password
-     CONTROLLER_VERIFY_SSL: False
+     CONTROLLER_VERIFY_SSL: false
 
   tasks:
     - name: Export projects
@@ -50,7 +50,7 @@ awx export --conf.host https://localhost --conf.username admin --conf.password *
 
     - name: Export projects to file
       ansible.builtin.copy:
-        content: "{{ export_results | to_nice_yaml(width=50, explicit_start=True, explicit_end=True) }}"
+        content: "{{ export_results | to_nice_yaml(width=50, explicit_start=true, explicit_end=true) }}"
         dest: projects.yaml
 ...
 ```

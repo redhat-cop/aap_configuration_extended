@@ -1,0 +1,171 @@
+---
+gateway_authenticator_maps:
+  - name: administrators
+    authenticator: IDM LDAP
+    map_type: is_superuser
+    revoke: true
+    triggers:
+      groups:
+        has_and:
+          - cn=clusteradmins,cn=groups,cn=accounts,dc=c,dc=openenv-6hrc4,dc=internal
+  - name: Team1
+    authenticator: IDM LDAP
+    map_type: team
+    role: Team Member
+    organization: Default
+    team: Team1
+    revoke: true
+    triggers:
+      groups:
+        has_and:
+          - cn=team1,cn=groups,cn=accounts,dc=c,dc=openenv-6hrc4,dc=internal
+  - name: Team2
+    authenticator: IDM LDAP
+    map_type: team
+    role: Team Member
+    organization: Default
+    team: Team2
+    revoke: true
+    triggers:
+      groups:
+        has_and:
+          - cn=team2,cn=groups,cn=accounts,dc=c,dc=openenv-6hrc4,dc=internal
+  - name: Organization1 Admins
+    authenticator: IDM LDAP
+    map_type: organization
+    role: Organization Admin
+    organization: Organization1
+    team: Organization1
+    revoke: true
+    triggers:
+      groups:
+        has_and:
+          - cn=organization1admins,cn=groups,cn=accounts,dc=c,dc=openenv-6hrc4,dc=internal
+  - name: Organization2 Admins
+    authenticator: IDM LDAP
+    map_type: organization
+    role: Organization Admin
+    organization: Organization2
+    team: Organization2
+    revoke: true
+    triggers:
+      groups:
+        has_and:
+          - cn=organization2admins,cn=groups,cn=accounts,dc=c,dc=openenv-6hrc4,dc=internal
+  - name: Organization1 Members
+    authenticator: IDM LDAP
+    map_type: organization
+    role: Organization Member
+    organization: Organization1
+    team: Organization1
+    revoke: true
+    triggers:
+      groups:
+        has_and:
+          - cn=organization1,cn=groups,cn=accounts,dc=c,dc=openenv-6hrc4,dc=internal
+  - name: Organization2 Members
+    authenticator: IDM LDAP
+    map_type: organization
+    role: Organization Member
+    organization: Organization2
+    team: Organization2
+    revoke: true
+    triggers:
+      groups:
+        has_and:
+          - cn=organization2,cn=groups,cn=accounts,dc=c,dc=openenv-6hrc4,dc=internal
+  # - name: Is Superuser
+  #   authenticator: RHSSO
+  #   map_type: is_superuser
+  #   revoke: true
+  #   triggers:
+  #     attributes:
+  #       member:
+  #         contains: /AAPAdmins
+  #       join_condition: or
+  # - name: Is Auditor
+  #   authenticator: RHSSO
+  #   map_type: role
+  #   role: Platform Auditor
+  #   revoke: true
+  #   triggers:
+  #     attributes:
+  #       member:
+  #         contains: /AAPAuditors
+  #       join_condition: or
+  # - name: Dummy
+  #   authenticator: RHSSO
+  #   map_type: team
+  #   role: Team Member
+  #   organization: Dummy
+  #   team: Dummy
+  #   revoke: true
+  #   triggers:
+  #     never: {}
+  # - name: Default
+  #   authenticator: RHSSO
+  #   map_type: team
+  #   role: Team Member
+  #   organization: Default
+  #   team: Default
+  #   revoke: true
+  #   triggers:
+  #     groups:
+  #       has_and:
+  #         - arnold.schwarzenegger@example.net
+  # - name: Systems Engineering
+  #   authenticator: RHSSO
+  #   map_type: team
+  #   role: Team Member
+  #   organization: Systems Engineering
+  #   team: Systems Engineering
+  #   revoke: true
+  #   triggers:
+  #     groups:
+  #       has_and:
+  #         - /^[^@]+?@example\\.net$/
+  - name: Dummy Admins
+    authenticator: IDM LDAP
+    map_type: organization
+    role: Organization Admin
+    organization: Dummy
+    revoke: true
+    triggers:
+      always: {}
+  - name: Systems Engineering Admins
+    authenticator: IDM LDAP
+    map_type: organization
+    role: Organization Admin
+    organization: Systems Engineering
+    revoke: false
+    triggers:
+      groups:
+        has_and:
+          - arnold.schwarzenegger@example.net
+  - name: Dummy Members
+    authenticator: IDM LDAP
+    map_type: organization
+    role: Organization Member
+    organization: Dummy
+    revoke: true
+    triggers:
+      never: {}
+  - name: Default Members
+    authenticator: IDM LDAP
+    map_type: organization
+    role: Organization Member
+    organization: Default
+    revoke: true
+    triggers:
+      groups:
+        has_and:
+          - arnold.schwarzenegger@example.net
+  - name: Systems Engineering Members
+    authenticator: IDM LDAP
+    map_type: organization
+    role: Organization Member
+    organization: Systems Engineering
+    revoke: false
+    triggers:
+      always: {}
+...

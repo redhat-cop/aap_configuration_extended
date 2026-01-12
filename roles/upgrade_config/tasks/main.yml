@@ -1,0 +1,92 @@
+---
+- name: "Include vars from specified directory: {{ aap24_configs_dir }}"
+  ansible.builtin.include_vars:
+    dir: "{{ aap24_configs_dir }}"
+    extensions:
+      - yaml
+      - yml
+  tags:
+    - always
+
+- name: "Remove the specified output directory (sanitize tag): {{ aap25_configs_dir }}"
+  ansible.builtin.file:
+    state: absent
+    path: "{{ aap25_configs_dir }}"
+  when:
+    - sanitize is defined
+    - sanitize | bool
+
+- name: "Ensure the output directory exists: {{ aap25_configs_dir }}"
+  ansible.builtin.file:
+    state: directory
+    path: "{{ aap25_configs_dir }}"
+    mode: "0755"
+
+- name: "Upgrade all the configs from 2.4 to 2.5 format (LDAP and SAML)"
+  ansible.builtin.include_tasks:
+    file: "{{ _current_file.file }}"
+  vars:
+    _files:
+      - file: ldap/ldap.yaml
+        condition: AUTH_LDAP
+      - file: saml/saml.yaml
+        condition: SOCIAL_AUTH_SAML
+  loop: "{{ _files }}"
+  loop_control:
+    loop_var: _current_file
+  when: (controller_settings | first).settings | regex_search(_current_file.condition) == _current_file.condition
+  # when: (controller_settings | first).settings | regex_search(_current_file.condition) | length > 0
+  # when:    (controller_settings is defined and ((controller_settings | first).settings | regex_search(_current_file.condition) | default([], true) | length > 0))
+  #       or (lookup('vars', _current_file.condition) is defined)
+
+- name: "Upgrade all the configs from 2.4 to 2.5 format (Common code)"
+  ansible.builtin.include_tasks:
+    file: "common_item/common_item.yaml"
+  loop:
+    - object: applications
+    - object: credential_input_sources
+    - object: credential_types
+    - object: credentials
+    - object: execution_environments
+    - object: groups
+    - object: hosts
+    - object: instance_groups
+    - object: instances
+    - object: inventories
+    - object: inventory_sources
+    - object: labels
+    - object: notifications
+    - object: organizations
+    - object: projects
+    - object: roles
+      alt_name: role
+    - object: schedules
+    - object: teams
+    - object: templates
+    - object: user_accounts
+    - object: workflows
+  vars:
+    __var_name: "{{ lookup('vars', 'controller_' + current_common_item.object, default='non_exists') }}"
+  loop_control:
+    loop_var: current_common_item
+  when: '__var_name != "non_exists"'
+
+- name: "Block to fix the output files' format"
+  block:
+    - name: "Search for all the generated files"
+      ansible.builtin.find:
+        paths: "{{ aap25_configs_dir }}"
+        recurse: true
+        patterns:
+          - '*.yaml'
+          - '*.yml'
+      register: _generated_files
+
+    - name: "Re-write all the generated files to make them more readable"
+      ansible.builtin.shell: "/usr/bin/env yq -i -P {{ _current_file.path }} && echo '...' >> {{ _current_file.path }}"
+      changed_when: true
+      loop: "{{ _generated_files.files }}"
+      loop_control:
+        loop_var: _current_file
+        label: "{{ _current_file.path }}"
+...

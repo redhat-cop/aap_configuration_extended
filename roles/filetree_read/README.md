@@ -41,7 +41,7 @@ The following Variables set the organization where should be applied the configu
 |`filetree_controller_roles`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_roles.d/|no|Directory path to load controller object variables|
 |`filetree_controller_include`|String/List(String)|omit|no|patterns for find to include only matching|
 |`filetree_controller_exclude`|String/List(String)|omit|no|patterns for find to exclude matching|
-|`filetree_controller_regex`|bool|false|no|switch to allow find to use_regex in combination with include/exclude default matches find default |
+|`filetree_controller_regex`|bool|false|no|switch to allow find to use_regex in combination with include/exclude default matches find default|
 
 ### Data Structure
 
@@ -86,7 +86,6 @@ vault_aap_password: 'password'
 vault_aap_hostname: controller-dev.lab.example.com
 vault_controller_validate_certs: false
 ...
-
 ```
 
 ### Directory and Variables Data Structure
@@ -359,12 +358,10 @@ The role is designed to be used with tags, each tags correspond to an AWX or Aut
         status_code: 204
       when: aap_oauthtoken_url is defined
 ...
-
 ```
 
 ```bash
 ansible-playbook config-controller-filetree.yml --tags ${CONTROLLER_OBJECT} -e "{orgs: ${ORGANIZATION}, dir_orgs_vars: orgs_vars, env: ${ENVIRONMENT} }" --vault-password-file ./.vault_pass.txt -e @orgs_vars/env/${ENVIRONMENT}/configure_connection_controller_credentials.yml
-
 ```
 
 ## License

@@ -1,0 +1,137 @@
+---
+controller_schedules:
+  - name: "Cleanup Job Schedule"
+    description: "Automatically Generated Schedule"
+    enabled: true
+    unified_job_template: "Cleanup Job Details"
+    dtstart: "2024-10-20T07:05:18Z"
+    dtend: ""
+    timezone: "UTC"
+    rrule: "DTSTART:20241015T070518Z RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=SU"
+    extra_data:
+      days: "120"
+    scm_branch: ""
+    forks: 0
+    job_slice_count: 0
+    timeout: 0
+    job_type: ""
+    job_tags: ""
+    skip_tags: ""
+    limit: ""
+    verbosity: 0
+  - name: "Cleanup Activity Schedule"
+    description: "Automatically Generated Schedule"
+    enabled: true
+    unified_job_template: "Cleanup Activity Stream"
+    dtstart: "2024-10-15T07:05:18Z"
+    dtend: ""
+    timezone: "UTC"
+    rrule: "DTSTART:20241015T070518Z RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=TU"
+    extra_data:
+      days: "355"
+    scm_branch: ""
+    forks: 0
+    job_slice_count: 0
+    timeout: 0
+    job_type: ""
+    job_tags: ""
+    skip_tags: ""
+    limit: ""
+    verbosity: 0
+  - name: "Cleanup Expired Sessions"
+    description: "Cleans out expired browser sessions"
+    enabled: true
+    unified_job_template: "Cleanup Expired Sessions"
+    dtstart: "2024-10-15T07:05:55Z"
+    dtend: ""
+    timezone: "UTC"
+    rrule: "DTSTART:20241015T070555Z RRULE:FREQ=WEEKLY;INTERVAL=1"
+    scm_branch: ""
+    forks: 0
+    job_slice_count: 0
+    timeout: 0
+    job_type: ""
+    job_tags: ""
+    skip_tags: ""
+    limit: ""
+    verbosity: 0
+  - name: "Cleanup Expired OAuth 2 Tokens"
+    description: "Removes expired OAuth 2 access and refresh tokens"
+    enabled: true
+    unified_job_template: "Cleanup Expired OAuth 2 Tokens"
+    dtstart: "2024-10-15T07:05:55Z"
+    dtend: ""
+    timezone: "UTC"
+    rrule: "DTSTART:20241015T070555Z RRULE:FREQ=WEEKLY;INTERVAL=1"
+    scm_branch: ""
+    forks: 0
+    job_slice_count: 0
+    timeout: 0
+    job_type: ""
+    job_tags: ""
+    skip_tags: ""
+    limit: ""
+    verbosity: 0
+  - name: "dummy"
+    description: ""
+    enabled: true
+    unified_job_template: "Job_Template_Dummy_1"
+    inventory: "Inventory_Dummy_1"
+    dtstart: "2023-07-17T22:00:00Z"
+    dtend: "2023-07-17T23:30:00Z"
+    timezone: "Europe/Berlin"
+    rrule: "DTSTART;TZID=Europe/Berlin:20230718T000000 RRULE:FREQ=MINUTELY;INTERVAL=10;COUNT=10"
+    scm_branch: ""
+    forks: 0
+    job_slice_count: 0
+    timeout: 0
+    job_type: ""
+    job_tags: ""
+    skip_tags: ""
+    limit: ""
+    verbosity: 0
+  - name: "Demo Schedule"
+    description: "A demonstration"
+    enabled: true
+    unified_job_template: "test-template-1"
+    inventory: "RHVM-01"
+    dtstart: "2019-12-19T13:05:51Z"
+    dtend: "2019-12-19T13:05:51Z"
+    timezone: "UTC"
+    rrule: "DTSTART:20191219T130551Z RRULE:FREQ=DAILY;INTERVAL=1;COUNT=1"
+    scm_branch: ""
+    forks: 0
+    job_slice_count: 1
+    timeout: 0
+    job_type: ""
+    job_tags: ""
+    skip_tags: ""
+    limit: ""
+    diff_mode: false
+    verbosity: 0
+  - name: "Demo Schedule 2"
+    description: "Another demonstration"
+    enabled: true
+    unified_job_template: "Demo Job Template 2"
+    inventory: "localhost"
+    instance_groups:
+      - "default"
+    dtstart: "2025-05-07T00:00:00Z"
+    dtend: ""
+    timezone: "UTC"
+    rrule: "DTSTART:20200101T000000Z RRULE:FREQ=HOURLY;INTERVAL=3"
+    execution_environment: "My EE"
+    scm_branch: ""
+    forks: 2
+    job_slice_count: 1
+    labels:
+      - "differential"
+      - "differential2"
+    timeout: 165
+    job_type: ""
+    job_tags: ""
+    skip_tags: ""
+    limit: "all"
+    diff_mode: false
+    verbosity: 0
+...

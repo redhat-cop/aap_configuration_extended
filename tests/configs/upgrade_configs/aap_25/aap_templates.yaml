@@ -1,0 +1,570 @@
+---
+controller_templates:
+  - name: Demo Job Template
+    description: ""
+    organization: Default
+    project: Demo Project
+    inventory: Demo Inventory
+    playbook: hello_world.yml
+    scm_branch: ""
+    forks: 0
+    limit: ""
+    verbosity: 0
+    job_type: run
+    job_slice_count: 3
+    use_fact_cache: false
+    credentials:
+      - Demo Credential
+    allow_simultaneous: false
+    ask_scm_branch_on_launch: false
+    ask_diff_mode_on_launch: false
+    ask_tags_on_launch: false
+    ask_skip_tags_on_launch: false
+    ask_job_type_on_launch: false
+    ask_verbosity_on_launch: false
+    ask_variables_on_launch: false
+    ask_inventory_on_launch: false
+    ask_limit_on_launch: false
+    ask_credential_on_launch: false
+    ask_execution_environment_on_launch: false
+    ask_labels_on_launch: false
+    ask_forks_on_launch: false
+    ask_job_slice_count_on_launch: false
+    ask_timeout_on_launch: false
+    ask_instance_groups_on_launch: false
+    extra_vars:
+      my_extra_var:
+        - this
+        - is
+        - a
+        - list
+      my_extra_complex_var: !unsafe '{{ my_extra_var[0] }}'
+      my_extra_ultra_complex_var: !unsafe '{% if my_extra_var | length > 3 %}LARGE{% else %}SMALL'
+    job_tags: ""
+    force_handlers: false
+    skip_tags: ""
+    start_at_task: ""
+    timeout: 0
+    execution_environment: My EE
+    host_config_key: ""
+    survey_enabled: true
+    survey_spec:
+      name: ""
+      spec:
+        - max: 1024
+          min: 0
+          type: multiplechoice
+          choices:
+            - a
+            - b
+            - c
+          default: !unsafe b
+          required: true
+          variable: test_issue39
+          new_question: false
+          question_name: test issue39
+          question_description: !unsafe 'please copy-paste here the job id.  You''ll find a "JOBS / ########" it in the top-left area of job''s page: the #s are the job id.'
+        - max: 1024
+          min: 0
+          type: multiselect
+          choices:
+            - hola
+            - mundo
+          default: !unsafe |-
+            hola
+            mundo
+          required: true
+          variable: test_multiplechoice
+          new_question: false
+          question_name: test multiplechoice
+        - max: 1024
+          min: 0
+          type: text
+          required: true
+          variable: test_text
+          new_question: false
+          question_name: test_text
+        - max: 1024
+          min: 0
+          type: password
+          default: !unsafe ''''''
+          required: true
+          variable: test_pass
+          new_question: false
+          question_name: test_pass
+        - max: 1024
+          min: 0
+          type: textarea
+          default: !unsafe |-
+            Hola
+            Mon
+          required: true
+          variable: test_textarea
+          new_question: true
+          question_name: test textarea
+        - max: 1024
+          min: 0
+          type: text
+          default: !unsafe '{{ text_value }}'
+          required: true
+          variable: test_vars
+          new_question: false
+          question_name: test_vars
+        - max: 1024
+          min: 0
+          type: multiselect
+          choices:
+            - !unsafe '{{ var_a }}'
+            - !unsafe '{{ var_b }}'
+          default: !unsafe |-
+            {{ var_a }}
+            {{ var_b }}
+          required: true
+          variable: test_multiselect_vars
+          new_question: true
+          question_name: test_multiselect_vars
+        - max: 1024
+          min: 0
+          type: multiselect
+          choices:
+            - !unsafe '{% if var_a == ''a'' %} A {% else %} B {% endif %}'
+          default: !unsafe '{% if var_a == ''a'' %} A {% else %} B {% endif %}'
+          required: true
+          variable: test_multiselect_vars2
+          new_question: true
+          question_name: test_multiselect_vars2
+      description: ""
+    become_enabled: false
+    diff_mode: false
+    webhook_service: ""
+    prevent_instance_group_fallback: false
+  - name: test-template-1
+    description: created by Ansible Playbook
+    organization: Default
+    project: Test Project
+    inventory: RHVM-01
+    playbook: helloworld.yml
+    scm_branch: ""
+    forks: 0
+    limit: ""
+    verbosity: 2
+    job_type: run
+    job_slice_count: 1
+    use_fact_cache: false
+    credentials:
+      - admin@internal-RHVM-01
+    allow_simultaneous: false
+    ask_scm_branch_on_launch: false
+    ask_diff_mode_on_launch: false
+    ask_tags_on_launch: false
+    ask_skip_tags_on_launch: false
+    ask_job_type_on_launch: false
+    ask_verbosity_on_launch: false
+    ask_variables_on_launch: false
+    ask_inventory_on_launch: false
+    ask_limit_on_launch: false
+    ask_credential_on_launch: false
+    ask_execution_environment_on_launch: true
+    ask_labels_on_launch: true
+    ask_forks_on_launch: true
+    ask_job_slice_count_on_launch: true
+    ask_timeout_on_launch: true
+    ask_instance_groups_on_launch: true
+    extra_vars:
+      target_hosts: infra-ansible-tower-01.example.com
+    job_tags: ""
+    force_handlers: false
+    skip_tags: ""
+    start_at_task: ""
+    timeout: 0
+    host_config_key: ""
+    labels:
+      - Prod
+    survey_enabled: false
+    become_enabled: false
+    diff_mode: false
+    webhook_service: ""
+    prevent_instance_group_fallback: true
+  - name: Demo Job Template 2
+    description: ""
+    organization: Default
+    project: Test Project
+    inventory: localhost
+    playbook: helloworld.yml
+    scm_branch: ""
+    forks: 0
+    limit: ""
+    verbosity: 0
+    job_type: run
+    job_slice_count: 1
+    use_fact_cache: false
+    credentials:
+      - Demo Credential
+    allow_simultaneous: false
+    ask_scm_branch_on_launch: false
+    ask_diff_mode_on_launch: false
+    ask_tags_on_launch: false
+    ask_skip_tags_on_launch: false
+    ask_job_type_on_launch: false
+    ask_verbosity_on_launch: false
+    ask_variables_on_launch: false
+    ask_inventory_on_launch: true
+    ask_limit_on_launch: true
+    ask_credential_on_launch: false
+    ask_execution_environment_on_launch: true
+    ask_labels_on_launch: true
+    ask_forks_on_launch: true
+    ask_job_slice_count_on_launch: true
+    ask_timeout_on_launch: true
+    ask_instance_groups_on_launch: true
+    job_tags: ""
+    force_handlers: false
+    skip_tags: ""
+    start_at_task: ""
+    timeout: 0
+    execution_environment: My EE
+    host_config_key: ""
+    survey_enabled: false
+    become_enabled: false
+    diff_mode: false
+    webhook_service: ""
+    prevent_instance_group_fallback: true
+  - name: Job_Template_Dummy_2
+    description: ""
+    organization: Dummy
+    project: Project_Dummy_2
+    inventory: Inventory_Dummy_2
+    playbook: readonly-playbooks.yml
+    scm_branch: ""
+    forks: 0
+    limit: ""
+    verbosity: 0
+    job_type: run
+    job_slice_count: 1
+    use_fact_cache: false
+    allow_simultaneous: false
+    ask_scm_branch_on_launch: false
+    ask_diff_mode_on_launch: false
+    ask_tags_on_launch: false
+    ask_skip_tags_on_launch: false
+    ask_job_type_on_launch: false
+    ask_verbosity_on_launch: false
+    ask_variables_on_launch: false
+    ask_inventory_on_launch: false
+    ask_limit_on_launch: false
+    ask_credential_on_launch: false
+    ask_execution_environment_on_launch: false
+    ask_labels_on_launch: false
+    ask_forks_on_launch: false
+    ask_job_slice_count_on_launch: false
+    ask_timeout_on_launch: false
+    ask_instance_groups_on_launch: false
+    job_tags: ""
+    force_handlers: false
+    skip_tags: ""
+    start_at_task: ""
+    timeout: 0
+    host_config_key: ""
+    labels:
+      - dummy_2
+    survey_enabled: false
+    become_enabled: false
+    diff_mode: false
+    webhook_service: ""
+    prevent_instance_group_fallback: false
+  - name: Job_Template_Dummy_3
+    description: ""
+    organization: Dummy
+    project: Project_Dummy_3
+    inventory: Inventory_Dummy_3
+    playbook: helloworld.yml
+    scm_branch: ""
+    forks: 0
+    limit: ""
+    verbosity: 0
+    job_type: run
+    job_slice_count: 1
+    use_fact_cache: false
+    allow_simultaneous: false
+    ask_scm_branch_on_launch: false
+    ask_diff_mode_on_launch: false
+    ask_tags_on_launch: false
+    ask_skip_tags_on_launch: false
+    ask_job_type_on_launch: false
+    ask_verbosity_on_launch: false
+    ask_variables_on_launch: false
+    ask_inventory_on_launch: false
+    ask_limit_on_launch: false
+    ask_credential_on_launch: false
+    ask_execution_environment_on_launch: false
+    ask_labels_on_launch: false
+    ask_forks_on_launch: false
+    ask_job_slice_count_on_launch: false
+    ask_timeout_on_launch: false
+    ask_instance_groups_on_launch: false
+    job_tags: ""
+    force_handlers: false
+    skip_tags: ""
+    start_at_task: ""
+    timeout: 0
+    host_config_key: ""
+    labels:
+      - dummy_3
+    survey_enabled: false
+    become_enabled: false
+    diff_mode: false
+    webhook_service: ""
+    prevent_instance_group_fallback: false
+  - name: Job_Template_Dummy_1
+    description: ""
+    organization: Dummy
+    project: Project_Dummy_1
+    inventory: Inventory_Dummy_1
+    playbook: helloworld.yml
+    scm_branch: ""
+    forks: 0
+    limit: ""
+    verbosity: 0
+    job_type: run
+    job_slice_count: 1
+    use_fact_cache: false
+    allow_simultaneous: false
+    ask_scm_branch_on_launch: false
+    ask_diff_mode_on_launch: false
+    ask_tags_on_launch: false
+    ask_skip_tags_on_launch: false
+    ask_job_type_on_launch: false
+    ask_verbosity_on_launch: false
+    ask_variables_on_launch: false
+    ask_inventory_on_launch: false
+    ask_limit_on_launch: false
+    ask_credential_on_launch: false
+    ask_execution_environment_on_launch: false
+    ask_labels_on_launch: false
+    ask_forks_on_launch: false
+    ask_job_slice_count_on_launch: false
+    ask_timeout_on_launch: false
+    ask_instance_groups_on_launch: false
+    job_tags: ""
+    force_handlers: false
+    skip_tags: ""
+    start_at_task: ""
+    timeout: 0
+    host_config_key: ""
+    labels:
+      - dummy_1
+    survey_enabled: false
+    become_enabled: false
+    diff_mode: false
+    webhook_service: ""
+    prevent_instance_group_fallback: false
+  - name: task3
+    description: ""
+    organization: Recursive Workflows
+    project: Controller CasC Examples Project
+    inventory: Recursive Workflows Inventory
+    playbook: playbooks/task3.yaml
+    scm_branch: ""
+    forks: 0
+    limit: ""
+    verbosity: 0
+    job_type: run
+    job_slice_count: 1
+    use_fact_cache: false
+    allow_simultaneous: false
+    ask_scm_branch_on_launch: false
+    ask_diff_mode_on_launch: false
+    ask_tags_on_launch: false
+    ask_skip_tags_on_launch: false
+    ask_job_type_on_launch: false
+    ask_verbosity_on_launch: false
+    ask_variables_on_launch: false
+    ask_inventory_on_launch: false
+    ask_limit_on_launch: false
+    ask_credential_on_launch: false
+    ask_execution_environment_on_launch: false
+    ask_labels_on_launch: false
+    ask_forks_on_launch: false
+    ask_job_slice_count_on_launch: false
+    ask_timeout_on_launch: false
+    ask_instance_groups_on_launch: false
+    job_tags: ""
+    force_handlers: false
+    skip_tags: ""
+    start_at_task: ""
+    timeout: 0
+    host_config_key: ""
+    survey_enabled: false
+    become_enabled: false
+    diff_mode: false
+    webhook_service: ""
+    prevent_instance_group_fallback: false
+  - name: task2
+    description: ""
+    organization: Recursive Workflows
+    project: Controller CasC Examples Project
+    inventory: Recursive Workflows Inventory
+    playbook: playbooks/task2.yaml
+    scm_branch: ""
+    forks: 0
+    limit: ""
+    verbosity: 0
+    job_type: run
+    job_slice_count: 1
+    use_fact_cache: false
+    allow_simultaneous: false
+    ask_scm_branch_on_launch: false
+    ask_diff_mode_on_launch: false
+    ask_tags_on_launch: false
+    ask_skip_tags_on_launch: false
+    ask_job_type_on_launch: false
+    ask_verbosity_on_launch: false
+    ask_variables_on_launch: false
+    ask_inventory_on_launch: false
+    ask_limit_on_launch: false
+    ask_credential_on_launch: false
+    ask_execution_environment_on_launch: false
+    ask_labels_on_launch: false
+    ask_forks_on_launch: false
+    ask_job_slice_count_on_launch: false
+    ask_timeout_on_launch: false
+    ask_instance_groups_on_launch: false
+    job_tags: ""
+    force_handlers: false
+    skip_tags: ""
+    start_at_task: ""
+    timeout: 0
+    host_config_key: ""
+    survey_enabled: false
+    become_enabled: false
+    diff_mode: false
+    webhook_service: ""
+    prevent_instance_group_fallback: false
+  - name: task1
+    description: ""
+    organization: Recursive Workflows
+    project: Controller CasC Examples Project
+    inventory: Recursive Workflows Inventory
+    playbook: playbooks/task1.yaml
+    scm_branch: ""
+    forks: 0
+    limit: ""
+    verbosity: 0
+    job_type: run
+    job_slice_count: 1
+    use_fact_cache: false
+    allow_simultaneous: false
+    ask_scm_branch_on_launch: false
+    ask_diff_mode_on_launch: false
+    ask_tags_on_launch: true
+    ask_skip_tags_on_launch: false
+    ask_job_type_on_launch: false
+    ask_verbosity_on_launch: false
+    ask_variables_on_launch: false
+    ask_inventory_on_launch: false
+    ask_limit_on_launch: false
+    ask_credential_on_launch: false
+    ask_execution_environment_on_launch: false
+    ask_labels_on_launch: false
+    ask_forks_on_launch: false
+    ask_job_slice_count_on_launch: false
+    ask_timeout_on_launch: false
+    ask_instance_groups_on_launch: false
+    job_tags: ""
+    force_handlers: false
+    skip_tags: ""
+    start_at_task: ""
+    timeout: 0
+    host_config_key: ""
+    survey_enabled: false
+    become_enabled: false
+    diff_mode: false
+    webhook_service: ""
+    prevent_instance_group_fallback: false
+  - name: Parameterized Job Template
+    description: ""
+    organization: Recursive Workflows
+    project: Controller CasC Examples Project
+    inventory: Recursive Workflows Inventory
+    playbook: playbooks/simple-playbook.yaml
+    scm_branch: ""
+    forks: 0
+    limit: ""
+    verbosity: 0
+    job_type: run
+    job_slice_count: 1
+    use_fact_cache: false
+    credentials:
+      - Recursive Workflows Credential
+    allow_simultaneous: false
+    ask_scm_branch_on_launch: false
+    ask_diff_mode_on_launch: false
+    ask_tags_on_launch: false
+    ask_skip_tags_on_launch: false
+    ask_job_type_on_launch: false
+    ask_verbosity_on_launch: false
+    ask_variables_on_launch: true
+    ask_inventory_on_launch: false
+    ask_limit_on_launch: false
+    ask_credential_on_launch: false
+    ask_execution_environment_on_launch: false
+    ask_labels_on_launch: false
+    ask_forks_on_launch: false
+    ask_job_slice_count_on_launch: false
+    ask_timeout_on_launch: false
+    ask_instance_groups_on_launch: false
+    job_tags: ""
+    force_handlers: false
+    skip_tags: ""
+    start_at_task: ""
+    timeout: 0
+    host_config_key: ""
+    survey_enabled: false
+    become_enabled: false
+    diff_mode: false
+    webhook_service: ""
+    prevent_instance_group_fallback: false
+  - name: Recursive Workflows Job Template
+    description: ""
+    organization: Recursive Workflows
+    project: Recursive Workflows Project
+    inventory: Recursive Workflows Inventory
+    playbook: hello_world.yml
+    scm_branch: ""
+    forks: 0
+    limit: ""
+    verbosity: 0
+    job_type: run
+    job_slice_count: 1
+    use_fact_cache: false
+    credentials:
+      - Recursive Workflows Credential
+    allow_simultaneous: false
+    ask_scm_branch_on_launch: false
+    ask_diff_mode_on_launch: false
+    ask_tags_on_launch: false
+    ask_skip_tags_on_launch: false
+    ask_job_type_on_launch: false
+    ask_verbosity_on_launch: false
+    ask_variables_on_launch: false
+    ask_inventory_on_launch: false
+    ask_limit_on_launch: false
+    ask_credential_on_launch: false
+    ask_execution_environment_on_launch: false
+    ask_labels_on_launch: false
+    ask_forks_on_launch: false
+    ask_job_slice_count_on_launch: false
+    ask_timeout_on_launch: false
+    ask_instance_groups_on_launch: false
+    job_tags: ""
+    force_handlers: false
+    skip_tags: ""
+    start_at_task: ""
+    timeout: 0
+    host_config_key: ""
+    survey_enabled: false
+    become_enabled: false
+    diff_mode: false
+    webhook_service: ""
+    prevent_instance_group_fallback: false
+...
