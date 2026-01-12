@@ -4,9 +4,12 @@ controller_groups: {{ [] if current_groups_asset_value | length == 0 }}
 {% endif %}
 {% for group in current_groups_asset_value %}
   - name: "{{ group.name }}"
-    description: !unsafe '{{ template_overrides_resources.group[group.name].description
+    description: |-
+      {{ '{%- raw -%}' }}
+      {{ template_overrides_resources.group[group.name].description
                      | default(template_overrides_global.group.description)
-                     | default(group.description) | regex_replace("'", "''") }}'
+                     | default(group.description) | regex_replace("'", "''") }}
+      {{ '{%- endraw -%}' }}
     inventory: "{{ group.summary_fields.inventory.name }}"
 {% if template_overrides_resources.group[group.name].variables is defined
       or template_overrides_global.group.variables is defined
@@ -15,13 +18,13 @@ controller_groups: {{ [] if current_groups_asset_value | length == 0 }}
       {{ template_overrides_resources.group[group.name].variables
          | default(template_overrides_global.group.variables)
          | default(group.variables)
-         | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) | regex_replace('(^[^:]*): (.*){([{%])', '\\g<1>: !unsafe \\g<2>{\\g<3>', multiline=True)}}
+         | from_yaml | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true)}}
 {%- endif %}
     hosts:
 {{ query('ansible.platform.gateway_api', group.related.hosts,
          host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
          return_all=true, max_objects=query_controller_api_max_objects
-   ) | selectattr("name", "defined") | map(attribute="name") | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=True)
+   ) | selectattr("name", "defined") | map(attribute="name") | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=true)
 }}
 {%- endfor -%}
 ...

@@ -1,0 +1,39 @@
+---
+gateway_settings:
+  gateway_token_name: X-DAB-JW-TOKEN
+  gateway_access_token_expiration: "600"
+  jwt_expiration_buffer_in_seconds: "15"
+  gateway_basic_auth_enabled: "true"
+  gateway_proxy_url: http://aap-ocp.aap.svc.cluster.local
+  gateway_proxy_url_ignore_cert: "false"
+  jwt_private_key: $encrypted$
+  status_endpoint_backend_timeout_seconds: "5"
+  status_endpoint_backend_verify: "true"
+  resource_client_request_timeout: "10.0"
+  request_timeout: "15"
+  stream_idle_timeout: "60"
+  max_stream_duration: "3600"
+  trusted_header_timeout: "1000"
+  password_min_length: "0"
+  password_min_digits: "0"
+  password_min_upper: "0"
+  password_min_special: "0"
+  allow_admins_to_set_insecure: "false"
+  SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL: "false"
+  SESSION_COOKIE_AGE: "900"
+  DEFAULT_PAGE_SIZE: "50"
+  MAX_PAGE_SIZE: "200"
+  CSRF_TRUSTED_ORIGINS:
+    - https://aap-ocp-aap.apps-crc.testing
+  AAP_DEPLOYMENT_TYPE: self-managed
+  MANAGE_ORGANIZATION_AUTH: "true"
+  ORG_ADMINS_CAN_SEE_ALL_USERS: "true"
+  ALLOW_OAUTH2_FOR_EXTERNAL_USERS: "false"
+  INSIGHTS_TRACKING_STATE: "true"
+  RED_HAT_CONSOLE_URL: https://console.redhat.com
+  REDHAT_PASSWORD: $encrypted$
+  SUBSCRIPTIONS_PASSWORD: $encrypted$
+  AUTOMATION_ANALYTICS_GATHER_INTERVAL: "14400"
+  NOTIFICATION_RSS_FEED_URL: https://announcements.ansiblecloud.redhat.com/feed.atom
+  NOTIFICATION_RSS_FEED_ENABLED: "true"
+...

@@ -2,10 +2,18 @@
 ---
 controller_inventories:
 {% endif %}
+{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
   - name: "{{ current_inventories_asset_value.name }}"
-    description: !unsafe '{{ template_overrides_resources.inventory[current_inventories_asset_value.name].description
+{% if template_overrides_resources.inventory[current_inventories_asset_value.name].description
                      | default(template_overrides_global.inventory.description)
-                     | default(current_inventories_asset_value.description) | regex_replace("'", "''") }}'
+                     | default(current_inventories_asset_value.description) | regex_replace("'", "''") not in __empty_values %}
+    description: |-
+      {{ '{%- raw -%}' }}
+      {{ template_overrides_resources.inventory[current_inventories_asset_value.name].description
+                     | default(template_overrides_global.inventory.description)
+                     | default(current_inventories_asset_value.description) | regex_replace("'", "''") }}
+      {{ '{%- endraw -%}' }}
+{% endif %}
     organization: "{{ inventory_organization }}"
 {% if template_overrides_resources.inventory[current_inventories_asset_value.name].host_filter is defined
       or template_overrides_global.inventory.host_filter is defined
@@ -31,7 +39,7 @@ controller_inventories:
       {{ template_overrides_resources.inventory[current_inventories_asset_value.name].source_vars
          | default(template_overrides_global.inventory.source_vars)
          | default(current_inventories_asset_value.source_vars)
-         | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) |  regex_replace('(^[^:]*): (.*){([{%])', '\\g<1>: !unsafe \\g<2>{\\g<3>', multiline=True)}}
+         | from_yaml | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true)}}
 {% endif %}
 {% if template_overrides_resources.inventory[current_inventories_asset_value.name].update_cache_timeout is defined
       or template_overrides_global.inventory.update_cache_timeout is defined
@@ -61,7 +69,7 @@ controller_inventories:
       {{ template_overrides_resources.inventory[current_inventories_asset_value.name].variables
          | default(template_overrides_global.inventory.variables)
          | default(current_inventories_asset_value.variables)
-         | from_yaml | to_nice_yaml(indent=2, sort_keys=False) | indent(width=6, first=False) | regex_replace('(^[^:]*): (.*){([{%])', '\\g<1>: !unsafe \\g<2>{\\g<3>', multiline=True)}}
+         | from_yaml | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true)}}
 {%- endif %}
 {% if template_overrides_resources.inventory[current_inventories_asset_value.name].related.input_inventories is defined
       or template_overrides_global_global.inventory.related.input_inventories is defined

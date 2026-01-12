@@ -1,7 +1,8 @@
 ---
 controller_settings:
   settings:
-{% for key,value in all_settings[0].items() %}
+{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
+{% for key,value in all_settings[0].items() if value not in __empty_values %}
 {%   if value is mapping or value | type_debug == "list" %}
 {{ key | indent(width=4, first=True) }}:
 {{ value | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=True) }}
