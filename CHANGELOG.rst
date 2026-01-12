@@ -4,6 +4,9 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v4.0.2
+======
+
 v4.0.1
 ======
 

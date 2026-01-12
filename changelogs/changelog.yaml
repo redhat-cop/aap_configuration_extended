@@ -281,4 +281,4 @@ releases:
         use it directly
     fragments:
     - filtree_create_controller_settings.yaml
-    release_date: '2025-12-15'
+    release_date: '2026-01-01'
