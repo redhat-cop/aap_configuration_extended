@@ -1,4 +1,0 @@
----
-minor_changes:
-  - change the usage of '!unsafe' in favor of '{%- raw -%} ... {%- endraw -%}' blocks in the 'filetree_create' role
-...

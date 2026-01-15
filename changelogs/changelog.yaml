@@ -282,3 +282,18 @@ releases:
     fragments:
     - filtree_create_controller_settings.yaml
     release_date: '2026-01-01'
+  4.1.0:
+    changes:
+      bugfixes:
+      - Fix an issue with the notification templates output where an integer can't
+        be concatenated to a string when forming the URL (ansible >= 4.20.1)
+      - Fix the output of the workflow job templates when a node have it's unified_job_template
+        field not defined (the original JT has been deleted but the WF has not been
+        updated accordingly)
+      minor_changes:
+      - change the usage of '!unsafe' in favor of '{%- raw -%} ... {%- endraw -%}'
+        blocks in the 'filetree_create' role
+    fragments:
+    - filetree_create_fixes.yaml
+    - filetree_create_issue206.yaml
+    release_date: '2026-01-15'

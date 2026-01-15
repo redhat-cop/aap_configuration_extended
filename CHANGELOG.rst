@@ -4,8 +4,19 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
-v4.0.2
+v4.1.0
 ======
+
+Minor Changes
+-------------
+
+- change the usage of '!unsafe' in favor of '{%- raw -%} ... {%- endraw -%}' blocks in the 'filetree_create' role
+
+Bugfixes
+--------
+
+- Fix an issue with the notification templates output where an integer can't be concatenated to a string when forming the URL (ansible >= 4.20.1)
+- Fix the output of the workflow job templates when a node have it's unified_job_template field not defined (the original JT has been deleted but the WF has not been updated accordingly)
 
 v4.0.1
 ======
