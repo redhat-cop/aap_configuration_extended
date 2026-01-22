@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - Fix organization query in EDA decision environments template, organizations endpoint was incorrect
+...
