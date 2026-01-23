@@ -19,20 +19,11 @@
 
 - name: "Block to check if the PAH instance is available"
   block:
-    - name: "Get if PAH is available"
-      ansible.builtin.uri:
-        url: "https://{{ aap_hostname }}/api/"
-        user: "{{ aap_username }}"
-        password: "{{ aap_password }}"
-        method: GET
-        force_basic_auth: true
-        validate_certs: "{{ aap_validate_certs }}"
-        status_code: 200
-      register: __pah_check
-
     - name: "Set the fact to control whether the PAH is available or not"
       ansible.builtin.set_fact:
-        __pah_available: "{{ 'galaxy' in __pah_check.json.apis }}"
+        __pah_available: "{{ 'galaxy' in lookup('ansible.platform.gateway_api', '/api/',
+                       host=aap_hostname, oauth_token=aap_oauthtoken,
+                       verify_ssl=aap_validate_certs).apis }}"
 
 - name: Include tasks (block)
   when: "valid_tags | intersect(input_tag) | length > 0"
