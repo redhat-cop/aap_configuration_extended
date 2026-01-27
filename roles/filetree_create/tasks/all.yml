@@ -88,6 +88,9 @@
     - name: "Export Controller Schedules"
       ansible.builtin.include_tasks: "controller_schedules.yml"
       when: "'controller_schedules' in input_tag or 'controller' in input_tag or 'all' in input_tag"
+    - name: "Export Gateway Roles Definitions"
+      ansible.builtin.include_tasks: "gateway_role_definitions.yml"
+      when: "'gateway_role_definitions' in input_tag or 'gateway' in input_tag or 'all' in input_tag"
     - name: "Export Gateway Applications"
       ansible.builtin.include_tasks: "gateway_applications.yml"
       when: "'gateway_applications' in input_tag or 'gateway' in input_tag or 'all' in input_tag"
@@ -173,7 +176,4 @@
         - name: "Export HUB EE Images"
           ansible.builtin.include_tasks: "hub_ee_images.yml"
           when: "'hub_ee_images' in input_tag or 'hub' in input_tag or 'all' in input_tag"
-        - name: "Export HUB Roles"
-          ansible.builtin.include_tasks: "hub_roles.yml"
-          when: "'hub_roles' in input_tag or 'hub' in input_tag or 'all' in input_tag"
 ...
