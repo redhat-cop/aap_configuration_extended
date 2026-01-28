@@ -1,0 +1,15 @@
+---
+gateway_role_definitions: {{ [] if current_gateway_role_definitions_asset_value | length == 0 }}
+{% set __excluded_fields = ['id', 'url', 'related', 'summary_fields', 'modified', 'created', 'modified_by', 'created_by', 'managed'] %}
+{% set __excluded_values = ['Platform Auditor'] %}
+{% set __list_items = [] %}
+{% for current_role_definition in current_gateway_role_definitions_asset_value if current_role_definition.name not in __excluded_values %}
+{%   for __map_item in (current_role_definition | dict2items) if __map_item.key not in __excluded_fields %}
+{%     if loop.index == 1 %}
+  - {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
+{%     else %}
+    {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
+{%     endif %}
+{%-  endfor %}
+{% endfor %}
+...
