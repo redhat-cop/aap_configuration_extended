@@ -1,0 +1,5 @@
+---
+minor_changes:
+  - Don't read the files if they don't contains the corresponding variable
+  - No need to initialize the variables that have to be read from the input files
+...

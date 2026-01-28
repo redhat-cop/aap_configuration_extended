@@ -1,3 +1,4 @@
 ansible_collections
 ansible.cfg
 vault-aap-controller.yaml
+paths.yaml
