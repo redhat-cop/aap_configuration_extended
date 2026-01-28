@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - Export only non-managed role_definitions.
+...
