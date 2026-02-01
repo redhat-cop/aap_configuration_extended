@@ -297,3 +297,24 @@ releases:
     - filetree_create_fixes.yaml
     - filetree_create_issue206.yaml
     release_date: '2026-01-15'
+  4.2.0:
+    changes:
+      bugfixes:
+      - Change decision_environment_id to organization_id in eda_rulebook_activations.yml
+        to fix error when exporting rulebook activations
+      - Don't export hub roles (included into the role_definitions).
+      - Export only non-managed role_definitions.
+      - Fix organization query in EDA decision environments template, organizations
+        endpoint was incorrect
+      minor_changes:
+      - Don't read the files if they don't contains the corresponding variable
+      - Moved the valid_tags from role vars to defaults
+      - No need to initialize the variables that have to be read from the input files
+    fragments:
+    - filetree_create_eda_rulebook_activations.yaml
+    - filetree_create_eda_templates.yaml
+    - filetree_create_gateway_role_definitions.yaml
+    - filetree_create_hub_roles.yaml
+    - filetree_create_input_tags.yaml
+    - filetree_read_enhancements.yaml
+    release_date: '2026-02-01'

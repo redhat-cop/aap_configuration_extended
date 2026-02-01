@@ -1,4 +1,0 @@
----
-bugfixes:
-  - Change decision_environment_id to organization_id in eda_rulebook_activations.yml to fix error when exporting rulebook activations
-...

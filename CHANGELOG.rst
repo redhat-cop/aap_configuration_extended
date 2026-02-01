@@ -4,6 +4,24 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v4.2.0
+======
+
+Minor Changes
+-------------
+
+- Don't read the files if they don't contains the corresponding variable
+- Moved the valid_tags from role vars to defaults
+- No need to initialize the variables that have to be read from the input files
+
+Bugfixes
+--------
+
+- Change decision_environment_id to organization_id in eda_rulebook_activations.yml to fix error when exporting rulebook activations
+- Don't export hub roles (included into the role_definitions).
+- Export only non-managed role_definitions.
+- Fix organization query in EDA decision environments template, organizations endpoint was incorrect
+
 v4.1.0
 ======
 

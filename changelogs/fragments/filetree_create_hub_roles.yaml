@@ -1,4 +1,0 @@
----
-bugfixes:
-  - Don't export hub roles (included into the role_definitions).
-...

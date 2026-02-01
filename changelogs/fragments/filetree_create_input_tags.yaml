@@ -1,4 +1,0 @@
----
-minor_changes:
-  - Moved the valid_tags from role vars to defaults
-...
