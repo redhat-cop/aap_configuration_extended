@@ -1,0 +1,2 @@
+bugfixes:
+  - "filetree_create - Avoid job_templates and workflow_job_templates export failure if all their extra_vars are commented"
