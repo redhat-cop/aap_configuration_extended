@@ -117,7 +117,7 @@ controller_workflows:
                          | default(current_workflow_job_templates_asset_value.webhook_service) }}"
 {% if template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].extra_vars is defined
       or template_overrides_global.workflow_template.extra_vars is defined
-      or (current_workflow_job_templates_asset_value.extra_vars and current_workflow_job_templates_asset_value.extra_vars | length > 3) %}
+      or (current_workflow_job_templates_asset_value.extra_vars and current_workflow_job_templates_asset_value.extra_vars | from_yaml | string is not match('None')) %}
     extra_vars:
 {% set extra_vars_contents = template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].extra_vars
                              | default(template_overrides_global.workflow_job_template.extra_vars)
