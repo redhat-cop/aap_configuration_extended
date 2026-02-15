@@ -318,3 +318,11 @@ releases:
     - filetree_create_input_tags.yaml
     - filetree_read_enhancements.yaml
     release_date: '2026-02-01'
+  4.2.1:
+    changes:
+      bugfixes:
+      - filetree_create - Avoid job_templates and workflow_job_templates export failure
+        if all their extra_vars are commented
+    fragments:
+    - filetree_create_commented_extra_vars_.yaml
+    release_date: '2026-02-15'

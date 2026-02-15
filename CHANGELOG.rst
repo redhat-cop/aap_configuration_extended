@@ -4,6 +4,14 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v4.2.1
+======
+
+Bugfixes
+--------
+
+- filetree_create - Avoid job_templates and workflow_job_templates export failure if all their extra_vars are commented
+
 v4.2.0
 ======
 
