@@ -9,7 +9,7 @@
   vars:
     query_params:
       managed: false
-  no_log: "{{ configuration_filetree_create_secure_logging }}"
+  no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
 - name: "Create the output directory for Gateway Role Definitions: {{ output_path }}"
   ansible.builtin.file:
