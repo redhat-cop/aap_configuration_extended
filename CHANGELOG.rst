@@ -4,6 +4,15 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v4.2.2
+======
+
+Bugfixes
+--------
+
+- filetree_create - Avoid job_templates and workflow_job_templates export failure if all their extra_vars are commented
+- filetree_create - gateway_role_definitions.yml‎ - Fix no_log var undefined
+
 v4.2.0
 ======
 
