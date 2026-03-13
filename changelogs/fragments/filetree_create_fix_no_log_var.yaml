@@ -1,0 +1,2 @@
+bugfixes:
+  - "filetree_create - gateway_role_definitions.yml‎ - Fix no_log var undefined"

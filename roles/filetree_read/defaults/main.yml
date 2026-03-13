@@ -5,44 +5,6 @@
 env: dev
 controller_configuration_filetree_read_secure_logging: "{{ controller_configuration_secure_logging | default(true) }}"
 
-# Gateway lists
-gateway_authenticators: []
-gateway_authenticator_maps: []
-gateway_settings: []
-aap_organizations: []
-aap_applications: []
-gateway_http_ports: []
-gateway_service_clusters: []
-gateway_service_keys: []
-gateway_service_nodes: []
-gateway_services: []
-aap_teams: []
-aap_user_accounts: []
-# these two vars can't be init for ansible.platform <2.6
-# gateway_role_definitions: []
-# gateway_role_team_assignments: []
-gateway_role_user_assignments: []
-gateway_routes: []
-
-# Controller lists
-controller_settings: []
-controller_labels: []
-controller_credential_types: []
-controller_credentials: []
-controller_credential_input_sources: []
-controller_notifications: []
-controller_projects: []
-controller_execution_environments: []
-controller_inventories: []
-controller_inventory_sources: []
-controller_instance_groups: []
-controller_hosts: []
-controller_groups: []
-controller_templates: []
-controller_workflows: []
-controller_schedules: []
-controller_roles: []
-
 # Gateway Directory Paths
 filetree_gateway_authenticators: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_authenticators.d/"
 filetree_gateway_authenticator_maps: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_authenticator_maps.d/"

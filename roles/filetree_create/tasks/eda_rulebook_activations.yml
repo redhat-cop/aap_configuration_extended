@@ -94,7 +94,7 @@
             rulebook_activation_id: "{{ current_rulebook_activations_asset_value.id }}"
             rulebook_activation_name: "{{ current_rulebook_activations_asset_value.name | regex_replace('/', '_') }}"
             __dest: "{{ output_path }}/{{ rulebook_activation_organization | regex_replace('/', '_') }}/{{ filetree_create_eda_rulebook_activations }}/{{ (rulebook_activation_id ~ '_') if omit_id is not defined else '' }}{{ rulebook_activation_name | regex_replace('/', '_') }}.yaml"
-            query_organization_name: "{{ (query('ansible.platform.gateway_api', 'api/eda/v1/organizations/' + current_rulebook_activations_asset_value.decision_environment_id | string,
+            query_organization_name: "{{ (query('ansible.platform.gateway_api', 'api/eda/v1/organizations/' + current_rulebook_activations_asset_value.organization_id | string,
                                                 host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                                 return_all=true, max_objects=query_eda_api_max_objects) | first).name
                                      }}"

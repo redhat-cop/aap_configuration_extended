@@ -19,20 +19,11 @@
 
 - name: "Block to check if the PAH instance is available"
   block:
-    - name: "Get if PAH is available"
-      ansible.builtin.uri:
-        url: "https://{{ aap_hostname }}/api/"
-        user: "{{ aap_username }}"
-        password: "{{ aap_password }}"
-        method: GET
-        force_basic_auth: true
-        validate_certs: "{{ aap_validate_certs }}"
-        status_code: 200
-      register: __pah_check
-
     - name: "Set the fact to control whether the PAH is available or not"
       ansible.builtin.set_fact:
-        __pah_available: "{{ 'galaxy' in __pah_check.json.apis }}"
+        __pah_available: "{{ 'galaxy' in lookup('ansible.platform.gateway_api', '/api/',
+                       host=aap_hostname, oauth_token=aap_oauthtoken,
+                       verify_ssl=aap_validate_certs).apis }}"
 
 - name: Include tasks (block)
   when: "valid_tags | intersect(input_tag) | length > 0"
@@ -88,6 +79,9 @@
     - name: "Export Controller Schedules"
       ansible.builtin.include_tasks: "controller_schedules.yml"
       when: "'controller_schedules' in input_tag or 'controller' in input_tag or 'all' in input_tag"
+    - name: "Export Gateway Roles Definitions"
+      ansible.builtin.include_tasks: "gateway_role_definitions.yml"
+      when: "'gateway_role_definitions' in input_tag or 'gateway' in input_tag or 'all' in input_tag"
     - name: "Export Gateway Applications"
       ansible.builtin.include_tasks: "gateway_applications.yml"
       when: "'gateway_applications' in input_tag or 'gateway' in input_tag or 'all' in input_tag"
@@ -173,7 +167,4 @@
         - name: "Export HUB EE Images"
           ansible.builtin.include_tasks: "hub_ee_images.yml"
           when: "'hub_ee_images' in input_tag or 'hub' in input_tag or 'all' in input_tag"
-        - name: "Export HUB Roles"
-          ansible.builtin.include_tasks: "hub_roles.yml"
-          when: "'hub_roles' in input_tag or 'hub' in input_tag or 'all' in input_tag"
 ...
