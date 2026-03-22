@@ -22,11 +22,11 @@ repos:
           - "ansible-core>=2.15"
           - "yamllint>=1.26,<2.0"
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.21.0
+    rev: v0.22.0
     hooks:
       - id: markdownlint-cli2
   - repo: https://github.com/ambv/black
-    rev: 26.3.0
+    rev: 26.3.1
     hooks:
       - id: black
         name: black
