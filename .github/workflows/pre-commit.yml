@@ -18,8 +18,14 @@ on:
     - cron: "0 6 * * *"
 
 jobs:
-  pre-commit_and_sanity:
+  approve_run:
     environment: requires-approval
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Approval granted. Proceeding to reusable workflow."
+
+  pre-commit_and_sanity:
+    needs: approve_run
     uses: "redhat-cop/ansible_collections_tooling/.github/workflows/pre_commit_workflow_crc.yml@main"
     with:
       collection_namespace: infra
