@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - Add the 'yq' binary to the 'filetree_create' role to avoid having external dependencies
+...
