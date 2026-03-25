@@ -9,6 +9,8 @@ on:
 jobs:
   release:
     name: Release Collection to galaxy/AH
+    permissions:
+      contents: read
     uses: "redhat-cop/ansible_collections_tooling/.github/workflows/release_pipeline_dual_crc.yml@main"
     with:
       # Galaxy Publish

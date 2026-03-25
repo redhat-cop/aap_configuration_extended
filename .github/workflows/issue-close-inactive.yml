@@ -9,6 +9,8 @@ on:
 jobs:
   close-inactive-issues:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
       - name: close-issues
         uses: actions-cool/issues-helper@v3

@@ -9,6 +9,9 @@ on:
 jobs:
   issue-labeled:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     steps:
       - name: Create comment
         uses: actions-cool/issues-helper@v3
