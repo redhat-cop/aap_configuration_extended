@@ -49,6 +49,10 @@ The following variables are required for that role to work properly:
 
 A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
 
+## Output files format
+
+By default, `infra.aap_configuration_extended.filetree` role is running `yq -P` to enhance the readability of the generated files. This can be skipped thanks to the tag `yq_format`, that can be used in the `--skip-tags yq_format` ansible-playbook parameter.
+
 ## Example Playbook - export everything without modifications
 
 ```yaml

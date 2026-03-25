@@ -30,6 +30,8 @@
   tags: "{{ valid_tags }}"
 
 - name: "Block to fix the output files' format"
+  tags:
+    - yq_format
   block:
     - name: "Search for all the generated files"
       ansible.builtin.find:
@@ -40,19 +42,43 @@
           - '*.yml'
       register: _generated_files
 
+    - name: Gather system facts so we can find the user's home directory
+      ansible.builtin.setup:
+        gather_subset:
+          - min
+
+    - name: "Create a secure temporary directory in the user's home"
+      ansible.builtin.tempfile:
+        state: directory
+        path: "{{ ansible_user_dir }}"
+        prefix: my_binary_run_
+      register: temp_exec_dir
+
     - name: "Copy the 'yq' binary to be able to execute it"
       ansible.builtin.copy:
         src: yq_v4.52.4
-        dest: /tmp/yq
+        dest: "{{ temp_exec_dir.path }}/yq"
+        mode: '0755'
+
+    - name: "Copy the 'yq' binary to be able to execute it"
+      ansible.builtin.copy:
+        src: yq_v4.52.4
+        dest: "{{ temp_exec_dir.path }}/yq"
         mode: '0755'
 
     - name: "Re-write all the generated files to make them more readable"
-      ansible.builtin.shell: "/tmp/yq -i -P '{{ _current_file.path }}' && echo '...' >> '{{ _current_file.path }}'"
+      ansible.builtin.shell: "{{ temp_exec_dir.path }}/yq -i -P '{{ _current_file.path }}' && echo '...' >> '{{ _current_file.path }}'"
       changed_when: true
       loop: "{{ _generated_files.files }}"
       loop_control:
         loop_var: _current_file
         label: "{{ _current_file.path }}"
+
+  always:
+    - name: Clean up the temporary directory
+      ansible.builtin.file:
+        path: "{{ temp_exec_dir.path }}"
+        state: absent
 
 - name: "Remind to check all the 'ToDo:' entries in the output files"
   ansible.builtin.debug:
