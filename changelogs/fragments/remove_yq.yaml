@@ -1,4 +1,4 @@
 ---
 minor_changes:
-  - Remove yq from the collection and use ansible built-in filters to process the yaml files.
+  - Remove yq from the collection and add a new module to process the yaml files using ruamel.
 ...
