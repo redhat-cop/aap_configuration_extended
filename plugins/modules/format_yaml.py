@@ -8,6 +8,8 @@ DOCUMENTATION = r"""
 ---
 module: format_yaml
 short_description: Formats a YAML file while preserving comments and markers.
+requirements:
+  - ruamel.yaml
 description:
   - Uses ruamel.yaml to pretty-print a YAML file.
   - Preserves comments, disables line-wrapping for long keys, and can convert multiline strings to block scalars.

@@ -28,6 +28,15 @@ collections:
 ...
 ```
 
+### Python dependency
+
+This collection's module `my_module` requires `ruamel.yaml`.
+Install Python dependencies on the control node or in your EE image:
+
+```console
+pip install -r requirements.txt
+```
+
 ## Links to Ansible Automation Platform Collections
 
 |                                      Collection Name                                |            Purpose            |
