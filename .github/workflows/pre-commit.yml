@@ -21,7 +21,8 @@ on:
 
 jobs:
   approve_run:
-    environment: requires-approval
+    environment:
+      name: pr-approval
     runs-on: ubuntu-latest
     steps:
       - run: echo "Approval granted. Proceeding to reusable workflow."
