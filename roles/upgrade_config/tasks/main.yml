@@ -82,24 +82,14 @@
           - '*.yml'
       register: _generated_files
 
-    - name: "Read each generated file"
-      ansible.builtin.slurp:
-        src: "{{ _current_file.path }}"
+    - name: "Re-write all the generated files to make them more readable"
+      infra.aap_configuration_extended.format_yaml:
+        path: "{{ _current_file.path }}"
+        explicit_start: true # Forces ---
+        explicit_end: true   # Forces ...
+        auto_block_scalars: true # If a string contains a newline, convert it to a PreservedScalarString (|).
       loop: "{{ _generated_files.files }}"
       loop_control:
         loop_var: _current_file
         label: "{{ _current_file.path }}"
-      register: _slurped_files
-
-    - name: "Re-write all the generated files to make them more readable"
-      ansible.builtin.copy:
-        dest: "{{ _current_item._current_file.path }}"
-        content: |-
-          ---
-          {{ (_current_item.content | b64decode | from_yaml) | to_nice_yaml(indent=2, sort_keys=false) }}...
-        mode: "0644"
-      loop: "{{ _slurped_files.results }}"
-      loop_control:
-        loop_var: _current_item
-        label: "{{ _current_item._current_file.path }}"
 ...
