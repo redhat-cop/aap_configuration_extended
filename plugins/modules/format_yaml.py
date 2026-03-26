@@ -8,8 +8,6 @@ DOCUMENTATION = r"""
 ---
 module: format_yaml
 short_description: Formats a YAML file while preserving comments and markers.
-requirements:
-  - ruamel.yaml
 description:
   - Uses ruamel.yaml to pretty-print a YAML file.
   - Preserves comments, disables line-wrapping for long keys, and can convert multiline strings to block scalars.
@@ -58,6 +56,22 @@ def repair_flattened_crypto_keys(text):
     return text
 
 
+def _format_scalar(value, auto_block):
+    value = repair_flattened_crypto_keys(value)
+    if auto_block and "\n" in value:
+        return PreservedScalarString(value)
+    return value
+
+
+def _iter_children(node):
+    if isinstance(node, dict):
+        for key, value in node.items():
+            yield key, value
+    elif isinstance(node, list):
+        for index, value in enumerate(node):
+            yield index, value
+
+
 def clean_yaml_tree(node, auto_block):
     """
     Recursively wipe out 'flow style' memory from ruamel,
@@ -68,33 +82,20 @@ def clean_yaml_tree(node, auto_block):
         node.fa.set_block_style()
 
     # 2. Walk the tree to apply to children and handle strings
-    if isinstance(node, dict):
-        for k, v in node.items():
-            if isinstance(v, str):
-                v = repair_flattened_crypto_keys(v)
-                # If auto_block is true and there are newlines, force the | block
-                if auto_block and "\n" in v:
-                    node[k] = PreservedScalarString(v)
-            else:
-                clean_yaml_tree(v, auto_block)
-
-    elif isinstance(node, list):
-        for i, v in enumerate(node):
-            if isinstance(v, str):
-                v = repair_flattened_crypto_keys(v)
-                if auto_block and "\n" in v:
-                    node[i] = PreservedScalarString(v)
-            else:
-                clean_yaml_tree(v, auto_block)
+    for key, value in _iter_children(node):
+        if isinstance(value, str):
+            node[key] = _format_scalar(value, auto_block)
+            continue
+        clean_yaml_tree(value, auto_block)
 
 
 def run_module():
-    module_args = dict(
-        path=dict(type="str", required=True),
-        explicit_start=dict(type="bool", default=True),
-        explicit_end=dict(type="bool", default=True),
-        auto_block_scalars=dict(type="bool", default=False),
-    )
+    module_args = {
+        "path": {"type": "str", "required": True},
+        "explicit_start": {"type": "bool", "default": True},
+        "explicit_end": {"type": "bool", "default": True},
+        "auto_block_scalars": {"type": "bool", "default": False},
+    }
 
     module = AnsibleModule(argument_spec=module_args, supports_check_mode=True)
 
