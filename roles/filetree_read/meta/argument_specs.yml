@@ -126,6 +126,71 @@ argument_specs:
         default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_roles.d/"
         required: false
         description: Directory path to load controller object variables
+      filetree_eda_credential_types:
+        type: raw
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/eda_credential_types.d/"
+        required: false
+        description: Directory path to load EDA credential type variables
+      filetree_eda_credentials:
+        type: raw
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/eda_credentials.d/"
+        required: false
+        description: Directory path to load EDA credential variables
+      filetree_eda_decision_environments:
+        type: raw
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/eda_decision_environments.d/"
+        required: false
+        description: Directory path to load EDA decision environment variables
+      filetree_eda_event_streams:
+        type: raw
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/eda_event_streams.d/"
+        required: false
+        description: Directory path to load EDA event stream variables
+      filetree_eda_projects:
+        type: raw
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/eda_projects.d/"
+        required: false
+        description: Directory path to load EDA project variables
+      filetree_eda_rulebook_activations:
+        type: raw
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/eda_rulebook_activations.d/"
+        required: false
+        description: Directory path to load EDA rulebook activation variables
+      filetree_hub_namespaces:
+        type: raw
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/hub_namespaces.d/"
+        required: false
+        description: Directory path to load automation hub namespace variables
+      filetree_hub_collections:
+        type: raw
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/hub_collections.d/"
+        required: false
+        description: Directory path to load automation hub collection variables
+      filetree_hub_collection_remotes:
+        type: raw
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/hub_collection_remotes.d/"
+        required: false
+        description: Directory path to load automation hub collection remote variables
+      filetree_hub_collection_repositories:
+        type: raw
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/hub_collection_repositories.d/"
+        required: false
+        description: Directory path to load automation hub collection repository variables
+      filetree_hub_ee_registries:
+        type: raw
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/hub_ee_registries.d/"
+        required: false
+        description: Directory path to load automation hub execution environment registry variables
+      filetree_hub_ee_repositories:
+        type: raw
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/hub_ee_repositories.d/"
+        required: false
+        description: Directory path to load automation hub execution environment repository variables
+      filetree_hub_ee_images:
+        type: raw
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/hub_ee_images.d/"
+        required: false
+        description: Directory path to load automation hub execution environment image variables
       filetree_controller_include:
         type:  raw
         default: omit
