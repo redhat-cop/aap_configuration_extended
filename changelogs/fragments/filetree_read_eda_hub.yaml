@@ -1,0 +1,2 @@
+minor_changes:
+  - "filetree_read - Add tasks to load EDA and automation hub variables from the file tree (credential types, credentials, decision environments, event streams, projects, rulebook activations; namespaces, collections, collection remotes and repositories, EE registries, repositories, and images), with defaults and argument_specs entries; document in README."

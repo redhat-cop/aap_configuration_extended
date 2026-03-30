@@ -1,6 +1,6 @@
 ---
 # tasks file for filetree_read
-- name: "Include Tasks to config {{ __task_filetree_read.name }}"
+- name: "Include Tasks to config"
   ansible.builtin.include_tasks: "{{ __task_filetree_read.name }}.yml"
   args:
     apply:
@@ -9,4 +9,5 @@
   loop: "{{ controller_configuration_filetree_read_tasks }}"
   loop_control:
     loop_var: __task_filetree_read
+    label: "{{ __task_filetree_read.name }}"
 ...

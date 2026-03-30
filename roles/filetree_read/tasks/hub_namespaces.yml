@@ -1,0 +1,41 @@
+---
+- name: "Get list of files inside {{ filetree_hub_namespaces }}"
+  ansible.builtin.find:
+    paths: "{{ filetree_hub_namespaces }}"
+    file_type: file
+    patterns: "{{ filetree_controller_include | default(omit) }}"
+    excludes: "{{ filetree_controller_exclude | default(omit) }}"
+    use_regex: "{{ filetree_controller_regex | default(false) }}"
+    contains: "hub_namespaces:"
+    read_whole_file: true
+    recurse: true
+  register: __list_files_hub_namespaces
+
+- name: "Read Hub namespaces definitions"
+  ansible.builtin.include_vars:
+    file: "{{ __read_hub_namespaces_item.path }}"
+  loop: "{{ __list_files_hub_namespaces.files }}"
+  loop_control:
+    loop_var: __read_hub_namespaces_item
+  register: __contents_filetree_hub_namespaces
+  failed_when: "'VARIABLE IS NOT DEFINED' in __contents_filetree_hub_namespaces"
+
+- name: "Populate Hub namespaces list"
+  ansible.builtin.set_fact:
+    __populate_hub_namespaces: "{{ (__populate_hub_namespaces | default([])) + __populate_hub_namespaces_item.ansible_facts.hub_namespaces }}"
+  loop: "{{ __contents_filetree_hub_namespaces.results }}"
+  loop_control:
+    loop_var: __populate_hub_namespaces_item
+  no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
+  when:
+    - __contents_filetree_hub_namespaces is defined
+    - __contents_filetree_hub_namespaces.results is defined
+    - __contents_filetree_hub_namespaces.results | length > 0
+    - __populate_hub_namespaces_item.ansible_facts.hub_namespaces is defined
+
+- name: "Set Hub namespaces data structure"
+  ansible.builtin.set_fact:
+    hub_namespaces: "{{ __populate_hub_namespaces }}"
+  no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
+  when: __populate_hub_namespaces is defined
+...
