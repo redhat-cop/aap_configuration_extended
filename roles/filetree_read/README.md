@@ -39,6 +39,19 @@ The following Variables set the organization where should be applied the configu
 |`filetree_controller_workflow_job_templates`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_workflow_job_templates.d/|no|Directory path to load controller object variables|
 |`filetree_controller_schedules`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_schedules.d/|no|Directory path to load controller object variables|
 |`filetree_controller_roles`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_roles.d/|no|Directory path to load controller object variables|
+|`filetree_eda_credential_types`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/eda_credential_types.d/|no|Directory path to load EDA credential type variables|
+|`filetree_eda_credentials`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/eda_credentials.d/|no|Directory path to load EDA credential variables|
+|`filetree_eda_decision_environments`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/eda_decision_environments.d/|no|Directory path to load EDA decision environment variables|
+|`filetree_eda_event_streams`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/eda_event_streams.d/|no|Directory path to load EDA event stream variables|
+|`filetree_eda_projects`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/eda_projects.d/|no|Directory path to load EDA project variables|
+|`filetree_eda_rulebook_activations`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/eda_rulebook_activations.d/|no|Directory path to load EDA rulebook activation variables|
+|`filetree_hub_namespaces`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/hub_namespaces.d/|no|Directory path to load automation hub namespace variables|
+|`filetree_hub_collections`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/hub_collections.d/|no|Directory path to load automation hub collection variables|
+|`filetree_hub_collection_remotes`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/hub_collection_remotes.d/|no|Directory path to load automation hub collection remote variables|
+|`filetree_hub_collection_repositories`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/hub_collection_repositories.d/|no|Directory path to load automation hub collection repository variables|
+|`filetree_hub_ee_registries`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/hub_ee_registries.d/|no|Directory path to load automation hub EE registry variables|
+|`filetree_hub_ee_repositories`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/hub_ee_repositories.d/|no|Directory path to load automation hub EE repository variables|
+|`filetree_hub_ee_images`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/hub_ee_images.d/|no|Directory path to load automation hub EE image variables|
 |`filetree_controller_include`|String/List(String)|omit|no|patterns for find to include only matching|
 |`filetree_controller_exclude`|String/List(String)|omit|no|patterns for find to exclude matching|
 |`filetree_controller_regex`|bool|false|no|switch to allow find to use_regex in combination with include/exclude default matches find default|
@@ -48,6 +61,8 @@ The following Variables set the organization where should be applied the configu
 - It accepts two data models as the roles in the infra.controller_configuration collection,a simple straightforward easy to maintain model, and another based on the controller api.
 - Variables should be stored in yaml files. It could be used vault to encrypt sensitive data when needed.
 - All variables should be taken from the awx or automation controller object roles from the infra.controller_configuration collection.
+
+EDA and Automation Hub content uses the same top-level YAML keys as exports from `infra.aap_configuration_extended.filetree_create` (for example `eda_projects:`, `hub_namespaces:`). Files are discovered recursively under the `filetree_eda_*` and `filetree_hub_*` directories; each file must contain the matching root key so the role can merge lists into the corresponding Ansible variables (`eda_projects`, `hub_namespaces`, and so on).
 
 ```yaml
 ---
@@ -272,13 +287,17 @@ orgs_vars/Organization1
 
 ## Role Tags
 
-The role is designed to be used with tags, each tags correspond to an AWX or Automation Controller object to be managed by ansible.
+The role is designed to be used with tags; each tag corresponds to an object type to load from the file tree (gateway, controller, EDA, or automation hub).
+
+In addition to gateway and controller tags, EDA and hub tasks expose dedicated tags: `eda_credential_types`, `eda_credentials`, `eda_decision_environments`, `eda_event_streams`, `eda_projects`, `eda_rulebook_activations`, `hub_namespaces`, `hub_collections`, `hub_collection_remotes`, `hub_collection_repositories`, `hub_ee_registries`, `hub_ee_repositories`, `hub_ee_images`.
 
 ```bash
 [ansible@demo-ctr1-dev global]$  ansible-playbook config-controller-filetree.yml --list-tags
   play #1 (localhost): localhost TAGS: []
       TASK TAGS: [always, applications, credential_input_sources, credential_types, credentials, execution_environments, groups, hosts, instance_groups, inventories, inventory_sources, job_templates, labels, notifications, notifications_templates, organizations, projects, roles, schedules, settings, teams, users, workflow_job_templates]
 ```
+
+Run `ansible-playbook … --list-tags` against your playbook to see the full tag list for your version, including any EDA and hub tags defined in `controller_configuration_filetree_read_tasks`.
 
 ## Example Playbook
 

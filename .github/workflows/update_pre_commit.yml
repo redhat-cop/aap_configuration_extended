@@ -7,6 +7,9 @@ on:
   schedule:
     - cron: "0 5 * * *"
 
+permissions:
+  contents: read
+
 jobs:
   pre-commit:
     uses: "redhat-cop/ansible_collections_tooling/.github/workflows/update_precommit.yml@main"
