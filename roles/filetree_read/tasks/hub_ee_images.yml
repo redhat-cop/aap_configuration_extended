@@ -1,0 +1,41 @@
+---
+- name: "Get list of files inside {{ filetree_hub_ee_images }}"
+  ansible.builtin.find:
+    paths: "{{ filetree_hub_ee_images }}"
+    file_type: file
+    patterns: "{{ filetree_controller_include | default(omit) }}"
+    excludes: "{{ filetree_controller_exclude | default(omit) }}"
+    use_regex: "{{ filetree_controller_regex | default(false) }}"
+    contains: "hub_ee_images:"
+    read_whole_file: true
+    recurse: true
+  register: __list_files_hub_ee_images
+
+- name: "Read Hub EE images definitions"
+  ansible.builtin.include_vars:
+    file: "{{ __read_hub_ee_images_item.path }}"
+  loop: "{{ __list_files_hub_ee_images.files }}"
+  loop_control:
+    loop_var: __read_hub_ee_images_item
+  register: __contents_filetree_hub_ee_images
+  failed_when: "'VARIABLE IS NOT DEFINED' in __contents_filetree_hub_ee_images"
+
+- name: "Populate Hub EE images list"
+  ansible.builtin.set_fact:
+    __populate_hub_ee_images: "{{ (__populate_hub_ee_images | default([])) + __populate_hub_ee_images_item.ansible_facts.hub_ee_images }}"
+  loop: "{{ __contents_filetree_hub_ee_images.results }}"
+  loop_control:
+    loop_var: __populate_hub_ee_images_item
+  no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
+  when:
+    - __contents_filetree_hub_ee_images is defined
+    - __contents_filetree_hub_ee_images.results is defined
+    - __contents_filetree_hub_ee_images.results | length > 0
+    - __populate_hub_ee_images_item.ansible_facts.hub_ee_images is defined
+
+- name: "Set Hub EE images data structure"
+  ansible.builtin.set_fact:
+    hub_ee_images: "{{ __populate_hub_ee_images }}"
+  no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
+  when: __populate_hub_ee_images is defined
+...
