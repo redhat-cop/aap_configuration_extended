@@ -7,137 +7,428 @@ __metaclass__ = type
 DOCUMENTATION = r"""
 ---
 module: format_yaml
-short_description: Formats a YAML file while preserving comments and markers.
+short_description: Format YAML files with PyYAML (ansible-core dependency only)
 description:
-  - Uses ruamel.yaml to pretty-print a YAML file.
-  - Preserves comments, disables line-wrapping for long keys, and can convert multiline strings to block scalars.
+  - Reformats a YAML file in place using PyYAML (same stack as ansible-core).
+  - With I(preserve_comments=true) (default), only adjusts indentation of block sequences that YAML parsed as
+    "indentless" (using C(yaml.compose) line marks). Comments and overall structure are kept.
+  - With I(preserve_comments=false), performs a full load and dump (comments are lost). Enables I(auto_block_scalars),
+    PEM-in-one-line repair, Ansible C(!unsafe) round-trip (scalars keep the tag; multiline unsafe uses a literal block),
+    block-style lists,     C(null) emitted as an empty value (no C(null) keyword), optional normalization of Python boolean spellings to
+    lowercase in plain scalars when preserving comments, and double-quoted scalars for slash-delimited regex strings that
+    contain backslashes (in the file, C(\\.) before the dot encodes a single backslash plus a literal dot in the value).
 options:
   path:
-    description: Absolute path to the YAML file to format.
+    description: Path to the YAML file to read and optionally rewrite.
     required: true
     type: str
+  preserve_comments:
+    description:
+      - If V(true), indent fix only (comments preserved).
+      - If V(false), full round-trip; see main description for dump-side behaviour.
+    default: true
+    type: bool
   explicit_start:
-    description: Enforce the '---' marker at the top of the file.
+    description: Emit document begin marker C(---). Used when I(preserve_comments=false), or when I(fix_document_markers=true) with I(preserve_comments=true).
     default: true
     type: bool
   explicit_end:
-    description: Enforce the '...' marker at the bottom of the file.
+    description: Emit document end marker C(...). Used when I(preserve_comments=false), or when I(fix_document_markers=true) with I(preserve_comments=true).
+    default: true
+    type: bool
+  fix_document_markers:
+    description:
+      - When I(preserve_comments=true), also enforce C(---) and C(...) at the document boundaries when I(explicit_start) / I(explicit_end) are true.
     default: true
     type: bool
   auto_block_scalars:
-    description: Automatically convert strings with newlines into literal blocks (|).
+    description:
+      - When I(preserve_comments=false), emit multiline plain strings as literal block scalars (C(|)).
+      - Incompatible with I(preserve_comments=true); the module fails if both are set.
     default: false
     type: bool
+notes:
+  - Requires PyYAML on the target (bundled with the controller for ansible-core; use python3-yaml on remotes if the module runs there).
+  - I(auto_block_scalars=true) requires I(preserve_comments=false).
+author:
+  - Ivan Aragonés (@ivarmu)
+  - Automation Iberia / community contributors
 """
 
-import os
+EXAMPLES = r"""
+- name: Fix indentless block lists while keeping comments
+  infra.aap_configuration_extended.format_yaml:
+    path: /srv/controller/config/settings.yaml
+
+- name: Full round-trip for readable CaC (comments removed)
+  infra.aap_configuration_extended.format_yaml:
+    path: /srv/controller/config/gateway_authenticator_maps.yaml
+    preserve_comments: false
+    explicit_start: true
+    explicit_end: true
+    fix_document_markers: true
+    auto_block_scalars: true
+...
+"""
+
+RETURN = r"""
+changed:
+  description: Whether the file content was updated.
+  type: bool
+  returned: always
+  sample: true
+msg:
+  description: Human-readable status.
+  type: str
+  returned: always
+  sample: "YAML formatted."
+...
+"""
+
 import io
+import os
 import re
 import traceback
+
 from ansible.module_utils.basic import AnsibleModule
 
 try:
-    from ruamel.yaml import YAML
-    from ruamel.yaml.scalarstring import PreservedScalarString
+    import yaml
+    from yaml import SafeDumper as PySafeDumper
+    from yaml.constructor import ConstructorError
+    from yaml.nodes import MappingNode, ScalarNode, SequenceNode
+    from yaml.representer import SafeRepresenter
 
-    HAS_RUAMEL = True
+    HAS_YAML = True
 except ImportError:
-    HAS_RUAMEL = False
+    HAS_YAML = False
+    yaml = None  # type: ignore
+    PySafeDumper = None
+    SafeRepresenter = None  # type: ignore
+
+# Ansible CaC / PyYAML tag names (avoid duplicated string literals for static analysis).
+UNSAFE_YAML_TAG = "!unsafe"
+YAML_NULL_TAG = "tag:yaml.org,2002:null"
+YAML_STR_TAG = "tag:yaml.org,2002:str"
 
 
-def repair_flattened_crypto_keys(text):
+class AnsibleUnsafeTaggedString(str):
+    """Scalar loaded from !unsafe; dumped with the same tag (multiline as literal |)."""
+
+
+class MultilineLiteralBlockString(str):
+    """Plain string to emit as a literal block scalar (|)."""
+
+
+def construct_unsafe_tag(loader, node):
+    """Ansible CaC uses !unsafe for Jinja; scalars keep the tag on round-trip."""
+    if isinstance(node, ScalarNode):
+        return AnsibleUnsafeTaggedString(loader.construct_scalar(node))
+    if isinstance(node, SequenceNode):
+        return loader.construct_sequence(node, deep=True)
+    if isinstance(node, MappingNode):
+        return loader.construct_mapping(node, deep=True)
+    raise ConstructorError(None, None, "unsupported !unsafe node", node.start_mark)
+
+
+if HAS_YAML:
+    yaml.SafeLoader.add_constructor(UNSAFE_YAML_TAG, construct_unsafe_tag)
+
+
+def count_leading_spaces(line):
+    count = 0
+    for char in line:
+        if char not in " \t":
+            break
+        count += 1
+    return count
+
+
+def prepend_leading_spaces(line, extra_spaces):
+    if line.endswith("\r\n"):
+        body, newline = line[:-2], "\r\n"
+    elif line.endswith("\n"):
+        body, newline = line[:-1], "\n"
+    else:
+        body, newline = line, ""
+    return (" " * extra_spaces) + body + newline
+
+
+def compose_node_line_span(node):
+    if isinstance(node, ScalarNode):
+        return (node.start_mark.line, node.end_mark.line)
+    if isinstance(node, SequenceNode):
+        if not node.value:
+            return (node.start_mark.line, node.end_mark.line)
+        child_spans = [compose_node_line_span(child) for child in node.value]
+        return (min(start for start, _ in child_spans), max(end for _, end in child_spans))
+    if isinstance(node, MappingNode):
+        if not node.value:
+            return (node.start_mark.line, node.end_mark.line)
+        child_spans = []
+        for key_node, value_node in node.value:
+            child_spans.append(compose_node_line_span(key_node))
+            child_spans.append(compose_node_line_span(value_node))
+        return (min(start for start, _ in child_spans), max(end for _, end in child_spans))
+    return (node.start_mark.line, node.end_mark.line)
+
+
+def bump_indentless_block_list_items(key_node, value_node, lines, line_deltas, step, line_count):
+    if not (isinstance(value_node, SequenceNode) and not value_node.flow_style and value_node.value):
+        return
+    key_line_index = key_node.start_mark.line
+    if key_line_index >= line_count:
+        return
+    key_indent = count_leading_spaces(lines[key_line_index])
+    for sequence_item in value_node.value:
+        item_line = sequence_item.start_mark.line
+        if item_line >= line_count or count_leading_spaces(lines[item_line]) != key_indent:
+            continue
+        span_start, span_end = compose_node_line_span(sequence_item)
+        span_start = max(0, span_start)
+        span_end = min(line_count - 1, span_end)
+        for line_index in range(span_start, span_end + 1):
+            line_deltas[line_index] += step
+
+
+def walk_compose_tree_for_indent_fix(node, lines, line_deltas, step, line_count):
+    if isinstance(node, MappingNode):
+        for key_node, value_node in node.value:
+            bump_indentless_block_list_items(key_node, value_node, lines, line_deltas, step, line_count)
+            if isinstance(value_node, MappingNode):
+                walk_compose_tree_for_indent_fix(value_node, lines, line_deltas, step, line_count)
+            elif isinstance(value_node, SequenceNode):
+                for child in value_node.value:
+                    walk_compose_tree_for_indent_fix(child, lines, line_deltas, step, line_count)
+    elif isinstance(node, SequenceNode):
+        for child in node.value:
+            walk_compose_tree_for_indent_fix(child, lines, line_deltas, step, line_count)
+
+
+def fix_indent_preserve_comments(text, indent_step):
+    lines = text.splitlines(True)
+    line_count = len(lines)
+    if not line_count:
+        return text
+    root = yaml.compose(io.StringIO(text), Loader=yaml.SafeLoader)
+    if root is None:
+        return text
+    line_deltas = [0] * line_count
+    walk_compose_tree_for_indent_fix(root, lines, line_deltas, indent_step, line_count)
+    return "".join(prepend_leading_spaces(lines[index], line_deltas[index]) if line_deltas[index] else lines[index] for index in range(line_count))
+
+
+def strip_trailing_whitespace(text):
+    result_lines = []
+    for line in text.splitlines(True):
+        if line.endswith("\r\n"):
+            result_lines.append(line[:-2].rstrip(" \t") + "\r\n")
+        elif line.endswith("\n"):
+            result_lines.append(line[:-1].rstrip(" \t") + "\n")
+        else:
+            result_lines.append(line.rstrip(" \t"))
+    return "".join(result_lines)
+
+
+# Ansible-lint yaml[truthy]: prefer true/false over Python True/False in plain scalars.
+_TRUTHY_LINE_PATTERN = re.compile(r"^(\s*[^:]+:\s*)(True|False)(\s*(?:#.*)?)$")
+
+
+def fix_truthy_capital_bool_on_line(line_body):
+    match = _TRUTHY_LINE_PATTERN.match(line_body)
+    if not match:
+        return line_body
+    return match.group(1) + match.group(2).lower() + match.group(3)
+
+
+def fix_truthy_capital_bools_in_text(text):
+    result_lines = []
+    for line in text.splitlines(True):
+        if line.endswith("\r\n"):
+            core, newline = line[:-2], "\r\n"
+        elif line.endswith("\n"):
+            core, newline = line[:-1], "\n"
+        else:
+            core, newline = line, ""
+        result_lines.append(fix_truthy_capital_bool_on_line(core) + newline)
+    return "".join(result_lines)
+
+
+def ensure_yaml_document_markers(text, want_start_marker, want_end_marker):
+    stripped_bom = text.lstrip("\ufeff")
+    if want_start_marker and not stripped_bom.lstrip().startswith("---"):
+        stripped_bom = "---\n" + stripped_bom
+    if want_end_marker:
+        trimmed = stripped_bom.rstrip("\n\r")
+        if not trimmed.endswith("..."):
+            stripped_bom = trimmed + "\n...\n"
+    return stripped_bom
+
+
+def repair_single_line_pem_certificate(text):
     if "-----BEGIN" in text and "-----END" in text and "\n" not in text:
         match = re.search(r"(-----BEGIN.*?-----)\s+(.*?)\s+(-----END.*?-----)", text)
         if match:
-            header = match.group(1)
-            body = match.group(2).replace(" ", "\n")
-            footer = match.group(3)
-            return f"{header}\n{body}\n{footer}"
+            return "{0}\n{1}\n{2}".format(match.group(1), match.group(2).replace(" ", "\n"), match.group(3))
     return text
 
 
-def _format_scalar(value, auto_block):
-    value = repair_flattened_crypto_keys(value)
-    if auto_block and "\n" in value:
-        return PreservedScalarString(value)
-    return value
+def represent_literal_block_string(dumper, data):
+    return dumper.represent_scalar(YAML_STR_TAG, str(data), style="|")
 
 
-def _iter_children(node):
+def represent_ansible_unsafe_string(dumper, data):
+    scalar = str(data)
+    if "\n" in scalar:
+        return dumper.represent_scalar(UNSAFE_YAML_TAG, scalar, style="|")
+    return dumper.represent_scalar(UNSAFE_YAML_TAG, scalar)
+
+
+def represent_none_as_empty_yaml_scalar(dumper, data):
+    # Empty scalar keeps YAML null semantics without the literal "null" token (Ansible-friendly).
+    return dumper.represent_scalar(YAML_NULL_TAG, "")
+
+
+def represent_string_for_format_dump(dumper, data):
+    # Regex-in-slashes with backslashes: double-quoted YAML so escapes match common CaC style
+    # (e.g. "\\." in file → one "\" + "." in value — same as unquoted "\\." or single-quoted "\.").
+    if isinstance(data, str) and len(data) >= 3 and data.startswith("/") and data.endswith("/") and "\\" in data:
+        return dumper.represent_scalar(YAML_STR_TAG, data, style='"')
+    return SafeRepresenter.represent_str(dumper, data)
+
+
+def prepare_tree_for_round_trip_dump(node, auto_block_scalars):
+    """Deep-transform dict/list tree: PEM repair, optional multiline → literal block wrappers."""
     if isinstance(node, dict):
-        for key, value in node.items():
-            yield key, value
-    elif isinstance(node, list):
-        for index, value in enumerate(node):
-            yield index, value
+        return {key: prepare_tree_for_round_trip_dump(value, auto_block_scalars) for key, value in node.items()}
+    if isinstance(node, list):
+        return [prepare_tree_for_round_trip_dump(item, auto_block_scalars) for item in node]
+    if isinstance(node, AnsibleUnsafeTaggedString):
+        return node
+    if isinstance(node, str):
+        repaired = repair_single_line_pem_certificate(node)
+        if auto_block_scalars and "\n" in repaired:
+            return MultilineLiteralBlockString(repaired)
+        return repaired
+    return node
 
 
-def clean_yaml_tree(node, auto_block):
-    """
-    Recursively wipe out 'flow style' memory from ruamel,
-    and optionally convert strings with newlines to literal blocks (|).
-    """
-    # 1. The Secret Trick: Force Block Style on this specific node
-    if hasattr(node, "fa"):
-        node.fa.set_block_style()
+def build_format_yaml_dumper_class():
+    """SafeDumper subclass: block flow_style lists + custom representers."""
 
-    # 2. Walk the tree to apply to children and handle strings
-    for key, value in _iter_children(node):
-        if isinstance(value, str):
-            node[key] = _format_scalar(value, auto_block)
-            continue
-        clean_yaml_tree(value, auto_block)
+    class FormatYamlDumper(PySafeDumper):
+        def expect_block_sequence(self):
+            self.increase_indent(flow=False, indentless=False)
+            self.state = self.expect_first_block_sequence_item
+
+    FormatYamlDumper.add_representer(type(None), represent_none_as_empty_yaml_scalar)
+    FormatYamlDumper.add_representer(AnsibleUnsafeTaggedString, represent_ansible_unsafe_string)
+    FormatYamlDumper.add_representer(str, represent_string_for_format_dump)
+    FormatYamlDumper.add_representer(MultilineLiteralBlockString, represent_literal_block_string)
+    return FormatYamlDumper
+
+
+def try_yaml_dump_with_fallback_options(data_tree, explicit_start, explicit_end, dumper_class):
+    output_buffer = io.StringIO()
+    base_kwargs = {
+        "default_flow_style": False,
+        "allow_unicode": True,
+        "explicit_start": explicit_start,
+        "explicit_end": explicit_end,
+        "Dumper": dumper_class,
+    }
+    option_variants = (
+        {"sort_keys": False, "width": 4096, "indent": 2},
+        {"sort_keys": False, "width": 4096},
+        {"sort_keys": False},
+    )
+    last_type_error = None
+    for extra_kwargs in option_variants:
+        dump_kwargs = dict(base_kwargs, **extra_kwargs)
+        try:
+            yaml.dump(data_tree, output_buffer, **dump_kwargs)
+            return output_buffer.getvalue()
+        except TypeError as exc:
+            last_type_error = exc
+            output_buffer.seek(0)
+            output_buffer.truncate(0)
+    if last_type_error:
+        raise last_type_error
+    yaml.dump(data_tree, output_buffer, **dict(base_kwargs, sort_keys=False))
+    return output_buffer.getvalue()
+
+
+def dump_round_trip_tree(data, explicit_start, explicit_end, auto_block_scalars):
+    prepared_tree = prepare_tree_for_round_trip_dump(data, auto_block_scalars)
+    dumper_class = build_format_yaml_dumper_class()
+    return try_yaml_dump_with_fallback_options(prepared_tree, explicit_start, explicit_end, dumper_class)
+
+
+def format_yaml_content(original_text, preserve_comments, explicit_start, explicit_end, fix_markers, auto_block_scalars):
+    yaml.safe_load(original_text)
+    if preserve_comments:
+        formatted = fix_indent_preserve_comments(original_text, 2)
+        formatted = strip_trailing_whitespace(formatted)
+        formatted = fix_truthy_capital_bools_in_text(formatted)
+        if fix_markers:
+            formatted = ensure_yaml_document_markers(formatted, explicit_start, explicit_end)
+        yaml.safe_load(formatted)
+        return formatted
+    parsed = yaml.safe_load(original_text)
+    if parsed is None:
+        parsed = {}
+    formatted = dump_round_trip_tree(parsed, explicit_start, explicit_end, auto_block_scalars)
+    return strip_trailing_whitespace(formatted)
 
 
 def run_module():
-    module_args = {
-        "path": {"type": "str", "required": True},
-        "explicit_start": {"type": "bool", "default": True},
-        "explicit_end": {"type": "bool", "default": True},
-        "auto_block_scalars": {"type": "bool", "default": False},
-    }
+    module = AnsibleModule(
+        argument_spec={
+            "path": {"type": "str", "required": True},
+            "preserve_comments": {"type": "bool", "default": True},
+            "explicit_start": {"type": "bool", "default": True},
+            "explicit_end": {"type": "bool", "default": True},
+            "fix_document_markers": {"type": "bool", "default": True},
+            "auto_block_scalars": {"type": "bool", "default": False},
+        },
+        supports_check_mode=True,
+    )
 
-    module = AnsibleModule(argument_spec=module_args, supports_check_mode=True)
+    if not HAS_YAML:
+        module.fail_json(msg="PyYAML (python3-yaml) is required on the target.")
 
-    if not HAS_RUAMEL:
-        module.fail_json(msg="The Python 'ruamel.yaml' library is required.")
+    params = module.params
+    if params["preserve_comments"] and params["auto_block_scalars"]:
+        module.fail_json(msg="auto_block_scalars needs preserve_comments: false.")
 
-    path = module.params["path"]
+    path = params["path"]
     if not os.path.exists(path):
-        module.fail_json(msg=f"File not found: {path}")
-
-    yaml = YAML()
-    yaml.preserve_quotes = True
-    yaml.explicit_start = module.params["explicit_start"]
-    yaml.explicit_end = module.params["explicit_end"]
-    yaml.default_flow_style = False
-    yaml.width = 4096
-    yaml.indent(mapping=2, sequence=4, offset=2)
+        module.fail_json(msg="File not found: {0}".format(path))
 
     try:
-        with open(path, "r") as f:
-            original_content = f.read()
+        with open(path, "r", encoding="utf-8") as file_handle:
+            original_text = file_handle.read()
 
-        with open(path, "r") as f:
-            data = yaml.load(f)
+        formatted_text = format_yaml_content(
+            original_text,
+            params["preserve_comments"],
+            params["explicit_start"],
+            params["explicit_end"],
+            params["fix_document_markers"],
+            params["auto_block_scalars"],
+        )
 
-        # Apply our heavy-duty cleaner to the data
-        clean_yaml_tree(data, module.params["auto_block_scalars"])
-
-        out = io.StringIO()
-        yaml.dump(data, out)
-        new_content = out.getvalue()
-
-        if original_content != new_content:
+        if formatted_text != original_text:
             if not module.check_mode:
-                with open(path, "w") as f:
-                    f.write(new_content)
-            module.exit_json(changed=True, msg="YAML file formatted successfully.")
-        else:
-            module.exit_json(changed=False, msg="YAML file is already perfectly formatted.")
+                with open(path, "w", encoding="utf-8") as file_handle:
+                    file_handle.write(formatted_text)
+            module.exit_json(changed=True, msg="YAML formatted.")
+        module.exit_json(changed=False, msg="No changes.")
 
-    except Exception as e:
-        module.fail_json(msg=f"Failed to process YAML: {str(e)}", exception=traceback.format_exc())
+    except yaml.YAMLError as exc:
+        module.fail_json(msg="YAML parse error: {0}".format(exc), exception=traceback.format_exc())
+    except Exception as exc:
+        module.fail_json(msg="Error: {0}".format(exc), exception=traceback.format_exc())
 
 
 if __name__ == "__main__":

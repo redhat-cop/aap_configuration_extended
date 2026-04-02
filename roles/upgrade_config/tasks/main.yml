@@ -88,9 +88,11 @@
     - name: "Re-write all the generated files to make them more readable"
       infra.aap_configuration_extended.format_yaml:
         path: "{{ _current_file.path }}"
+        preserve_comments: false # Required when auto_block_scalars is true (full round-trip; comments dropped).
         explicit_start: true # Forces ---
-        explicit_end: true   # Forces ...
-        auto_block_scalars: true # If a string contains a newline, convert it to a PreservedScalarString (|).
+        explicit_end: true # Forces ...
+        fix_document_markers: true
+        auto_block_scalars: true # Multiline strings as literal block (|).
       loop: "{{ _generated_files.files }}"
       loop_control:
         loop_var: _current_file

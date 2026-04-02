@@ -30,12 +30,7 @@ collections:
 
 ### Python dependency
 
-This collection's module `my_module` requires `ruamel.yaml`.
-Install Python dependencies on the control node or in your EE image:
-
-```console
-pip install -r requirements.txt
-```
+The **format_yaml** module uses **PyYAML** (`import yaml`), which ships with **ansible-core** on the controller. Managed nodes need `python3-yaml` (or PyYAML in the execution environment) if the module runs there. The collection no longer requires ruamel.yaml. See `ansible-doc infra.aap_configuration_extended.format_yaml` for options (preserve vs round-trip, `!unsafe`, null handling, and regex scalar quoting).
 
 ## Links to Ansible Automation Platform Collections
 

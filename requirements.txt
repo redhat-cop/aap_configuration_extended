@@ -1,1 +1,1 @@
-ruamel.yaml>=0.17
+# Collection runtime: uses PyYAML via Ansible / python3-yaml on targets (no extra pip deps for format_yaml).
