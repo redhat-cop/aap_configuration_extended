@@ -6,9 +6,36 @@ argument_specs:
       aap24_configs_dir:
         required: true
         type: str
-        description: The path to the input directory where all the Configuration as Code files with AAP <= 2.4 format.
+        description: Directory containing Configuration as Code files in the AAP <= 2.4 layout (input).
       aap25_configs_dir:
         required: true
         type: str
-        description: The path to the output directory where all the Configuration as Code files AAP >= 2.5 format will be written to.
+        description: Directory where upgraded AAP >= 2.5 CaC files are written (output).
+      sanitize:
+        required: false
+        type: bool
+        description: >
+          If true, the role removes aap25_configs_dir before creating it, for a clean generation run.
+      input_authenticator_name:
+        required: false
+        type: str
+        description: >
+          Display name for the LDAP gateway authenticator and default for SAML organization maps when
+          saml_organization_map_authenticator is unset. Used in generated gateway_authenticators and maps.
+      input_authenticator_enabled:
+        required: false
+        type: bool
+        description: Value for the LDAP authenticator enabled flag in gateway_authenticators (default true).
+      input_filename_prefix:
+        required: false
+        type: str
+        description: >
+          Optional prefix for source filenames under aap24_configs_dir (for example if files are named
+          prefix_workflows.yaml).
+      saml_organization_map_authenticator:
+        required: false
+        type: str
+        description: >
+          Gateway authenticator name on SAML-derived organization maps. When unset, falls back to
+          input_authenticator_name if defined, else the resolved SAML IdP name (upgrade_saml_authenticator_name).
 ...

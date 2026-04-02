@@ -1,4 +1,7 @@
 ---
+- name: "Upgrade_config | SAML - Assert prerequisites and resolve authenticator name"
+  ansible.builtin.import_tasks: assert_saml_prerequisites.yaml
+
 - name: "Upgrade_config | SAML - Upgrade all the SAML configs in the 2.4 settings"
   ansible.builtin.include_tasks:
     file: "{{ __current_saml_file }}"
