@@ -1,4 +1,19 @@
 ---
+# When SOCIAL_AUTH_SAML_* keys exist but are incomplete (empty maps, missing IdP, etc.),
+# prerequisites assert fails: catch that and skip SAML file generation instead of failing the play.
+- name: "Upgrade_config | SAML - Assert prerequisites and resolve authenticator name"
+  block:
+    - name: "Upgrade_config | SAML - Run prerequisite checks and set authenticator name"
+      ansible.builtin.import_tasks: assert_saml_prerequisites.yaml
+  rescue:
+    - name: "Upgrade_config | SAML - Incomplete SAML settings (skip SAML upgrade)"
+      ansible.builtin.set_fact:
+        upgrade_saml_config_valid: false
+
+- name: "Upgrade_config | SAML - SAML settings passed prerequisite checks"
+  ansible.builtin.set_fact:
+    upgrade_saml_config_valid: "{{ upgrade_saml_config_valid | default(true) }}"
+
 - name: "Upgrade_config | SAML - Upgrade all the SAML configs in the 2.4 settings"
   ansible.builtin.include_tasks:
     file: "{{ __current_saml_file }}"
@@ -7,4 +22,5 @@
     - saml_upgrade_mappings.yaml
   loop_control:
     loop_var: __current_saml_file
+  when: upgrade_saml_config_valid | bool
 ...

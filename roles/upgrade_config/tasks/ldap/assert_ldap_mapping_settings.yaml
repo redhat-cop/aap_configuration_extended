@@ -1,0 +1,21 @@
+---
+# Keys iterated in ldap_upgrade_mappings.yaml must exist and be mappings.
+- name: "Upgrade_config | LDAP - Validate AUTH_LDAP* mapping settings for {{ input_config_prefix }}"
+  ansible.builtin.assert:
+    that:
+      - input_config_prefix is defined
+      - (input_config_prefix | string | length) > 0
+      - _ls is mapping
+      - _ls[_pfx ~ '_USER_FLAGS_BY_GROUP'] is defined
+      - _ls[_pfx ~ '_USER_FLAGS_BY_GROUP'] is mapping
+      - _ls[_pfx ~ '_TEAM_MAP'] is defined
+      - _ls[_pfx ~ '_TEAM_MAP'] is mapping
+      - _ls[_pfx ~ '_ORGANIZATION_MAP'] is defined
+      - _ls[_pfx ~ '_ORGANIZATION_MAP'] is mapping
+    fail_msg: >-
+      Missing LDAP mapping settings for prefix {{ input_config_prefix }}. Expected {{ input_config_prefix }}_USER_FLAGS_BY_GROUP,
+      _TEAM_MAP, and _ORGANIZATION_MAP in controller_settings[0].settings.
+  vars:
+    _ls: "{{ controller_settings[0].settings }}"
+    _pfx: "{{ input_config_prefix }}"
+...
