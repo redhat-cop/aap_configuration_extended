@@ -11,5 +11,7 @@
       ansible.builtin.include_role:
         name: infra.aap_configuration_extended.upgrade_config
       vars:
+        aap24_configs_dir: "/tmp/aap24"
+        aap25_configs_dir: "/tmp/aap25"
         input_authenticator_name: "IDM LDAP"
 ...
