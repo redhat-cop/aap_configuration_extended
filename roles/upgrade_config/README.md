@@ -104,28 +104,16 @@ This normalizes block-style lists, multiline `!unsafe` and PEM blocks, omits the
   hosts: localhost
   connection: local
   gather_facts: false
+  vars:
+    upgrade_config_reference_aap25_dir: "{{ playbook_dir }}/../../../tests/configs/upgrade_configs/aap_25"
   tasks:
-    - name: "Create temporary directory for role output"
-      ansible.builtin.tempfile:
-        state: directory
-        suffix: upgrade_config
-      register: upgrade_config_generated_dir
-
-    - name: "Run upgrade then remove temp directory"
-      block:
-        - name: "Call upgrade_config role"
-          ansible.builtin.include_role:
-            name: infra.aap_configuration_extended.upgrade_config
-          vars:
-            aap24_configs_dir: "{{ playbook_dir }}/../../../tests/configs/upgrade_configs/aap_24"
-            aap25_configs_dir: "{{ upgrade_config_generated_dir.path }}"
-            input_authenticator_name: "IDM LDAP"
-
-      always:
-        - ansible.builtin.file:
-            path: "{{ upgrade_config_generated_dir.path }}"
-            state: absent
-          when: upgrade_config_generated_dir.path is defined
+    - name: "Call upgrade_config role"
+      ansible.builtin.include_role:
+        name: infra.aap_configuration_extended.upgrade_config
+      vars:
+        aap24_configs_dir: "{{ playbook_dir }}/../../../tests/configs/upgrade_configs/aap_24"
+        aap25_configs_dir: "{{ playbook_dir }}/../../../tests/configs/upgrade_configs/aap_25"
+        input_authenticator_name: "IDM LDAP"
 ```
 
 For a normal migration, set `aap25_configs_dir` to your target directory and omit the `tempfile` step if you want to keep the output.
