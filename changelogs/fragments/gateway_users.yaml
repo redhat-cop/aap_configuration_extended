@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - Use the Gateway users API endpoint (/api/gateway/v1/users) to retrieve AAP users list and the associated_authenticator attribute to determine if users are local or not
+...
