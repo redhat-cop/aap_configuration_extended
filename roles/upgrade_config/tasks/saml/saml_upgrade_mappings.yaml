@@ -10,9 +10,9 @@
   vars:
     __current_map_value:
       name: "Is Superuser"
-      authenticator: "{{ saml_authenticator_name | default(controller_settings[0].settings.SOCIAL_AUTH_SAML_ORG_INFO | dict2items | map(attribute='value.name') | first) }}"
+      authenticator: "{{ upgrade_saml_authenticator_name }}"
       map_type: "is_superuser"
-      revoke: "{{ saml_is_superuser_revoke | default(true) | bool | lower }}"
+      revoke: "{{ saml_is_superuser_revoke | default(true) | bool }}"
       triggers: "{{ {} | combine({'attributes':
                                     {controller_settings[0].settings.SOCIAL_AUTH_SAML_USER_FLAGS_BY_ATTR.is_superuser_attr:
                                       {'contains': controller_settings[0].settings.SOCIAL_AUTH_SAML_USER_FLAGS_BY_ATTR.is_superuser_value | first},
@@ -25,10 +25,10 @@
   vars:
     __current_map_value:
       name: "Is Auditor"
-      authenticator: "{{ saml_authenticator_name | default(controller_settings[0].settings.SOCIAL_AUTH_SAML_ORG_INFO | dict2items | map(attribute='value.name') | first) }}"
+      authenticator: "{{ upgrade_saml_authenticator_name }}"
       map_type: "role"
       role: "Platform Auditor"
-      revoke: "{{ saml_is_system_auditor_revoke | default(true) | bool | lower }}"
+      revoke: "{{ saml_is_system_auditor_revoke | default(true) | bool }}"
       triggers: "{{ {} | combine({'attributes': {controller_settings[0].settings.SOCIAL_AUTH_SAML_USER_FLAGS_BY_ATTR.is_system_auditor_attr:
                                     {'contains': controller_settings[0].settings.SOCIAL_AUTH_SAML_USER_FLAGS_BY_ATTR.is_system_auditor_value | first},
                                     'join_condition': 'or'}})
@@ -40,12 +40,12 @@
   vars:
     __current_map_value:
       name: "{{ __current_map.key }}"
-      authenticator: "{{ saml_authenticator_name | default(controller_settings[0].settings.SOCIAL_AUTH_SAML_ORG_INFO | dict2items | map(attribute='value.name') | first) }}"
+      authenticator: "{{ upgrade_saml_authenticator_name }}"
       map_type: "team"
       role: "Team Member"
       organization: "{{ __current_map.value.organization }}"
       team: "{{ __current_map.key }}"
-      revoke: "{{ __current_map.value.remove | default(true) | bool | lower }}"
+      revoke: "{{ __current_map.value.remove | default(true) | bool }}"
       triggers: "{{ {} | combine({'groups': {'has_and': ([__current_map.value.users] | flatten)}} if (__current_map.value.users | type_debug is not match('bool')) else
                                  {'always': {}} if (__current_map.value.users | bool) else {'never': {}})
                  }}"
@@ -55,17 +55,17 @@
     loop_var: __current_map
     index_var: __current_team_map_index
 
-- name: "Upgrade_config | SAML mappings - Add the LDAP Organization Mappings (Administrators)"
+- name: "Upgrade_config | SAML mappings - Add the SAML Organization Mappings (Administrators)"
   ansible.builtin.set_fact:
     gateway_authenticator_maps: "{{ (gateway_authenticator_maps | default([])) + [__current_map_value_admins] }}"
   vars:
     __current_map_value_admins:
       name: "{{ __current_map.key }} Admins"
-      authenticator: "{{ input_authenticator_name | default(input_config_prefix) }}"
+      authenticator: "{{ saml_organization_map_authenticator | default(input_authenticator_name | default(upgrade_saml_authenticator_name)) }}"
       map_type: "organization"
       role: "Organization Admin"
       organization: "{{ __current_map.key }}"
-      revoke: "{{ __current_map.value.remove_admins | default(true) | bool | lower }}"
+      revoke: "{{ __current_map.value.remove_admins | default(true) | bool }}"
       triggers: "{{ {} | combine({'groups': {'has_and': ([__current_map.value.admins] | flatten)}} if (__current_map.value.admins | type_debug is not match('bool')) else
                                  {'always': {}} if (__current_map.value.admins | bool) else {'never': {}})
                  }}"
@@ -78,17 +78,17 @@
     - __current_map.value.admins is defined
     - __current_map.value.admins | string | length > 0
 
-- name: "Upgrade_config | SAML mappings - Add the LDAP Organization Mappings (Members)"
+- name: "Upgrade_config | SAML mappings - Add the SAML Organization Mappings (Members)"
   ansible.builtin.set_fact:
     gateway_authenticator_maps: "{{ (gateway_authenticator_maps | default([])) + [__current_map_value_members] }}"
   vars:
     __current_map_value_members:
       name: "{{ __current_map.key }} Members"
-      authenticator: "{{ input_authenticator_name | default(input_config_prefix) }}"
+      authenticator: "{{ saml_organization_map_authenticator | default(input_authenticator_name | default(upgrade_saml_authenticator_name)) }}"
       map_type: "organization"
       role: "Organization Member"
       organization: "{{ __current_map.key }}"
-      revoke: "{{ __current_map.value.remove_users | default(true) | bool | lower }}"
+      revoke: "{{ __current_map.value.remove_users | default(true) | bool }}"
       triggers: "{{ {} | combine({'groups': {'has_and': ([__current_map.value.users] | flatten)}} if (__current_map.value.users | type_debug is not match('bool')) else
                                  {'always': {}} if (__current_map.value.users | bool) else {'never': {}})
                  }}"

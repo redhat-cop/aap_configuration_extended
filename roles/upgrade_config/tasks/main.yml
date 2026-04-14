@@ -34,10 +34,53 @@
   loop: "{{ _files }}"
   loop_control:
     loop_var: _current_file
-  when: (controller_settings | first).settings | regex_search(_current_file.condition) == _current_file.condition
+  when:
+    - controller_settings is defined
+    - controller_settings | length > 0
+    - controller_settings | first is defined
+    - (controller_settings | first).settings is defined
+    - (controller_settings | first).settings is mapping
+    - >
+      (_current_file.condition == 'AUTH_LDAP' and
+        (controller_settings | first).settings.keys() | select('match', '^AUTH_LDAP') | list | length > 0)
+      or
+      (_current_file.condition == 'SOCIAL_AUTH_SAML' and
+        (controller_settings | first).settings.keys() | select('match', '^SOCIAL_AUTH_SAML') | list | length > 0)
   # when: (controller_settings | first).settings | regex_search(_current_file.condition) | length > 0
   # when:    (controller_settings is defined and ((controller_settings | first).settings | regex_search(_current_file.condition) | default([], true) | length > 0))
   #       or (lookup('vars', _current_file.condition) is defined)
+
+- name: "Normalize gateway_* YAML (list indentation, document markers, multiline PEM)"
+  block:
+    - name: "Stat gateway_authenticators.yaml"
+      ansible.builtin.stat:
+        path: "{{ aap25_configs_dir }}/gateway_authenticators.yaml"
+      register: _upgrade_gateway_auth_stat
+
+    - name: "Format gateway_authenticators.yaml"
+      infra.aap_configuration_extended.format_yaml:
+        path: "{{ aap25_configs_dir }}/gateway_authenticators.yaml"
+        preserve_comments: false
+        explicit_start: true
+        explicit_end: true
+        fix_document_markers: true
+        auto_block_scalars: true
+      when: _upgrade_gateway_auth_stat.stat.exists
+
+    - name: "Stat gateway_authenticator_maps.yaml"
+      ansible.builtin.stat:
+        path: "{{ aap25_configs_dir }}/gateway_authenticator_maps.yaml"
+      register: _upgrade_gateway_maps_stat
+
+    - name: "Format gateway_authenticator_maps.yaml"
+      infra.aap_configuration_extended.format_yaml:
+        path: "{{ aap25_configs_dir }}/gateway_authenticator_maps.yaml"
+        preserve_comments: false
+        explicit_start: true
+        explicit_end: true
+        fix_document_markers: true
+        auto_block_scalars: true
+      when: _upgrade_gateway_maps_stat.stat.exists
 
 - name: "Upgrade all the configs from 2.4 to 2.5 format (Common code)"
   ansible.builtin.include_tasks:
@@ -71,7 +114,41 @@
     loop_var: current_common_item
   when: '__var_name != "non_exists"'
 
+- name: "Normalize aap_notifications and aap_workflows YAML (block lists, multiline !unsafe)"
+  block:
+    - name: "Stat aap_notifications.yaml"
+      ansible.builtin.stat:
+        path: "{{ aap25_configs_dir }}/aap_notifications.yaml"
+      register: _upgrade_fmt_notifications_stat
+
+    - name: "Format aap_notifications.yaml"
+      infra.aap_configuration_extended.format_yaml:
+        path: "{{ aap25_configs_dir }}/aap_notifications.yaml"
+        preserve_comments: false
+        explicit_start: true
+        explicit_end: true
+        fix_document_markers: true
+        auto_block_scalars: true
+      when: _upgrade_fmt_notifications_stat.stat.exists
+
+    - name: "Stat aap_workflows.yaml"
+      ansible.builtin.stat:
+        path: "{{ aap25_configs_dir }}/aap_workflows.yaml"
+      register: _upgrade_fmt_workflows_stat
+
+    - name: "Format aap_workflows.yaml"
+      infra.aap_configuration_extended.format_yaml:
+        path: "{{ aap25_configs_dir }}/aap_workflows.yaml"
+        preserve_comments: false
+        explicit_start: true
+        explicit_end: true
+        fix_document_markers: true
+        auto_block_scalars: true
+      when: _upgrade_fmt_workflows_stat.stat.exists
+
 - name: "Block to fix the output files' format"
+  tags:
+    - yaml_format
   block:
     - name: "Search for all the generated files"
       ansible.builtin.find:
@@ -83,8 +160,13 @@
       register: _generated_files
 
     - name: "Re-write all the generated files to make them more readable"
-      ansible.builtin.shell: "/usr/bin/env yq -i -P {{ _current_file.path }} && echo '...' >> {{ _current_file.path }}"
-      changed_when: true
+      infra.aap_configuration_extended.format_yaml:
+        path: "{{ _current_file.path }}"
+        preserve_comments: false # Required when auto_block_scalars is true (full round-trip; comments dropped).
+        explicit_start: true # Forces ---
+        explicit_end: true # Forces ...
+        fix_document_markers: true
+        auto_block_scalars: true # Multiline strings as literal block (|).
       loop: "{{ _generated_files.files }}"
       loop_control:
         loop_var: _current_file

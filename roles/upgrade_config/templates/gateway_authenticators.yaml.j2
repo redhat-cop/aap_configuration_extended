@@ -2,11 +2,27 @@
 gateway_authenticators:
 {% for __map in gateway_authenticators %}
 {%   for __map_item in (__map | dict2items) %}
-{%     if loop.index == 1 %}
-  - {{ __map_item.key }}: {{ __map_item.value }}
+{%     set _v = __map_item.value %}
+{%     set _complex = _v is mapping or (_v is sequence and _v is not string) %}
+{%     if loop.first %}
+{%       if _complex %}
+  - {{ __map_item.key }}:
+{{ _v | to_nice_yaml | indent(6, first=true) }}
+{%       elif _v is boolean %}
+  - {{ __map_item.key }}: {{ _v | string | lower }}
+{%       else %}
+  - {{ __map_item.key }}: {{ _v }}
+{%       endif %}
 {%     else %}
-    {{ __map_item.key }}: {{ __map_item.value }}
+{%       if _complex %}
+    {{ __map_item.key }}:
+{{ _v | to_nice_yaml | indent(6, first=true) }}
+{%       elif _v is boolean %}
+    {{ __map_item.key }}: {{ _v | string | lower }}
+{%       else %}
+    {{ __map_item.key }}: {{ _v }}
+{%       endif %}
 {%     endif %}
 {%   endfor %}
-{%- endfor %}
+{% endfor %}
 ...

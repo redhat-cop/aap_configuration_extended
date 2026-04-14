@@ -1,0 +1,4 @@
+---
+minor_changes:
+  - Remove yq from the collection and add a new module to process the yaml files using ruamel.
+...

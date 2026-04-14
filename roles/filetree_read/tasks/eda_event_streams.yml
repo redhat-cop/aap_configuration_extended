@@ -1,0 +1,41 @@
+---
+- name: "Get list of files inside {{ filetree_eda_event_streams }}"
+  ansible.builtin.find:
+    paths: "{{ filetree_eda_event_streams }}"
+    file_type: file
+    patterns: "{{ filetree_controller_include | default(omit) }}"
+    excludes: "{{ filetree_controller_exclude | default(omit) }}"
+    use_regex: "{{ filetree_controller_regex | default(false) }}"
+    contains: "eda_event_streams:"
+    read_whole_file: true
+    recurse: true
+  register: __list_files_eda_event_streams
+
+- name: "Read EDA event streams definitions"
+  ansible.builtin.include_vars:
+    file: "{{ __read_eda_event_streams_item.path }}"
+  loop: "{{ __list_files_eda_event_streams.files }}"
+  loop_control:
+    loop_var: __read_eda_event_streams_item
+  register: __contents_filetree_eda_event_streams
+  failed_when: "'VARIABLE IS NOT DEFINED' in __contents_filetree_eda_event_streams"
+
+- name: "Populate EDA event streams list"
+  ansible.builtin.set_fact:
+    __populate_eda_event_streams: "{{ (__populate_eda_event_streams | default([])) + __populate_eda_event_streams_item.ansible_facts.eda_event_streams }}"
+  loop: "{{ __contents_filetree_eda_event_streams.results }}"
+  loop_control:
+    loop_var: __populate_eda_event_streams_item
+  no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
+  when:
+    - __contents_filetree_eda_event_streams is defined
+    - __contents_filetree_eda_event_streams.results is defined
+    - __contents_filetree_eda_event_streams.results | length > 0
+    - __populate_eda_event_streams_item.ansible_facts.eda_event_streams is defined
+
+- name: "Set EDA event streams data structure"
+  ansible.builtin.set_fact:
+    eda_event_streams: "{{ __populate_eda_event_streams }}"
+  no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
+  when: __populate_eda_event_streams is defined
+...
