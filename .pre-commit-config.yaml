@@ -40,4 +40,10 @@ repos:
         name: flake8
         entry: flake8
         types: [python]
+
+  - repo: https://github.com/djdanielsson/ansible-content-prek-actions
+    rev: v26.3.1
+    hooks:
+      - id: changelog
+      - id: galaxy-importer
 ...
