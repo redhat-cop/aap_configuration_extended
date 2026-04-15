@@ -1,0 +1,49 @@
+---
+# Centralized validation: every SOCIAL_AUTH_SAML_* / SAML_* key consumed by SAML upgrade
+# tasks must be present in controller_settings[0].settings. Resolves upgrade_saml_authenticator_name.
+- name: "Upgrade_config | SAML - Validate SOCIAL_AUTH_SAML settings required for upgrade"
+  ansible.builtin.assert:
+    that:
+      - controller_settings[0].settings is defined
+      - _s is mapping
+      - _s.SOCIAL_AUTH_SAML_ORG_INFO is mapping
+      - _s.SOCIAL_AUTH_SAML_ORG_INFO | length > 0
+      - _saml_idp_names_from_org | length > 0
+      - _saml_idp_names_from_org | first is string
+      - (_saml_idp_names_from_org | first | length) > 0
+      - _s.SOCIAL_AUTH_SAML_ENABLED_IDPS is mapping
+      - _s.SOCIAL_AUTH_SAML_ENABLED_IDPS | length > 0
+      - _resolved_saml_authenticator_name in _s.SOCIAL_AUTH_SAML_ENABLED_IDPS
+      - _s.SAML_AUTO_CREATE_OBJECTS is defined
+      - _s.SOCIAL_AUTH_SAML_EXTRA_DATA is defined
+      - _s.SOCIAL_AUTH_SAML_SECURITY_CONFIG is defined
+      - _s.SOCIAL_AUTH_SAML_SP_ENTITY_ID is defined
+      - _s.SOCIAL_AUTH_SAML_SP_EXTRA is defined
+      - _s.SOCIAL_AUTH_SAML_SP_PUBLIC_CERT is defined
+      - _s.SOCIAL_AUTH_SAML_SUPPORT_CONTACT is defined
+      - _s.SOCIAL_AUTH_SAML_TECHNICAL_CONTACT is defined
+      - _s.SOCIAL_AUTH_SAML_USER_FLAGS_BY_ATTR is mapping
+      - _s.SOCIAL_AUTH_SAML_USER_FLAGS_BY_ATTR.is_superuser_attr is defined
+      - _s.SOCIAL_AUTH_SAML_USER_FLAGS_BY_ATTR.is_superuser_value is defined
+      - _s.SOCIAL_AUTH_SAML_USER_FLAGS_BY_ATTR.is_superuser_value | length > 0
+      - _s.SOCIAL_AUTH_SAML_USER_FLAGS_BY_ATTR.is_system_auditor_attr is defined
+      - _s.SOCIAL_AUTH_SAML_USER_FLAGS_BY_ATTR.is_system_auditor_value is defined
+      - _s.SOCIAL_AUTH_SAML_USER_FLAGS_BY_ATTR.is_system_auditor_value | length > 0
+      - _s.SOCIAL_AUTH_SAML_TEAM_MAP is mapping
+      - _s.SOCIAL_AUTH_SAML_ORGANIZATION_MAP is mapping
+    fail_msg: >-
+      Incomplete SAML settings in controller_settings[0].settings, or SOCIAL_AUTH_SAML_ORG_INFO does not yield
+      a non-empty value.name that matches a key in SOCIAL_AUTH_SAML_ENABLED_IDPS (override with saml_authenticator_name).
+  vars:
+    _s: "{{ controller_settings[0].settings }}"
+    _saml_idp_names_from_org: "{{ _s.SOCIAL_AUTH_SAML_ORG_INFO | dict2items | map(attribute='value.name') | list }}"
+    _resolved_saml_authenticator_name: "{{ saml_authenticator_name | default(_saml_idp_names_from_org | first) }}"
+
+- name: "Upgrade_config | SAML - Set resolved authenticator name for downstream tasks"
+  ansible.builtin.set_fact:
+    upgrade_saml_authenticator_name: "{{ saml_authenticator_name | default(_saml_idp_names_from_org | first) }}"
+  vars:
+    _s: "{{ controller_settings[0].settings }}"
+    _saml_idp_names_from_org: "{{ _s.SOCIAL_AUTH_SAML_ORG_INFO | dict2items | map(attribute='value.name') | list }}"
+
+...

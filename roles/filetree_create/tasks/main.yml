@@ -31,7 +31,6 @@
 
 - name: "Block to fix the output files' format"
   tags:
-    - never
     - yaml_format
   block:
     - name: "Search for all the generated files"
