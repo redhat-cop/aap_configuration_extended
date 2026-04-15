@@ -1,6 +1,0 @@
----
-bugfixes:
-  - "CI and supply chain - Add Dependabot for pip, GitHub Actions, and pre-commit; pin ``actions-cool/issues-helper`` to a commit SHA; set top-level workflow permissions where appropriate."
-  - "Repository hygiene - Ignore ``.env``, key material, and ``.pre-commit-cache/`` in ``.gitignore``; exclude ``.pre-commit-cache/`` from ansible-lint so local pre-commit caches do not break lint discovery."
-  - "upgrade_config - Remove the development ``compare_upgrade_output.py`` helper and the compare task from ``tests/upgrade_config.yaml``; update the role README."
-...
