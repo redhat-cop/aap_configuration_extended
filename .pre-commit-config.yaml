@@ -34,4 +34,5 @@ repos:
       - id: ansible-lint
       - id: changelog
       - id: galaxy-importer
+      - id: sanity
 ...
