@@ -211,6 +211,7 @@ jobs:
     needs:
       - create_github_release
       - calculate_version
+    if: ${{ !cancelled() && needs.create_github_release.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -233,6 +234,7 @@ jobs:
     needs:
       - create_github_release
       - calculate_version
+    if: ${{ !cancelled() && needs.create_github_release.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -263,6 +265,7 @@ jobs:
     needs:
       - release_galaxy
       - release_ah
+    if: ${{ !cancelled() && needs.release_galaxy.result == 'success' && needs.release_ah.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - run: echo "All releases completed successfully"
@@ -272,6 +275,7 @@ jobs:
     needs:
       - create_github_release
       - calculate_version
+    if: ${{ !cancelled() && needs.create_github_release.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -304,6 +308,7 @@ jobs:
       - calculate_version
       - release_check
       - upload_tarball
+    if: ${{ !cancelled() && needs.release_check.result == 'success' && needs.upload_tarball.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -327,6 +332,7 @@ jobs:
   deploy_ee:
     name: Build Execution Environment
     needs: merge_release
+    if: ${{ !cancelled() && needs.merge_release.result == 'success' }}
     uses: redhat-cop/ansible_collections_tooling/.github/workflows/build_ee.yml@634342818b5d5fa2fa92b2c68c78a2bbe8aa4f10 # main
     with:
       quay_username: redhat_cop
@@ -338,6 +344,7 @@ jobs:
     needs:
       - release_check
       - calculate_version
+    if: ${{ !cancelled() && needs.release_check.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Send message to newsbot channel
