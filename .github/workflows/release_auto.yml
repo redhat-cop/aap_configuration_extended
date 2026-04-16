@@ -35,21 +35,17 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          # Get the latest semver tag from git (all branches)
           GIT_TAG=$(git tag --list --sort=-version:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
           echo "Latest git tag: ${GIT_TAG:-none}"
 
-          # Get the latest GitHub release tag
           GH_RELEASE=$(gh release view --json tagName -q '.tagName' 2>/dev/null || true)
           echo "Latest GitHub release: ${GH_RELEASE:-none}"
 
-          # Compare and use the higher version
           if [ -z "$GIT_TAG" ] && [ -z "$GH_RELEASE" ]; then
             echo "::error::No existing version found from git tags or GitHub releases"
             exit 1
           fi
 
-          # Function: return the higher of two semver strings
           higher_version() {
             printf '%s\n%s' "$1" "$2" | sort -t. -k1,1n -k2,2n -k3,3n | tail -n1
           }
@@ -194,16 +190,16 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Create or update GitHub Release
+      - name: Create draft GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.calculate_version.outputs.collection_version }}
         run: |
           if gh release view "$TAG" --repo "${{ github.repository }}" > /dev/null 2>&1; then
             echo "::notice::Release $TAG already exists, updating it."
-            gh release edit "$TAG" --repo "${{ github.repository }}" --latest
+            gh release edit "$TAG" --repo "${{ github.repository }}" --draft=false --latest
           else
-            gh release create "$TAG" --repo "${{ github.repository }}" --generate-notes --latest
+            gh release create "$TAG" --repo "${{ github.repository }}" --generate-notes --draft
           fi
 
   release_galaxy:
@@ -287,7 +283,7 @@ jobs:
       - name: Build collection tarball
         run: ansible-galaxy collection build -v --force
 
-      - name: Upload tarball to GitHub release
+      - name: Upload tarball and publish release
         env:
           GH_TOKEN: ${{ secrets.GH_WORKFLOW_KEY }}
           TAG: ${{ needs.calculate_version.outputs.collection_version }}
@@ -301,6 +297,7 @@ jobs:
             fi
             gh release upload "$TAG" "$tarball" --repo "${{ github.repository }}"
           done
+          gh release edit "$TAG" --repo "${{ github.repository }}" --draft=false --latest
 
   merge_release:
     name: Merge Release Branch

@@ -1,4 +1,7 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
+# (c) 2024, Ivan Aragonés (@ivarmu)
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
 
@@ -52,7 +55,6 @@ notes:
   - I(auto_block_scalars=true) requires I(preserve_comments=false).
 author:
   - Ivan Aragonés (@ivarmu)
-  - Automation Iberia / community contributors
 """
 
 EXAMPLES = r"""
@@ -161,7 +163,7 @@ def compose_node_line_span(node):
         if not node.value:
             return (node.start_mark.line, node.end_mark.line)
         child_spans = [compose_node_line_span(child) for child in node.value]
-        return (min(start for start, _ in child_spans), max(end for _, end in child_spans))
+        return (min(s for s, _e in child_spans), max(e for _s, e in child_spans))
     if isinstance(node, MappingNode):
         if not node.value:
             return (node.start_mark.line, node.end_mark.line)
@@ -169,7 +171,7 @@ def compose_node_line_span(node):
         for key_node, value_node in node.value:
             child_spans.append(compose_node_line_span(key_node))
             child_spans.append(compose_node_line_span(value_node))
-        return (min(start for start, _ in child_spans), max(end for _, end in child_spans))
+        return (min(s for s, _e in child_spans), max(e for _s, e in child_spans))
     return (node.start_mark.line, node.end_mark.line)
 
 
