@@ -350,7 +350,7 @@ Run `ansible-playbook … --list-tags` against your playbook to see the full tag
 
         - name: Include Tasks to add Galaxy credentials to Organizations
           ansible.builtin.include_role:
-            name: infra.aap_configuration_extended.dispatch
+            name: infra.aap_configuration.dispatch
             apply:
               tags:
                 - organizations
@@ -363,7 +363,7 @@ Run `ansible-playbook … --list-tags` against your playbook to see the full tag
 
   roles:
     - {role: infra.aap_configuration_extended.filetree_read }
-    - {role: infra.aap_configuration_extended.dispatch }
+    - {role: infra.aap_configuration.dispatch }
 
   post_tasks:
     - name: "Delete the Authentication Token used"
