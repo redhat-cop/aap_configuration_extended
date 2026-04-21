@@ -86,7 +86,7 @@ To correctly manage `roles`, they can only be defined by a super-admin organizat
           - {name: controller_credentials, var: controller_credentials, tags: controller_credentials}
           - {name: controller_credential_types, var: controller_credential_types, tags: controller_credential_types}
           - {name: controller_organizations, var: aap_organizations, tags: controller_organizations}
-    - role: infra.aap_configuration_extended.dispatch
+    - role: infra.aap_configuration.dispatch
       vars:
         controller_configuration_dispatcher_roles:
           - {role: controller_workflow_job_templates, var: controller_workflows, tags: controller_workflow_job_templates}
