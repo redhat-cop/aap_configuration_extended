@@ -45,8 +45,8 @@ The **format_yaml** module uses **PyYAML** (`import yaml`), which ships with **a
 
 |                                      Collection Name                                                  |                      Purpose                      |
 |:-----------------------------------------------------------------------------------------------------:|:-------------------------------------------------:|
-| [AAP >= 2.5 Configuration](https://github.com/redhat-cop/infra.aap_configuration)                   | Ansible Automation Platform configuration |
-| [AAP <= 2.4 Controller Configuration](https://github.com/redhat-cop/infra.controller_configuration) | Automation controller configuration       |
+| [AAP >= 2.5 Configuration](https://github.com/redhat-cop/infra.aap_configuration)                     | Ansible Automation Platform configuration         |
+| [AAP <= 2.4 Controller Configuration](https://github.com/redhat-cop/infra.controller_configuration)   | Automation controller configuration               |
 | [EE Utilities](https://github.com/redhat-cop/ee_utilities)                                            | Execution Environment creation utilities          |
 | [AAP installation Utilities](https://github.com/redhat-cop/aap_utilities)                             | Ansible Automation Platform Utilities             |
 | [AAP Configuration Template](https://github.com/redhat-cop/aap_configuration_template)                | Configuration Template for this suite             |
