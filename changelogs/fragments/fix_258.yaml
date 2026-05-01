@@ -1,4 +1,0 @@
----
-bugfixes:
-  - Fix documentation typos that had infra.aap_configuration_extended.dispatch instead of infra.aap_configuration.dispatch
-...
