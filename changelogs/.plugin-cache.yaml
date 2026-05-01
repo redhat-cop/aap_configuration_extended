@@ -50,9 +50,14 @@ plugins:
       name: controller_export_diff
       namespace: ''
       version_added: null
+    format_yaml:
+      description: Format YAML files with PyYAML (ansible-core dependency only)
+      name: format_yaml
+      namespace: ''
+      version_added: null
   netconf: {}
   shell: {}
   strategy: {}
   test: {}
   vars: {}
-version: 4.2.0
+version: 4.5.0
