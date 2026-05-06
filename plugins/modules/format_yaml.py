@@ -14,12 +14,11 @@ short_description: Format YAML files with PyYAML (ansible-core dependency only)
 description:
   - Reformats a YAML file in place using PyYAML (same stack as ansible-core).
   - With I(preserve_comments=true) (default), only adjusts indentation of block sequences that YAML parsed as
-    "indentless" (using C(yaml.compose) line marks). Comments and overall structure are kept.
-  - If flow-style collections are found (e.g. C([{a: 1}])), the module canonicalizes them to block style to ensure
-    readable YAML output.
+    indentless (using C(yaml.compose) line marks). Comments and overall structure are kept.
+  - When inline flow-style collections appear in the file, the module rewrites them to canonical block style for readability.
   - With I(preserve_comments=false), performs a full load and dump (comments are lost). Enables I(auto_block_scalars),
-    PEM-in-one-line repair, Ansible C(!unsafe) round-trip (scalars keep the tag; multiline unsafe uses a literal block),
-    block-style lists,     C(null) emitted as an empty value (no C(null) keyword), optional normalization of Python boolean spellings to
+    PEM-in-one-line repair, round-trip for Ansible unsafe-tagged scalars (tag preserved; multiline values use a literal block),
+    block-style lists, C(null) emitted as an empty value (no C(null) keyword), optional normalization of Python boolean spellings to
     lowercase in plain scalars when preserving comments, and double-quoted scalars for slash-delimited regex strings that
     contain backslashes (in the file, C(\\.) before the dot encodes a single backslash plus a literal dot in the value).
 options:
