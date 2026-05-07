@@ -1,3 +1,7 @@
+.env
+*.pem
+*.key
+.pre-commit-cache/
 ansible_collections
 *.tar.gz
 *.pyc
@@ -10,3 +14,4 @@ vault-aap-controller.yaml
 .ansible/
 .vault-password
 sample_25
+importer_result.json

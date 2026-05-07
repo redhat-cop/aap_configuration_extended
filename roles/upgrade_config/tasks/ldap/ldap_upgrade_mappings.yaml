@@ -1,4 +1,7 @@
 ---
+- name: "Upgrade_config | LDAP mappings - Assert required mapping settings for this LDAP prefix"
+  ansible.builtin.import_tasks: assert_ldap_mapping_settings.yaml
+
 - name: "Upgrade_config | LDAP mappings - Include the current output file (if exists)"
   ansible.builtin.include_vars:
     dir: "{{ aap25_configs_dir }}"
@@ -12,7 +15,7 @@
       name: "{{ 'administrators' if __current_map.key is match('is_superuser') else __current_map.key }}"
       authenticator: "{{ input_authenticator_name | default(input_config_prefix) }}"
       map_type: "{{ __current_map.key }}"
-      revoke: "{{ input_revoke | default(true) | bool | lower }}"
+      revoke: "{{ input_revoke | default(true) | bool }}"
       triggers:
         groups:
           has_and: "{{ __current_map.value }}"
@@ -32,7 +35,7 @@
       role: "Team Member"
       organization: "{{ __current_map.value.organization }}"
       team: "{{ __current_map.key }}"
-      revoke: "{{ __current_map.value.remove | default(false) | bool | lower }}"
+      revoke: "{{ __current_map.value.remove | default(false) | bool }}"
       triggers:
         groups:
           has_and:
@@ -54,7 +57,7 @@
       role: "Organization Admin"
       organization: "{{ __current_map.key }}"
       team: "{{ __current_map.key }}"
-      revoke: "{{ __current_map.value.remove_admins | bool | lower }}"
+      revoke: "{{ __current_map.value.remove_admins | default(true) | bool }}"
       triggers:
         groups:
           has_and:
@@ -79,7 +82,7 @@
       role: "Organization Member"
       organization: "{{ __current_map.key }}"
       team: "{{ __current_map.key }}"
-      revoke: "{{ __current_map.value.remove_users | default(false) | bool | lower }}"
+      revoke: "{{ __current_map.value.remove_users | default(false) | bool }}"
       triggers:
         groups:
           has_and:

@@ -42,6 +42,23 @@ filetree_controller_workflow_job_templates: "{{ dir_orgs_vars }}/{{ orgs }}/env/
 filetree_controller_schedules: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_schedules.d/"
 filetree_controller_roles: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_roles.d/"
 
+# EDA Directory Paths
+filetree_eda_credential_types: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/eda_credential_types.d/"
+filetree_eda_credentials: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/eda_credentials.d/"
+filetree_eda_decision_environments: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/eda_decision_environments.d/"
+filetree_eda_event_streams: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/eda_event_streams.d/"
+filetree_eda_projects: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/eda_projects.d/"
+filetree_eda_rulebook_activations: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/eda_rulebook_activations.d/"
+
+# Hub Directory Paths
+filetree_hub_namespaces: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/hub_namespaces.d/"
+filetree_hub_collections: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/hub_collections.d/"
+filetree_hub_collection_remotes: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/hub_collection_remotes.d/"
+filetree_hub_collection_repositories: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/hub_collection_repositories.d/"
+filetree_hub_ee_registries: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/hub_ee_registries.d/"
+filetree_hub_ee_repositories: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/hub_ee_repositories.d/"
+filetree_hub_ee_images: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/hub_ee_images.d/"
+
 # filetree_read tasks order and name
 controller_configuration_filetree_read_tasks:
   # Gateway tasks
@@ -80,4 +97,21 @@ controller_configuration_filetree_read_tasks:
   - {name: controller_workflow_job_templates, var: controller_workflows, tags: workflow_job_templates}
   - {name: controller_schedules, var: controller_schedules, tags: schedules}
   - {name: controller_roles, var: controller_roles, tags: roles}
+
+  # EDA tasks
+  - {name: eda_credential_types, var: eda_credential_types, tags: eda_credential_types}
+  - {name: eda_credentials, var: eda_credentials, tags: eda_credentials}
+  - {name: eda_decision_environments, var: eda_decision_environments, tags: eda_decision_environments}
+  - {name: eda_event_streams, var: eda_event_streams, tags: eda_event_streams}
+  - {name: eda_projects, var: eda_projects, tags: eda_projects}
+  - {name: eda_rulebook_activations, var: eda_rulebook_activations, tags: eda_rulebook_activations}
+
+  # Hub tasks
+  - {name: hub_namespaces, var: hub_namespaces, tags: hub_namespaces}
+  - {name: hub_collections, var: hub_collections, tags: hub_collections}
+  - {name: hub_collection_remotes, var: hub_collection_remotes, tags: hub_collection_remotes}
+  - {name: hub_collection_repositories, var: hub_collection_repositories, tags: hub_collection_repositories}
+  - {name: hub_ee_registries, var: hub_ee_registries, tags: hub_ee_registries}
+  - {name: hub_ee_repositories, var: hub_ee_repositories, tags: hub_ee_repositories}
+  - {name: hub_ee_images, var: hub_ee_images, tags: hub_ee_images}
 ...

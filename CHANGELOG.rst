@@ -4,6 +4,27 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v4.5.0
+======
+
+Minor Changes
+-------------
+
+- Remove yq from the collection and add a new module to process the yaml files using ruamel.
+- filetree_create - Add 'hub_ee_images' to the valid tags list.
+- filetree_read - Add tasks to load EDA and automation hub variables from the file tree (credential types, credentials, decision environments, event streams, projects, rulebook activations; namespaces, collections, collection remotes and repositories, EE registries, repositories, and images), with defaults and argument_specs entries; document in README.
+
+Bugfixes
+--------
+
+- CI and supply chain - Add Dependabot for pip, GitHub Actions, and pre-commit; pin ``actions-cool/issues-helper`` to a commit SHA; set top-level workflow permissions where appropriate.
+- Fix documentation typos that had infra.aap_configuration_extended.dispatch instead of infra.aap_configuration.dispatch
+- Repository hygiene - Ignore ``.env``, key material, and ``.pre-commit-cache/`` in ``.gitignore``; exclude ``.pre-commit-cache/`` from ansible-lint so local pre-commit caches do not break lint discovery.
+- Use the Gateway users API endpoint (/api/gateway/v1/users) to retrieve AAP users list and the associated_authenticator attribute to determine if users are local or not
+- filetree_create - Avoid job_templates and workflow_job_templates export failure if all their extra_vars are commented
+- filetree_create - gateway_role_definitions.yml‎ - Fix no_log var undefined
+- upgrade_config - Remove the development ``compare_upgrade_output.py`` helper and the compare task from ``tests/upgrade_config.yaml``; update the role README.
+
 v4.2.0
 ======
 

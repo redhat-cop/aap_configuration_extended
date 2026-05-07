@@ -121,4 +121,5 @@ valid_tags:
   - hub_collection_repositories
   - hub_ee_registries
   - hub_ee_repositories
+  - hub_ee_images
 ...

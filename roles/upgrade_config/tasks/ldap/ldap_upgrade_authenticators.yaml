@@ -1,4 +1,7 @@
 ---
+- name: "Upgrade_config | LDAP authenticators - Assert required settings for this LDAP prefix"
+  ansible.builtin.import_tasks: assert_ldap_authenticator_settings.yaml
+
 - name: "Upgrade_config | LDAP authenticators - Include the current output file (if exists)"
   ansible.builtin.include_vars:
     dir: "{{ aap25_configs_dir }}"
@@ -10,9 +13,9 @@
   vars:
     __current_authenticator_value:
       name: "{{ input_authenticator_name | default(input_config_prefix) }}"
-      enabled: "{{ input_authenticator_enabled | default(true) | bool | lower }}"
-      create_objects: "{{ input_create_objects | default(true) | bool | lower }}"
-      remove_users: "{{ input_remove_users | default(true) | bool | lower }}"
+      enabled: "{{ input_authenticator_enabled | default(true) | bool }}"
+      create_objects: "{{ input_create_objects | default(true) | bool }}"
+      remove_users: "{{ input_remove_users | default(true) | bool }}"
       configuration:
         BIND_DN: "{{ controller_settings[0].settings[input_config_prefix + '_BIND_DN'] }}"
         BIND_PASSWORD: "{{ controller_settings[0].settings[input_config_prefix + '_BIND_PASSWORD'] }}"

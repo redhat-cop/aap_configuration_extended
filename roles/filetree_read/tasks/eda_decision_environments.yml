@@ -1,0 +1,41 @@
+---
+- name: "Get list of files inside {{ filetree_eda_decision_environments }}"
+  ansible.builtin.find:
+    paths: "{{ filetree_eda_decision_environments }}"
+    file_type: file
+    patterns: "{{ filetree_controller_include | default(omit) }}"
+    excludes: "{{ filetree_controller_exclude | default(omit) }}"
+    use_regex: "{{ filetree_controller_regex | default(false) }}"
+    contains: "eda_decision_environments:"
+    read_whole_file: true
+    recurse: true
+  register: __list_files_eda_decision_environments
+
+- name: "Read EDA decision environments definitions"
+  ansible.builtin.include_vars:
+    file: "{{ __read_eda_decision_environments_item.path }}"
+  loop: "{{ __list_files_eda_decision_environments.files }}"
+  loop_control:
+    loop_var: __read_eda_decision_environments_item
+  register: __contents_filetree_eda_decision_environments
+  failed_when: "'VARIABLE IS NOT DEFINED' in __contents_filetree_eda_decision_environments"
+
+- name: "Populate EDA decision environments list"
+  ansible.builtin.set_fact:
+    __populate_eda_decision_environments: "{{ (__populate_eda_decision_environments | default([])) + __populate_eda_decision_environments_item.ansible_facts.eda_decision_environments }}"
+  loop: "{{ __contents_filetree_eda_decision_environments.results }}"
+  loop_control:
+    loop_var: __populate_eda_decision_environments_item
+  no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
+  when:
+    - __contents_filetree_eda_decision_environments is defined
+    - __contents_filetree_eda_decision_environments.results is defined
+    - __contents_filetree_eda_decision_environments.results | length > 0
+    - __populate_eda_decision_environments_item.ansible_facts.eda_decision_environments is defined
+
+- name: "Set EDA decision environments data structure"
+  ansible.builtin.set_fact:
+    eda_decision_environments: "{{ __populate_eda_decision_environments }}"
+  no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
+  when: __populate_eda_decision_environments is defined
+...

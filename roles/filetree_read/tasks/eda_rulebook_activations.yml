@@ -1,0 +1,41 @@
+---
+- name: "Get list of files inside {{ filetree_eda_rulebook_activations }}"
+  ansible.builtin.find:
+    paths: "{{ filetree_eda_rulebook_activations }}"
+    file_type: file
+    patterns: "{{ filetree_controller_include | default(omit) }}"
+    excludes: "{{ filetree_controller_exclude | default(omit) }}"
+    use_regex: "{{ filetree_controller_regex | default(false) }}"
+    contains: "eda_rulebook_activations:"
+    read_whole_file: true
+    recurse: true
+  register: __list_files_eda_rulebook_activations
+
+- name: "Read EDA rulebook activations definitions"
+  ansible.builtin.include_vars:
+    file: "{{ __read_eda_rulebook_activations_item.path }}"
+  loop: "{{ __list_files_eda_rulebook_activations.files }}"
+  loop_control:
+    loop_var: __read_eda_rulebook_activations_item
+  register: __contents_filetree_eda_rulebook_activations
+  failed_when: "'VARIABLE IS NOT DEFINED' in __contents_filetree_eda_rulebook_activations"
+
+- name: "Populate EDA rulebook activations list"
+  ansible.builtin.set_fact:
+    __populate_eda_rulebook_activations: "{{ (__populate_eda_rulebook_activations | default([])) + __populate_eda_rulebook_activations_item.ansible_facts.eda_rulebook_activations }}"
+  loop: "{{ __contents_filetree_eda_rulebook_activations.results }}"
+  loop_control:
+    loop_var: __populate_eda_rulebook_activations_item
+  no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
+  when:
+    - __contents_filetree_eda_rulebook_activations is defined
+    - __contents_filetree_eda_rulebook_activations.results is defined
+    - __contents_filetree_eda_rulebook_activations.results | length > 0
+    - __populate_eda_rulebook_activations_item.ansible_facts.eda_rulebook_activations is defined
+
+- name: "Set EDA rulebook activations data structure"
+  ansible.builtin.set_fact:
+    eda_rulebook_activations: "{{ __populate_eda_rulebook_activations }}"
+  no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
+  when: __populate_eda_rulebook_activations is defined
+...

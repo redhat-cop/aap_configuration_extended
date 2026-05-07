@@ -1,0 +1,26 @@
+---
+# Keys read without a default in ldap_upgrade_authenticators.yaml must exist in settings.
+- name: "Upgrade_config | LDAP - Validate AUTH_LDAP* connection settings for {{ input_config_prefix }}"
+  ansible.builtin.assert:
+    that:
+      - input_config_prefix is defined
+      - (input_config_prefix | string | length) > 0
+      - _ls is mapping
+      - _ls[_pfx ~ '_BIND_DN'] is defined
+      - _ls[_pfx ~ '_BIND_PASSWORD'] is defined
+      - _ls[_pfx ~ '_SERVER_URI'] is defined
+      - (_ls[_pfx ~ '_SERVER_URI'] | string | length) > 0
+      - _ls[_pfx ~ '_START_TLS'] is defined
+      - _ls[_pfx ~ '_USER_SEARCH'] is defined
+      - _ls[_pfx ~ '_USER_DN_TEMPLATE'] is defined
+      - _ls[_pfx ~ '_GROUP_SEARCH'] is defined
+      - _ls[_pfx ~ '_GROUP_TYPE'] is defined
+      - _ls[_pfx ~ '_GROUP_TYPE_PARAMS'] is defined
+    fail_msg: >-
+      Missing LDAP settings for prefix {{ input_config_prefix }}. Expected {{ input_config_prefix }}_SERVER_URI,
+      _BIND_DN, _BIND_PASSWORD, _START_TLS, _USER_SEARCH, _USER_DN_TEMPLATE, _GROUP_SEARCH, _GROUP_TYPE,
+      _GROUP_TYPE_PARAMS in controller_settings[0].settings.
+  vars:
+    _ls: "{{ controller_settings[0].settings }}"
+    _pfx: "{{ input_config_prefix }}"
+...
