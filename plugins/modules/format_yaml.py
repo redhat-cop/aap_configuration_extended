@@ -14,10 +14,11 @@ short_description: Format YAML files with PyYAML (ansible-core dependency only)
 description:
   - Reformats a YAML file in place using PyYAML (same stack as ansible-core).
   - With I(preserve_comments=true) (default), only adjusts indentation of block sequences that YAML parsed as
-    "indentless" (using C(yaml.compose) line marks). Comments and overall structure are kept.
+    indentless (using C(yaml.compose) line marks). Comments and overall structure are kept.
+  - When inline flow-style collections appear in the file, the module rewrites them to canonical block style for readability.
   - With I(preserve_comments=false), performs a full load and dump (comments are lost). Enables I(auto_block_scalars),
-    PEM-in-one-line repair, Ansible C(!unsafe) round-trip (scalars keep the tag; multiline unsafe uses a literal block),
-    block-style lists,     C(null) emitted as an empty value (no C(null) keyword), optional normalization of Python boolean spellings to
+    PEM-in-one-line repair, round-trip for Ansible unsafe-tagged scalars (tag preserved; multiline values use a literal block),
+    block-style lists, C(null) emitted as an empty value (no C(null) keyword), optional normalization of Python boolean spellings to
     lowercase in plain scalars when preserving comments, and double-quoted scalars for slash-delimited regex strings that
     contain backslashes (in the file, C(\\.) before the dot encodes a single backslash plus a literal dot in the value).
 options:
@@ -46,13 +47,13 @@ options:
     type: bool
   auto_block_scalars:
     description:
-      - When I(preserve_comments=false), emit multiline plain strings as literal block scalars (C(|)).
-      - Incompatible with I(preserve_comments=true); the module fails if both are set.
+      - Emit multiline strings as literal block scalars (C(|)) when possible.
+      - With I(preserve_comments=true), conversion is applied in-place for quoted single-line values that decode
+        to multiline content (comments and layout stay untouched).
     default: false
     type: bool
 notes:
   - Requires PyYAML on the target (bundled with the controller for ansible-core; use python3-yaml on remotes if the module runs there).
-  - I(auto_block_scalars=true) requires I(preserve_comments=false).
 author:
   - Ivan Aragonés (@ivarmu)
 """
@@ -175,6 +176,32 @@ def compose_node_line_span(node):
     return (node.start_mark.line, node.end_mark.line)
 
 
+def compose_node_children(node):
+    if isinstance(node, MappingNode):
+        children = []
+        for key_node, value_node in node.value:
+            children.extend((key_node, value_node))
+        return children
+    if isinstance(node, SequenceNode):
+        return list(node.value)
+    return []
+
+
+def tree_has_flow_style_collections(node):
+    if not isinstance(node, (MappingNode, SequenceNode)):
+        return False
+    if node.flow_style:
+        return True
+    return any(tree_has_flow_style_collections(child) for child in compose_node_children(node))
+
+
+def text_has_flow_style_collections(text):
+    root = yaml.compose(io.StringIO(text), Loader=yaml.SafeLoader)
+    if root is None:
+        return False
+    return tree_has_flow_style_collections(root)
+
+
 def bump_indentless_block_list_items(key_node, value_node, lines, line_deltas, step, line_count):
     if not (isinstance(value_node, SequenceNode) and not value_node.flow_style and value_node.value):
         return
@@ -234,6 +261,8 @@ def strip_trailing_whitespace(text):
 
 # Ansible-lint yaml[truthy]: prefer true/false over Python True/False in plain scalars.
 _TRUTHY_LINE_PATTERN = re.compile(r"^(\s*[^:]+:\s*)(True|False)(\s*(?:#.*)?)$")
+_QUOTED_MAPPING_VALUE_PATTERN = re.compile(r'^(\s*[^:\n]+:\s*)"((?:[^"\\]|\\.)*)"(\s*(?:#.*)?)$')
+_QUOTED_SEQUENCE_ITEM_PATTERN = re.compile(r'^(\s*-\s*)"((?:[^"\\]|\\.)*)"(\s*(?:#.*)?)$')
 
 
 def fix_truthy_capital_bool_on_line(line_body):
@@ -256,6 +285,75 @@ def fix_truthy_capital_bools_in_text(text):
     return "".join(result_lines)
 
 
+def split_line_body_and_newline(line):
+    if line.endswith("\r\n"):
+        return line[:-2], "\r\n"
+    if line.endswith("\n"):
+        return line[:-1], "\n"
+    return line, ""
+
+
+def match_quoted_scalar_candidate(line_body):
+    match = _QUOTED_MAPPING_VALUE_PATTERN.match(line_body)
+    if match:
+        return (False,) + match.groups()
+    match = _QUOTED_SEQUENCE_ITEM_PATTERN.match(line_body)
+    if match:
+        return (True,) + match.groups()
+    return None
+
+
+def decode_quoted_yaml_scalar(encoded_value):
+    yaml_fragment = 'value: "{0}"'.format(encoded_value)
+    try:
+        decoded_value = yaml.safe_load(yaml_fragment)["value"]
+    except Exception:
+        return None
+    return decoded_value if isinstance(decoded_value, str) else None
+
+
+def build_literal_block_replacement(prefix, trailing_comment, repaired_value, is_sequence, line_break):
+    effective_break = line_break or "\n"
+    block_header = "{0}|-{1}".format(prefix, trailing_comment)
+    if is_sequence:
+        block_indent_size = len(prefix)
+    else:
+        block_indent_size = count_leading_spaces(prefix) + 2
+        if prefix.lstrip().startswith("- "):
+            # Mapping value inside a sequence item (`- key: |`), requires one more indent level.
+            block_indent_size += 2
+    block_indent = " " * block_indent_size
+    rebuilt = [block_header + effective_break]
+    for block_line in repaired_value.split("\n"):
+        rebuilt.append("{0}{1}{2}".format(block_indent, block_line, effective_break))
+    return "".join(rebuilt)
+
+
+def convert_quoted_multiline_scalars_to_literal_blocks(text):
+    """Convert one-line double-quoted scalars that decode to multiline into block scalars, preserving comments."""
+    output_lines = []
+    for line in text.splitlines(True):
+        line_body, line_break = split_line_body_and_newline(line)
+        scalar_candidate = match_quoted_scalar_candidate(line_body)
+        if not scalar_candidate:
+            output_lines.append(line)
+            continue
+
+        is_sequence, prefix, encoded_value, trailing_comment = scalar_candidate
+        decoded_value = decode_quoted_yaml_scalar(encoded_value)
+        if decoded_value is None:
+            output_lines.append(line)
+            continue
+
+        repaired_value = repair_single_line_pem_certificate(decoded_value)
+        if "\n" not in repaired_value:
+            output_lines.append(line)
+            continue
+
+        output_lines.append(build_literal_block_replacement(prefix, trailing_comment, repaired_value, is_sequence, line_break))
+    return "".join(output_lines)
+
+
 def ensure_yaml_document_markers(text, want_start_marker, want_end_marker):
     stripped_bom = text.lstrip("\ufeff")
     if want_start_marker and not stripped_bom.lstrip().startswith("---"):
@@ -273,6 +371,20 @@ def repair_single_line_pem_certificate(text):
         if match:
             return "{0}\n{1}\n{2}".format(match.group(1), match.group(2).replace(" ", "\n"), match.group(3))
     return text
+
+
+def normalize_escaped_multiline_string(text):
+    """Convert unescaped '\\n' / '\\r\\n' sequences to real newlines for multiline payloads."""
+    if "\n" in text or "\\n" not in text:
+        return text
+    normalized = re.sub(r"(?<!\\)\\r\\n", "\n", text)
+    normalized = re.sub(r"(?<!\\)\\n", "\n", normalized)
+    return normalized
+
+
+def normalize_for_literal_block(text):
+    """PyYAML refuses block style for multiline scalars containing tab chars."""
+    return text.replace("\t", "  ")
 
 
 def represent_literal_block_string(dumper, data):
@@ -308,11 +420,23 @@ def prepare_tree_for_round_trip_dump(node, auto_block_scalars):
     if isinstance(node, AnsibleUnsafeTaggedString):
         return node
     if isinstance(node, str):
-        repaired = repair_single_line_pem_certificate(node)
+        repaired = normalize_escaped_multiline_string(node)
+        repaired = repair_single_line_pem_certificate(repaired)
         if auto_block_scalars and "\n" in repaired:
-            return MultilineLiteralBlockString(repaired)
+            return MultilineLiteralBlockString(normalize_for_literal_block(repaired))
         return repaired
     return node
+
+
+def clean_yaml_tree(tree, auto_block=False):
+    """Backward-compatible mutating wrapper kept for legacy unit tests."""
+    cleaned = prepare_tree_for_round_trip_dump(tree, auto_block)
+    if isinstance(tree, dict):
+        tree.clear()
+        tree.update(cleaned)
+    elif isinstance(tree, list):
+        tree[:] = cleaned
+    return tree
 
 
 def build_format_yaml_dumper_class():
@@ -372,6 +496,14 @@ def format_yaml_content(original_text, preserve_comments, explicit_start, explic
         formatted = fix_indent_preserve_comments(original_text, 2)
         formatted = strip_trailing_whitespace(formatted)
         formatted = fix_truthy_capital_bools_in_text(formatted)
+        if auto_block_scalars:
+            formatted = convert_quoted_multiline_scalars_to_literal_blocks(formatted)
+        if text_has_flow_style_collections(formatted):
+            parsed = yaml.safe_load(formatted)
+            if parsed is None:
+                parsed = {}
+            formatted = dump_round_trip_tree(parsed, explicit_start, explicit_end, auto_block_scalars)
+            return strip_trailing_whitespace(formatted)
         if fix_markers:
             formatted = ensure_yaml_document_markers(formatted, explicit_start, explicit_end)
         yaml.safe_load(formatted)
@@ -400,9 +532,6 @@ def run_module():
         module.fail_json(msg="PyYAML (python3-yaml) is required on the target.")
 
     params = module.params
-    if params["preserve_comments"] and params["auto_block_scalars"]:
-        module.fail_json(msg="auto_block_scalars needs preserve_comments: false.")
-
     path = params["path"]
     if not os.path.exists(path):
         module.fail_json(msg="File not found: {0}".format(path))
