@@ -1,0 +1,45 @@
+---
+hub_collection_remotes:
+  - prn: prn:ansible.collectionremote:019e1bf5-7f2a-729f-9e4c-693085fd6937
+    name: rh-certified
+    url: https://console.redhat.com/api/automation-hub/content/published/
+    ca_cert: ""
+    client_cert: ""
+    tls_validation: true
+    proxy_url: ""
+    pulp_labels: ""
+    download_concurrency: ""
+    max_retries: ""
+    policy: immediate
+    total_timeout: ""
+    connect_timeout: ""
+    sock_connect_timeout: ""
+    sock_read_timeout: ""
+    headers: ""
+    rate_limit: 8
+    requirements_file:
+    auth_url: https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
+    sync_dependencies: true
+    signed_only: ""
+  - prn: prn:ansible.collectionremote:019e1bf5-7f1e-7e06-9889-9a9771911c40
+    name: community
+    url: https://galaxy.ansible.com/api/
+    ca_cert: ""
+    client_cert: ""
+    tls_validation: true
+    proxy_url: ""
+    pulp_labels: ""
+    download_concurrency: ""
+    max_retries: ""
+    policy: immediate
+    total_timeout: ""
+    connect_timeout: ""
+    sock_connect_timeout: ""
+    sock_read_timeout: ""
+    headers: ""
+    rate_limit: 8
+    requirements_file:
+    auth_url: ""
+    sync_dependencies: true
+    signed_only: ""
+...

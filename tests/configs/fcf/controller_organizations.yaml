@@ -1,0 +1,23 @@
+---
+aap_organizations:
+  - name: "Default"
+    description: |-
+      {%- raw -%}
+
+      {%- endraw -%}
+  - name: "Recursive Workflows"
+    description: |-
+      {%- raw -%}
+      Organization to show how to create and use a Workflow tha is calling another workflows
+      {%- endraw -%}
+  - name: "Satellite"
+    description: |-
+      {%- raw -%}
+
+      {%- endraw -%}
+  - name: "Test-dispatch-dependencies"
+    description: |-
+      {%- raw -%}
+
+      {%- endraw -%}
+...

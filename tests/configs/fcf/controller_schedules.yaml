@@ -1,0 +1,67 @@
+---
+controller_schedules:
+  - name: "Cleanup Job Schedule"
+    description: |-
+      {%- raw -%}
+      Automatically Generated Schedule
+      {%- endraw -%}
+    enabled: true
+    unified_job_template: "Cleanup Job Details"
+    dtstart: "2026-05-17T11:18:55Z"
+    dtend: ""
+    timezone: "UTC"
+    rrule: "DTSTART:20260512T111855Z RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=SU"
+    extra_data:
+      days: '120'
+    scm_branch: ""
+    forks: 0
+    job_slice_count: 0
+    timeout: 0
+    job_type: ""
+    job_tags: ""
+    skip_tags: ""
+    limit: ""
+    verbosity: 0
+  - name: "Cleanup Activity Schedule"
+    description: |-
+      {%- raw -%}
+      Automatically Generated Schedule
+      {%- endraw -%}
+    enabled: true
+    unified_job_template: "Cleanup Activity Stream"
+    dtstart: "2026-05-12T11:18:55Z"
+    dtend: ""
+    timezone: "UTC"
+    rrule: "DTSTART:20260512T111855Z RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=TU"
+    extra_data:
+      days: '355'
+    scm_branch: ""
+    forks: 0
+    job_slice_count: 0
+    timeout: 0
+    job_type: ""
+    job_tags: ""
+    skip_tags: ""
+    limit: ""
+    verbosity: 0
+  - name: "Cleanup Expired Sessions"
+    description: |-
+      {%- raw -%}
+      Cleans out expired browser sessions
+      {%- endraw -%}
+    enabled: true
+    unified_job_template: "Cleanup Expired Sessions"
+    dtstart: "2026-05-12T11:19:39Z"
+    dtend: ""
+    timezone: "UTC"
+    rrule: "DTSTART:20260512T111939Z RRULE:FREQ=WEEKLY;INTERVAL=1"
+    scm_branch: ""
+    forks: 0
+    job_slice_count: 0
+    timeout: 0
+    job_type: ""
+    job_tags: ""
+    skip_tags: ""
+    limit: ""
+    verbosity: 0
+...

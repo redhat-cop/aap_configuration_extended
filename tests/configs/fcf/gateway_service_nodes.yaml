@@ -1,0 +1,19 @@
+---
+gateway_service_nodes:
+  - name: "Node gateway - aap27-rhel10.1.iam.lab"
+    address: "aap27-rhel10.1.iam.lab"
+    service_cluster: "1"
+    tags: ""
+  - name: "Node controller - aap27-rhel10.1.iam.lab"
+    address: "aap27-rhel10.1.iam.lab"
+    service_cluster: "2"
+    tags: ""
+  - name: "Node hub - aap27-rhel10.1.iam.lab"
+    address: "aap27-rhel10.1.iam.lab"
+    service_cluster: "3"
+    tags: ""
+  - name: "Node eda - aap27-rhel10.1.iam.lab"
+    address: "aap27-rhel10.1.iam.lab"
+    service_cluster: "4"
+    tags: "eda-hybrid"
+...

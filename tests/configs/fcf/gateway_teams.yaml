@@ -1,0 +1,15 @@
+---
+aap_teams:
+  - name: "differential-1"
+    description: |-
+      {%- raw -%}
+
+      {%- endraw -%}
+    organization: "Default"
+  - name: "differential-2"
+    description: |-
+      {%- raw -%}
+
+      {%- endraw -%}
+    organization: "Default"
+...

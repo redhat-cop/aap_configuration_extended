@@ -1,0 +1,45 @@
+---
+hub_collection_repositories:
+  - base_path: validated
+    content_guard: /api/galaxy/pulp/api/v3/contentguards/core/content_redirect/019e1bf5-82ce-7de0-b0eb-ec40e52de30b/
+    name: validated
+    repository: /api/galaxy/pulp/api/v3/repositories/ansible/ansible/019e1bf5-8824-705a-a35c-a018ddc5e96c/
+    repository_version: ""
+    client_url: https://aap27-rhel10.1.iam.lab/pulp_ansible/galaxy/validated/
+    pulp_labels: ""
+  - base_path: rh-certified
+    content_guard: /api/galaxy/pulp/api/v3/contentguards/core/content_redirect/019e1bf5-82ce-7de0-b0eb-ec40e52de30b/
+    name: rh-certified
+    repository: /api/galaxy/pulp/api/v3/repositories/ansible/ansible/019e1bf5-7f2d-7d2c-8e1a-4d65f4280131/
+    repository_version: ""
+    client_url: https://aap27-rhel10.1.iam.lab/pulp_ansible/galaxy/rh-certified/
+    pulp_labels: ""
+  - base_path: community
+    content_guard: /api/galaxy/pulp/api/v3/contentguards/core/content_redirect/019e1bf5-82ce-7de0-b0eb-ec40e52de30b/
+    name: community
+    repository: /api/galaxy/pulp/api/v3/repositories/ansible/ansible/019e1bf5-7f21-7bab-b3d1-ac21421bf71e/
+    repository_version: ""
+    client_url: https://aap27-rhel10.1.iam.lab/pulp_ansible/galaxy/community/
+    pulp_labels: ""
+  - base_path: published
+    content_guard: /api/galaxy/pulp/api/v3/contentguards/core/content_redirect/019e1bf5-82ce-7de0-b0eb-ec40e52de30b/
+    name: published
+    repository: /api/galaxy/pulp/api/v3/repositories/ansible/ansible/019e1bf5-7f11-7abe-a1f5-a44166cefed5/
+    repository_version: ""
+    client_url: https://aap27-rhel10.1.iam.lab/pulp_ansible/galaxy/published/
+    pulp_labels: ""
+  - base_path: rejected
+    content_guard: /api/galaxy/pulp/api/v3/contentguards/core/content_redirect/019e1bf5-82ce-7de0-b0eb-ec40e52de30b/
+    name: rejected
+    repository: /api/galaxy/pulp/api/v3/repositories/ansible/ansible/019e1bf5-7c1d-7080-beab-0b4eabb3db43/
+    repository_version: ""
+    client_url: https://aap27-rhel10.1.iam.lab/pulp_ansible/galaxy/rejected/
+    pulp_labels: ""
+  - base_path: staging
+    content_guard: /api/galaxy/pulp/api/v3/contentguards/core/content_redirect/019e1bf5-82ce-7de0-b0eb-ec40e52de30b/
+    name: staging
+    repository: /api/galaxy/pulp/api/v3/repositories/ansible/ansible/019e1bf5-7c16-7565-b44f-5deed284e3b0/
+    repository_version: ""
+    client_url: https://aap27-rhel10.1.iam.lab/pulp_ansible/galaxy/staging/
+    pulp_labels: ""
+...

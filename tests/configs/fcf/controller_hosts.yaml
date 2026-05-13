@@ -1,0 +1,8 @@
+---
+controller_hosts:
+  - name: "localhost"
+    inventory: "Demo Inventory"
+    variables:
+      ansible_connection: local
+      ansible_python_interpreter: "{%- raw -%} '{{ ansible_playbook_python }}' {%- endraw -%}"
+...

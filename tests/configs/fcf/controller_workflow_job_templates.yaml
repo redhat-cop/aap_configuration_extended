@@ -7,7 +7,7 @@ controller_workflows:
     simplified_workflow_nodes:
       - identifier: "node101"
         workflow_job_template: "Simple workflow schema"
-        unified_job_template: "RHVM-01"
+        unified_job_template: "test-template-1"
         organization: "Default"
         all_parents_must_converge: "false"
         success_nodes:
@@ -31,7 +31,7 @@ controller_workflows:
     simplified_workflow_nodes:
       - identifier: "node101"
         workflow_job_template: "Simple workflow schema2"
-        unified_job_template: "RHVM-01"
+        unified_job_template: "test-template-1"
         organization: "Default"
         all_parents_must_converge: "false"
         success_nodes:
@@ -55,7 +55,7 @@ controller_workflows:
     simplified_workflow_nodes:
       - identifier: "node101"
         workflow_job_template: "Simple workflow schema no state defined"
-        unified_job_template: "RHVM-01"
+        unified_job_template: "test-template-1"
         organization: "Default"
         all_parents_must_converge: "false"
         success_nodes:
