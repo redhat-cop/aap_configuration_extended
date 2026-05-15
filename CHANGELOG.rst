@@ -4,6 +4,20 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v4.6.0
+======
+
+Minor Changes
+-------------
+
+- README - Standardized collection links tables and added Support section for certification review.
+- meta/runtime.yml - Updated minimum ansible-core version from 2.15 to 2.16.
+
+Bugfixes
+--------
+
+- Fix the output of the format_yaml.py module to correctly format the output (Certificates mainly)
+
 v4.5.0
 ======
 
