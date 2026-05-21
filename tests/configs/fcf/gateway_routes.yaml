@@ -1,0 +1,107 @@
+---
+gateway_routes:
+  - name: "hub container registry"
+    description: |-
+      {%- raw -%}
+      Hub Container Registry.
+      {%- endraw -%}
+    http_port: "1"
+    service_cluster: "3"
+    service_port: "8444"
+    is_service_https: "True"
+    service_path: "/v2/"
+    gateway_path: "/v2/"
+    enable_gateway_auth: "True"
+    node_tags: ""
+  - name: "hub ui"
+    description: |-
+      {%- raw -%}
+      Hub UI
+      {%- endraw -%}
+    http_port: "1"
+    service_cluster: "3"
+    service_port: "8444"
+    is_service_https: "True"
+    service_path: "/ui/"
+    gateway_path: "/ui/"
+    enable_gateway_auth: "True"
+    node_tags: ""
+  - name: "hub ui static files"
+    description: |-
+      {%- raw -%}
+      Hub UI Static Files
+      {%- endraw -%}
+    http_port: "1"
+    service_cluster: "3"
+    service_port: "8444"
+    is_service_https: "True"
+    service_path: "/static/galaxy_ng/"
+    gateway_path: "/static/galaxy_ng/"
+    enable_gateway_auth: "True"
+    node_tags: ""
+  - name: "pulp content"
+    description: |-
+      {%- raw -%}
+      Pulp Content
+      {%- endraw -%}
+    http_port: "1"
+    service_cluster: "3"
+    service_port: "8444"
+    is_service_https: "True"
+    service_path: "/pulp"
+    gateway_path: "/pulp"
+    enable_gateway_auth: "True"
+    node_tags: ""
+  - name: "pulp container extensions"
+    description: |-
+      {%- raw -%}
+      Pulp Container Extensions
+      {%- endraw -%}
+    http_port: "1"
+    service_cluster: "3"
+    service_port: "8444"
+    is_service_https: "True"
+    service_path: "/extensions"
+    gateway_path: "/extensions"
+    enable_gateway_auth: "True"
+    node_tags: ""
+  - name: "Event Driven Automation Event Stream"
+    description: |-
+      {%- raw -%}
+      Proxy to the EDA Event Streams
+      {%- endraw -%}
+    http_port: "1"
+    service_cluster: "4"
+    service_port: "8445"
+    is_service_https: "True"
+    service_path: "/"
+    gateway_path: "/eda-event-streams/"
+    enable_gateway_auth: "False"
+    node_tags: "eda-hybrid,eda-event-stream"
+  - name: "Event Driven Automation Event Stream mTLS"
+    description: |-
+      {%- raw -%}
+      Proxy to the EDA Event Streams mTLS
+      {%- endraw -%}
+    http_port: "1"
+    service_cluster: "4"
+    service_port: "8445"
+    is_service_https: "True"
+    service_path: "/"
+    gateway_path: "/mtls/eda-event-streams/"
+    enable_gateway_auth: "False"
+    node_tags: "eda-hybrid,eda-event-stream"
+  - name: "pulp container tokens"
+    description: |-
+      {%- raw -%}
+      Pulp Container Tokens
+      {%- endraw -%}
+    http_port: "1"
+    service_cluster: "3"
+    service_port: "8444"
+    is_service_https: "True"
+    service_path: "/token"
+    gateway_path: "/token"
+    enable_gateway_auth: "True"
+    node_tags: ""
+...

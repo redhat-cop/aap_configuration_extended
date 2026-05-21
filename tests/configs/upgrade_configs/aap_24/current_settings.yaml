@@ -17,7 +17,7 @@ controller_settings:
         pool_id: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         satellite:
         valid_key: true
-        license_date: 1798779599
+        license_date: 7777777777
         license_type: enterprise
         product_name: Red Hat Ansible Automation Platform
         support_level: Premium

@@ -1,0 +1,10 @@
+---
+gateway_authenticators:
+  - name: "Local Database Authenticator"
+    enabled: "True"
+    create_objects: "True"
+    remove_users: "False"
+    configuration: "{}"
+    type: "ansible_base.authentication.authenticator_plugins.local"
+    order: "1"
+...

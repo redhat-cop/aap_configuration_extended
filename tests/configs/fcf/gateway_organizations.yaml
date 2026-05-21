@@ -1,0 +1,11 @@
+---
+gateway_organizations:
+  - name: "Default"
+  - name: "Recursive Workflows"
+    description: |-
+      {%- raw -%}
+      Organization to show how to create and use a Workflow tha is calling another workflows
+      {%- endraw -%}
+  - name: "Satellite"
+  - name: "Test-dispatch-dependencies"
+...
