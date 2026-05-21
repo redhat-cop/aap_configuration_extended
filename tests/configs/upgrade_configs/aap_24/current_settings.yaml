@@ -12,23 +12,23 @@ controller_settings:
       PROXY_IP_ALLOWED_LIST: []
       CSRF_TRUSTED_ORIGINS: []
       LICENSE:
-        sku: MCT3694
+        sku: SKU
         usage: ""
-        pool_id: 8a85f99a7db4827d017dc513038200b2
+        pool_id: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         satellite:
         valid_key: true
         license_date: 1798779599
         license_type: enterprise
         product_name: Red Hat Ansible Automation Platform
         support_level: Premium
-        account_number: "1460290"
+        account_number: "7777777"
         instance_count: 500
-        subscription_id: "10479498"
+        subscription_id: "77777777"
         subscription_name: Red Hat Ansible Automation Platform, Premium (500 Managed Nodes)
-      REDHAT_USERNAME: iaragone@redhat.com
-      SUBSCRIPTIONS_USERNAME: iaragone@redhat.com
+      REDHAT_USERNAME: username
+      SUBSCRIPTIONS_USERNAME: username
       SUBSCRIPTIONS_PASSWORD: ""
-      INSTALL_UUID: f22006d8-8ea9-4233-b302-b86dcb35c973
+      INSTALL_UUID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
       AWX_TASK_ENV:
         GIT_SSL_NO_VERIFY: "true"
       INSIGHTS_TRACKING_STATE: "false"

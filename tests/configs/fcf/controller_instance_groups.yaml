@@ -4,14 +4,17 @@ controller_instance_groups:
     policy_instance_minimum: "0"
     policy_instance_percentage: "100"
     instances:
-      - "aap-all-in-one.iam.lab"
+      - "aap26ctr1.bcnconsulting.com"
+      - "aap26ctr2.bcnconsulting.com"
   - name: "default"
     policy_instance_minimum: "0"
     policy_instance_percentage: "100"
     instances:
-      - "aap-all-in-one.iam.lab"
+      - "aap26ctr1.bcnconsulting.com"
+      - "aap26ctr2.bcnconsulting.com"
+      - "aap26exec1.bcnconsulting.com"
+      - "aap26exec2.bcnconsulting.com"
   - name: "test_instance_group"
     policy_instance_minimum: "0"
     policy_instance_percentage: "0"
-    instances:
 ...

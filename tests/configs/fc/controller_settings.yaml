@@ -3,21 +3,21 @@ controller_settings:
   - settings:
       TOWER_URL_BASE: "https://aap-all-in-one.iam.lab:444"
       LICENSE:
-        account_number: '1460290'
+        account_number: 'xxxxxxx'
         instance_count: 5
-        license_date: '1798779599'
+        license_date: '7777777777'
         license_type: enterprise
-        pool_id: 8a85f99a7db4827d017dc515e32c00d1
-        product_name: Employee SKU
+        pool_id: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        product_name: AAP
         satellite: false
-        sku: ES0113909
-        subscription_id: '10479521'
-        subscription_name: Employee SKU
+        sku: XXXXXXXXX
+        subscription_id: 'xxxxxxxx'
+        subscription_name: AAP
         support_level: Self-Support
         trial: false
         usage: Development/Test
         valid_key: true
-      INSTALL_UUID: "7cb2f714-ba48-4af2-93f9-066598d918b4"
+      INSTALL_UUID: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
       AWX_TASK_ENV:
         GIT_SSL_NO_VERIFY: 'true'
       INSIGHTS_TRACKING_STATE: "false"

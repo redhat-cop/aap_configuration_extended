@@ -35,6 +35,7 @@ filetree_controller_execution_environments: "{{ dir_orgs_vars }}/{{ orgs }}/env/
 filetree_controller_inventories: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_inventories.d/"
 filetree_controller_inventory_sources: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_inventory_sources.d/"
 filetree_controller_instance_groups: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_instance_groups.d/"
+filetree_controller_instances: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_instances.d/"
 filetree_controller_hosts: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_hosts.d/"
 filetree_controller_groups: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_groups.d/"
 filetree_controller_templates: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_job_templates.d/"
@@ -91,6 +92,7 @@ controller_configuration_filetree_read_tasks:
   - {name: controller_inventories, var: controller_inventories, tags: inventories}
   - {name: controller_inventory_sources, var: controller_inventory_sources, tags: ['inventory_sources', 'inventories']}
   - {name: controller_instance_groups, var: controller_instance_groups, tags: instance_groups}
+  - {name: controller_instances, var: controller_instances, tags: instances}
   - {name: controller_hosts, var: controller_hosts, tags: ['hosts', 'inventories']}
   - {name: controller_host_groups, var: controller_groups, tags: ['inventories', 'host_groups']}
   - {name: controller_job_templates, var: controller_templates, tags: job_templates}
