@@ -35,4 +35,14 @@ aap_organizations:
       {%- raw -%}
 
       {%- endraw -%}
+  - name: "Satellite"
+    description: |-
+      {%- raw -%}
+
+      {%- endraw -%}
+  - name: "Test-dispatch-dependencies"
+    description: |-
+      {%- raw -%}
+
+      {%- endraw -%}
 ...

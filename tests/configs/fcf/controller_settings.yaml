@@ -5,7 +5,7 @@ controller_settings:
     ACTIVITY_STREAM_ENABLED_FOR_INVENTORY_SYNC: 'false'
     ORG_ADMINS_CAN_SEE_ALL_USERS: 'true'
     MANAGE_ORGANIZATION_AUTH: 'true'
-    TOWER_URL_BASE: https://aap26gw1.bcnconsulting.com
+    TOWER_URL_BASE: https://platformhost
     REMOTE_HOST_HEADERS:
       - HTTP_X_FORWARDED_FOR
       - REMOTE_ADDR

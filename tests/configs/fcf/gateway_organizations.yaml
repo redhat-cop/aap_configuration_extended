@@ -31,4 +31,6 @@ gateway_organizations:
       Contains demos of how different workflows can interact eachother
       {%- endraw -%}
   - name: "edge"
+  - name: "Satellite"
+  - name: "Test-dispatch-dependencies"
 ...
