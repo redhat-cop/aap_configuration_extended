@@ -1,0 +1,23 @@
+---
+controller_execution_environments:
+  - name: "Hub Minimal execution environment"
+    organization:  # Leave this empty organization to let the object_diff role to work properly
+    image: "aap27-rhel10.1.iam.lab/ee-minimal-rhel9:latest"
+    pull: ""
+  - name: "Hub Default execution environment"
+    organization:  # Leave this empty organization to let the object_diff role to work properly
+    image: "aap27-rhel10.1.iam.lab/ee-supported-rhel9:latest"
+    pull: ""
+  - name: "Minimal execution environment"
+    organization:  # Leave this empty organization to let the object_diff role to work properly
+    image: "registry.redhat.io/ansible-automation-platform-27/ee-minimal-rhel9:latest"
+    pull: "never"
+  - name: "Default execution environment"
+    organization:  # Leave this empty organization to let the object_diff role to work properly
+    image: "registry.redhat.io/ansible-automation-platform-27/ee-supported-rhel9:latest"
+    pull: "never"
+  - name: "Control Plane Execution Environment"
+    organization:  # Leave this empty organization to let the object_diff role to work properly
+    image: "registry.redhat.io/ansible-automation-platform-27/ee-supported-rhel9:latest"
+    pull: "never"
+...

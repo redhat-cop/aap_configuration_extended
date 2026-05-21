@@ -1,0 +1,7 @@
+---
+gateway_http_ports:
+  - name: "port-443"
+    number: "443"
+    use_https: "True"
+    is_api_port: "True"
+...

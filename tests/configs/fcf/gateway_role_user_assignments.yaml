@@ -1,0 +1,6 @@
+---
+gateway_role_user_assignments:
+  - role_definition: "Credential Admin"
+    object_id: "1"
+    user: "admin"
+...

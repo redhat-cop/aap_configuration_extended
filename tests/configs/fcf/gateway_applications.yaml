@@ -1,0 +1,29 @@
+---
+aap_applications:
+  - name: "controller_application-app3"
+    description: |-
+      {%- raw -%}
+
+      {%- endraw -%}
+    organization: "Default"
+    redirect_uris: ""
+    post_logout_redirect_uris: ""
+    algorithm: ""
+    user: ""
+    client_type: "confidential"
+    skip_authorization: "False"
+    authorization_grant_type: "password"
+  - name: "controller_application-app1"
+    description: |-
+      {%- raw -%}
+
+      {%- endraw -%}
+    organization: "Satellite"
+    redirect_uris: ""
+    post_logout_redirect_uris: ""
+    algorithm: ""
+    user: ""
+    client_type: "public"
+    skip_authorization: "False"
+    authorization_grant_type: "password"
+...

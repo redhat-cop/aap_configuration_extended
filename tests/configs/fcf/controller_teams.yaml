@@ -1,9 +1,15 @@
 ---
 aap_teams:
   - name: "differential-1"
-    description: ""
+    description: |-
+      {%- raw -%}
+
+      {%- endraw -%}
     organization: "Default"
   - name: "differential-2"
-    description: ""
+    description: |-
+      {%- raw -%}
+
+      {%- endraw -%}
     organization: "Default"
 ...
