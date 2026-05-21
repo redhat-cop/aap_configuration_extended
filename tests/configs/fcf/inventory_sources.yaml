@@ -1,13 +1,16 @@
 ---
 controller_inventory_sources:
-  - name: "RHVM-01"
-    description: ""
-    organization: "Satellite"
+  - name: "test_src_ec2"
+    description: |-
+      {%- raw -%}
+
+      {%- endraw -%}
+    organization: "Default"
     source: "scm"
-    source_project: "Test Inventory source project"
-    source_path: "phillips_hue/hosts"
-    inventory: "RHVM-01"
-    update_on_launch: "true"
-    overwrite: "true"
-    credential: "admin@internal-RHVM-01"
+    limit: ""
+    source_project: "aap_configuration_template"
+    source_path: ""
+    inventory: "test_manual_hosts_inv"
+    update_on_launch: false
+    overwrite: false
 ...

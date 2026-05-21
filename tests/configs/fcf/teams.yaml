@@ -1,9 +1,0 @@
----
-aap_teams:
-  - name: "differential-1"
-    description: ""
-    organization: "Default"
-  - name: "differential-2"
-    description: ""
-    organization: "Default"
-...

@@ -1,0 +1,12 @@
+---
+aap_user_accounts:
+  - username: admin
+    email: admin@example.com
+    first_name: ''
+    last_name: ''
+    password: '{{ vaulted_gateway_users_admin_password }}'
+    is_superuser: true
+    authenticators:
+      - 1
+    authenticator_uid: admin
+...

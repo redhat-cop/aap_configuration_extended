@@ -28,9 +28,9 @@ controller_schedules:
 {% endif %}
 {% if query_instance_groups | length > 0 %}
     instance_groups:
-{% for instance_group in query_instance_groups %}
+{%   for instance_group in query_instance_groups %}
       - "{{ instance_group.name }}"
-{% endfor %}
+{%   endfor %}
 {% endif %}
 {% if template_overrides_resources.schedule[current_schedules_asset_value.name].dtstart is defined
       or template_overrides_global.schedule.dtstart is defined
@@ -71,16 +71,17 @@ controller_schedules:
       or template_overrides_global.schedule.extra_data is defined
       or current_schedules_asset_value.extra_data is defined and current_schedules_asset_value.extra_data | length > 0 %}
     extra_data:
-      {{ template_overrides_resources.schedule[current_schedules_asset_value.name].extra_data
+{%   set __schedule_extra_data = template_overrides_resources.schedule[current_schedules_asset_value.name].extra_data
          | default(template_overrides_global.schedule.extra_data)
-         | default(current_schedules_asset_value.extra_data)
-         | from_yaml | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true) | replace("$encrypted$", "\'\'")}}
+         | default(current_schedules_asset_value.extra_data) %}
+      {{ (__schedule_extra_data if __schedule_extra_data is mapping or (__schedule_extra_data | type_debug) == 'list' else (__schedule_extra_data | from_yaml))
+         | to_nice_yaml(indent=2, sort_keys=false, width=4096) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*?){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true) | replace("$encrypted$", "\'\'")}}
 {%- endif -%}
 {% if query_credentials | length > 0 %}
     credentials:
-{% for credential in query_credentials %}
+{%   for credential in query_credentials %}
       - "{{ credential.name }}"
-{% endfor %}
+{%   endfor %}
 {% endif %}
 {% if template_overrides_resources.schedule[current_schedules_asset_value.name].scm_branch is defined
       or template_overrides_global.schedule.scm_branch is defined
@@ -105,9 +106,9 @@ controller_schedules:
 {% endif %}
 {% if query_labels | length > 0 %}
     labels:
-{% for label in query_labels %}
+{%   for label in query_labels %}
       - "{{ label.name }}"
-{% endfor %}
+{%   endfor %}
 {% endif %}
 {% if template_overrides_resources.schedule[current_schedules_asset_value.name].timeout is defined
       or template_overrides_global.schedule.timeout is defined

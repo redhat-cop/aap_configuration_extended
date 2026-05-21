@@ -1,0 +1,27 @@
+---
+hub_ee_images:
+  - hidden: ""
+    base_path: ansible-automation-platform-26/ee-supported-rhel9
+    repository: /api/galaxy/pulp/api/v3/repositories/container/container/019961ea-e992-71d2-b4da-3d6ee59696d7/
+    content_guard: /api/galaxy/pulp/api/v3/contentguards/core/content_redirect/019961ce-999d-7f74-956e-a72668f3c308/
+    pulp_labels: ""
+    name: ansible-automation-platform-26/ee-supported-rhel9
+    repository_version: ""
+    registry_path: localhost:8484/ansible-automation-platform-26/ee-supported-rhel9
+    remote: ""
+    namespace: /api/galaxy/pulp/api/v3/pulp_container/namespaces/019961ea-e9ee-7228-90e7-1bc45253ead3/
+    private: true
+    description: ""
+  - hidden: ""
+    base_path: ansible-automation-platform-25/ee-supported-rhel9
+    repository: /api/galaxy/pulp/api/v3/repositories/container/container/019961ce-9928-7045-b06d-dc9c33841dd5/
+    content_guard: /api/galaxy/pulp/api/v3/contentguards/core/content_redirect/019961ce-999d-7f74-956e-a72668f3c308/
+    pulp_labels: ""
+    name: ansible-automation-platform-25/ee-supported-rhel9
+    repository_version: ""
+    registry_path: localhost:8484/ansible-automation-platform-25/ee-supported-rhel9
+    remote: ""
+    namespace: /api/galaxy/pulp/api/v3/pulp_container/namespaces/019961ce-99af-753f-80b3-2eda534489e4/
+    private: true
+    description: ""
+...

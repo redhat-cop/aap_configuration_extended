@@ -1,0 +1,334 @@
+---
+controller_settings:
+  settings:
+    ACTIVITY_STREAM_ENABLED: 'true'
+    ACTIVITY_STREAM_ENABLED_FOR_INVENTORY_SYNC: 'false'
+    ORG_ADMINS_CAN_SEE_ALL_USERS: 'true'
+    MANAGE_ORGANIZATION_AUTH: 'true'
+    TOWER_URL_BASE: https://aap26gw1.bcnconsulting.com
+    REMOTE_HOST_HEADERS:
+      - HTTP_X_FORWARDED_FOR
+      - REMOTE_ADDR
+      - REMOTE_HOST
+    LICENSE:
+      sku: $encrypted$
+      trial: false
+      usage: ''
+      pool_id: $encrypted$
+      satellite: false
+      valid_key: true
+      license_date: $encrypted$
+      license_type: enterprise
+      product_name: Red Hat Ansible Automation Platform Infrastructure Subscription
+      support_level: Layered
+      account_number: $encrypted$
+      instance_count: 1
+      subscription_id: $encrypted$
+      subscription_name: Red Hat Ansible Automation Platform Infrastructure Subscription
+    SUBSCRIPTIONS_CLIENT_ID: $encrypted$
+    SUBSCRIPTIONS_CLIENT_SECRET: $encrypted$
+    AUTOMATION_ANALYTICS_URL: https://cloud.redhat.com/api/ingress/v1/upload
+    INSTALL_UUID: $encrypted$
+    DEFAULT_CONTROL_PLANE_QUEUE_NAME: controlplane
+    DEFAULT_EXECUTION_QUEUE_NAME: default
+    AD_HOC_COMMANDS:
+      - command
+      - shell
+      - yum
+      - apt
+      - apt_key
+      - apt_repository
+      - apt_rpm
+      - service
+      - group
+      - user
+      - mount
+      - ping
+      - selinux
+      - setup
+      - win_ping
+      - win_service
+      - win_updates
+      - win_group
+      - win_user
+    ALLOW_JINJA_IN_EXTRA_VARS: template
+    AWX_ISOLATION_BASE_PATH: /tmp
+    AWX_ISOLATION_SHOW_PATHS:
+      - /etc/pki/ca-trust:/etc/pki/ca-trust:O
+      - /usr/share/pki:/usr/share/pki:O
+    AWX_RUNNER_KEEPALIVE_SECONDS: '0'
+    GALAXY_TASK_ENV:
+      ANSIBLE_FORCE_COLOR: 'false'
+      GIT_SSH_COMMAND: ssh -o StrictHostKeyChecking=no
+    INSIGHTS_TRACKING_STATE: 'true'
+    PROJECT_UPDATE_VVV: 'false'
+    AWX_ROLES_ENABLED: 'true'
+    AWX_COLLECTIONS_ENABLED: 'true'
+    AWX_SHOW_PLAYBOOK_LINKS: 'false'
+    AWX_MOUNT_ISOLATED_PATHS_ON_K8S: 'false'
+    GALAXY_IGNORE_CERTS: 'false'
+    STDOUT_MAX_BYTES_DISPLAY: '1048576'
+    EVENT_STDOUT_MAX_BYTES_DISPLAY: '1024'
+    MAX_WEBSOCKET_EVENT_RATE: '30'
+    SCHEDULE_MAX_JOBS: '10'
+    DEFAULT_JOB_TIMEOUT: '0'
+    DEFAULT_JOB_IDLE_TIMEOUT: '0'
+    DEFAULT_INVENTORY_UPDATE_TIMEOUT: '0'
+    DEFAULT_PROJECT_UPDATE_TIMEOUT: '0'
+    ANSIBLE_FACT_CACHE_TIMEOUT: '0'
+    MAX_FORKS: '200'
+    LOG_AGGREGATOR_LOGGERS:
+      - awx
+      - activity_stream
+      - job_events
+      - system_tracking
+      - broadcast_websocket
+      - job_lifecycle
+    LOG_AGGREGATOR_INDIVIDUAL_FACTS: 'false'
+    LOG_AGGREGATOR_ENABLED: 'false'
+    LOG_AGGREGATOR_PROTOCOL: https
+    LOG_AGGREGATOR_TCP_TIMEOUT: '5'
+    LOG_AGGREGATOR_VERIFY_CERT: 'true'
+    LOG_AGGREGATOR_LEVEL: INFO
+    LOG_AGGREGATOR_ACTION_QUEUE_SIZE: '131072'
+    LOG_AGGREGATOR_ACTION_MAX_DISK_USAGE_GB: '1'
+    LOG_AGGREGATOR_MAX_DISK_USAGE_PATH: /var/lib/awx
+    LOG_AGGREGATOR_RSYSLOGD_DEBUG: 'false'
+    API_400_ERROR_LOG_FORMAT: status {status_code} received by user {user_name} attempting to access {url_path} from {remote_addr}
+    AUTOMATION_ANALYTICS_LAST_GATHER: '2026-05-20T14:01:10.818801Z'
+    AUTOMATION_ANALYTICS_LAST_ENTRIES: '{''config'': ''2026-05-05T12:06:10.825Z'', ''counts'': ''2026-05-05T12:06:10.825Z'', ''cred_type_counts'': ''2026-05-05T12:06:10.825Z'', ''instance_info'': ''2026-05-05T12:06:10.825Z'', ''inventory_counts'': ''2026-05-05T12:06:10.825Z'', ''org_counts'': ''2026-05-05T12:06:10.825Z'', ''projects_by_scm_type'': ''2026-05-05T12:06:10.825Z'', ''query_info'': ''2026-05-05T12:06:10.825Z'', ''events_table'': ''2026-05-20T14:01:10.818Z'', ''host_metric_summary_monthly_table'': ''2026-05-05T12:06:10.825Z'', ''host_metric_table'': ''2026-05-20T14:01:10.818Z'', ''host_metric_table_full'': ''2026-04-13T08:51:11.149Z'', ''unified_job_template_table'': ''2026-05-05T12:06:10.825Z'', ''unified_jobs_table'': ''2026-05-20T14:01:10.818Z'', ''workflow_job_node_table'': ''2026-05-20T14:01:10.818Z'', ''workflow_job_template_node_table'': ''2026-05-20T14:01:10.818Z''}'
+    AUTOMATION_ANALYTICS_GATHER_INTERVAL: '14400'
+    IS_K8S: 'false'
+    BULK_JOB_MAX_LAUNCH: '100'
+    BULK_HOST_MAX_CREATE: '100'
+    BULK_HOST_MAX_DELETE: '250'
+    UI_NEXT: 'true'
+    SUBSCRIPTION_USAGE_MODEL: unique_managed_hosts
+    CLEANUP_HOST_METRICS_LAST_TS: '2026-04-27T13:26:20.765318Z'
+    HOST_METRIC_SUMMARY_TASK_LAST_TS: '2026-05-14T18:56:21.804936Z'
+    AWX_CLEANUP_PATHS: 'true'
+    AWX_REQUEST_PROFILE: 'false'
+    DEFAULT_CONTAINER_RUN_OPTIONS:
+      - --network
+      - slirp4netns:enable_ipv6=true
+    RECEPTOR_RELEASE_WORK: 'true'
+    RECEPTOR_KEEP_WORK_ON_ERROR: 'false'
+    OPA_PORT: '8181'
+    OPA_SSL: 'false'
+    OPA_REQUEST_TIMEOUT: '1.5'
+    OPA_REQUEST_RETRIES: '2'
+    SESSION_COOKIE_AGE: '1800'
+    SESSIONS_PER_USER: '-1'
+    DISABLE_LOCAL_AUTH: 'false'
+    AUTH_BASIC_ENABLED: 'true'
+    OAUTH2_PROVIDER:
+      ACCESS_TOKEN_EXPIRE_SECONDS: 31536000000
+      AUTHORIZATION_CODE_EXPIRE_SECONDS: 600
+      REFRESH_TOKEN_EXPIRE_SECONDS: 2628000
+    ALLOW_OAUTH2_FOR_EXTERNAL_USERS: 'false'
+    ALLOW_METRICS_FOR_ANONYMOUS_USERS: 'false'
+    PENDO_TRACKING_STATE: 'off'
+    MAX_UI_JOB_EVENTS: '4000'
+    UI_LIVE_UPDATES_ENABLED: 'true'
+    AUTHENTICATION_BACKENDS:
+      - awx.sso.backends.TACACSPlusBackend
+      - awx.main.backends.AWXModelBackend
+    SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL: 'false'
+    AUTH_LDAP_START_TLS: 'false'
+    AUTH_LDAP_CONNECTION_OPTIONS:
+      OPT_REFERRALS: 0
+      OPT_NETWORK_TIMEOUT: 30
+    AUTH_LDAP_GROUP_TYPE: MemberDNGroupType
+    AUTH_LDAP_GROUP_TYPE_PARAMS:
+      member_attr: member
+      name_attr: cn
+    AUTH_LDAP_1_START_TLS: 'false'
+    AUTH_LDAP_1_CONNECTION_OPTIONS:
+      OPT_REFERRALS: 0
+      OPT_NETWORK_TIMEOUT: 30
+    AUTH_LDAP_1_GROUP_TYPE: MemberDNGroupType
+    AUTH_LDAP_1_GROUP_TYPE_PARAMS:
+      member_attr: member
+      name_attr: cn
+    AUTH_LDAP_2_START_TLS: 'false'
+    AUTH_LDAP_2_CONNECTION_OPTIONS:
+      OPT_REFERRALS: 0
+      OPT_NETWORK_TIMEOUT: 30
+    AUTH_LDAP_2_GROUP_TYPE: MemberDNGroupType
+    AUTH_LDAP_2_GROUP_TYPE_PARAMS:
+      member_attr: member
+      name_attr: cn
+    AUTH_LDAP_3_START_TLS: 'false'
+    AUTH_LDAP_3_CONNECTION_OPTIONS:
+      OPT_REFERRALS: 0
+      OPT_NETWORK_TIMEOUT: 30
+    AUTH_LDAP_3_GROUP_TYPE: MemberDNGroupType
+    AUTH_LDAP_3_GROUP_TYPE_PARAMS:
+      member_attr: member
+      name_attr: cn
+    AUTH_LDAP_4_START_TLS: 'false'
+    AUTH_LDAP_4_CONNECTION_OPTIONS:
+      OPT_REFERRALS: 0
+      OPT_NETWORK_TIMEOUT: 30
+    AUTH_LDAP_4_GROUP_TYPE: MemberDNGroupType
+    AUTH_LDAP_4_GROUP_TYPE_PARAMS:
+      member_attr: member
+      name_attr: cn
+    AUTH_LDAP_5_START_TLS: 'false'
+    AUTH_LDAP_5_CONNECTION_OPTIONS:
+      OPT_REFERRALS: 0
+      OPT_NETWORK_TIMEOUT: 30
+    AUTH_LDAP_5_GROUP_TYPE: MemberDNGroupType
+    AUTH_LDAP_5_GROUP_TYPE_PARAMS:
+      member_attr: member
+      name_attr: cn
+    RADIUS_PORT: '1812'
+    TACACSPLUS_PORT: '49'
+    TACACSPLUS_SESSION_TIMEOUT: '5'
+    TACACSPLUS_AUTH_PROTOCOL: ascii
+    TACACSPLUS_REM_ADDR: 'false'
+    SOCIAL_AUTH_GOOGLE_OAUTH2_CALLBACK_URL: https://aap26gw1.bcnconsulting.com/sso/complete/google-oauth2/
+    SOCIAL_AUTH_GITHUB_CALLBACK_URL: https://aap26gw1.bcnconsulting.com/sso/complete/github/
+    SOCIAL_AUTH_GITHUB_ORG_CALLBACK_URL: https://aap26gw1.bcnconsulting.com/sso/complete/github-org/
+    SOCIAL_AUTH_GITHUB_TEAM_CALLBACK_URL: https://aap26gw1.bcnconsulting.com/sso/complete/github-team/
+    SOCIAL_AUTH_GITHUB_ENTERPRISE_CALLBACK_URL: https://aap26gw1.bcnconsulting.com/sso/complete/github-enterprise/
+    SOCIAL_AUTH_GITHUB_ENTERPRISE_ORG_CALLBACK_URL: https://aap26gw1.bcnconsulting.com/sso/complete/github-enterprise-org/
+    SOCIAL_AUTH_GITHUB_ENTERPRISE_TEAM_CALLBACK_URL: https://aap26gw1.bcnconsulting.com/sso/complete/github-enterprise-team/
+    SOCIAL_AUTH_AZUREAD_OAUTH2_CALLBACK_URL: https://aap26gw1.bcnconsulting.com/sso/complete/azuread-oauth2/
+    SOCIAL_AUTH_OIDC_VERIFY_SSL: 'true'
+    SAML_AUTO_CREATE_OBJECTS: 'true'
+    SOCIAL_AUTH_SAML_CALLBACK_URL: https://aap26gw1.bcnconsulting.com/sso/complete/saml/
+    SOCIAL_AUTH_SAML_METADATA_URL: https://aap26gw1.bcnconsulting.com/sso/metadata/saml/
+    SOCIAL_AUTH_SAML_SECURITY_CONFIG:
+      requestedAuthnContext: false
+    LOCAL_PASSWORD_MIN_LENGTH: '0'
+    LOCAL_PASSWORD_MIN_DIGITS: '0'
+    LOCAL_PASSWORD_MIN_UPPER: '0'
+    LOCAL_PASSWORD_MIN_SPECIAL: '0'
+    NAMED_URL_FORMATS:
+      execution_environments: <name>
+      organizations: <name>
+      teams: <name>++<organization.name>
+      credential_types: <name>+<kind>
+      credentials: <name>++<credential_type.name>+<credential_type.kind>++<organization.name>
+      notification_templates: <name>++<organization.name>
+      job_templates: <name>++<organization.name>
+      projects: <name>++<organization.name>
+      inventories: <name>++<organization.name>
+      hosts: <name>++<inventory.name>++<organization.name>
+      groups: <name>++<inventory.name>++<organization.name>
+      inventory_sources: <name>++<inventory.name>++<organization.name>
+      instance_groups: <name>
+      workflow_job_templates: <name>++<organization.name>
+      workflow_job_template_nodes: <identifier>++<workflow_job_template.name>++<organization.name>
+      labels: <name>++<organization.name>
+      applications: <name>++<organization.name>
+      users: <username>
+      instances: <hostname>
+    NAMED_URL_GRAPH_NODES:
+      execution_environments:
+        fields:
+          - name
+        adj_list: []
+      organizations:
+        fields:
+          - name
+        adj_list: []
+      teams:
+        fields:
+          - name
+        adj_list:
+          - - organization
+            - organizations
+      credential_types:
+        fields:
+          - name
+          - kind
+        adj_list: []
+      credentials:
+        fields:
+          - name
+        adj_list:
+          - - credential_type
+            - credential_types
+          - - organization
+            - organizations
+      notification_templates:
+        fields:
+          - name
+        adj_list:
+          - - organization
+            - organizations
+      job_templates:
+        fields:
+          - name
+        adj_list:
+          - - organization
+            - organizations
+      projects:
+        fields:
+          - name
+        adj_list:
+          - - organization
+            - organizations
+      inventories:
+        fields:
+          - name
+        adj_list:
+          - - organization
+            - organizations
+      hosts:
+        fields:
+          - name
+        adj_list:
+          - - inventory
+            - inventories
+      groups:
+        fields:
+          - name
+        adj_list:
+          - - inventory
+            - inventories
+      inventory_sources:
+        fields:
+          - name
+        adj_list:
+          - - inventory
+            - inventories
+      instance_groups:
+        fields:
+          - name
+        adj_list: []
+      workflow_job_templates:
+        fields:
+          - name
+        adj_list:
+          - - organization
+            - organizations
+      workflow_job_template_nodes:
+        fields:
+          - identifier
+        adj_list:
+          - - workflow_job_template
+            - workflow_job_templates
+      labels:
+        fields:
+          - name
+        adj_list:
+          - - organization
+            - organizations
+      applications:
+        fields:
+          - name
+        adj_list:
+          - - organization
+            - organizations
+      users:
+        fields:
+          - username
+        adj_list: []
+      instances:
+        fields:
+          - hostname
+        adj_list: []
+...

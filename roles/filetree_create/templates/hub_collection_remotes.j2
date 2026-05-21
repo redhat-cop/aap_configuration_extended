@@ -9,7 +9,8 @@ hub_collection_remotes: {{ [] if current_hub_collection_remotes_asset_value | le
   - {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
 {%     else %}
 {%       if __map_item.key in __dict_items %}
-    {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") | from_yaml }}
+{%         set __hub_remote_value = __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") %}
+    {{ __map_item.key }}: {{ __hub_remote_value if __hub_remote_value is mapping or (__hub_remote_value | type_debug) == 'list' else (__hub_remote_value | from_yaml) }}
 {%       else %}
     {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
 {%       endif %}

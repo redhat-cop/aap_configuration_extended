@@ -1,0 +1,13 @@
+---
+controller_inventories:
+  - name: "test_manual_hosts_inv"
+    description: |-
+      {%- raw -%}
+      issue 260 test
+      {%- endraw -%}
+    organization: "Default"
+    prevent_instance_group_fallback: false
+  - name: "Demo Inventory"
+    organization: "Default"
+    prevent_instance_group_fallback: false
+...

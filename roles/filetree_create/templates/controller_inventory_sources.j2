@@ -10,49 +10,50 @@ controller_inventory_sources: {{ [] if current_inventory_sources_asset_value | l
                      | default(template_overrides_global.inventory_source.description)
                      | default(inventory_source.description) | regex_replace("'", "''") }}
       {{ '{%- endraw -%}' }}
-{% if inventory_source.summary_fields.organization is defined %}
+{%   if inventory_source.summary_fields.organization is defined %}
     organization: "{{ inventory_source.summary_fields.organization.name }}"
-{% endif %}
-{% set _source_type = template_overrides_resources.inventory_source[inventory_source.name].source
+{%   endif %}
+{%   set _source_type = template_overrides_resources.inventory_source[inventory_source.name].source
                 | default(template_overrides_global.inventory_source.source)
                 | default(inventory_source.source)
                 | default('ToDo: The source of the inventory_source was originally missing and must be specified', true) %}
-{% if _source_type != 'constructed' %}
+{%   if _source_type != 'constructed' %}
     source: "{{ template_overrides_resources.inventory_source[inventory_source.name].source
                 | default(template_overrides_global.inventory_source.source)
                 | default(inventory_source.source)
                 | default('ToDo: The source of the inventory_source was originally missing and must be specified', true) }}"
-{% endif %}
-{% if template_overrides_resources.inventory_source[inventory_source.name].limit is defined
+{%   endif %}
+{%   if template_overrides_resources.inventory_source[inventory_source.name].limit is defined
       or template_overrides_global.inventory_source.limit is defined
       or inventory_source.limit is defined %}
     limit: "{{ template_overrides_resources.inventory_source[inventory_source.name].limit
                      | default(template_overrides_global.inventory_source.limit)
                      | default(inventory_source.limit) }}"
-{% endif %}
-{% if template_overrides_resources.inventory_source[inventory_source.name].source_project is defined
+{%   endif %}
+{%   if template_overrides_resources.inventory_source[inventory_source.name].source_project is defined
       or template_overrides_global.inventory_source.source_project is defined
       or (inventory_source.summary_fields.source_project is defined and inventory_source.summary_fields.source_project != None) %}
     source_project: "{{ template_overrides_resources.inventory_source[inventory_source.name].source_project
                         | default(template_overrides_global.inventory_source.source_project)
                         | default(inventory_source.summary_fields.source_project.name) }}"
-{% endif %}
-{% if template_overrides_resources.inventory_source[inventory_source.name].source_path is defined
+{%   endif %}
+{%   if template_overrides_resources.inventory_source[inventory_source.name].source_path is defined
       or template_overrides_global.inventory_source.source_path is defined
       or inventory_source.source_path is defined %}
     source_path: "{{ template_overrides_resources.inventory_source[inventory_source.name].source_path
                      | default(template_overrides_global.inventory_source.source_path)
                      | default(inventory_source.source_path) }}"
-{% endif %}
-{% if template_overrides_resources.inventory_source[inventory_source.name].source_vars is defined
+{%   endif %}
+{%   if template_overrides_resources.inventory_source[inventory_source.name].source_vars is defined
       or template_overrides_global.inventory_source.source_vars is defined
       or (inventory_source.source_vars is defined and inventory_source.source_vars != '---' and inventory_source.source_vars != '') %}
     source_vars:
-      {{ template_overrides_resources.inventory_source[inventory_source.name].source_vars
+{%     set __inventory_source_vars = template_overrides_resources.inventory_source[inventory_source.name].source_vars
          | default(template_overrides_global.inventory_source.source_vars)
-         | default(inventory_source.source_vars)
-         | from_yaml | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true)}}
-{%- endif %}
+         | default(inventory_source.source_vars) %}
+      {{ (__inventory_source_vars if __inventory_source_vars is mapping or (__inventory_source_vars | type_debug) == 'list' else (__inventory_source_vars | from_yaml))
+         | to_nice_yaml(indent=2, sort_keys=false, width=4096) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*?){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true)}}
+{%-  endif %}
     inventory: "{{ inventory_source.summary_fields.inventory.name }}"
     update_on_launch: "{{ template_overrides_resources.inventory_source[inventory_source.name].update_on_launch
                           | default(template_overrides_global.inventory_source.update_on_launch)
@@ -60,40 +61,40 @@ controller_inventory_sources: {{ [] if current_inventory_sources_asset_value | l
     overwrite: "{{ template_overrides_resources.inventory_source[inventory_source.name].overwrite
                    | default(template_overrides_global.inventory_source.overwrite)
                    | default(inventory_source.overwrite) }}"
-{% if template_overrides_global.inventory_source.credential is defined
+{%   if template_overrides_global.inventory_source.credential is defined
       or template_overrides_global.inventory_source.credential is defined
       or inventory_source.summary_fields.credential is defined %}
     credential: "{{ template_overrides_resources.inventory_source[inventory_source.name].credential
                     | default(template_overrides_global.inventory_source.credential)
                     | default(inventory_source.summary_fields.credential.name) }}"
-{% endif %}
-{% set query_notification_error = query('ansible.platform.gateway_api', inventory_source.related.notification_templates_error,
+{%   endif %}
+{%   set query_notification_error = query('ansible.platform.gateway_api', inventory_source.related.notification_templates_error,
                      host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) %}
-{% set query_notification_started = query('ansible.platform.gateway_api', inventory_source.related.notification_templates_started,
+{%   set query_notification_started = query('ansible.platform.gateway_api', inventory_source.related.notification_templates_started,
                      host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) %}
-{% set query_notification_success = query('ansible.platform.gateway_api', inventory_source.related.notification_templates_success,
+{%   set query_notification_success = query('ansible.platform.gateway_api', inventory_source.related.notification_templates_success,
                      host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) %}
-{% if query_notification_error | length > 0 %}
+{%   if query_notification_error | length > 0 %}
     notification_templates_error:
-{% for notification_error in query_notification_error %}
+{%     for notification_error in query_notification_error %}
       - "{{ notification_error.name }}"
-{% endfor %}
-{% endif %}
-{% if query_notification_started | length > 0 %}
+{%     endfor %}
+{%   endif %}
+{%   if query_notification_started | length > 0 %}
     notification_templates_started:
-{% for notification_started in query_notification_started %}
+{%     for notification_started in query_notification_started %}
       - "{{ notification_started.name }}"
-{% endfor %}
-{% endif %}
-{% if query_notification_success | length > 0 %}
+{%     endfor %}
+{%   endif %}
+{%   if query_notification_success | length > 0 %}
     notification_templates_success:
-{% for notification_success in query_notification_success %}
+{%     for notification_success in query_notification_success %}
       - "{{ notification_success.name }}"
-{% endfor %}
-{% endif %}
+{%     endfor %}
+{%   endif %}
 {% endfor %}
 {% if (last_inventory | default(true) | bool) and (last_inventory_source | default(true) | bool) %}
 ...
