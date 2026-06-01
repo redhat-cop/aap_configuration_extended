@@ -356,3 +356,19 @@ releases:
     - gateway_users.yaml
     - remove_yq.yaml
     release_date: '2026-05-01'
+  4.7.0:
+    changes:
+      bugfixes:
+      - Fix the output of the format_yaml.py module to correctly format the output
+        (Certificates mainly)
+      - Update the collection to support AAP 2.7
+      minor_changes:
+      - README - Standardized collection links tables and added Support section for
+        certification review.
+      - meta/runtime.yml - Updated minimum ansible-core version from 2.15 to 2.16.
+    fragments:
+    - certification-review-updates.yaml
+    - enhance_yaml_format.yaml
+    - release_auto-automation-hub-console-url.yml
+    - update_aap_27.yaml
+    release_date: '2026-06-01'
