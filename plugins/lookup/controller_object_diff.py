@@ -25,6 +25,8 @@ options:
   compare_list:
     description:
       - The list of objects to compare the api_list to.
+      - Jinja2 expressions in string values (for example C(name={{ env }} Servers)) are
+        rendered with available playbook variables before the comparison is performed.
     type: list
     elements: dict
     required: True
@@ -126,12 +128,31 @@ class LookupModule(LookupBase):
         d2_filtered = {k: v for k, v in d2.items() if k not in ignore_keys}
         return d1_filtered == d2_filtered
 
+    def _template_data(self, data):
+        """Recursively render Jinja2 expressions in compare_list using playbook variables."""
+        if not self._templar:
+            return data
+        if isinstance(data, str):
+            if "{{" in data or "{%" in data:
+                try:
+                    return self._templar.template(data, disable_lookups=True)
+                except AnsibleError as exc:
+                    self.handle_error(msg="Failed to template compare_list value '{0}': {1}".format(data, exc))
+            return data
+        if isinstance(data, list):
+            return [self._template_data(item) for item in data]
+        if isinstance(data, dict):
+            return {key: self._template_data(value) for key, value in data.items()}
+        return data
+
     def run(self, terms, variables=None, **kwargs):
         self.set_options(direct=kwargs)
 
         # Set Variables for user input
         api_list = self.get_option("api_list")
         compare_list = self.get_option("compare_list")
+        if compare_list:
+            compare_list = self._template_data(copy.deepcopy(compare_list))
         warn_on_empty_api = self.get_option("warn_on_empty_api")
         if not api_list:
             if warn_on_empty_api:
