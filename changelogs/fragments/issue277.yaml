@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - 'object_diff - skip object diff to mark imported hosts from a sourced inventory to be removed.'
+...
