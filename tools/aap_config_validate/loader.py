@@ -79,6 +79,7 @@ def load_config_dir(config_dir: str | Path, cfg: Optional[ValidatorConfig] = Non
     errors: List[str] = []
 
     from itertools import chain
+
     yml_files = sorted(chain(config_dir.rglob("*.yml"), config_dir.rglob("*.yaml")))
     if not yml_files:
         errors.append(f"No .yml/.yaml files found in {config_dir}")
