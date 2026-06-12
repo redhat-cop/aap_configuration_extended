@@ -1,0 +1,68 @@
+---
+# Example configuration for aap-config-validate
+# Copy this file as .aap-validate.yml in your project root.
+# All settings are optional — omit anything you don't need.
+
+# ── File/directory exclusions ─────────────────────────────────────
+# Glob patterns matched against file/directory paths.
+# Use to skip test data, scratch files, or generated configs.
+
+exclude_files:
+  - "*.bak"
+  - "secrets.yml"
+  - "generated/**/*.yml"
+
+exclude_dirs:
+  - ".git"
+  - "scratch"
+  - "tests/fixtures"
+
+# ── Variable ignoring ────────────────────────────────────────────
+# Variable names to suppress "unknown variable" warnings for.
+# Supports glob patterns (e.g. "my_custom_*").
+
+# ignore_vars:
+#   - my_custom_var
+#   - env_*
+#   - ansible_*
+
+# ── Per-variable field ignoring ──────────────────────────────────
+# Suppress "field not recognised" warnings for specific fields
+# on specific resource variables.  Use "*" to apply to all vars.
+
+# ignore_fields:
+#   controller_templates:
+#     - custom_field
+#     - my_extra_*
+#   "*":
+#     - _internal_field
+
+# ── Disable checks ──────────────────────────────────────────────
+# Completely disable specific validation checks.
+# Valid names: var_names, structure, required_fields, types,
+#              unknown_fields, state, choices, xref
+
+# disable_checks:
+#   - xref
+#   - unknown_fields
+
+# ── Extra known variables ────────────────────────────────────────
+# Additional variable names to treat as valid (no unknown-var warning).
+# Unlike ignore_vars, these don't support glob patterns — they're
+# added directly to the known-variable set.
+
+# extra_known_vars:
+#   - my_org_base_url
+#   - deployment_environment
+
+# ── CLI defaults ─────────────────────────────────────────────────
+# These can all be overridden by CLI flags.
+
+# strict: false
+# show_info: false
+# wildcard_vars: auto        # auto | always | never
+# output_format: text        # text | json
+# components:                # limit to specific component(s)
+#   - controller
+#   - gateway
+...
