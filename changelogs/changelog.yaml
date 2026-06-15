@@ -372,3 +372,11 @@ releases:
     - release_auto-automation-hub-console-url.yml
     - update_aap_27.yaml
     release_date: '2026-06-01'
+  4.8.0:
+    changes:
+      minor_changes:
+      - Adding a new python script that can be used to attempt to validate your configuration
+        before attempting to apply it.
+    fragments:
+    - aap_config_validate.yaml
+    release_date: '2026-06-15'
