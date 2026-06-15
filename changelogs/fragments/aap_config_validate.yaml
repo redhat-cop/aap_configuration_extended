@@ -1,4 +1,0 @@
----
-minor_changes:
-  - Adding a new python script that can be used to attempt to validate your configuration before attempting to apply it.
-...
