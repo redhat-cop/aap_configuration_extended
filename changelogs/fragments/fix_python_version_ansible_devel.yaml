@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - fix CI workflow for Ansible Core devel version, that requires python >=3.13
+...
