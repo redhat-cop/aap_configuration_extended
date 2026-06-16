@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: aap-config-validate
+Version: 0.1.0
+Summary: Offline configuration validator for infra.aap_configuration
+License-Expression: GPL-3.0-or-later
+Requires-Python: >=3.10
+Requires-Dist: pyyaml>=6.0

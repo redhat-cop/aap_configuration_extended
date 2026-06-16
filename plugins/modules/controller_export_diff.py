@@ -109,25 +109,25 @@ options:
         - Include items in the original compare list in the output, and set state to 'present'
       type: bool
       default: True
-    aap_hostname:
+    controller_host:
       description:
       - URL to your Automation Platform Controller instance.
       - If value not set, will try environment variable C(CONTROLLER_HOST) and then config files
       - If value not specified by any means, the value of C(127.0.0.1) will be used
       type: str
-      aliases: [ controller_host, tower_host ]
-    aap_username:
+      aliases: [ tower_host, aap_hostname ]
+    controller_username:
       description:
       - Username for your controller instance.
       - If value not set, will try environment variable C(CONTROLLER_USERNAME) and then config files
       type: str
-      aliases: [ controller_username, tower_username ]
-    aap_password:
+      aliases: [ tower_username, aap_username ]
+    controller_password:
       description:
       - Password for your controller instance.
       - If value not set, will try environment variable C(CONTROLLER_PASSWORD) and then config files
       type: str
-      aliases: [ controller_password, tower_password ]
+      aliases: [ tower_password, aap_password ]
     aap_token:
       description:
       - The OAuth token to use.
@@ -136,29 +136,28 @@ options:
       - A dictionary structure as returned by the token module.
       - If value not set, will try environment variable C(CONTROLLER_OAUTH_TOKEN) and then config files
       type: raw
-      aliases: [ controller_oauthtoken ]
-    aap_validate_certs:
+    validate_certs:
       description:
       - Whether to allow insecure connections to AWX.
       - If C(no), SSL certificates will not be validated.
       - This should only be used on personally controlled sites using self-signed certificates.
       - If value not set, will try environment variable C(CONTROLLER_VERIFY_SSL) and then config files
       type: bool
-      aliases: [ validate_certs, tower_verify_ssl ]
-    aap_request_timeout:
+      aliases: [ tower_verify_ssl, aap_validate_certs ]
+    request_timeout:
       description:
       - Specify the timeout Ansible should use in requests to the controller host.
       - Defaults to 10s, but this is handled by the shared module_utils code
       - This option requires awx.awx>=22.7.0 or equivalent ansible.controller collection
       type: float
-      aliases: [ request_timeout ]
+      aliases: [ aap_request_timeout ]
       version_added: "2.6.0"
     controller_config_file:
       description:
       - Path to the controller config file.
       - If provided, the other locations for config files will not be considered.
       type: path
-      aliases: [tower_config_file]
+      aliases: [ tower_config_file ]
 requirements:
   - "awxkit >= 9.3.0"
   - awx.awx or ansible.controller collection

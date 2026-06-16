@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aap-config-validate"
+version = "0.1.0"
+description = "Offline configuration validator for infra.aap_configuration"
+requires-python = ">=3.10"
+license = "GPL-3.0-or-later"
+dependencies = ["pyyaml>=6.0"]
+
+[project.scripts]
+aap-config-validate = "aap_config_validate.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["aap_config_validate*"]
+
+[tool.pytest.ini_options]
+testpaths = ["unit_tests"]
