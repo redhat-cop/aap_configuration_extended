@@ -2,4 +2,6 @@
 bugfixes:
   - fix CI workflow for Ansible Core devel version, that requires python >=3.13
   - add tox-ansible.ini to skip sanity environments that pair ansible-core devel with Python <3.13
+  - restore a single pre-commit CI check for branch protection when using a Python matrix
+  - run sanity on Python 3.12, 3.13, and 3.14 in CI
 ...
