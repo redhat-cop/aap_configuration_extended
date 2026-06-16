@@ -22,13 +22,13 @@ jobs:
     steps:
       - run: echo "Approval granted."
 
-  pre-commit:
+  pre-commit-tests:
     needs: approve_run
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.12", "3.13"]
+        python-version: ["3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
@@ -60,3 +60,11 @@ jobs:
           ANSIBLE_GALAXY_SERVER_CERTIFIED_AUTH_URL: https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
           ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN: ${{ secrets.CRC_PUBLISH_KEY }}
           ANSIBLE_GALAXY_SERVER_GALAXY_URL: https://galaxy.ansible.com/api/
+
+  # Single check name for branch protection (matrix jobs report as pre-commit-tests (3.x)).
+  pre-commit:
+    needs: pre-commit-tests
+    runs-on: ubuntu-latest
+    if: ${{ !cancelled() && needs.pre-commit-tests.result == 'success' }}
+    steps:
+      - run: echo "All pre-commit matrix jobs passed."
