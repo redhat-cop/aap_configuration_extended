@@ -136,6 +136,7 @@ options:
       - A dictionary structure as returned by the token module.
       - If value not set, will try environment variable C(CONTROLLER_OAUTH_TOKEN) and then config files
       type: raw
+      aliases: [ controller_oauthtoken, oauth_token, tower_oauthtoken ]
     validate_certs:
       description:
       - Whether to allow insecure connections to AWX.
