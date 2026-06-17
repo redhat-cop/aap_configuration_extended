@@ -5,7 +5,7 @@ controller_hosts: {{ [] if current_hosts_asset_value | length == 0 }}
 {% set __empty_values = [None, '', "None", [], {}, [{}]] %}
 {% for host in current_hosts_asset_value if not host.has_inventory_sources %}
   - name: "{{ host.name }}"
-{% if template_overrides_resources.host[host.name].description
+{%   if template_overrides_resources.host[host.name].description
                      | default(template_overrides_global.host.description)
                      | default(host.description) | regex_replace("'", "''") not in __empty_values %}
     description: |-
@@ -14,16 +14,17 @@ controller_hosts: {{ [] if current_hosts_asset_value | length == 0 }}
                      | default(template_overrides_global.host.description)
                      | default(host.description) | regex_replace("'", "''") }}
       {{ '{%- endraw -%}' }}
-{% endif %}
+{%   endif %}
     inventory: "{{ host.summary_fields.inventory.name | default('ToDo: The host \'' + host.name + '\' must have an associated inventory') }}"
-{% if template_overrides_resources.host[host.name].variables is defined
+{%   if template_overrides_resources.host[host.name].variables is defined
       or template_overrides_global.host.variables is defined
       or (host.variables and host.variables != '---' and host.variables != '') %}
     variables:
-      {{ template_overrides_resources.host[host.name].variables
+{%     set __host_variables = template_overrides_resources.host[host.name].variables
          | default(template_overrides_global.host.variables)
-         | default(host.variables)
-         | from_yaml | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true)}}
-{%- endif %}
+         | default(host.variables) %}
+      {{ (__host_variables if __host_variables is mapping or (__host_variables | type_debug) == 'list' else (__host_variables | from_yaml))
+         | to_nice_yaml(indent=2, sort_keys=false, width=4096) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*?){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true)}}
+{%-  endif %}
 {% endfor %}
 ...

@@ -3,12 +3,37 @@ aap_organizations:
   - name: "Default"
     description: |-
       {%- raw -%}
-
+      The default organization for Ansible Automation Platform
+      {%- endraw -%}
+  - name: "AWX-ORG"
+    description: |-
+      {%- raw -%}
+      Organization in AWX
+      {%- endraw -%}
+  - name: "CONTROLLER-ORG"
+    description: |-
+      {%- raw -%}
+      Organization in CONTROLLER
       {%- endraw -%}
   - name: "Recursive Workflows"
     description: |-
       {%- raw -%}
       Organization to show how to create and use a Workflow tha is calling another workflows
+      {%- endraw -%}
+  - name: "Satellite Register"
+    description: |-
+      {%- raw -%}
+      Contains demos of how different workflows can interact eachother
+      {%- endraw -%}
+  - name: "Workflows Demo"
+    description: |-
+      {%- raw -%}
+      Contains demos of how different workflows can interact eachother
+      {%- endraw -%}
+  - name: "edge"
+    description: |-
+      {%- raw -%}
+
       {%- endraw -%}
   - name: "Satellite"
     description: |-

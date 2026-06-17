@@ -49,9 +49,9 @@ controller_templates:
                   | default(current_job_templates_asset_value.use_fact_cache | bool | lower) }}
 {% if current_job_templates_asset_value.summary_fields.credentials %}
     credentials:
-{% for credential in current_job_templates_asset_value.summary_fields.credentials %}
+{%   for credential in current_job_templates_asset_value.summary_fields.credentials %}
       - "{{ credential.name }}"
-{% endfor %}
+{%   endfor %}
 {% endif %}
     allow_simultaneous: {{ template_overrides_resources.job_template[current_job_templates_asset_value.name].allow_simultaneous
                            | default(template_overrides_global.job_template.allow_simultaneous)
@@ -130,12 +130,15 @@ controller_templates:
 {% endif %}
 {% if template_overrides_resources.job_template[current_job_templates_asset_value.name].extra_vars is defined
       or template_overrides_global.job_template.extra_vars is defined
-      or current_job_templates_asset_value.extra_vars and current_job_templates_asset_value.extra_vars | from_yaml | string is not match('None') %}
+      or (current_job_templates_asset_value.extra_vars and (
+        (current_job_templates_asset_value.extra_vars is mapping and current_job_templates_asset_value.extra_vars | length > 0)
+        or (current_job_templates_asset_value.extra_vars is string and current_job_templates_asset_value.extra_vars | length > 0)
+      )) %}
     extra_vars:
-{% set extra_vars_contents = template_overrides_resources.job_template[current_job_templates_asset_value.name].extra_vars
+{%   set __job_template_extra_vars = template_overrides_resources.job_template[current_job_templates_asset_value.name].extra_vars
                              | default(template_overrides_global.job_template.extra_vars)
-                             | default(current_job_templates_asset_value.extra_vars)
-                             | from_yaml
+                             | default(current_job_templates_asset_value.extra_vars) %}
+{%   set extra_vars_contents = __job_template_extra_vars if __job_template_extra_vars is mapping or (__job_template_extra_vars | type_debug) == 'list' else (__job_template_extra_vars | from_yaml) %}
 -%}
 {%   for extra_vars_item in (extra_vars_contents | dict2items) if ((extra_vars_item.value | string | length) > 0 and (extra_vars_item.value | string) is not match('None')) %}
 {%     if extra_vars_item.value | type_debug is match('list') %}
@@ -178,27 +181,27 @@ controller_templates:
                          | default(current_job_templates_asset_value.host_config_key) }}"
 {% if query_labels | length > 0 %}
     labels:
-{% for label in query_labels %}
+{%   for label in query_labels %}
       - "{{ label.name }}"
-{% endfor %}
+{%   endfor %}
 {% endif %}
 {% if query_notification_error | length > 0 %}
     notification_templates_error:
-{% for notification_error in query_notification_error %}
+{%   for notification_error in query_notification_error %}
       - "{{ notification_error.name }}"
-{% endfor %}
+{%   endfor %}
 {% endif %}
 {% if query_notification_started | length > 0 %}
     notification_templates_started:
-{% for notification_started in query_notification_started %}
+{%   for notification_started in query_notification_started %}
       - "{{ notification_started.name }}"
-{% endfor %}
+{%   endfor %}
 {% endif %}
 {% if query_notification_success | length > 0 %}
     notification_templates_success:
-{% for notification_success in query_notification_success %}
+{%   for notification_success in query_notification_success %}
       - "{{ notification_success.name }}"
-{% endfor %}
+{%   endfor %}
 {% endif %}
     survey_enabled: {{ template_overrides_resources.job_template[current_job_templates_asset_value.name].survey_enabled
                        | default(template_overrides_global.job_template.survey_enabled)
@@ -212,44 +215,44 @@ controller_templates:
       or template_overrides_global.job_template.survey_spec is defined
       or (current_job_templates_asset_value.related.survey_spec is defined and survey_spec_contents | length > 0 and survey_spec_contents | first | length > 0) %}
     survey_spec:
-{% for spec_item in survey_spec_contents %}
+{%   for spec_item in survey_spec_contents %}
       name: "{{ spec_item.name }}"
       spec:
-{%   for survey_item in spec_item.spec %}
-{%     set _var = namespace(first_survey_item = true) %}
-{%     for survey_item_content in (survey_item | dict2items) if ((survey_item_content.value | string | length) > 0 and (survey_item_content.value | string) is not match('None')) %}
-{%       if survey_item_content.key | regex_search('question_name|question_description|default') %}
-{%         if survey_item_content.value is number %}
+{%     for survey_item in spec_item.spec %}
+{%       set _var = namespace(first_survey_item = true) %}
+{%       for survey_item_content in (survey_item | dict2items) if ((survey_item_content.value | string | length) > 0 and (survey_item_content.value | string) is not match('None')) %}
+{%         if survey_item_content.key | regex_search('question_name|question_description|default') %}
+{%           if survey_item_content.value is number %}
+{%             set current_content = survey_item_content.key + ': ' + survey_item_content.value | string %}
+{%           else %}
+{%             set current_content = survey_item_content.key + ': "{%- raw -%}' + (survey_item_content.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') + '{%- endraw -%}"' %}
+{%           endif %}
+{%         elif survey_item_content.key is not match('choices') %}
 {%           set current_content = survey_item_content.key + ': ' + survey_item_content.value | string %}
-{%         else %}
-{%           set current_content = survey_item_content.key + ': "{%- raw -%}' + (survey_item_content.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') + '{%- endraw -%}"' %}
 {%         endif %}
-{%       elif survey_item_content.key is not match('choices') %}
-{%         set current_content = survey_item_content.key + ': ' + survey_item_content.value | string %}
-{%       endif %}
-{%       if _var.first_survey_item %}
-{%         set _var.first_survey_item = false %}
+{%         if _var.first_survey_item %}
+{%           set _var.first_survey_item = false %}
         - {{ current_content }}
-{%       else %}
-{%         if current_content is defined %}
-          {{ current_content | replace("$encrypted$", "\'\'") }}
 {%         else %}
-{%           if survey_item_content.key is match('choices') and survey_item_content.value[0] is defined %}
+{%           if current_content is defined %}
+          {{ current_content | replace("$encrypted$", "\'\'") }}
+{%           else %}
+{%             if survey_item_content.key is match('choices') and survey_item_content.value[0] is defined %}
           {{ survey_item_content.key }}:
-{%             for choice in survey_item_content.value if ((survey_item_content.value | string | length) > 0 and (survey_item_content.value | string) is not match('None')) %}
+{%               for choice in survey_item_content.value if ((survey_item_content.value | string | length) > 0 and (survey_item_content.value | string) is not match('None')) %}
 {%                 if choice is number %}
             - {{ choice }}
 {%                 else %}
             - "{{ '{%- raw -%}' }}{{ choice | regex_replace("\n", "\\\\n", multiline=true) | regex_replace('"', '\\"', multiline=true) }}{{ '{%- endraw -%}' }}"
 {%                 endif %}
-{%             endfor %}
+{%               endfor %}
+{%             endif %}
 {%           endif %}
 {%         endif %}
-{%       endif %}
+{%       endfor %}
 {%     endfor %}
-{%   endfor %}
       description: "{{ spec_item.description }}"
-{% endfor %}
+{%   endfor %}
 {% endif %}
     become_enabled: {{ template_overrides_resources.job_template[current_job_templates_asset_value.name].become_enabled
                        | default(template_overrides_global.job_template.become_enabled)

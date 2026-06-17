@@ -21,6 +21,9 @@ description:
     block-style lists, C(null) emitted as an empty value (no C(null) keyword), optional normalization of Python boolean spellings to
     lowercase in plain scalars when preserving comments, and double-quoted scalars for slash-delimited regex strings that
     contain backslashes (in the file, C(\\.) before the dot encodes a single backslash plus a literal dot in the value).
+  - Trailing spaces and tabs at the end of each line are always removed from any file content the module writes.
+  - Normalizes Python-style C(True)/C(False) and quoted C("True")/C("False") scalars to ansible-lint friendly C(true)/C(false).
+  - Fixes indentless block sequences (yaml[indentation]) and document begin/end markers (C(---) / C(...)) when I(fix_document_markers=true).
 options:
   path:
     description: Path to the YAML file to read and optionally rewrite.
@@ -52,6 +55,12 @@ options:
         to multiline content (comments and layout stay untouched).
     default: false
     type: bool
+  strip_trailing_whitespace_only:
+    description:
+      - If V(true), only remove trailing spaces and tabs at the end of each line without YAML parsing or reformatting.
+      - Other formatting options are ignored when this is V(true).
+    default: false
+    type: bool
 notes:
   - Requires PyYAML on the target (bundled with the controller for ansible-core; use python3-yaml on remotes if the module runs there).
 author:
@@ -71,6 +80,11 @@ EXAMPLES = r"""
     explicit_end: true
     fix_document_markers: true
     auto_block_scalars: true
+
+- name: Strip trailing spaces from filetree_create export (no YAML reformat)
+  infra.aap_configuration_extended.format_yaml:
+    path: /tmp/filetree_output/controller_groups.yaml
+    strip_trailing_whitespace_only: true
 ...
 """
 
@@ -261,11 +275,15 @@ def strip_trailing_whitespace(text):
 
 # Ansible-lint yaml[truthy]: prefer true/false over Python True/False in plain scalars.
 _TRUTHY_LINE_PATTERN = re.compile(r"^(\s*[^:]+:\s*)(True|False)(\s*(?:#.*)?)$")
+_QUOTED_TRUTHY_LINE_PATTERN = re.compile(r"""^(\s*[^:]+:\s*)(['"])(True|False)\2(\s*(?:#.*)?)$""")
 _QUOTED_MAPPING_VALUE_PATTERN = re.compile(r'^(\s*[^:\n]+:\s*)"((?:[^"\\]|\\.)*)"(\s*(?:#.*)?)$')
 _QUOTED_SEQUENCE_ITEM_PATTERN = re.compile(r'^(\s*-\s*)"((?:[^"\\]|\\.)*)"(\s*(?:#.*)?)$')
 
 
 def fix_truthy_capital_bool_on_line(line_body):
+    match = _QUOTED_TRUTHY_LINE_PATTERN.match(line_body)
+    if match:
+        return match.group(1) + match.group(3).lower() + match.group(4)
     match = _TRUTHY_LINE_PATTERN.match(line_body)
     if not match:
         return line_body
@@ -325,8 +343,8 @@ def build_literal_block_replacement(prefix, trailing_comment, repaired_value, is
     block_indent = " " * block_indent_size
     rebuilt = [block_header + effective_break]
     for block_line in repaired_value.split("\n"):
-        rebuilt.append("{0}{1}{2}".format(block_indent, block_line, effective_break))
-    return "".join(rebuilt)
+        rebuilt.append("{0}{1}{2}".format(block_indent, block_line.rstrip(" \t"), effective_break))
+    return strip_trailing_whitespace("".join(rebuilt))
 
 
 def convert_quoted_multiline_scalars_to_literal_blocks(text):
@@ -494,7 +512,6 @@ def format_yaml_content(original_text, preserve_comments, explicit_start, explic
     yaml.safe_load(original_text)
     if preserve_comments:
         formatted = fix_indent_preserve_comments(original_text, 2)
-        formatted = strip_trailing_whitespace(formatted)
         formatted = fix_truthy_capital_bools_in_text(formatted)
         if auto_block_scalars:
             formatted = convert_quoted_multiline_scalars_to_literal_blocks(formatted)
@@ -503,15 +520,14 @@ def format_yaml_content(original_text, preserve_comments, explicit_start, explic
             if parsed is None:
                 parsed = {}
             formatted = dump_round_trip_tree(parsed, explicit_start, explicit_end, auto_block_scalars)
-            return strip_trailing_whitespace(formatted)
         if fix_markers:
             formatted = ensure_yaml_document_markers(formatted, explicit_start, explicit_end)
         yaml.safe_load(formatted)
-        return formatted
-    parsed = yaml.safe_load(original_text)
-    if parsed is None:
-        parsed = {}
-    formatted = dump_round_trip_tree(parsed, explicit_start, explicit_end, auto_block_scalars)
+    else:
+        parsed = yaml.safe_load(original_text)
+        if parsed is None:
+            parsed = {}
+        formatted = dump_round_trip_tree(parsed, explicit_start, explicit_end, auto_block_scalars)
     return strip_trailing_whitespace(formatted)
 
 
@@ -524,6 +540,7 @@ def run_module():
             "explicit_end": {"type": "bool", "default": True},
             "fix_document_markers": {"type": "bool", "default": True},
             "auto_block_scalars": {"type": "bool", "default": False},
+            "strip_trailing_whitespace_only": {"type": "bool", "default": False},
         },
         supports_check_mode=True,
     )
@@ -540,21 +557,30 @@ def run_module():
         with open(path, "r", encoding="utf-8") as file_handle:
             original_text = file_handle.read()
 
-        formatted_text = format_yaml_content(
-            original_text,
-            params["preserve_comments"],
-            params["explicit_start"],
-            params["explicit_end"],
-            params["fix_document_markers"],
-            params["auto_block_scalars"],
-        )
+        if params["strip_trailing_whitespace_only"]:
+            formatted_text = strip_trailing_whitespace(original_text)
+        else:
+            formatted_text = format_yaml_content(
+                original_text,
+                params["preserve_comments"],
+                params["explicit_start"],
+                params["explicit_end"],
+                params["fix_document_markers"],
+                params["auto_block_scalars"],
+            )
 
         if formatted_text != original_text:
             if not module.check_mode:
                 with open(path, "w", encoding="utf-8") as file_handle:
                     file_handle.write(formatted_text)
-            module.exit_json(changed=True, msg="YAML formatted.")
-        module.exit_json(changed=False, msg="No changes.")
+            module.exit_json(
+                changed=True,
+                msg="Trailing whitespace removed." if params["strip_trailing_whitespace_only"] else "YAML formatted.",
+            )
+        module.exit_json(
+            changed=False,
+            msg="No trailing whitespace." if params["strip_trailing_whitespace_only"] else "No changes.",
+        )
 
     except yaml.YAMLError as exc:
         module.fail_json(msg="YAML parse error: {0}".format(exc), exception=traceback.format_exc())
