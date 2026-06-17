@@ -3,31 +3,31 @@ gateway_services:
   - name: "controller api"
     http_port: "1"
     service_cluster: "2"
-    service_port: "8443"
-    is_service_https: "True"
+    service_port: "443"
+    is_service_https: true
     service_path: "/api/controller/"
     api_slug: "controller"
-    enable_gateway_auth: "True"
+    enable_gateway_auth: true
     order: "1"
     node_tags: ""
   - name: "galaxy api"
     http_port: "1"
     service_cluster: "3"
-    service_port: "8444"
-    is_service_https: "True"
+    service_port: "443"
+    is_service_https: true
     service_path: "/api/galaxy/"
     api_slug: "galaxy"
-    enable_gateway_auth: "True"
+    enable_gateway_auth: true
     order: "2"
     node_tags: ""
   - name: "eda api"
     http_port: "1"
     service_cluster: "4"
-    service_port: "8445"
-    is_service_https: "True"
+    service_port: "443"
+    is_service_https: true
     service_path: "/api/eda/"
     api_slug: "eda"
-    enable_gateway_auth: "True"
+    enable_gateway_auth: true
     order: "3"
-    node_tags: ""
+    node_tags: "api"
 ...
