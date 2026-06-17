@@ -1,0 +1,9 @@
+---
+bugfixes:
+  - 'filetree_create - Export controller instances to ``controller_instances.yaml`` (fixes redhat-cop/aap_configuration_extended#235).'
+  - 'filetree_create - Resolve instance ``peers`` to hostnames via receptor address and instance lookups instead of numeric IDs in exported CaC.'
+  - 'filetree_create - Export only instances with importable ``node_type`` (``execution``, ``hop``); omit ``node_state`` unless ``installed`` or ``deprovisioning``.'
+  - 'filetree_create - Omit empty ``instances`` key from exported instance groups.'
+  - 'filetree_read - Load ``controller_instances`` from filetree YAML (tag ``instances``).'
+  - 'filetree_read - Honor ``--tags`` when including per-object task files (no longer forced by ``tags: always`` on the include loop).'
+...

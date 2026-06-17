@@ -1,0 +1,50 @@
+---
+- name: "Get current Instances from the API"
+  ansible.builtin.set_fact:
+    instances_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/instances/',
+                                 host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                 return_all=true, max_objects=query_controller_api_max_objects)
+                          }}"
+  no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+- name: "Get current Receptor Addresses from the API"
+  ansible.builtin.set_fact:
+    receptor_addresses_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/receptor_addresses/',
+                                           host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                           return_all=true, max_objects=query_controller_api_max_objects)
+                                    }}"
+  no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+- name: "Build lookup map for instance IDs to hostnames"
+  ansible.builtin.set_fact:
+    __instances_hostname_by_id: "{{ dict(instances_lookvar | map(attribute='id') | map('string') | list
+                                          | zip(instances_lookvar | map(attribute='hostname') | list)) }}"
+
+- name: "Build lookup map for receptor address IDs to peer hostnames"
+  ansible.builtin.set_fact:
+    __receptor_peer_hostname_by_id: "{{ __receptor_peer_hostname_by_id | default({})
+                                        | combine({(current_receptor_address.id | string): peer_hostname}) }}"
+  vars:
+    peer_hostname: "{{ current_receptor_address.summary_fields.instance.hostname
+                       | default(current_receptor_address.address)
+                       if current_receptor_address.summary_fields.instance is defined
+                       else current_receptor_address.address }}"
+  loop: "{{ receptor_addresses_lookvar }}"
+  loop_control:
+    loop_var: current_receptor_address
+    label: "{{ current_receptor_address.id }}"
+
+- name: "Create the output directory for instances: {{ output_path }}"
+  ansible.builtin.file:
+    path: "{{ output_path }}"
+    state: directory
+    mode: '0755'
+
+- name: "Add current instances to the controller_instances.yaml output file in {{ output_path }}"
+  ansible.builtin.template:
+    src: "templates/controller_instances.j2"
+    dest: "{{ output_path }}/controller_instances.yaml"
+    mode: '0644'
+  vars:
+    current_instances_asset_value: "{{ instances_lookvar }}"
+...

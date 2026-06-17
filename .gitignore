@@ -2,6 +2,7 @@
 *.pem
 *.key
 .pre-commit-cache/
+.venv/
 ansible_collections
 *.tar.gz
 *.pyc

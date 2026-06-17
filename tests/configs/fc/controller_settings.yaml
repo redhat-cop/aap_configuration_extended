@@ -9,23 +9,24 @@ controller_settings:
     REMOTE_HOST_HEADERS:
       - HTTP_X_FORWARDED_FOR
     LICENSE:
-      sku: $encrypted$
-      trial: true
-      usage: ''
-      satellite:
+      account_number: 'xxxxxxx'
+      instance_count: 5
+      license_date: '7777777777'
+      license_type: enterprise
+      pool_id: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      product_name: AAP
+      satellite: false
+      sku: XXXXXXXXX
+      subscription_id: 'xxxxxxxx'
+      subscription_name: AAP
+      support_level: Self-Support
+      trial: false
+      usage: Development/Test
       valid_key: true
-      license_date: $encrypted$
-      license_type: trial
-      product_name: Red Hat Ansible Automation Platform
-      support_level: ''
-      account_number: $encrypted$
-      instance_count: 100
-      subscription_id: $encrypted$
-      subscription_name: 60 Day Product Trial of Red Hat Ansible Automation Platform, Self-Supported (100 Managed Nodes)
     SUBSCRIPTIONS_USERNAME: $encrypted$
     SUBSCRIPTIONS_PASSWORD: $encrypted$
     AUTOMATION_ANALYTICS_URL: https://cloud.redhat.com/api/ingress/v1/upload
-    INSTALL_UUID: $encrypted$
+    INSTALL_UUID: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
     DEFAULT_CONTROL_PLANE_QUEUE_NAME: controlplane
     DEFAULT_EXECUTION_QUEUE_NAME: default
     AD_HOC_COMMANDS:

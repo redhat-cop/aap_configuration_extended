@@ -5,7 +5,14 @@
   args:
     apply:
       tags: "{{ __task_filetree_read.tags }}"
-  tags: always
+  when: >-
+    ansible_run_tags | length == 0
+    or 'all' in ansible_run_tags
+    or (
+      ansible_run_tags | intersect(
+        [__task_filetree_read.tags] if __task_filetree_read.tags is string else __task_filetree_read.tags
+      ) | length > 0
+    )
   loop: "{{ controller_configuration_filetree_read_tasks }}"
   loop_control:
     loop_var: __task_filetree_read

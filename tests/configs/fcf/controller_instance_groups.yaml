@@ -14,4 +14,7 @@ controller_instance_groups:
       - "aap26ctr2.bcnconsulting.com"
       - "aap26exec1.bcnconsulting.com"
       - "aap26exec2.bcnconsulting.com"
+  - name: "test_instance_group"
+    policy_instance_minimum: "0"
+    policy_instance_percentage: "0"
 ...
