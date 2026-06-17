@@ -1,0 +1,2 @@
+[console_scripts]
+aap-config-validate = aap_config_validate.cli:main

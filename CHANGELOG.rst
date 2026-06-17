@@ -4,6 +4,14 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v4.8.0
+======
+
+Minor Changes
+-------------
+
+- Adding a new python script that can be used to attempt to validate your configuration before attempting to apply it.
+
 v4.7.0
 ======
 
