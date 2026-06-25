@@ -57,29 +57,21 @@ Use `tests/ansible.cfg` (`inject_facts_as_vars = false`) when running integratio
 #### Test playbooks — authentication
 
 - Use `ansible.platform.token` (never `ansible.builtin.uri` against `/api/gateway/v1/tokens/`).
-- Read module-created tokens from `ansible_facts['aap_token']`; pass a pre-existing token via play/extra var `aap_token` (string).
+- Roles read `aap_token` (dict from `ansible.platform.token`, or string from vault/extra-vars) or deprecated string `aap_oauthtoken`; roles extract the token string for `gateway_api` lookups.
 - Skip token creation with a single condition: `when: not (ansible_facts.get('aap_token') or aap_token is defined)`.
-- Do not reference deprecated `aap_oauthtoken` in playbooks (roles still accept it as a fallback).
-- Multi-play tests: declare connection vars once in the first play with `set_fact` directly (no intermediate `__aap_*` play vars):
+- Multi-play tests: declare connection vars once in the first play with `set_fact` directly (no intermediate `__aap_*` play vars).
+- After `ansible.platform.token` creates a token, expose the dict **outside** the auth block (the block `when` re-evaluates after the fact exists and would skip later tasks):
 
 ```yaml
-- name: "Declare the connection variables for all the plays"
+- name: "Expose aap_token dict for collection roles"
   ansible.builtin.set_fact:
-    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
-    aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
-    aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
-    aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
+    aap_token: "{{ ansible_facts['aap_token'] }}"
+  when:
+    - ansible_facts.get('aap_token') is defined
+    - aap_token is not defined
 ```
 
-- When `infra.aap_configuration.dispatch` runs in the same playbook, expose the token string right after `ansible.platform.token`:
-
-```yaml
-- name: "Expose OAuth token string for CaC dispatch roles"
-  ansible.builtin.set_fact:
-    aap_token: "{{ ansible_facts['aap_token'].token }}"
-```
-
-- Revoke temporary tokens with `ansible.platform.token` (`state: absent`, `existing_token: "{{ ansible_facts['aap_token'] }}"`).
+- Revoke temporary tokens with `ansible.platform.token` (`state: absent`, `existing_token: "{{ aap_token }}"`, when `aap_token` is a mapping).
 
 ```bash
 # Export (venv + collections path as in collection README / local practice)

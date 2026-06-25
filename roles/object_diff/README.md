@@ -60,9 +60,9 @@ To correctly manage `roles`, they can only be defined by a super-admin organizat
             aap_password: "{{ aap_password }}"
             aap_validate_certs: "{{ aap_validate_certs | default(controller_validate_certs) }}"
 
-        - name: "Expose OAuth token string for CaC dispatch roles"
+        - name: "Expose aap_token dict for collection roles"
           ansible.builtin.set_fact:
-            aap_token: "{{ ansible_facts['aap_token'].token }}"
+            aap_token: "{{ ansible_facts['aap_token'] }}"
       no_log: "{{ controller_configuration_object_diff_secure_logging }}"
       when: not (ansible_facts.get('aap_token') or aap_token is defined)
       tags:
@@ -102,15 +102,15 @@ To correctly manage `roles`, they can only be defined by a super-admin organizat
   post_tasks:
     - name: "Delete the Authentication Token used"
       ansible.platform.token:
-        existing_token: "{{ ansible_facts['aap_token'] }}"
+        existing_token: "{{ aap_token }}"
         state: absent
         aap_hostname: "{{ aap_hostname }}"
         aap_username: "{{ aap_username }}"
         aap_password: "{{ aap_password }}"
         aap_validate_certs: "{{ aap_validate_certs | default(controller_validate_certs) }}"
       when:
-        - ansible_facts.get('aap_token') is defined
-        - ansible_facts.aap_token is mapping
+        - aap_token is defined
+        - aap_token is mapping
 
 $ ansible-playbook drop_diff.yml --tags ${CONTROLLER_OBJECT} -e "{orgs: ${ORGANIZATION}, dir_orgs_vars: orgs_vars, env: ${ENVIRONMENT} }" --vault-password-file ./.vault_pass.txt -e @orgs_vars/env/${ENVIRONMENT}/configure_connection_controller_credentials.yml ${OTHER}
 ```

@@ -82,11 +82,11 @@ argument_specs:
       aap_token:
         default: None
         required: false
-        description: Controller Admin User's token on the Ansible Controller Server. This should be stored in an Ansible Vault at or elsewhere and called from a parent playbook. Either username / password or token need to be specified. When created with ansible.platform.token, the module fact (dict with token and id) is accepted.
-        type: str
+        description: OAuth token for API authentication. Prefer the dict returned by ansible.platform.token (keys token and id). A plain token string from vault or extra-vars is also accepted. Either username / password or aap_token / aap_oauthtoken need to be specified.
+        type: raw
       aap_oauthtoken:
         default: None
         required: false
-        description: Deprecated alias for aap_token. Use aap_token instead.
+        description: Deprecated string alias for aap_token. Use aap_token instead.
         type: str
 ...

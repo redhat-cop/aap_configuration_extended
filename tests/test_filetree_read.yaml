@@ -27,9 +27,12 @@
             aap_password: "{{ aap_password }}"
             aap_validate_certs: "{{ aap_validate_certs }}"
 
-        - name: "Expose OAuth token string for CaC dispatch roles"
-          ansible.builtin.set_fact:
-            aap_token: "{{ ansible_facts['aap_token'].token }}"
+    - name: "Expose aap_token dict for downstream plays"
+      ansible.builtin.set_fact:
+        aap_token: "{{ ansible_facts['aap_token'] }}"
+      when:
+        - ansible_facts.get('aap_token') is defined
+        - aap_token is not defined
 
 # Run example (All the plays): ansible-playbook -i configs/gv/inventory_test.yml test_filetree_read.yaml -e@configs/gv/vaults/test.yml
 - name: "Test the filetree_read reading custom inputs (custom)"
@@ -204,14 +207,14 @@
   tasks:
     - name: "Delete the Authentication Token used"
       ansible.platform.token:
-        existing_token: "{{ ansible_facts['aap_token'] }}"
+        existing_token: "{{ aap_token }}"
         state: absent
         aap_hostname: "{{ aap_hostname }}"
         aap_username: "{{ aap_username }}"
         aap_password: "{{ aap_password }}"
         aap_validate_certs: "{{ aap_validate_certs }}"
       when:
-        - ansible_facts.get('aap_token') is defined
-        - ansible_facts.aap_token is mapping
+        - aap_token is defined
+        - aap_token is mapping
 
 ...

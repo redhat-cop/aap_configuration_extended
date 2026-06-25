@@ -26,20 +26,29 @@
             aap_password: "{{ aap_password }}"
             aap_validate_certs: "{{ aap_validate_certs }}"
 
+    - name: "Expose aap_token dict for collection roles"
+      ansible.builtin.set_fact:
+        aap_token: "{{ ansible_facts['aap_token'] }}"
+      when:
+        - ansible_facts.get('aap_token') is defined
+        - aap_token is not defined
+      tags:
+        - always
+
   roles:
     - infra.aap_configuration_extended.filetree_create
 
   post_tasks:
     - name: "Delete the Authentication Token used"
       ansible.platform.token:
-        existing_token: "{{ ansible_facts['aap_token'] }}"
+        existing_token: "{{ aap_token }}"
         state: absent
         aap_hostname: "{{ aap_hostname }}"
         aap_username: "{{ aap_username }}"
         aap_password: "{{ aap_password }}"
         aap_validate_certs: "{{ aap_validate_certs }}"
       when:
-        - ansible_facts.get('aap_token') is defined
-        - ansible_facts.aap_token is mapping
+        - aap_token is defined
+        - aap_token is mapping
 ...
 # ansible-playbook -i localhost, filetree_create.yml -e '{controller_configuration_inventories_enforce_defaults: false, controller_configuration_inventory_sources_enforce_defaults: false, aap_validate_certs: false, aap_hostname: localhost:8443, aap_username: <user_name>, aap_password: <password>, flatten_output: true}'

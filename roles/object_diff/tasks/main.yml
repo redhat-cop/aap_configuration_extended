@@ -2,8 +2,10 @@
 # tasks file for object_diff
 - name: "Resolve OAuth token for API queries"
   ansible.builtin.set_fact:
-    __object_diff_oauth_token: >-
-      {%- if ansible_facts.get('aap_token') is defined and ansible_facts.aap_token is mapping and (ansible_facts.aap_token.token is defined) -%} {{ ansible_facts.aap_token.token }}{%- elif ansible_facts.get('aap_token') is defined -%} {{ ansible_facts.aap_token }}{%- elif aap_token is defined and aap_token is mapping and (aap_token.token is defined) -%} {{ aap_token.token }}{%- elif aap_token is defined -%} {{ aap_token }}{%- else -%} {{ aap_oauthtoken }}{%- endif -%}
+    __object_diff_oauth_token: "{{ __resolved_token }}"
+  vars:
+    __token_input: "{{ aap_token | default(aap_oauthtoken | default(none, true), true) }}"
+    __resolved_token: "{{ __token_input.token if __token_input is mapping else __token_input }}"
   tags:
     - always
 
