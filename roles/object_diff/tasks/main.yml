@@ -1,5 +1,12 @@
 ---
 # tasks file for object_diff
+- name: "Resolve OAuth token for API queries"
+  ansible.builtin.set_fact:
+    __object_diff_oauth_token: >-
+      {%- if ansible_facts.get('aap_token') is defined and ansible_facts.aap_token is mapping and (ansible_facts.aap_token.token is defined) -%} {{ ansible_facts.aap_token.token }}{%- elif ansible_facts.get('aap_token') is defined -%} {{ ansible_facts.aap_token }}{%- elif aap_token is defined and aap_token is mapping and (aap_token.token is defined) -%} {{ aap_token.token }}{%- elif aap_token is defined -%} {{ aap_token }}{%- else -%} {{ aap_oauthtoken }}{%- endif -%}
+  tags:
+    - always
+
 - name: "Retrieve Ansible Tower or Automation Platform version"
   ansible.builtin.assert:
     that:
@@ -12,7 +19,7 @@
           'ansible.platform.gateway_api',
           'api/gateway/v1/ping',
           host=aap_hostname,
-          oauth_token=aap_oauthtoken,
+          oauth_token=__object_diff_oauth_token,
           verify_ssl=aap_validate_certs
         ).version
       }}

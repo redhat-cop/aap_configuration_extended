@@ -3,7 +3,7 @@
   ansible.builtin.set_fact:
     gateway_role_definitions_lookvar: "{{ query('ansible.platform.gateway_api', '/api/gateway/v1/role_definitions/',
                                                 query_params=(query_params | combine({'name': gateway_role_definition_name} if gateway_role_definition_name is defined else {})),
-                                                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                                host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                                 return_all=true, max_objects=query_gateway_api_max_objects)
                                        }}"
   vars:

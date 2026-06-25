@@ -103,9 +103,9 @@ Define following vars here, or in `controller_configs/controller_auth.yml`
 You can also specify authentication by a combination of either:
 
 - `aap_hostname`, `aap_username`, `aap_password`
-- `aap_hostname`, `aap_oauthtoken`
+- `aap_hostname`, `aap_token`
 
-The OAuth2 token is the preferred method. You can obtain the token through the preferred `controller_token` module, or through the
+The OAuth2 token is the preferred method. You can obtain the token through the preferred `ansible.platform.token` module, or through the
 AWX CLI [login](https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html/automation_execution_api_overview/controller-api-auth-methods)
 command.
 

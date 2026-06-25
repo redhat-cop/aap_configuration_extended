@@ -50,23 +50,21 @@ To correctly manage `roles`, they can only be defined by a super-admin organizat
   pre_tasks:
     - name: "Setup authentication (block)"
       block:
-        - name: "Get the Authentication Token for the future requests"
-          ansible.builtin.uri:
-            url: "https://{{ aap_hostname }}/api/gateway/v1/tokens/"
-            user: "{{ aap_username }}"
-            password: "{{ aap_password }}"
-            method: POST
-            force_basic_auth: true
-            validate_certs: "{{ controller_validate_certs }}"
-            status_code: 201
-          register: authtoken_res
+        - name: "Create a new token using platform username/password"
+          ansible.platform.token:
+            description: 'Token for Automated Management'
+            scope: "write"
+            state: present
+            aap_hostname: "{{ aap_hostname }}"
+            aap_username: "{{ aap_username }}"
+            aap_password: "{{ aap_password }}"
+            aap_validate_certs: "{{ aap_validate_certs | default(controller_validate_certs) }}"
 
-        - name: "Set the oauth token to be used since now"
+        - name: "Expose OAuth token string for CaC dispatch roles"
           ansible.builtin.set_fact:
-            aap_oauthtoken: "{{ authtoken_res.json.token }}"
-            aap_oauthtoken_url: "{{ authtoken_res.json.url }}"
+            aap_token: "{{ ansible_facts['aap_token'].token }}"
       no_log: "{{ controller_configuration_object_diff_secure_logging }}"
-      when: aap_oauthtoken is not defined
+      when: not (ansible_facts.get('aap_token') or aap_token is defined)
       tags:
         - always
 
@@ -103,15 +101,16 @@ To correctly manage `roles`, they can only be defined by a super-admin organizat
 
   post_tasks:
     - name: "Delete the Authentication Token used"
-      ansible.builtin.uri:
-        url: "https://{{ aap_hostname }}{{ aap_oauthtoken_url }}"
-        user: "{{ aap_username }}"
-        password: "{{ aap_password }}"
-        method: DELETE
-        force_basic_auth: true
-        validate_certs: "{{ controller_validate_certs }}"
-        status_code: 204
-      when: aap_oauthtoken_url is defined
+      ansible.platform.token:
+        existing_token: "{{ ansible_facts['aap_token'] }}"
+        state: absent
+        aap_hostname: "{{ aap_hostname }}"
+        aap_username: "{{ aap_username }}"
+        aap_password: "{{ aap_password }}"
+        aap_validate_certs: "{{ aap_validate_certs | default(controller_validate_certs) }}"
+      when:
+        - ansible_facts.get('aap_token') is defined
+        - ansible_facts.aap_token is mapping
 
 $ ansible-playbook drop_diff.yml --tags ${CONTROLLER_OBJECT} -e "{orgs: ${ORGANIZATION}, dir_orgs_vars: orgs_vars, env: ${ENVIRONMENT} }" --vault-password-file ./.vault_pass.txt -e @orgs_vars/env/${ENVIRONMENT}/configure_connection_controller_credentials.yml ${OTHER}
 ```

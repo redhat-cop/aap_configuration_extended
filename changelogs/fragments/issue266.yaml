@@ -1,0 +1,9 @@
+---
+minor_changes:
+  - 'filetree_create - Use ``aap_token`` for API authentication (``aap_oauthtoken`` retained as deprecated alias; fixes redhat-cop/aap_configuration_extended#266).'
+  - 'filetree_create - Document ``ansible.platform.token`` for token creation and revocation in README and test playbooks.'
+  - 'object_diff - Use ``aap_token`` for API authentication (``aap_oauthtoken`` retained as deprecated alias).'
+  - 'object_diff, filetree_read - Migrate test playbooks and README examples from ``ansible.builtin.uri`` to ``ansible.platform.token``.'
+bugfixes:
+  - 'filetree_create - Export ``AUTOMATION_ANALYTICS_LAST_ENTRIES`` when the API returns Python dict strings instead of JSON.'
+  - 'filetree_create - Fix stray Jinja trim markers that broke YAML export for job templates, workflows, and inventories.'

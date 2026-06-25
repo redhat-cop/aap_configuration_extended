@@ -4,7 +4,7 @@
     hub_collections_lookvar: "{{ query('ansible.platform.gateway_api', '/api/galaxy/pulp/api/v3/ansible/collections/',
                                        query_params=({'name': hub_collection_name} if hub_collection_name is defined else {}
                                                      | combine({'namespace': hub_collection_namespace}) if hub_collection_namespace is defined else {}),
-                                       host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                       host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                        return_all=true, max_objects=query_hub_api_max_objects)
                               }}"
   no_log: "{{ hub_configuration_filetree_create_secure_logging }}"

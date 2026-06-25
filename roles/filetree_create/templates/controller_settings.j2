@@ -7,7 +7,11 @@ controller_settings:
 {{ key | indent(width=4, first=True) }}:
 {{ value | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=True) }}
 {%   elif key is match('AUTOMATION_ANALYTICS_LAST_ENTRIES') and value | length > 0 %}
+{%     if value is string and (value | trim).startswith('{"') %}
 {{ key | indent(width=4, first=True) }}: "{{ value | from_json }}"
+{%     else %}
+{{ key | indent(width=4, first=True) }}: '{{ (value | string) | replace("'", "''") }}'
+{%     endif %}
 {%   else %}
 {{ key | indent(width=4, first=True) }}: "{{ value | replace('True', 'true') | replace('False', 'false') | replace('None', 'null') }}"
 {%   endif %}

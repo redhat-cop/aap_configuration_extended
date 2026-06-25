@@ -1,5 +1,12 @@
 ---
 # tasks file for filetree_create
+- name: "Resolve OAuth token for API queries"
+  ansible.builtin.set_fact:
+    __filetree_create_oauth_token: >-
+      {%- if ansible_facts.get('aap_token') is defined and ansible_facts.aap_token is mapping and (ansible_facts.aap_token.token is defined) -%} {{ ansible_facts.aap_token.token }}{%- elif ansible_facts.get('aap_token') is defined -%} {{ ansible_facts.aap_token }}{%- elif aap_token is defined and aap_token is mapping and (aap_token.token is defined) -%} {{ aap_token.token }}{%- elif aap_token is defined -%} {{ aap_token }}{%- else -%} {{ aap_oauthtoken }}{%- endif -%}
+  tags:
+    - always
+
 - name: "Check requirements (block)"
   tags:
     - always
@@ -29,9 +36,19 @@
       tags: "{{ input_tag | to_yaml }}"
   tags: "{{ valid_tags }}"
 
+- name: "Check whether output directory exists"
+  ansible.builtin.stat:
+    path: "{{ output_path }}"
+  register: _output_path_stat
+  tags:
+    - yaml_format
+
 - name: "Block to fix the output files' format"
   tags:
     - yaml_format
+  when:
+    - _output_path_stat.stat.exists | default(false)
+    - _output_path_stat.stat.isdir | default(false)
   block:
     - name: "Search for all generated YAML files"
       ansible.builtin.find:
