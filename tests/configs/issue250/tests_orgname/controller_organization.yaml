@@ -1,0 +1,5 @@
+---
+aap_organizations:
+  - name: "tests/orgname"
+    description: "Issue 250 workflow extra_data integer survey test"
+...

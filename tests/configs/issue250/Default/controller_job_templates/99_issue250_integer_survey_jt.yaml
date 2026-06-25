@@ -1,0 +1,77 @@
+---
+controller_templates:
+  - name: "issue250_integer_survey_jt"
+    description: "Job template with integer survey for issue 250"
+    organization: "Default"
+    project: "Test Project"
+    inventory: "localhost"
+    playbook: "helloworld.yml"
+    scm_branch: ""
+    forks: 0
+    limit: ""
+    verbosity: 0
+    job_type: "run"
+    job_slice_count: 1
+    use_fact_cache: false
+    credentials:
+      - "Demo Credential"
+    allow_simultaneous: false
+    ask_scm_branch_on_launch: false
+    ask_diff_mode_on_launch: false
+    ask_tags_on_launch: false
+    ask_skip_tags_on_launch: false
+    ask_job_type_on_launch: false
+    ask_verbosity_on_launch: false
+    ask_variables_on_launch: false
+    ask_inventory_on_launch: false
+    ask_limit_on_launch: false
+    ask_credential_on_launch: false
+    ask_execution_environment_on_launch: false
+    ask_labels_on_launch: false
+    ask_forks_on_launch: false
+    ask_job_slice_count_on_launch: false
+    ask_timeout_on_launch: false
+    ask_instance_groups_on_launch: false
+    job_tags: ""
+    force_handlers: false
+    skip_tags: ""
+    start_at_task: ""
+    timeout: 0
+    host_config_key: ""
+    survey_enabled: true
+    survey_spec:
+      name: ""
+      spec:
+        - max: 10
+          min: 1
+          type: integer
+          default: 4
+          required: true
+          variable: survey_urgency
+          new_question: true
+          question_name: Survey urgency
+          question_description: ""
+        - max: 10
+          min: 1
+          type: integer
+          default: 4
+          required: true
+          variable: survey_impact
+          new_question: true
+          question_name: Survey impact
+          question_description: ""
+        - max: 1024
+          min: 0
+          type: text
+          default: Integration
+          required: true
+          variable: survey_contact_type
+          new_question: true
+          question_name: Survey contact type
+          question_description: ""
+      description: ""
+    become_enabled: false
+    diff_mode: false
+    webhook_service: ""
+    prevent_instance_group_fallback: false
+...
