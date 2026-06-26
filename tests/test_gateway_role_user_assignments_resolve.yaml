@@ -1,0 +1,48 @@
+---
+- name: Test gateway role user assignment name resolution
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - vault-aap-controller.yaml
+  vars:
+    aap_username: "{{ vault_aap_username }}"
+    aap_password: "{{ vault_aap_password }}"
+    aap_hostname: "{{ vault_aap_hostname }}"
+    aap_validate_certs: "{{ vault_aap_validate_certs }}"
+    controller_credentials:
+      - name: roundtrip-rbac-credential
+        credential_type: Machine
+        organization: Default
+        inputs:
+          username: roundtrip
+          password: roundtrip
+    gateway_role_user_assignments:
+      - role_definition: Organization Member
+        object_ids:
+          - Default
+        user: admin
+      - role_definition: Credential Admin
+        object_ids:
+          - roundtrip-rbac-credential
+        user: admin
+  tasks:
+    - name: Get oauth token
+      ansible.builtin.uri:
+        url: "https://{{ aap_hostname }}/api/gateway/v1/tokens/"
+        user: "{{ aap_username }}"
+        password: "{{ aap_password }}"
+        method: POST
+        force_basic_auth: true
+        validate_certs: "{{ aap_validate_certs }}"
+        status_code: 201
+      register: authtoken_res
+
+    - name: Set oauth token
+      ansible.builtin.set_fact:
+        aap_token: "{{ authtoken_res.json.token | default(authtoken_res.json.access_token) }}"
+
+    - name: Apply gateway role user assignments (includes credential bootstrap)
+      ansible.builtin.include_role:
+        name: infra.aap_configuration.gateway_role_user_assignments
+...

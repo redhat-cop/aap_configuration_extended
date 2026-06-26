@@ -72,7 +72,7 @@ controller_inventories:
          | default(current_inventories_asset_value.variables) %}
       {{ (__inventory_variables if __inventory_variables is mapping or (__inventory_variables | type_debug) == 'list' else (__inventory_variables | from_yaml))
          | to_nice_yaml(indent=2, sort_keys=false, width=4096) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*?){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true)}}
-{%- endif %}
+{% endif %}
 {% if template_overrides_resources.inventory[current_inventories_asset_value.name].related.input_inventories is defined
       or template_overrides_global_global.inventory.related.input_inventories is defined
       or (current_inventories_asset_value.related.input_inventories is defined and current_inventories_asset_value.related.input_inventories != '---' and current_inventories_asset_value.related.input_inventories != '') %}

@@ -20,12 +20,12 @@ controller_groups: {{ [] if current_groups_asset_value | length == 0 }}
          | default(group.variables) %}
       {{ (__group_variables if __group_variables is mapping or (__group_variables | type_debug) == 'list' else (__group_variables | from_yaml))
          | to_nice_yaml(indent=2, sort_keys=false, width=4096) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*?){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true)}}
-{%-  endif %}
+{%   endif %}
     hosts:
 {{ query('ansible.platform.gateway_api', group.related.hosts,
          host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
          return_all=true, max_objects=query_controller_api_max_objects
    ) | selectattr("name", "defined") | map(attribute="name") | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=true)
 }}
-{%- endfor -%}
+{% endfor %}
 ...

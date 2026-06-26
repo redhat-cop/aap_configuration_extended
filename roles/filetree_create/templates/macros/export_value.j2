@@ -1,0 +1,18 @@
+{# Decide whether a field value should be exported (skip unset/default-empty values). #}
+{% macro should_export_field(key, value, field_defaults={}) -%}
+{%- set default_value = field_defaults[key] if key in field_defaults else none -%}
+{%- if value is none or value == 'None' -%}
+false
+{%- elif value == '' and (default_value is none or default_value == '') -%}
+false
+{%- elif value in ([], {}, [{}]) and (default_value is none or default_value in ([], {}, [{}], '')) -%}
+false
+{%- else -%}
+true
+{%- endif -%}
+{%- endmacro %}
+
+{# Render empty string for YAML export; use raw/endraw so filetree_read re-import is safe. #}
+{% macro render_empty_string() -%}
+{{ '"{%- raw -%}{%- endraw -%}"' }}
+{%- endmacro %}

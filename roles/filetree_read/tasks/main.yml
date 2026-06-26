@@ -8,6 +8,7 @@
   when: >-
     ansible_run_tags | length == 0
     or 'all' in ansible_run_tags
+    or filetree_read_run_all | default(false) | bool
     or (
       ansible_run_tags | intersect(
         [__task_filetree_read.tags] if __task_filetree_read.tags is string else __task_filetree_read.tags

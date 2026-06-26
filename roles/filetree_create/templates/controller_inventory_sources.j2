@@ -53,7 +53,7 @@ controller_inventory_sources: {{ [] if current_inventory_sources_asset_value | l
          | default(inventory_source.source_vars) %}
       {{ (__inventory_source_vars if __inventory_source_vars is mapping or (__inventory_source_vars | type_debug) == 'list' else (__inventory_source_vars | from_yaml))
          | to_nice_yaml(indent=2, sort_keys=false, width=4096) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*?){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true)}}
-{%-  endif %}
+{%   endif %}
     inventory: "{{ inventory_source.summary_fields.inventory.name }}"
     update_on_launch: "{{ template_overrides_resources.inventory_source[inventory_source.name].update_on_launch
                           | default(template_overrides_global.inventory_source.update_on_launch)

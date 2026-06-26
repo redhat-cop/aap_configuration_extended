@@ -1,0 +1,11 @@
+---
+gateway_role_user_assignments:
+  - role_definition: "Organization Member"
+    object_ids:
+      - Default
+    user: admin
+  - role_definition: "Credential Admin"
+    object_ids:
+      - roundtrip-rbac-credential
+    user: admin
+...

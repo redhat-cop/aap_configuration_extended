@@ -1,0 +1,15 @@
+---
+hub_collection_repositories:
+  - name: validated
+    sync: false
+  - name: rh-certified
+    sync: false
+  - name: community
+    sync: false
+  - name: published
+    sync: false
+  - name: rejected
+    sync: false
+  - name: staging
+    sync: false
+...

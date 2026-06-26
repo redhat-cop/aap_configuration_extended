@@ -2,6 +2,7 @@
 ---
 controller_workflows:
 {% endif %}
+{% import 'macros/yaml_value.j2' as yamlval %}
 {% set __empty_values = [None, '', "None", [], {}, [{}]] %}
   - name: "{{ current_workflow_job_templates_asset_value.name }}"
 {% if template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].description
@@ -62,19 +63,18 @@ controller_workflows:
         extra_data:
 {%     set extra_data_contents = template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].extra_data
                                | default(template_overrides_global.workflow_job_template.extra_data)
-                               | default(node.extra_data)
--%}
+                               | default(node.extra_data) %}
 {%     for extra_data_item in (extra_data_contents | dict2items) if ((extra_data_item.value | string | length) > 0 and (extra_data_item.value | string) is not match('None')) %}
 {%       if extra_data_item.value | type_debug is match('list') %}
           {{ extra_data_item.key }}:
 {%         for current_list_item in extra_data_item.value if ((extra_data_item.value | string | length) > 0 and (extra_data_item.value | string) is not match('None')) %}
-            - {{ '"{%- raw -%}' }}{{ (current_list_item | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
+            - {{ yamlval.render_scalar(current_list_item) }}
 {%         endfor %}
 {%       else %}
-          {{ extra_data_item.key }}: {{ '"{%- raw -%}' }}{{ (extra_data_item.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
+          {{ extra_data_item.key }}: {{ yamlval.render_scalar(extra_data_item.value) }}
 {%       endif %}
 {%     endfor %}
-{%-  endif %}
+{%   endif %}
 {%   if node.success_nodes is defined and node.success_nodes | length > 0 %}
         success_nodes:
 {%     for success in node.success_nodes %}
@@ -126,9 +126,13 @@ controller_workflows:
                                  | default(template_overrides_global.workflow_template.extra_vars)
                                  | default(current_workflow_job_templates_asset_value.extra_vars) %}
 {%   set extra_vars_contents = __workflow_extra_vars if __workflow_extra_vars is mapping or (__workflow_extra_vars | type_debug) == 'list' else (__workflow_extra_vars | from_yaml) %}
--%}
-{%   for extra_vars_item in (extra_vars_contents | dict2items) if ((extra_vars_item.value | string | length) > 0 and (extra_vars_item.value | string) is not match('None')) %}
-{%     if extra_vars_item.value | type_debug is match('list') %}
+{%   for extra_vars_item in (extra_vars_contents | dict2items) if (
+        extra_vars_item.value == ''
+        or ((extra_vars_item.value | string | length) > 0 and (extra_vars_item.value | string) is not match('None'))
+      ) %}
+{%     if extra_vars_item.value == '' %}
+      {{ extra_vars_item.key }}: {{ '"{%- raw -%}{%- endraw -%}"' }}
+{%     elif extra_vars_item.value | type_debug is match('list') %}
       {{ extra_vars_item.key }}:
 {%       for current_list_item in extra_vars_item.value if ((extra_vars_item.value | string | length) > 0 and (extra_vars_item.value | string) is not match('None')) %}
         - {{ '"{%- raw -%}' }}{{ (current_list_item | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}

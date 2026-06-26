@@ -4,14 +4,14 @@ controller_instance_groups: {{ [] if current_instance_groups_asset_value | lengt
   - name: "{{ ig.name }}"
     policy_instance_minimum: "{{ ig.policy_instance_minimum }}"
     policy_instance_percentage: "{{ ig.policy_instance_percentage }}"
-{% set __ig_instances = query('ansible.platform.gateway_api', ig.related.instances,
+{%   set __ig_instances = query('ansible.platform.gateway_api', ig.related.instances,
                               host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                               return_all=true, max_objects=query_controller_api_max_objects) %}
-{% if __ig_instances | length > 0 %}
+{%   if __ig_instances | length > 0 %}
     instances:
-{%   for instance in __ig_instances %}
+{%     for instance in __ig_instances %}
       - "{{ instance.hostname }}"
-{%   endfor %}
-{% endif %}
+{%     endfor %}
+{%   endif %}
 {% endfor %}
 ...
