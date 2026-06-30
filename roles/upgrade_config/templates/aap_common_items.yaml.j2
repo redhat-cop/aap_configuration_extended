@@ -1,20 +1,24 @@
+{% macro render_unsafe_value(value) -%}
+{% set _value = value | replace("\\'", "''") %}
+{%- if '\n' in _value %}
+|-
+      {{ '{% raw %}' }}
+{{ _value | indent(width=6, first=true) }}
+      {{ '{% endraw %}' }}
+{%- else -%}
+"{{ '{% raw %}' }}{{ _value | replace('\\', '\\\\') | replace('"', '\\"') }}{{ '{% endraw %}' }}"
+{%- endif -%}
+{%- endmacro %}
 ---
 aap_{{ current_common_item.object }}:
 {% for __map in __aap_common_item %}
 {%   for __map_item in (__map | dict2items) %}
 {%     if __map_item.value | type_debug not in ['str','AnsibleUnsafeText'] or __map_item.value | length > 0 %}
-{%       if loop.index == 1 %}
-{%         if __map_item.value | type_debug == 'AnsibleUnsafeText' %}
-  - {{ __map_item.key }}: !unsafe {{ __map_item.value | replace("\\'", "''") }}
-{%         else %}
-  - {{ __map_item.key }}: {{ __map_item.value | replace("\\'", "''") }}
-{%         endif %}
+{%       set __list_prefix = '  - ' if loop.index == 1 else '    ' %}
+{%       if __map_item.value | type_debug == 'AnsibleUnsafeText' %}
+{{ __list_prefix }}{{ __map_item.key }}: {{ render_unsafe_value(__map_item.value) }}
 {%       else %}
-{%         if __map_item.value | type_debug == 'AnsibleUnsafeText' %}
-    {{ __map_item.key }}: !unsafe {{ __map_item.value | replace("\\'", "''") }}
-{%         else %}
-    {{ __map_item.key }}: {{ __map_item.value | replace("\\'", "''") }}
-{%         endif %}
+{{ __list_prefix }}{{ __map_item.key }}: {{ __map_item.value | replace("\\'", "''") }}
 {%       endif %}
 {%     endif %}
 {%   endfor %}

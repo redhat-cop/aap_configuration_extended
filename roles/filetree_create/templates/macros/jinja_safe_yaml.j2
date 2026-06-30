@@ -1,0 +1,39 @@
+{# Render nested YAML with Jinja tokens preserved for filetree export/import roundtrip. #}
+{% macro render_string(key, value, indent) -%}
+{% set pad = ' ' * indent %}
+{% if value is string and ('{{' in value or '{%' in value) %}
+{%   if '\n' in value %}
+{{ pad }}{{ key }}: |-
+{{ pad }}  {{ '{% raw %}' }}
+{{ value | indent(width=indent + 2, first=true) }}
+{{ pad }}  {{ '{% endraw %}' }}
+{%   else %}
+{{ pad }}{{ key }}: "{{ '{% raw %}' }}{{ value | replace('\\', '\\\\') | replace('"', '\\"') }}{{ '{% endraw %}' }}"
+{%   endif %}
+{% else %}
+{{ pad }}{{ key }}: {{ value | to_yaml | trim }}
+{% endif %}
+{%- endmacro %}
+
+{% macro render_value(value, indent) -%}
+{% if value is mapping %}
+{%   for item in value | dict2items %}
+{%     if item.value is mapping %}
+{%       set pad = ' ' * indent %}
+{{ pad }}{{ item.key }}:
+{{ render_value(item.value, indent + 2) }}
+{%     elif item.value is string %}
+{{ render_string(item.key, item.value, indent) }}
+{%     else %}
+{%       set pad = ' ' * indent %}
+{{ pad }}{{ item.key }}: {{ item.value | to_yaml | trim }}
+{%     endif %}
+{%   endfor %}
+{% elif value is sequence and value is not string %}
+{%   set pad = ' ' * indent -%}
+{{ value | to_nice_yaml(indent=2, sort_keys=false) | indent(width=indent, first=true) }}
+{% else %}
+{%   set pad = ' ' * indent -%}
+{{ pad }}{{ value | to_yaml | trim }}
+{% endif %}
+{%- endmacro %}
