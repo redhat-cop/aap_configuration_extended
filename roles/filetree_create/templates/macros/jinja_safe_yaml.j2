@@ -22,13 +22,13 @@
 {%       set pad = ' ' * indent %}
 {{ pad }}{{ item.key }}:
 {{ render_value(item.value, indent + 2) }}
-{%     elif item.value is string %}
+{%-     elif item.value is string %}
 {{ render_string(item.key, item.value, indent) }}
-{%     else %}
+{%-     else %}
 {%       set pad = ' ' * indent %}
 {{ pad }}{{ item.key }}: {{ item.value | to_yaml | trim }}
-{%     endif %}
-{%   endfor %}
+{%-     endif %}
+{%-   endfor %}
 {% elif value is sequence and value is not string %}
 {%   set pad = ' ' * indent -%}
 {{ value | to_nice_yaml(indent=2, sort_keys=false) | indent(width=indent, first=true) }}
