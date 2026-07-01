@@ -1,0 +1,102 @@
+---
+# Untrusted code execution: pull_request (fork PRs have no secrets).
+# Ansible collections from Automation Hub are restored from the default-branch
+# cache, which trusted push/schedule runs populate with CRC_PUBLISH_KEY.
+name: pre-commit and sanity tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+  push:
+    branches: [devel]
+  schedule:
+    - cron: "0 6 * * *"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  pre-commit-tests:
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name != 'pull_request' ||
+      contains(github.event.pull_request.labels.*.name, 'ci-approved')
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13", "3.14"]
+    env:
+      ANSIBLE_COLLECTIONS_CACHE_KEY: ansible-collections-${{ hashFiles('.github/collections/requirements.yml', 'galaxy.yml', '.pre-commit-config.yaml') }}
+      HAS_CERTIFIED_HUB: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+      ANSIBLE_GALAXY_SERVER_LIST: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'certified,galaxy' || 'galaxy' }}
+      ANSIBLE_GALAXY_SERVER_CERTIFIED_URL: https://console.redhat.com/api/automation-hub/content/published/
+      ANSIBLE_GALAXY_SERVER_CERTIFIED_AUTH_URL: https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
+      ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && secrets.CRC_PUBLISH_KEY || '' }}
+      ANSIBLE_GALAXY_SERVER_GALAXY_URL: https://galaxy.ansible.com/api/
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Restore Ansible collections cache
+        uses: actions/cache/restore@1bd1e96a41e5c6a8698213da4c832badfcbfdfdd # v4.2.0
+        id: collections_cache
+        with:
+          path: ~/.ansible/collections
+          key: ${{ env.ANSIBLE_COLLECTIONS_CACHE_KEY }}
+          restore-keys: |
+            ansible-collections-
+
+      - name: Install Ansible Galaxy collections
+        id: install_collections
+        if: >
+          env.HAS_CERTIFIED_HUB == 'true' &&
+          (steps.collections_cache.outputs.cache-hit != 'true' || github.event_name == 'schedule')
+        run: |
+          pip install ansible
+          ansible-galaxy collection install -r .github/collections/requirements.yml
+
+      - name: Require Ansible collections cache for external PRs
+        if: >
+          env.HAS_CERTIFIED_HUB != 'true' &&
+          steps.collections_cache.outputs.cache-hit != 'true'
+        run: |
+          echo "::error::Ansible collections cache miss for an external PR. Collections require Automation Hub credentials and are restored from the default-branch cache populated by push to devel or the daily schedule."
+          exit 1
+
+      - name: Run default pre-commit hooks
+        uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
+
+      - name: Install system dependencies for EDA collection
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libsystemd-dev pkg-config libkrb5-dev
+
+      - name: Run sanity (manual stage)
+        uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
+        with:
+          extra_args: --hook-stage manual sanity --all-files
+
+      - name: Save Ansible collections cache
+        if: >
+          matrix.python-version == '3.12' &&
+          (github.event_name == 'push' || github.event_name == 'schedule') &&
+          steps.install_collections.outcome == 'success'
+        uses: actions/cache/save@1bd1e96a41e5c6a8698213da4c832badfcbfdfdd # v4.2.0
+        with:
+          path: ~/.ansible/collections
+          key: ${{ env.ANSIBLE_COLLECTIONS_CACHE_KEY }}
+
+  # Single check name for branch protection (matrix jobs report as pre-commit-tests (3.x)).
+  pre-commit:
+    needs: pre-commit-tests
+    runs-on: ubuntu-latest
+    if: ${{ !cancelled() && needs.pre-commit-tests.result == 'success' }}
+    steps:
+      - run: echo "All pre-commit matrix jobs passed."

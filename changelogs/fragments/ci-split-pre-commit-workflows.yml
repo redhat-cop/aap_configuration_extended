@@ -1,0 +1,6 @@
+---
+bugfixes:
+  - split pre-commit CI into trusted approval and untrusted test workflows to avoid
+    fork pull request checkout failures in pull_request_target
+  - restore Ansible collections for external PRs from a default-branch cache populated
+    by trusted push and schedule runs
