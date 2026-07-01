@@ -380,3 +380,50 @@ releases:
     fragments:
     - aap_config_validate.yaml
     release_date: '2026-06-15'
+  4.9.0:
+    changes:
+      bugfixes:
+      - add tox-ansible.ini to skip sanity environments that pair ansible-core devel
+        with Python <3.13
+      - controller_export_diff - Added missing ``oauth_token``, ``controller_oauthtoken``,
+        and ``tower_oauthtoken`` aliases for the ``aap_token`` parameter to match
+        the current ``ansible.controller`` AUTH_ARGSPEC.
+      - filetree_create - Export controller instances to ``controller_instances.yaml``
+        (fixes redhat-cop/aap_configuration_extended#235).
+      - filetree_create - Export manually added hosts when an inventory has inventory
+        sources (fixes redhat-cop/aap_configuration_extended#260).
+      - filetree_create - Export only instances with importable ``node_type`` (``execution``,
+        ``hop``); omit ``node_state`` unless ``installed`` or ``deprovisioning``.
+      - filetree_create - Fix undefined ``current_organization_dir`` in ``controller_organizations.yml``
+        (use ``current_organization``; static task name to avoid template warnings
+        when ``flatten_output`` skips the non-flatten block).
+      - filetree_create - Include every host in manually defined groups, including
+        hosts created by inventory sources.
+      - filetree_create - Omit empty ``instances`` key from exported instance groups.
+      - filetree_create - Resolve instance ``peers`` to hostnames via receptor address
+        and instance lookups instead of numeric IDs in exported CaC.
+      - filetree_create - Use ``is mapping`` / ``is string`` checks before ``from_yaml``
+        in export templates so ansible-core 2.23+ does not emit deprecation warnings
+        for dict API values (for example schedule ``extra_data``).
+      - 'filetree_read - Honor ``--tags`` when including per-object task files (no
+        longer forced by ``tags: always`` on the include loop).'
+      - filetree_read - Load ``controller_instances`` from filetree YAML (tag ``instances``).
+      - fix CI workflow for Ansible Core devel version, that requires python >=3.13
+      - object_diff - skip object diff to mark imported hosts from a sourced inventory
+        to be removed.
+      - restore a single pre-commit CI check for branch protection when using a Python
+        matrix
+      - run sanity on Python 3.12, 3.13, and 3.14 in CI
+      minor_changes:
+      - filetree_create - Widen ``to_nice_yaml`` output and use non-greedy Jinja wrapping
+        so exported variables with ``{{ }}`` are not split across lines.
+      - format_yaml - Normalize YAML for ansible-lint (``yaml[truthy]``, ``yaml[document-end]``,
+        ``yaml[indentation]``, trailing whitespace) and apply it to all files generated
+        by filetree_create.
+    fragments:
+    - fix_controller_export_diff_docs.yaml
+    - fix_python_version_ansible_devel.yaml
+    - issue235.yaml
+    - issue260.yaml
+    - issue277.yaml
+    release_date: '2026-07-01'

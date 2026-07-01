@@ -1,4 +1,0 @@
----
-bugfixes:
-  - controller_export_diff - Added missing ``oauth_token``, ``controller_oauthtoken``, and ``tower_oauthtoken`` aliases for the ``aap_token`` parameter to match the current ``ansible.controller`` AUTH_ARGSPEC.
-...
