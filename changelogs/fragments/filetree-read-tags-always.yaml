@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - 'filetree_read - Restore ``tags: always`` on the include loop so ``--tags`` filtering works when specific tags are requested.'
