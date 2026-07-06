@@ -1,0 +1,27 @@
+---
+- name: Compute host group filetree delta
+  ansible.builtin.set_fact:
+    __diff: "{{ query('infra.aap_configuration_extended.controller_filetree_diff',
+      live_list=__live_list, cac_list=__cac_list,
+      object_type='group', with_present=false, set_absent=true) | flatten }}"
+  vars:
+    __live_list:
+      - name: shared-group
+        inventory: Shared Inventory
+      - name: orphan-group
+        inventory: Shared Inventory
+    __cac_list:
+      - name: shared-group
+        inventory: Shared Inventory
+      - name: new-cac-group
+        inventory: Shared Inventory
+
+- name: Validate host group delta
+  ansible.builtin.include_tasks: assert_delta.yml
+  vars:
+    __object_label: host_groups
+    __id_field: name
+    __cac_only_name: new-cac-group
+    __orphan_name: orphan-group
+    __shared_name: shared-group
+...
