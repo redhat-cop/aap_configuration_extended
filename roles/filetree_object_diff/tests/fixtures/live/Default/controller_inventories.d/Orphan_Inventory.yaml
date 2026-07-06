@@ -1,0 +1,5 @@
+---
+controller_inventories:
+  - name: Orphan Inventory
+    organization: Default
+...

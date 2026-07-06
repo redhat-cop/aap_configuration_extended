@@ -1,0 +1,59 @@
+---
+# Shared OAuth token lifecycle for AAP integration test playbooks.
+#
+# Include setup with:
+#   ansible.builtin.include_tasks: tasks/aap_oauth.yml
+#   vars:
+#     aap_oauth_action: setup
+#
+# Include revoke with:
+#   ansible.builtin.include_tasks: tasks/aap_oauth.yml
+#   vars:
+#     aap_oauth_action: revoke
+
+- name: Setup authentication
+  when: aap_oauth_action == 'setup'
+  tags: [always]
+  block:
+    - name: Get the Authentication Token for the future requests
+      no_log: "{{ controller_configuration_object_diff_secure_logging | default(true) }}"
+      when: aap_oauthtoken | default('', true) | length == 0
+      ansible.builtin.uri:
+        url: "https://{{ aap_hostname }}/api/gateway/v1/tokens/"
+        user: "{{ aap_username }}"
+        password: "{{ aap_password }}"
+        method: POST
+        force_basic_auth: true
+        validate_certs: "{{ aap_validate_certs }}"
+        status_code: 201
+      register: authtoken_res
+
+    - name: Set the oauth token to be used since now
+      no_log: "{{ controller_configuration_object_diff_secure_logging | default(true) }}"
+      when: authtoken_res is defined and authtoken_res is not skipped
+      ansible.builtin.set_fact:
+        aap_oauthtoken: "{{ authtoken_res.json.token }}"
+        aap_oauthtoken_url: "{{ authtoken_res.json.url }}"
+
+- name: Revoke authentication token
+  when: aap_oauth_action == 'revoke'
+  tags: [always]
+  block:
+    - name: Delete the Authentication Token used
+      no_log: "{{ controller_configuration_object_diff_secure_logging | default(true) }}"
+      when: aap_oauthtoken_url | default('', true) | length > 0
+      ansible.builtin.uri:
+        url: "https://{{ aap_hostname }}{{ aap_oauthtoken_url }}"
+        user: "{{ aap_username }}"
+        password: "{{ aap_password }}"
+        method: DELETE
+        force_basic_auth: true
+        validate_certs: "{{ aap_validate_certs }}"
+        status_code: 204
+
+    - name: Clear revoked oauth token from host facts
+      when: aap_oauthtoken | default('', true) | length > 0
+      ansible.builtin.set_fact:
+        aap_oauthtoken: ""
+        aap_oauthtoken_url: ""
+...

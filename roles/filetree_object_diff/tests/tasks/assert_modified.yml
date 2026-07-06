@@ -1,0 +1,8 @@
+---
+- name: Modified shared object present | {{ __object_label }}
+  ansible.builtin.assert:
+    that:
+      - (__diff | selectattr(__id_field, 'equalto', __shared_name) | list | length) == 1
+      - (__diff | selectattr(__id_field, 'equalto', __shared_name) | first).state == 'present'
+      - (__diff | selectattr(__id_field, 'equalto', __shared_name) | first)[__modified_field] == __modified_value
+...

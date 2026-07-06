@@ -1,0 +1,149 @@
+---
+# Complete filetree_object_diff integration test.
+#
+# Workflow: filetree_create → filetree_cac_diff (files) → filetree_read (diff only) → dispatch → re-diff empty
+#
+# Diff only:
+#   ansible-playbook tests/playbooks/test_filetree_object_diff_all.yml \
+#     -e @tests/vault-aap-controller.yaml \
+#     -e orgs="Object Diff Test" \
+#     -e apply_changes=false
+#
+- name: Complete filetree_object_diff integration test
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../vars/aap_connection.yml
+    - ../configs/filetree_object_diff/setup/setup_vars.yml
+    - ../configs/filetree_object_diff/setup/playbook_vars.yml
+    - ../configs/filetree_object_diff/setup/object_diff_types.yml
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    orgs: "Object Diff Test"
+    env: common
+    dir_orgs_vars: "{{ playbook_dir }}/../configs/filetree_object_diff/cac"
+    apply_changes: true
+    controller_api_version: v2
+
+    filetree_object_diff_diff_path: "/tmp/filetree_object_diff_integration_delta"
+
+  pre_tasks:
+    - name: Validate AAP connection variables are defined
+      ansible.builtin.assert:
+        that:
+          - aap_hostname | length > 0
+          - aap_username | length > 0
+          - aap_password | length > 0
+        fail_msg: Missing AAP credentials. Pass -e @tests/vault-aap-controller.yaml
+      tags: [always]
+
+    - name: Setup authentication
+      ansible.builtin.include_tasks: tasks/aap_oauth.yml
+      vars:
+        aap_oauth_action: setup
+
+    - name: Get the organization ID
+      ansible.builtin.set_fact:
+        __controller_organization_id: "{{ lookup('ansible.platform.gateway_api',
+          'api/controller/' + controller_api_version + '/organizations',
+          query_params={'name': orgs},
+          host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs) }}"
+
+    - name: Resolve Shared Inventory ID
+      ansible.builtin.set_fact:
+        __object_diff_shared_inventory_id: "{{ lookup('ansible.platform.gateway_api',
+          'api/controller/' + controller_api_version + '/inventories',
+          query_params={'organization': __controller_organization_id.id, 'name': object_diff_shared_inventory},
+          host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs).id }}"
+
+  tasks:
+    - name: Load repository CaC snapshot for validation
+      ansible.builtin.import_role:
+        name: infra.aap_configuration_extended.filetree_read
+
+    - name: Store CaC snapshots before filetree_object_diff
+      ansible.builtin.set_fact:
+        __cac_snapshots: "{{ __cac_snapshots | default({}) | combine({item.var: lookup('vars', item.var, default=[])}) }}"
+      loop: "{{ object_diff_types }}"
+
+    - name: Capture API state before filetree_object_diff
+      ansible.builtin.include_tasks: tasks/object_diff_query_api_type.yml
+      vars:
+        od_type: "{{ od_type_item }}"
+        od_capture: true
+      loop: "{{ object_diff_types }}"
+      loop_control:
+        loop_var: od_type_item
+        label: "{{ od_type_item.label }}"
+      when:
+        - not (od_type_item.roles_mode | default(false))
+        - od_type_item.api_path is defined
+
+    - name: Run filetree_object_diff role for configured types
+      ansible.builtin.import_role:
+        name: infra.aap_configuration_extended.filetree_object_diff
+
+    - name: Validate delta per object type
+      ansible.builtin.include_tasks: tasks/filetree_object_diff_validate_type.yml
+      vars:
+        od_type: "{{ od_type_item }}"
+      loop: "{{ object_diff_types }}"
+      loop_control:
+        loop_var: od_type_item
+        label: "{{ od_type_item.label }}"
+      when: not (od_type_item.skip_object_diff | default(false))
+
+    - name: Collect types that require dispatch
+      ansible.builtin.set_fact:
+        __filetree_object_diff_dispatch_roles: >-
+          {{
+            __filetree_object_diff_dispatch_roles | default([]) + [{
+              'role': od_type_item.dispatch_role,
+              'var': od_type_item.dispatch_var,
+              'tags': od_type_item.dispatch_tag
+            }]
+          }}
+      loop: "{{ object_diff_types }}"
+      loop_control:
+        loop_var: od_type_item
+        label: "{{ od_type_item.label }}"
+      when:
+        - apply_changes | bool
+        - not (od_type_item.skip_apply | default(false))
+        - lookup('vars', od_type_item.var, default=[]) | length > 0
+
+    - name: Apply all diffs via dispatch
+      ansible.builtin.import_role:
+        name: infra.aap_configuration.dispatch
+      vars:
+        controller_configuration_dispatcher_roles: "{{ __filetree_object_diff_dispatch_roles }}"
+      when:
+        - apply_changes | bool
+        - __filetree_object_diff_dispatch_roles | default([]) | length > 0
+
+    - name: Re-run filetree_object_diff after apply — all deltas must be empty
+      when: apply_changes | bool
+      block:
+        - name: Run filetree_object_diff again
+          ansible.builtin.import_role:
+            name: infra.aap_configuration_extended.filetree_object_diff
+
+        - name: Assert roundtrip converged for applicable types
+          ansible.builtin.assert:
+            that:
+              - lookup('vars', item.var, default=[]) | length == 0
+            fail_msg: >-
+              Expected empty diff for {{ item.label }}, got:
+              {{ lookup('vars', item.var, default=[]) }}
+          loop: "{{ object_diff_types }}"
+          when:
+            - not (item.skip_object_diff | default(false))
+            - not (item.skip_apply | default(false))
+
+  post_tasks:
+    - name: Revoke authentication token
+      ansible.builtin.include_tasks: tasks/aap_oauth.yml
+      vars:
+        aap_oauth_action: revoke
+...

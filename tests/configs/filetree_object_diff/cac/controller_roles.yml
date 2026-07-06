@@ -1,0 +1,6 @@
+---
+# Roles use dedicated comparison logic; CaC defines org-level membership only.
+controller_roles:
+  - organization: "{{ orgs }}"
+    role: member
+...

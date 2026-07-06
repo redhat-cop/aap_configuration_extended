@@ -1,0 +1,66 @@
+---
+- name: Query current API state | {{ od_type.label }}
+  ansible.builtin.include_tasks: object_diff_query_api_type.yml
+
+- name: Build setup actions | {{ od_type.label }}
+  ansible.builtin.set_fact:
+    __od_setup_actions: "{{ __od_absent + __od_present_shared + __od_present_orphan }}"
+  vars:
+    __cac_absent_spec: "{{ object_diff_setup_cac_only_absent[od_type.dispatch_var] | default([]) }}"
+    __shared_spec: "{{ object_diff_setup_shared[od_type.dispatch_var] | default([]) }}"
+    __orphan_spec: "{{ object_diff_setup_orphans[od_type.dispatch_var] | default([]) }}"
+    __od_absent: >-
+      {{
+        __cac_absent_spec
+        | selectattr(od_type.id_field, 'in', __od_api_ids)
+        | list
+      }}
+    __od_present_shared: >-
+      {{
+        __shared_spec
+        | rejectattr(od_type.id_field, 'in', __od_api_ids)
+        | list
+      }}
+    __od_present_orphan: >-
+      {{
+        __orphan_spec
+        | rejectattr(od_type.id_field, 'in', __od_api_ids)
+        | list
+      }}
+
+- name: Show planned setup actions | {{ od_type.label }}
+  ansible.builtin.debug:
+    msg: >-
+      {{
+        __od_setup_actions
+        | map('combine', {})
+        | list
+        | json_query('[].' + od_type.id_field)
+        | default(__od_setup_actions)
+      }}
+  when: __od_setup_actions | length > 0
+
+- name: Set dispatch payload | {{ od_type.label }}
+  ansible.builtin.set_fact:
+    "{{ od_type.dispatch_var }}": "{{ __od_setup_actions }}"
+  when: __od_setup_actions | length > 0
+
+- name: Apply setup via dispatch | {{ od_type.label }}
+  ansible.builtin.import_role:
+    name: infra.aap_configuration.dispatch
+  vars:
+    controller_configuration_dispatcher_roles:
+      - {role: "{{ od_type.dispatch_role }}", var: "{{ od_type.dispatch_var }}", tags: "{{ od_type.dispatch_tag }}"}
+  when: __od_setup_actions | length > 0
+
+- name: Re-query API after setup | {{ od_type.label }}
+  ansible.builtin.include_tasks: object_diff_query_api_type.yml
+
+- name: Verify pre-test API state | {{ od_type.label }}
+  ansible.builtin.assert:
+    that:
+      - od_type.shared in __od_api_ids
+      - od_type.cac_only not in __od_api_ids
+      - od_type.orphan in __od_api_ids
+    success_msg: "{{ od_type.label }} ready (shared + orphan present, CaC-only absent)"
+...

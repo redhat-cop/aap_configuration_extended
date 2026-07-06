@@ -1,0 +1,63 @@
+---
+- name: Resolve shared inventory ID when required | {{ od_type.label }}
+  ansible.builtin.set_fact:
+    __object_diff_shared_inventory_id: "{{ lookup('ansible.platform.gateway_api',
+      'api/controller/' + controller_api_version + '/inventories',
+      query_params={'organization': __controller_organization_id.id, 'name': object_diff_shared_inventory},
+      host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs).id }}"
+  when:
+    - od_type.label in ['hosts', 'host_groups']
+    - __object_diff_shared_inventory_id is not defined
+
+- name: Query API objects | {{ od_type.label }}
+  ansible.builtin.set_fact:
+    __od_api_objects: >-
+      {{
+        query(
+          'ansible.platform.gateway_api',
+          od_type.api_path,
+          query_params=(
+            {'inventory': __object_diff_shared_inventory_id}
+            if od_type.label in ['hosts', 'host_groups']
+            else (
+              {'organization': __controller_organization_id.id}
+              if od_type.org_scoped | default(false)
+              else {}
+            )
+          ),
+          host=aap_hostname,
+          oauth_token=aap_oauthtoken,
+          verify_ssl=aap_validate_certs,
+          return_all=true,
+          max_objects=10000
+        )
+      }}
+
+- name: Derive API identifiers | {{ od_type.label }}
+  ansible.builtin.set_fact:
+    __od_api_ids: >-
+      {{
+        (
+          __od_api_objects
+          | selectattr('organization', 'equalto', __controller_organization_id.id)
+          | list
+          if od_type.filter_organization_id | default(false)
+          else __od_api_objects
+        )
+        | map(attribute=od_type.id_field)
+        | list
+        if od_type.inventory_field is not defined
+        else (
+          __od_api_objects
+          | selectattr('summary_fields.inventory.name', 'defined')
+          | selectattr('summary_fields.inventory.name', 'equalto', object_diff_shared_inventory)
+          | map(attribute=od_type.id_field)
+          | list
+        )
+      }}
+
+- name: Store captured API identifiers | {{ od_type.label }}
+  ansible.builtin.set_fact:
+    __od_api_before: "{{ __od_api_before | default({}) | combine({od_type.label: __od_api_ids}) }}"
+  when: od_capture | default(false)
+...

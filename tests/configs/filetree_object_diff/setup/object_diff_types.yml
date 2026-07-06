@@ -1,0 +1,250 @@
+---
+# Metadata for object_diff integration tests (setup + validation order).
+# Each type defines shared / CaC-only / orphan names and dispatch mapping.
+object_diff_types:
+  - label: organizations
+    var: aap_organizations
+    id_field: name
+    api_path: api/controller/v2/organizations
+    org_scoped: false
+    dispatch_var: aap_organizations
+    dispatch_role: gateway_organizations
+    dispatch_tag: controller_organizations
+    shared: Object Diff Shared Organization
+    cac_only: Object Diff New CaC Organization
+    orphan: Object Diff Orphan Organization
+    scope: global
+    skip_apply: true
+    skip_object_diff: true
+
+  - label: credential_types
+    var: controller_credential_types
+    cac_only: Object Diff New CaC Credential Type
+    orphan: Object Diff Orphan Credential Type
+    scope: global
+    skip_apply: true
+    skip_object_diff: true
+
+  - label: instance_groups
+    var: controller_instance_groups
+    id_field: name
+    api_path: api/controller/v2/instance_groups
+    org_scoped: false
+    dispatch_var: controller_instance_groups
+    dispatch_role: controller_instance_groups
+    dispatch_tag: controller_instance_groups
+    shared: Object Diff Shared Instance Group
+    cac_only: Object Diff New CaC Instance Group
+    orphan: Object Diff Orphan Instance Group
+    scope: global
+    skip_apply: true
+    skip_object_diff: true
+
+  - label: execution_environments
+    var: controller_execution_environments
+    id_field: name
+    api_path: api/controller/v2/execution_environments
+    org_scoped: true
+    dispatch_var: controller_execution_environments
+    dispatch_role: controller_execution_environments
+    dispatch_tag: controller_execution_environments
+    shared: Object Diff Test Shared EE
+    cac_only: Object Diff Test New CaC EE
+    orphan: Object Diff Test Orphan EE
+    skip_apply: false
+
+  - label: projects
+    var: controller_projects
+    id_field: name
+    api_path: api/controller/v2/projects
+    org_scoped: true
+    dispatch_var: controller_projects
+    dispatch_role: controller_projects
+    dispatch_tag: controller_projects
+    shared: Object Diff Shared Project
+    cac_only: Object Diff New CaC Project
+    orphan: Object Diff Orphan Project
+    skip_apply: false
+
+  - label: inventories
+    var: controller_inventories
+    id_field: name
+    api_path: api/controller/v2/inventories
+    org_scoped: true
+    dispatch_var: controller_inventories
+    dispatch_role: controller_inventories
+    dispatch_tag: controller_inventories
+    shared: Object Diff Shared Inventory
+    cac_only: Object Diff New CaC Inventory
+    orphan: Object Diff Orphan Inventory
+    skip_apply: false
+
+  - label: credentials
+    var: controller_credentials
+    id_field: name
+    api_path: api/controller/v2/credentials
+    org_scoped: true
+    dispatch_var: controller_credentials
+    dispatch_role: controller_credentials
+    dispatch_tag: controller_credentials
+    shared: Object Diff Shared Credential
+    cac_only: Object Diff New CaC Credential
+    orphan: Object Diff Orphan Credential
+    skip_apply: false
+
+  - label: teams
+    var: aap_teams
+    id_field: name
+    api_path: api/controller/v2/teams
+    org_scoped: true
+    dispatch_var: aap_teams
+    dispatch_role: gateway_teams
+    dispatch_tag: controller_teams
+    shared: Object Diff Shared Team
+    cac_only: Object Diff New CaC Team
+    orphan: Object Diff Orphan Team
+    skip_apply: false
+
+  - label: users
+    var: aap_user_accounts
+    id_field: username
+    api_path: api/gateway/v1/users
+    org_scoped: false
+    gateway_api: true
+    dispatch_var: aap_user_accounts
+    dispatch_role: gateway_users
+    dispatch_tag: controller_users
+    shared: object-diff-shared-user
+    cac_only: object-diff-new-cac-user
+    orphan: object-diff-orphan-user
+    scope: global
+    skip_apply: true
+    skip_object_diff: true
+
+  - label: applications
+    var: aap_applications
+    id_field: name
+    api_path: api/gateway/v1/applications
+    org_scoped: false
+    filter_organization_id: true
+    dispatch_var: aap_applications
+    dispatch_role: gateway_applications
+    dispatch_tag: gateway_applications
+    shared: Object Diff Shared Application
+    cac_only: Object Diff New CaC Application
+    orphan: Object Diff Orphan Application
+    skip_apply: true
+    skip_object_diff: true
+
+  - label: notification_templates
+    var: controller_notifications
+    id_field: name
+    api_path: api/controller/v2/notification_templates
+    org_scoped: true
+    dispatch_var: controller_notifications
+    dispatch_role: controller_notification_templates
+    dispatch_tag: controller_notification_templates
+    shared: Object Diff Shared Notification
+    cac_only: Object Diff New CaC Notification
+    orphan: Object Diff Orphan Notification
+    skip_apply: false
+
+  - label: hosts
+    var: controller_hosts
+    id_field: name
+    api_path: api/controller/v2/hosts
+    org_scoped: true
+    inventory_field: inventory
+    dispatch_var: controller_hosts
+    dispatch_role: controller_hosts
+    dispatch_tag: controller_hosts
+    shared: object-diff-shared-host
+    cac_only: object-diff-new-cac-host
+    orphan: object-diff-orphan-host
+    skip_apply: false
+
+  - label: host_groups
+    var: controller_groups
+    id_field: name
+    api_path: api/controller/v2/groups
+    org_scoped: false
+    inventory_field: inventory
+    dispatch_var: controller_groups
+    dispatch_role: controller_host_groups
+    dispatch_tag: controller_host_groups
+    shared: object-diff-shared-group
+    cac_only: object-diff-new-cac-group
+    orphan: object-diff-orphan-group
+    skip_apply: true
+    skip_object_diff: true
+
+  - label: inventory_sources
+    var: controller_inventory_sources
+    id_field: name
+    api_path: api/controller/v2/inventory_sources
+    org_scoped: true
+    dispatch_var: controller_inventory_sources
+    dispatch_role: controller_inventory_sources
+    dispatch_tag: controller_inventory_sources
+    shared: Object Diff Shared Source
+    cac_only: Object Diff New CaC Source
+    orphan: Object Diff Orphan Source
+    skip_apply: false
+
+  - label: job_templates
+    var: controller_templates
+    id_field: name
+    api_path: api/controller/v2/job_templates
+    org_scoped: true
+    dispatch_var: controller_templates
+    dispatch_role: controller_job_templates
+    dispatch_tag: controller_job_templates
+    shared: Object Diff Shared Job Template
+    cac_only: Object Diff New CaC Job Template
+    orphan: Object Diff Orphan Job Template
+    skip_apply: true
+    skip_setup: true
+
+  - label: workflow_job_templates
+    var: controller_workflows
+    id_field: name
+    api_path: api/controller/v2/workflow_job_templates
+    org_scoped: true
+    dispatch_var: controller_workflows
+    dispatch_role: controller_workflow_job_templates
+    dispatch_tag: controller_workflow_job_templates
+    shared: Object Diff Shared Workflow
+    cac_only: Object Diff New CaC Workflow
+    orphan: Object Diff Orphan Workflow
+    skip_apply: true
+    skip_setup: true
+
+  - label: schedules
+    var: controller_schedules
+    id_field: name
+    api_path: api/controller/v2/schedules
+    org_scoped: false
+    dispatch_var: controller_schedules
+    dispatch_role: controller_schedules
+    dispatch_tag: controller_schedules
+    shared: Object Diff Shared Schedule
+    cac_only: Object Diff New CaC Schedule
+    orphan: Object Diff Orphan Schedule
+    skip_apply: true
+    skip_setup: true
+
+  - label: roles
+    var: controller_roles
+    id_field: role
+    api_path: api/controller/v2/roles
+    org_scoped: false
+    dispatch_var: controller_roles
+    dispatch_role: controller_roles
+    dispatch_tag: controller_roles
+    shared: member
+    cac_only: execute
+    orphan: read
+    skip_apply: true
+    skip_setup: true
+    roles_mode: true
+...

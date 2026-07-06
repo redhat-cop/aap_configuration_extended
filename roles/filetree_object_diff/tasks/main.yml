@@ -1,0 +1,59 @@
+---
+# tasks file for filetree_object_diff
+- name: "Retrieve Ansible Automation Platform version"
+  ansible.builtin.assert:
+    that:
+      - "aap_version is version('2.5', '>=')"
+    fail_msg: >-
+      This role is only supported on AAP 2.5+. Use infra.controller_configuration.object_diff
+      for earlier versions.
+  vars:
+    aap_version: >-
+      {{
+        lookup(
+          'ansible.platform.gateway_api',
+          'api/gateway/v1/ping',
+          host=aap_hostname,
+          oauth_token=aap_oauthtoken,
+          verify_ssl=aap_validate_certs
+        ).version
+      }}
+
+- name: "Capture repository CaC paths before filetree_read can mutate filetree_* variables"
+  when:
+    - filetree_object_diff_config_dir is not defined
+    - __filetree_object_diff_repository_cac_paths is not defined
+  block:
+    - name: "Initialize repository CaC path list"
+      ansible.builtin.set_fact:
+        __filetree_object_diff_repository_cac_paths: []
+
+    - name: "Collect repository CaC paths from filetree_read variables"
+      ansible.builtin.set_fact:
+        __filetree_object_diff_repository_cac_paths: >-
+          {{
+            __filetree_object_diff_repository_cac_paths +
+            [lookup('vars', item.path_key)]
+          }}
+      loop: "{{ filetree_object_diff_cac_path_map }}"
+      loop_control:
+        label: "{{ item.path_key }}"
+      when:
+        - lookup('vars', item.path_key, default='') | length > 0
+        - item.var in filetree_object_diff_root_keys_filter
+
+- name: "Export live Controller state to filetree via filetree_create"
+  ansible.builtin.include_tasks: export_live.yml
+
+- name: "Compare live and repository CaC files on disk"
+  ansible.builtin.include_tasks: compare_files.yml
+
+- name: "Load difference files into memory via filetree_read"
+  ansible.builtin.include_tasks: read_diff.yml
+
+- name: "Cleanup temporary live export directory"
+  ansible.builtin.file:
+    path: "{{ filetree_object_diff_live_path }}"
+    state: absent
+  when: filetree_object_diff_cleanup_live_path | bool
+...

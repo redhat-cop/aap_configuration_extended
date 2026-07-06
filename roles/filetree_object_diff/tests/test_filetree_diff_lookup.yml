@@ -1,0 +1,34 @@
+---
+- name: Offline controller_filetree_diff lookup regression tests
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  tasks:
+    - name: Run lookup tests per object type
+      ansible.builtin.include_tasks: "tasks/{{ __lookup_test_item }}.yml"
+      loop:
+        - inventories
+        - inventories_modified
+        - projects
+        - job_templates
+        - workflow_job_templates
+        - schedules
+        - hosts
+        - host_groups
+        - inventory_sources
+        - execution_environments
+        - teams
+        - users
+        - applications
+        - notification_templates
+        - credentials
+        - credential_types
+        - organizations
+        - instance_groups
+        - roles
+      loop_control:
+        loop_var: __lookup_test_item
+        label: "{{ __lookup_test_item }}"
+...
