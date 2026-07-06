@@ -1,0 +1,59 @@
+---
+# Trusted workflow: approval gate for external PRs and .github changes.
+# Does not checkout or execute PR code (no pwn-request risk).
+name: pre-commit approval
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      github_modified: ${{ steps.filter.outputs.github }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          # Base branch only; paths-filter uses the GitHub API for PR file lists.
+          sparse-checkout: .github
+
+      - name: Check for modified .github files
+        id: filter
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          filters: |
+            github:
+              - '.github/**'
+
+  auto-approve:
+    needs: check-changes
+    if: >-
+      contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) &&
+      needs.check-changes.outputs.github_modified == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto-apply approval label
+        run: gh pr edit ${{ github.event.pull_request.number }} --add-label "ci-approved"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  manual-approval:
+    needs: check-changes
+    if: >-
+      !contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) ||
+      needs.check-changes.outputs.github_modified == 'true'
+    runs-on: ubuntu-latest
+    environment: requires-approval
+    steps:
+      - name: Approval granted
+        run: echo "Approval granted."
+
+      - name: Apply approval label after manual review
+        run: gh pr edit ${{ github.event.pull_request.number }} --add-label "ci-approved"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
