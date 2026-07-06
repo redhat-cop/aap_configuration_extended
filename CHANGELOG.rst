@@ -4,6 +4,15 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v4.9.1
+======
+
+Bugfixes
+--------
+
+- filetree_read - Restore ``tags: always`` on the include loop so ``--tags`` filtering works when specific tags are requested.
+- skip sanity-py3.12-milestone because ansible-core milestone requires Python >=3.13
+
 v4.9.0
 ======
 
