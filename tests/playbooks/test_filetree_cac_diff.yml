@@ -1,0 +1,4 @@
+---
+- name: Run on-disk filetree_cac_diff module tests
+  ansible.builtin.import_playbook: ../../roles/filetree_object_diff/tests/test_filetree_cac_diff.yml
+...

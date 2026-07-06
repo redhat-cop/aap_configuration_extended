@@ -1,0 +1,30 @@
+---
+controller_notifications:
+  - name: Object Diff Shared Notification
+    organization: "{{ orgs }}"
+    notification_type: email
+    notification_configuration:
+      host: smtp.example.com
+      port: 25
+      sender: test@example.com
+      recipients:
+        - admin@example.com
+      username: ''
+      password: ''
+      use_tls: false
+      use_ssl: false
+  - name: Object Diff New CaC Notification
+    organization: "{{ orgs }}"
+    notification_type: email
+    description: Only in CaC
+    notification_configuration:
+      host: smtp.example.com
+      port: 25
+      sender: cac@example.com
+      recipients:
+        - cac@example.com
+      username: ''
+      password: ''
+      use_tls: false
+      use_ssl: false
+...

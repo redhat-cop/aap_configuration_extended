@@ -1,0 +1,119 @@
+---
+# Prepare AAP for the filetree_object_diff integration test.
+#
+# Usage:
+#   ansible-playbook tests/playbooks/setup_filetree_object_diff.yml \
+#     -e @tests/vault-aap-controller.yaml \
+#     -e orgs="Object Diff Test"
+#
+- name: Prepare AAP for filetree_object_diff integration test
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../vars/aap_connection.yml
+    - ../configs/filetree_object_diff/setup/setup_vars.yml
+    - ../configs/filetree_object_diff/setup/setup_api_payloads.yml
+    - ../configs/filetree_object_diff/setup/object_diff_types.yml
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    orgs: "Object Diff Test"
+    controller_api_version: v2
+    controller_configuration_filetree_object_diff_secure_logging: false
+
+  pre_tasks:
+    - name: Validate AAP connection variables are defined
+      ansible.builtin.assert:
+        that:
+          - aap_hostname | length > 0
+          - aap_username | length > 0
+          - aap_password | length > 0
+        fail_msg: Missing AAP credentials. Pass -e @tests/vault-aap-controller.yaml
+      tags: [always]
+
+    - name: Setup authentication
+      ansible.builtin.include_tasks: tasks/aap_oauth.yml
+      vars:
+        aap_oauth_action: setup
+
+    - name: Get the organization ID
+      ansible.builtin.set_fact:
+        __controller_organization_id: "{{ lookup('ansible.platform.gateway_api',
+          'api/controller/' + controller_api_version + '/organizations',
+          query_params={'name': orgs},
+          host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs) }}"
+
+    - name: Ensure isolated test organization exists
+      when: __controller_organization_id is not defined or __controller_organization_id.id is not defined
+      block:
+        - name: Create isolated test organization
+          ansible.builtin.set_fact:
+            aap_organizations:
+              - name: "{{ orgs }}"
+                description: Isolated organization for filetree_object_diff integration tests
+
+        - name: Apply test organization via dispatch
+          ansible.builtin.import_role:
+            name: infra.aap_configuration.dispatch
+          vars:
+            controller_configuration_dispatcher_roles:
+              - {role: gateway_organizations, var: aap_organizations, tags: controller_organizations}
+
+    - name: Refresh organization ID after create
+      ansible.builtin.set_fact:
+        __controller_organization_id: "{{ lookup('ansible.platform.gateway_api',
+          'api/controller/' + controller_api_version + '/organizations',
+          query_params={'name': orgs},
+          host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)
+        }}"
+
+  tasks:
+    - name: Remove stray test objects from other organizations
+      ansible.builtin.include_tasks: tasks/filetree_object_diff_cleanup_strays.yml
+      vars:
+        od_type: "{{ od_type_item }}"
+      loop: "{{ object_diff_types }}"
+      loop_control:
+        loop_var: od_type_item
+        label: "{{ od_type_item.label }}"
+      when:
+        - od_type_item.api_path is defined
+        - not (od_type_item.skip_object_diff | default(false))
+        - od_type_item.label == 'execution_environments'
+
+    - name: Remove legacy execution environment names from test organization
+      ansible.builtin.set_fact:
+        controller_execution_environments:
+          - name: Object Diff Shared EE
+            organization: "{{ orgs }}"
+            image: quay.io/ansible/ansible-runner:stable-2.4-latest
+            state: absent
+
+    - name: Apply legacy execution environment cleanup
+      ansible.builtin.import_role:
+        name: infra.aap_configuration.dispatch
+      vars:
+        controller_configuration_dispatcher_roles:
+          - {role: controller_execution_environments, var: controller_execution_environments, tags: controller_execution_environments}
+      register: __legacy_ee_cleanup
+
+    - name: Clear legacy execution environment cleanup payload
+      ansible.builtin.set_fact:
+        controller_execution_environments: []
+
+    - name: Prepare base API state
+      ansible.builtin.include_tasks: tasks/filetree_object_diff_setup_type.yml
+      vars:
+        od_type: "{{ od_type_item }}"
+      loop: "{{ object_diff_types }}"
+      loop_control:
+        loop_var: od_type_item
+        label: "{{ od_type_item.label }}"
+      when: not (od_type_item.skip_apply | default(false)) and not (od_type_item.skip_object_diff | default(false))
+
+  post_tasks:
+    - name: Revoke authentication token
+      ansible.builtin.include_tasks: tasks/aap_oauth.yml
+      vars:
+        aap_oauth_action: revoke
+...

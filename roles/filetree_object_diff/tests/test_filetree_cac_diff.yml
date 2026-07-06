@@ -1,0 +1,108 @@
+---
+- name: On-disk filetree_cac_diff module tests
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    __fixtures: "{{ playbook_dir }}/fixtures"
+    __live_path: "{{ __fixtures }}/live"
+    __cac_path: "{{ __fixtures }}/cac"
+    __diff_path: "{{ lookup('env', 'TMPDIR') | default('/tmp', true) }}/filetree_cac_diff_test_delta"
+
+  tasks:
+    - name: Remove previous diff output
+      ansible.builtin.file:
+        path: "{{ __diff_path }}"
+        state: absent
+
+    - name: Compare fixture trees on disk
+      infra.aap_configuration_extended.filetree_cac_diff:
+        live_path: "{{ __live_path }}"
+        cac_paths:
+          - "{{ __cac_path }}"
+        diff_path: "{{ __diff_path }}"
+        root_keys_filter:
+          - controller_inventories
+      register: __module_result
+
+    - name: Assert diff counts
+      ansible.builtin.assert:
+        that:
+          - __module_result.present_count == 1
+          - __module_result.absent_count == 1
+          - __module_result.unchanged_count == 1
+          - __module_result.diff_files | length == 2
+
+    - name: Load diff files with filetree_read
+      ansible.builtin.set_fact:
+        orgs: Default
+        env: common
+        dir_orgs_vars: "{{ __diff_path }}"
+        filetree_controller_inventories: "{{ __diff_path }}/"
+        controller_inventories: []
+        controller_configuration_filetree_read_tasks:
+          - {name: controller_inventories, var: controller_inventories, tags: controller_inventories}
+
+    - name: Read generated diff files
+      ansible.builtin.import_role:
+        name: infra.aap_configuration_extended.filetree_read
+
+    - name: Validate loaded delta in memory
+      ansible.builtin.include_tasks: tasks/assert_delta.yml
+      vars:
+        __diff: "{{ controller_inventories }}"
+        __object_label: filetree_cac_diff module
+        __id_field: name
+        __cac_only_name: New CaC Inventory
+        __orphan_name: Orphan Inventory
+        __shared_name: Shared Inventory
+
+    - name: Content drift detection
+      block:
+        - name: Write CaC fixture with modified shared inventory description
+          ansible.builtin.copy:
+            dest: "{{ __fixtures }}/cac/controller_inventories.yaml"
+            mode: "0644"
+            content: |
+              ---
+              controller_inventories:
+                - name: Shared Inventory
+                  organization: Default
+                  description: CaC description
+                - name: New CaC Inventory
+                  organization: Default
+                  description: Only in CaC
+              ...
+
+        - name: Re-run module for content drift
+          infra.aap_configuration_extended.filetree_cac_diff:
+            live_path: "{{ __live_path }}"
+            cac_paths:
+              - "{{ __cac_path }}"
+            diff_path: "{{ __diff_path }}"
+            root_keys_filter:
+              - controller_inventories
+          register: __modified_result
+
+        - name: Assert modified inventory is present in diff
+          ansible.builtin.assert:
+            that:
+              - __modified_result.present_count == 2
+              - __modified_result.absent_count == 1
+      always:
+        - name: Restore inventory fixture content
+          ansible.builtin.copy:
+            dest: "{{ __fixtures }}/cac/controller_inventories.yaml"
+            mode: "0644"
+            content: |
+              ---
+              controller_inventories:
+                - name: Shared Inventory
+                  organization: Default
+                  description: Live description
+                - name: New CaC Inventory
+                  organization: Default
+                  description: Only in CaC
+              ...
+...

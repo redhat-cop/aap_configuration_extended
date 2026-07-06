@@ -1,0 +1,267 @@
+---
+# Minimal API payloads used by setup_object_diff.yml to create shared + orphan objects.
+object_diff_shared_inventory: Object Diff Shared Inventory
+object_diff_test_user_password: "{{ vault_aap_password | default('testpassword123!') }}"
+
+object_diff_setup_shared:
+  aap_organizations:
+    - name: Object Diff Shared Organization
+      description: Shared organization for object_diff integration test
+  controller_credential_types:
+    - name: Object Diff Shared Credential Type
+      kind: cloud
+      inputs:
+        fields:
+          - id: token
+            type: string
+            label: Token
+        required:
+          - token
+  controller_instance_groups:
+    - name: Object Diff Shared Instance Group
+  controller_execution_environments:
+    - name: Object Diff Test Shared EE
+      organization: "{{ orgs }}"
+      image: quay.io/ansible/ansible-runner:stable-2.4-latest
+  controller_projects:
+    - name: Object Diff Shared Project
+      organization: "{{ orgs }}"
+      scm_type: git
+      scm_url: https://github.com/ansible/ansible-tower-samples.git
+      update_project: true
+      wait: true
+  controller_inventories:
+    - name: Object Diff Shared Inventory
+      organization: "{{ orgs }}"
+      description: Shared inventory for object_diff integration test
+  controller_credentials:
+    - name: Object Diff Shared Credential
+      organization: "{{ orgs }}"
+      credential_type: Machine
+      inputs:
+        username: admin
+        password: test
+  aap_teams:
+    - name: Object Diff Shared Team
+      organization: "{{ orgs }}"
+  aap_user_accounts:
+    - username: object-diff-shared-user
+      password: "{{ object_diff_test_user_password }}"
+      first_name: Shared
+      last_name: User
+  aap_applications:
+    - name: Object Diff Shared Application
+      organization: "{{ orgs }}"
+      authorization_grant_type: password
+      client_type: public
+  controller_notifications:
+    - name: Object Diff Shared Notification
+      organization: "{{ orgs }}"
+      notification_type: email
+      notification_configuration:
+        host: smtp.example.com
+        port: 25
+        sender: test@example.com
+        recipients:
+          - admin@example.com
+        username: ''
+        password: ''
+        use_tls: false
+        use_ssl: false
+  controller_hosts:
+    - name: object-diff-shared-host
+      inventory: "{{ object_diff_shared_inventory }}"
+      enabled: true
+  controller_groups:
+    - name: object-diff-shared-group
+      inventory: "{{ object_diff_shared_inventory }}"
+  controller_inventory_sources:
+    - name: Object Diff Shared Source
+      organization: "{{ orgs }}"
+      inventory: "{{ object_diff_shared_inventory }}"
+      source: scm
+      source_project: Object Diff Shared Project
+      source_path: ""
+      overwrite: true
+      update_on_launch: false
+  controller_templates:
+    - name: Object Diff Shared Job Template
+      organization: "{{ orgs }}"
+      project: Shared Project
+      inventory: "{{ object_diff_shared_inventory }}"
+      playbook: helloworld.yml
+      job_type: run
+  controller_workflows:
+    - name: Object Diff Shared Workflow
+      organization: "{{ orgs }}"
+  controller_schedules:
+    - name: Object Diff Shared Schedule
+      unified_job_template: Object Diff Shared Job Template
+      rrule: "DTSTART:20260101T000000Z RRULE:FREQ=DAILY;INTERVAL=1"
+
+object_diff_setup_orphans:
+  aap_organizations:
+    - name: Object Diff Orphan Organization
+      description: API-only organization for object_diff integration test
+  controller_credential_types:
+    - name: Object Diff Orphan Credential Type
+      kind: cloud
+      inputs:
+        fields:
+          - id: token
+            type: string
+            label: Token
+        required:
+          - token
+  controller_instance_groups:
+    - name: Object Diff Orphan Instance Group
+  controller_execution_environments:
+    - name: Object Diff Test Orphan EE
+      organization: "{{ orgs }}"
+      image: quay.io/ansible/ansible-runner:stable-2.4-latest
+  controller_projects:
+    - name: Object Diff Orphan Project
+      organization: "{{ orgs }}"
+      scm_type: git
+      scm_url: https://github.com/ansible/ansible-tower-samples.git
+      update_project: true
+      wait: true
+  controller_inventories:
+    - name: Object Diff Orphan Inventory
+      organization: "{{ orgs }}"
+      description: API-only inventory for object_diff integration test
+  controller_credentials:
+    - name: Object Diff Orphan Credential
+      organization: "{{ orgs }}"
+      credential_type: Machine
+      inputs:
+        username: orphan
+        password: test
+  aap_teams:
+    - name: Object Diff Orphan Team
+      organization: "{{ orgs }}"
+  aap_user_accounts:
+    - username: object-diff-orphan-user
+      password: "{{ object_diff_test_user_password }}"
+      first_name: Orphan
+      last_name: User
+  aap_applications:
+    - name: Object Diff Orphan Application
+      organization: "{{ orgs }}"
+      authorization_grant_type: password
+      client_type: public
+  controller_notifications:
+    - name: Object Diff Orphan Notification
+      organization: "{{ orgs }}"
+      notification_type: email
+      notification_configuration:
+        host: smtp.example.com
+        port: 25
+        sender: orphan@example.com
+        recipients:
+          - orphan@example.com
+        username: ''
+        password: ''
+        use_tls: false
+        use_ssl: false
+  controller_hosts:
+    - name: object-diff-orphan-host
+      inventory: "{{ object_diff_shared_inventory }}"
+      enabled: true
+  controller_groups:
+    - name: object-diff-orphan-group
+      inventory: "{{ object_diff_shared_inventory }}"
+  controller_inventory_sources:
+    - name: Object Diff Orphan Source
+      organization: "{{ orgs }}"
+      inventory: "{{ object_diff_shared_inventory }}"
+      source: scm
+      source_project: Object Diff Shared Project
+      source_path: ""
+      overwrite: true
+      update_on_launch: false
+  controller_templates:
+    - name: Object Diff Orphan Job Template
+      organization: "{{ orgs }}"
+      project: Shared Project
+      inventory: "{{ object_diff_shared_inventory }}"
+      playbook: helloworld.yml
+      job_type: run
+  controller_workflows:
+    - name: Object Diff Orphan Workflow
+      organization: "{{ orgs }}"
+  controller_schedules:
+    - name: Object Diff Orphan Schedule
+      unified_job_template: Object Diff Shared Job Template
+      rrule: "DTSTART:20260101T000000Z RRULE:FREQ=DAILY;INTERVAL=1"
+
+object_diff_setup_cac_only_absent:
+  aap_organizations:
+    - name: Object Diff New CaC Organization
+      state: absent
+  controller_credential_types:
+    - name: Object Diff New CaC Credential Type
+      state: absent
+  controller_instance_groups:
+    - name: Object Diff New CaC Instance Group
+      state: absent
+  controller_execution_environments:
+    - name: Object Diff Test New CaC EE
+      organization: "{{ orgs }}"
+      image: quay.io/ansible/ansible-runner:stable-2.4-latest
+      state: absent
+  controller_projects:
+    - name: Object Diff New CaC Project
+      organization: "{{ orgs }}"
+      state: absent
+  controller_inventories:
+    - name: Object Diff New CaC Inventory
+      organization: "{{ orgs }}"
+      state: absent
+  controller_credentials:
+    - name: Object Diff New CaC Credential
+      organization: "{{ orgs }}"
+      credential_type: Machine
+      state: absent
+  aap_teams:
+    - name: Object Diff New CaC Team
+      organization: "{{ orgs }}"
+      state: absent
+  aap_user_accounts:
+    - username: object-diff-new-cac-user
+      state: absent
+  aap_applications:
+    - name: Object Diff New CaC Application
+      organization: "{{ orgs }}"
+      state: absent
+  controller_notifications:
+    - name: Object Diff New CaC Notification
+      organization: "{{ orgs }}"
+      notification_type: email
+      state: absent
+  controller_hosts:
+    - name: object-diff-new-cac-host
+      inventory: "{{ object_diff_shared_inventory }}"
+      state: absent
+  controller_groups:
+    - name: object-diff-new-cac-group
+      inventory: "{{ object_diff_shared_inventory }}"
+      state: absent
+  controller_inventory_sources:
+    - name: Object Diff New CaC Source
+      organization: "{{ orgs }}"
+      inventory: "{{ object_diff_shared_inventory }}"
+      state: absent
+  controller_templates:
+    - name: Object Diff New CaC Job Template
+      organization: "{{ orgs }}"
+      state: absent
+  controller_workflows:
+    - name: Object Diff New CaC Workflow
+      organization: "{{ orgs }}"
+      state: absent
+  controller_schedules:
+    - name: Object Diff New CaC Schedule
+      unified_job_template: Object Diff Shared Job Template
+      state: absent
+...

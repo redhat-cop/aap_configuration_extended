@@ -1,0 +1,27 @@
+---
+- name: "Compare live export files against repository CaC files"
+  infra.aap_configuration_extended.filetree_cac_diff:
+    live_path: "{{ filetree_object_diff_live_path }}"
+    cac_paths: >-
+      {{
+        [filetree_object_diff_config_dir]
+        if filetree_object_diff_config_dir is defined
+        else (__filetree_object_diff_repository_cac_paths | default([]) | unique)
+      }}
+    diff_path: "{{ filetree_object_diff_diff_path }}"
+    template_vars: "{{ filetree_object_diff_template_vars }}"
+    ignore_keys: "{{ filetree_object_diff_ignore_keys | default([]) }}"
+    set_absent: true
+    root_keys_filter: "{{ filetree_object_diff_root_keys_filter }}"
+  register: __filetree_object_diff_result
+  no_log: "{{ controller_configuration_filetree_object_diff_secure_logging }}"
+
+- name: "Show filetree diff summary"
+  ansible.builtin.debug:
+    msg: >-
+      filetree_cac_diff wrote {{ __filetree_object_diff_result.present_count }} present,
+      {{ __filetree_object_diff_result.absent_count }} absent,
+      {{ __filetree_object_diff_result.unchanged_count }} unchanged
+      ({{ __filetree_object_diff_result.diff_files | length }} files)
+  when: not (controller_configuration_filetree_object_diff_secure_logging | bool)
+...

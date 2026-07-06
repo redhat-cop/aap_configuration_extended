@@ -1,0 +1,69 @@
+---
+filetree_object_diff_config_dir: "{{ playbook_dir }}/../configs/filetree_object_diff/cac/"
+
+filetree_aap_organizations: "{{ filetree_object_diff_config_dir }}"
+filetree_controller_credential_types: "{{ filetree_object_diff_config_dir }}"
+filetree_controller_instance_groups: "{{ filetree_object_diff_config_dir }}"
+filetree_controller_execution_environments: "{{ filetree_object_diff_config_dir }}"
+filetree_controller_projects: "{{ filetree_object_diff_config_dir }}"
+filetree_controller_inventories: "{{ filetree_object_diff_config_dir }}"
+filetree_controller_credentials: "{{ filetree_object_diff_config_dir }}"
+filetree_aap_teams: "{{ filetree_object_diff_config_dir }}"
+filetree_aap_user_accounts: "{{ filetree_object_diff_config_dir }}"
+filetree_aap_applications: "{{ filetree_object_diff_config_dir }}"
+filetree_controller_notifications: "{{ filetree_object_diff_config_dir }}"
+filetree_controller_hosts: "{{ filetree_object_diff_config_dir }}"
+filetree_controller_groups: "{{ filetree_object_diff_config_dir }}"
+filetree_controller_inventory_sources: "{{ filetree_object_diff_config_dir }}"
+filetree_controller_templates: "{{ filetree_object_diff_config_dir }}"
+filetree_controller_workflow_job_templates: "{{ filetree_object_diff_config_dir }}"
+filetree_controller_schedules: "{{ filetree_object_diff_config_dir }}"
+filetree_controller_roles: "{{ filetree_object_diff_config_dir }}"
+
+controller_configuration_filetree_read_tasks:
+  - {name: gateway_organizations, var: aap_organizations, tags: controller_organizations}
+  - {name: controller_credential_types, var: controller_credential_types, tags: controller_credential_types}
+  - {name: controller_instance_groups, var: controller_instance_groups, tags: controller_instance_groups}
+  - {name: controller_execution_environments, var: controller_execution_environments, tags: controller_execution_environments}
+  - {name: controller_projects, var: controller_projects, tags: controller_projects}
+  - {name: controller_inventories, var: controller_inventories, tags: controller_inventories}
+  - {name: controller_credentials, var: controller_credentials, tags: controller_credentials}
+  - {name: gateway_teams, var: aap_teams, tags: controller_teams}
+  - {name: gateway_users, var: aap_user_accounts, tags: controller_users}
+  - {name: gateway_applications, var: aap_applications, tags: controller_applications}
+  - {name: controller_notification_templates, var: controller_notifications, tags: controller_notification_templates}
+  - {name: controller_hosts, var: controller_hosts, tags: controller_hosts}
+  - {name: controller_host_groups, var: controller_groups, tags: controller_host_groups}
+  - {name: controller_inventory_sources, var: controller_inventory_sources, tags: controller_inventory_sources}
+  - {name: controller_job_templates, var: controller_templates, tags: controller_job_templates}
+  - {name: controller_workflow_job_templates, var: controller_workflows, tags: controller_workflow_job_templates}
+  - {name: controller_schedules, var: controller_schedules, tags: controller_schedules}
+  - {name: controller_roles, var: controller_roles, tags: controller_roles}
+
+# filetree_object_diff task list for integration test — org-scoped types only.
+controller_configuration_filetree_object_diff_tasks:
+  - {name: controller_execution_environments, var: controller_execution_environments, tags: controller_execution_environments, create_tag: controller_execution_environments, object_type: execution_environment}
+  - {name: controller_projects, var: controller_projects, tags: controller_projects, create_tag: controller_projects, object_type: project}
+  - {name: controller_inventories, var: controller_inventories, tags: controller_inventories, create_tag: controller_inventories, object_type: inventory}
+  - {name: controller_credentials, var: controller_credentials, tags: controller_credentials, create_tag: controller_credentials, object_type: credential}
+  - {name: controller_teams, var: aap_teams, tags: controller_teams, create_tag: gateway_teams, object_type: team}
+  - {name: controller_notification_templates, var: controller_notifications, tags: controller_notification_templates, create_tag: controller_notification_templates, object_type: notification_template}
+  - {name: controller_hosts, var: controller_hosts, tags: controller_hosts, create_tag: controller_hosts, object_type: host}
+  - {name: controller_inventory_sources, var: controller_inventory_sources, tags: controller_inventory_sources, create_tag: controller_inventory_sources, object_type: inventory_source}
+  - {name: controller_job_templates, var: controller_templates, tags: controller_job_templates, create_tag: controller_job_templates, object_type: job_template}
+  - {name: controller_workflow_job_templates, var: controller_workflows, tags: controller_workflow_job_templates, create_tag: controller_workflow_job_templates, object_type: workflow_job_template}
+  - {name: controller_schedules, var: controller_schedules, tags: controller_schedules, create_tag: controller_schedules, object_type: schedule}
+
+filetree_object_diff_live_path: "/tmp/filetree_object_diff_integration_live"
+filetree_object_diff_cleanup_live_path: true
+controller_configuration_filetree_object_diff_secure_logging: false
+controller_configuration_filetree_create_secure_logging: false
+controller_configuration_filetree_read_secure_logging: false
+
+# filetree_create may format descriptions differently than repository CaC.
+filetree_object_diff_ignore_keys:
+  - description
+  - notification_configuration
+  - update_project
+  - wait
+...

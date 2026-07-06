@@ -1,0 +1,8 @@
+---
+controller_workflows:
+  - name: Object Diff Shared Workflow
+    organization: "{{ orgs }}"
+  - name: Object Diff New CaC Workflow
+    organization: "{{ orgs }}"
+    description: Only in CaC
+...
