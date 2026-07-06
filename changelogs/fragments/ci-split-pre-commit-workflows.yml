@@ -5,3 +5,5 @@ bugfixes:
   - restore Ansible collections for external PRs from a default-branch cache populated
     by trusted push and schedule runs
   - skip sanity-py3.12-milestone because ansible-core milestone requires Python >=3.13
+  - auto-approve trusted collaborator PRs when .github workflows are unchanged; require
+    manual approval for external contributors or workflow edits
