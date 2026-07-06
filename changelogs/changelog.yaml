@@ -427,3 +427,13 @@ releases:
     - issue260.yaml
     - issue277.yaml
     release_date: '2026-07-01'
+  4.9.1:
+    changes:
+      bugfixes:
+      - 'filetree_read - Restore ``tags: always`` on the include loop so ``--tags``
+        filtering works when specific tags are requested.'
+      - skip sanity-py3.12-milestone because ansible-core milestone requires Python
+        >=3.13
+    fragments:
+    - filetree-read-tags-always.yaml
+    release_date: '2026-07-06'

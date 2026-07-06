@@ -5,6 +5,7 @@
   args:
     apply:
       tags: "{{ __task_filetree_read.tags }}"
+  tags: always
   when: >-
     ansible_run_tags | length == 0
     or 'all' in ansible_run_tags
