@@ -5,3 +5,4 @@ bugfixes:
   - reset ci-approved labels on each pull request lifecycle event and bind approval
     to the pull request head SHA so reused branches cannot reuse stale approvals
   - log CI approval routing and environment protection context in workflow summaries
+  - fix pre-commit-tests cache key expression that made the workflow file invalid

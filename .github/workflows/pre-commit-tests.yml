@@ -33,7 +33,6 @@ jobs:
       matrix:
         python-version: ["3.12", "3.13", "3.14"]
     env:
-      ANSIBLE_COLLECTIONS_CACHE_KEY: ansible-collections-${{ hashFiles('.github/collections/requirements.yml', 'galaxy.yml', '.pre-commit-config.yaml') }}
       HAS_CERTIFIED_HUB: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
       ANSIBLE_GALAXY_SERVER_LIST: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'certified,galaxy' || 'galaxy' }}
       ANSIBLE_GALAXY_SERVER_CERTIFIED_URL: https://console.redhat.com/api/automation-hub/content/published/
@@ -45,6 +44,12 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
+      - name: Set Ansible collections cache key
+        id: collections_cache_key
+        run: |
+          hash=$(sha256sum .github/collections/requirements.yml galaxy.yml .pre-commit-config.yaml | sha256sum | cut -d' ' -f1)
+          echo "key=ansible-collections-${hash}" >> "$GITHUB_OUTPUT"
+
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
           python-version: ${{ matrix.python-version }}
@@ -54,7 +59,7 @@ jobs:
         id: collections_cache
         with:
           path: ~/.ansible/collections
-          key: ${{ env.ANSIBLE_COLLECTIONS_CACHE_KEY }}
+          key: ${{ steps.collections_cache_key.outputs.key }}
           restore-keys: |
             ansible-collections-
 
@@ -94,7 +99,7 @@ jobs:
         uses: actions/cache/save@1bd1e96a41e5c6a8698213da4c832badfcbfdfdd # v4.2.0
         with:
           path: ~/.ansible/collections
-          key: ${{ env.ANSIBLE_COLLECTIONS_CACHE_KEY }}
+          key: ${{ steps.collections_cache_key.outputs.key }}
 
   # Single check name for branch protection (matrix jobs report as pre-commit-tests (3.x)).
   pre-commit:
