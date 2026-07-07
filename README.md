@@ -123,7 +123,7 @@ Config file syntax looks like this:
 [general]
 host = https://localhost:8043
 verify_ssl = true
-oauth_token = LEdCpKVKc4znzffcpQL5vLG8oyeku6
+oauth_token = <your-token-here>
 ```
 
 Controller token module would be invoked with this code:
