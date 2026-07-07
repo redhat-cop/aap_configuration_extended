@@ -38,9 +38,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Auto-apply approval label
-        run: gh pr edit ${{ github.event.pull_request.number }} --add-label "ci-approved"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const label = 'ci-approved';
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const labels = context.payload.pull_request.labels.map(l => l.name);
+            if (!labels.includes(label)) {
+              await github.rest.issues.addLabels({ owner, repo, issue_number, labels: [label] });
+            }
 
   manual-approval:
     needs: check-changes
@@ -54,6 +61,13 @@ jobs:
         run: echo "Approval granted."
 
       - name: Apply approval label after manual review
-        run: gh pr edit ${{ github.event.pull_request.number }} --add-label "ci-approved"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const label = 'ci-approved';
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const labels = context.payload.pull_request.labels.map(l => l.name);
+            if (!labels.includes(label)) {
+              await github.rest.issues.addLabels({ owner, repo, issue_number, labels: [label] });
+            }
