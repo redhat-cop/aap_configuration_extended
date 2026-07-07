@@ -53,14 +53,65 @@ jobs:
             github:
               - '.github/**'
 
+      - name: Log approval routing context
+        env:
+          AUTHOR_ASSOCIATION: ${{ github.event.pull_request.author_association }}
+          GITHUB_MODIFIED: ${{ steps.filter.outputs.github }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          ACTOR: ${{ github.actor }}
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+        run: |
+          trusted=false
+          case "$AUTHOR_ASSOCIATION" in
+            OWNER|MEMBER|COLLABORATOR) trusted=true ;;
+          esac
+
+          if [ "$trusted" = true ] && [ "$GITHUB_MODIFIED" != true ]; then
+            approval_path=auto-approve
+          else
+            approval_path=manual-approval
+          fi
+
+          {
+            echo "### CI approval routing context"
+            echo "- PR: #${PR_NUMBER}"
+            echo "- Head SHA: ${HEAD_SHA}"
+            echo "- Approval label expected: ci-approved-${HEAD_SHA:0:7}"
+            echo "- Author association: ${AUTHOR_ASSOCIATION}"
+            echo "- Workflow actor: ${ACTOR}"
+            echo "- Triggering actor: ${TRIGGERING_ACTOR}"
+            echo "- .github/** modified: ${GITHUB_MODIFIED}"
+            echo "- Trusted collaborator: ${trusted}"
+            echo "- Selected approval path: ${approval_path}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "::notice title=CI approval routing::path=${approval_path}, author_association=${AUTHOR_ASSOCIATION}, github_modified=${GITHUB_MODIFIED}, actor=${ACTOR}, head_sha=${HEAD_SHA}"
+
   auto-approve:
     needs: check-changes
     if: >-
       github.event.action != 'closed' &&
       contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) &&
-      needs.check-changes.outputs.github_modified == 'false'
+      needs.check-changes.outputs.github_modified != 'true'
     runs-on: ubuntu-latest
     steps:
+      - name: Log automatic authorization
+        env:
+          AUTHOR_ASSOCIATION: ${{ github.event.pull_request.author_association }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          {
+            echo "### Automatic CI authorization"
+            echo "- Authorized by: workflow policy (trusted collaborator)"
+            echo "- Author association: ${AUTHOR_ASSOCIATION}"
+            echo "- Workflow actor: ${ACTOR}"
+            echo "- Head SHA: ${HEAD_SHA}"
+            echo "- Environment gate: not used"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::notice title=CI automatic authorization::author_association=${AUTHOR_ASSOCIATION}, actor=${ACTOR}, head_sha=${HEAD_SHA}"
+
       - name: Auto-apply approval label
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
@@ -87,6 +138,58 @@ jobs:
     runs-on: ubuntu-latest
     environment: requires-approval
     steps:
+      - name: Log environment authorization context
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          GITHUB_MODIFIED: ${{ needs.check-changes.outputs.github_modified }}
+        with:
+          script: |
+            const environmentName = 'requires-approval';
+            const { owner, repo } = context.repo;
+            const pullRequest = context.payload.pull_request;
+            const headSha = pullRequest.head.sha;
+            const approvalLabel = `ci-approved-${headSha.slice(0, 7)}`;
+            const githubModified = process.env.GITHUB_MODIFIED;
+
+            let protectionSummary = 'unknown';
+            try {
+              const response = await github.rest.repos.getEnvironment({
+                owner,
+                repo,
+                environment_name: environmentName,
+              });
+              const rules = response.data.protection_rules ?? [];
+              if (rules.length === 0) {
+                protectionSummary = 'none configured (job will not wait for human reviewers)';
+              } else {
+                protectionSummary = rules
+                  .map((rule) => `${rule.type}${rule.reviewers ? ` (${rule.reviewers.length} reviewer rule(s))` : ''}`)
+                  .join(', ');
+              }
+            } catch (error) {
+              protectionSummary = `lookup failed: ${error.message}`;
+            }
+
+            const summary = [
+              '### Manual CI authorization context',
+              `- PR: #${pullRequest.number}`,
+              `- Head SHA: ${headSha}`,
+              `- Approval label expected: ${approvalLabel}`,
+              `- Author association: ${pullRequest.author_association}`,
+              `- Workflow actor: ${context.actor}`,
+              `- Triggering actor: ${context.triggering_actor}`,
+              `- .github/** modified: ${githubModified}`,
+              `- Environment: ${environmentName}`,
+              `- Environment protection rules: ${protectionSummary}`,
+              '- Authorization source: environment deployment approval (if protection rules are configured)',
+            ].join('\n');
+
+            core.summary.addRaw(summary).write();
+            core.notice(
+              `CI manual authorization: environment=${environmentName}, protection=${protectionSummary}, author_association=${pullRequest.author_association}, actor=${context.actor}, head_sha=${headSha}`,
+              { title: 'CI manual authorization' },
+            );
+
       - name: Approval granted
         run: echo "Approval granted."
 
