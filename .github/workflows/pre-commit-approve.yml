@@ -38,9 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Auto-apply approval label
-        run: gh pr edit ${{ github.event.pull_request.number }} --add-label "ci-approved"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ./.github/actions/add-ci-approved-label
 
   manual-approval:
     needs: check-changes
@@ -54,6 +52,4 @@ jobs:
         run: echo "Approval granted."
 
       - name: Apply approval label after manual review
-        run: gh pr edit ${{ github.event.pull_request.number }} --add-label "ci-approved"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ./.github/actions/add-ci-approved-label
