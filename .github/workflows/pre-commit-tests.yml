@@ -18,16 +18,36 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
+  approval-gate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      approved: ${{ steps.check.outputs.approved }}
+    steps:
+      - name: Verify ci-approved label for current head SHA
+        id: check
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            const label = `ci-approved-${context.payload.pull_request.head.sha.slice(0, 7)}`;
+            const labels = context.payload.pull_request.labels.map((item) => item.name);
+            const approved = labels.includes(label);
+            core.setOutput('approved', approved ? 'true' : 'false');
+            core.notice(
+              `Expected approval label: ${label}; approved=${approved}`,
+              { title: 'CI approval gate' },
+            );
+
   pre-commit-tests:
+    needs: approval-gate
     runs-on: ubuntu-latest
     if: >
-      github.event_name != 'pull_request' ||
-      contains(
-        github.event.pull_request.labels.*.name,
-        format('ci-approved-{0}', substring(github.event.pull_request.head.sha, 0, 7))
-      )
+      always() &&
+      (github.event_name != 'pull_request' ||
+       needs.approval-gate.outputs.approved == 'true')
     strategy:
       fail-fast: false
       matrix:
