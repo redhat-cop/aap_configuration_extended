@@ -2,3 +2,5 @@
 bugfixes:
   - fix pre-commit approval workflow label step by using github-script instead of
     gh CLI, which requires a local git repository
+  - reset ci-approved labels on each pull request lifecycle event and bind approval
+    to the pull request head SHA so reused branches cannot reuse stale approvals
