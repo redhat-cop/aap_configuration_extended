@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - fix pre-commit approval workflow label step by using github-script instead of
+    gh CLI, which requires a local git repository
