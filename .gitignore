@@ -16,4 +16,4 @@ vault-aap-controller.yaml
 .vault-password
 sample_25
 importer_result.json
-*.code-workspace
+aap_configuration_extended.code-workspace
