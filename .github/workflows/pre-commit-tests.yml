@@ -24,7 +24,10 @@ jobs:
     runs-on: ubuntu-latest
     if: >
       github.event_name != 'pull_request' ||
-      contains(github.event.pull_request.labels.*.name, 'ci-approved')
+      contains(
+        github.event.pull_request.labels.*.name,
+        format('ci-approved-{0}', substring(github.event.pull_request.head.sha, 0, 7))
+      )
     strategy:
       fail-fast: false
       matrix:

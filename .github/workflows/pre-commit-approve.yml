@@ -5,14 +5,37 @@ name: pre-commit approval
 
 on:
   pull_request_target:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, closed]
 
 permissions:
   contents: read
   pull-requests: write
 
 jobs:
+  reset-approval:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove stale CI approval labels
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const labels = context.payload.pull_request.labels.map((item) => item.name);
+            for (const name of labels) {
+              if (name === 'ci-approved' || name.startsWith('ci-approved-')) {
+                await github.rest.issues.removeLabel({
+                  owner,
+                  repo,
+                  issue_number,
+                  name,
+                });
+              }
+            }
+
   check-changes:
+    needs: reset-approval
+    if: github.event.action != 'closed'
     runs-on: ubuntu-latest
     outputs:
       github_modified: ${{ steps.filter.outputs.github }}
@@ -33,6 +56,7 @@ jobs:
   auto-approve:
     needs: check-changes
     if: >-
+      github.event.action != 'closed' &&
       contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) &&
       needs.check-changes.outputs.github_modified == 'false'
     runs-on: ubuntu-latest
@@ -41,7 +65,7 @@ jobs:
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
-            const label = 'ci-approved';
+            const label = `ci-approved-${context.payload.pull_request.head.sha.slice(0, 7)}`;
             const { owner, repo } = context.repo;
             const issue_number = context.payload.pull_request.number;
             const labels = context.payload.pull_request.labels.map((item) => item.name);
@@ -57,8 +81,9 @@ jobs:
   manual-approval:
     needs: check-changes
     if: >-
-      !contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) ||
-      needs.check-changes.outputs.github_modified == 'true'
+      github.event.action != 'closed' &&
+      (!contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) ||
+      needs.check-changes.outputs.github_modified == 'true')
     runs-on: ubuntu-latest
     environment: requires-approval
     steps:
@@ -69,7 +94,7 @@ jobs:
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
-            const label = 'ci-approved';
+            const label = `ci-approved-${context.payload.pull_request.head.sha.slice(0, 7)}`;
             const { owner, repo } = context.repo;
             const issue_number = context.payload.pull_request.number;
             const labels = context.payload.pull_request.labels.map((item) => item.name);
