@@ -96,6 +96,11 @@ argument_specs:
         default: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_instance_groups.d/"
         required: false
         description: Directory path to load controller object variables
+      filetree_controller_instances:
+        type: raw
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_instances.d/"
+        required: false
+        description: Directory path to load controller object variables
       filetree_controller_hosts:
         type: raw
         default: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_hosts.d/"

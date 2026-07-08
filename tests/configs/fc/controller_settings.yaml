@@ -1,60 +1,244 @@
 ---
 controller_settings:
-  - settings:
-      TOWER_URL_BASE: "https://aap-all-in-one.iam.lab:444"
-      LICENSE:
-        account_number: '1460290'
-        instance_count: 5
-        license_date: '1798779599'
-        license_type: enterprise
-        pool_id: 8a85f99a7db4827d017dc515e32c00d1
-        product_name: Employee SKU
-        satellite: false
-        sku: ES0113909
-        subscription_id: '10479521'
-        subscription_name: Employee SKU
-        support_level: Self-Support
-        trial: false
-        usage: Development/Test
-        valid_key: true
-      INSTALL_UUID: "7cb2f714-ba48-4af2-93f9-066598d918b4"
-      AWX_TASK_ENV:
-        GIT_SSL_NO_VERIFY: 'true'
-      INSIGHTS_TRACKING_STATE: "false"
-      CLEANUP_HOST_METRICS_LAST_TS: "2024-10-03T10:54:53.014166Z"
-      HOST_METRIC_SUMMARY_TASK_LAST_TS: "2024-10-03T11:24:55.095157Z"
-      PENDO_TRACKING_STATE: "off"
-      AUTH_LDAP_SERVER_URI: "ldap://ldap.example.com"
-      AUTH_LDAP_BIND_PASSWORD: "$encrypted$"
-      AUTH_LDAP_START_TLS: "true"
-      AUTH_LDAP_USER_SEARCH:
-        - OU=Users,DC=example,DC=com
-        - SCOPE_SUBTREE
-        - (cn=%(user)s)
-      AUTH_LDAP_USER_DN_TEMPLATE: "uid=%(user)s,ou=Users,dc=example,dc=com"
-      AUTH_LDAP_USER_ATTR_MAP:
-        email: examplePrimaryMail
-        first_name: displayName
-        last_name: sn
-      AUTH_LDAP_GROUP_SEARCH:
-        - dc=example,dc=com
-        - SCOPE_SUBTREE
-        - (objectClass=person)
-      AUTH_LDAP_GROUP_TYPE: "GroupOfUniqueNamesType"
-      AUTH_LDAP_GROUP_TYPE_PARAMS:
-        {}
-      AUTH_LDAP_REQUIRE_GROUP: "cn=satellite-qe,ou=adhoc,ou=managedGroups,dc=example,dc=com"
-      AUTH_LDAP_USER_FLAGS_BY_GROUP:
-        is_superuser:
-          - cn=sat-qe-infra,ou=adhoc,ou=managedGroups,dc=example,dc=com
-      AUTH_LDAP_ORGANIZATION_MAP:
-        Satellite:
-          users: true
-      AUTH_LDAP_TEAM_MAP:
-        satellite-qe:
-          organization: Satellite
-          users: true
-        satlab-admin:
-          organization: Satellite
-          users: cn=sat-qe-infra,ou=adhoc,ou=managedGroups,dc=example,dc=com
+  settings:
+    ACTIVITY_STREAM_ENABLED: 'true'
+    ACTIVITY_STREAM_ENABLED_FOR_INVENTORY_SYNC: 'false'
+    ORG_ADMINS_CAN_SEE_ALL_USERS: 'true'
+    MANAGE_ORGANIZATION_AUTH: 'true'
+    TOWER_URL_BASE: https://platformhost
+    REMOTE_HOST_HEADERS:
+      - HTTP_X_FORWARDED_FOR
+    LICENSE:
+      account_number: 'xxxxxxx'
+      instance_count: 5
+      license_date: '7777777777'
+      license_type: enterprise
+      pool_id: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      product_name: AAP
+      satellite: false
+      sku: XXXXXXXXX
+      subscription_id: 'xxxxxxxx'
+      subscription_name: AAP
+      support_level: Self-Support
+      trial: false
+      usage: Development/Test
+      valid_key: true
+    SUBSCRIPTIONS_USERNAME: $encrypted$
+    SUBSCRIPTIONS_PASSWORD: $encrypted$
+    AUTOMATION_ANALYTICS_URL: https://cloud.redhat.com/api/ingress/v1/upload
+    INSTALL_UUID: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    DEFAULT_CONTROL_PLANE_QUEUE_NAME: controlplane
+    DEFAULT_EXECUTION_QUEUE_NAME: default
+    AD_HOC_COMMANDS:
+      - command
+      - shell
+      - yum
+      - apt
+      - apt_key
+      - apt_repository
+      - apt_rpm
+      - service
+      - group
+      - user
+      - mount
+      - ping
+      - selinux
+      - setup
+      - win_ping
+      - win_service
+      - win_updates
+      - win_group
+      - win_user
+    ALLOW_JINJA_IN_EXTRA_VARS: template
+    AWX_ISOLATION_BASE_PATH: /home/ivan/aap/controller/data/job_execution
+    AWX_ISOLATION_SHOW_PATHS:
+      - /etc/pki/ca-trust:/etc/pki/ca-trust:O
+      - /usr/share/pki:/usr/share/pki:O
+    AWX_RUNNER_KEEPALIVE_SECONDS: '0'
+    GALAXY_TASK_ENV:
+      ANSIBLE_FORCE_COLOR: 'false'
+      GIT_SSH_COMMAND: ssh -o StrictHostKeyChecking=no
+    INSIGHTS_TRACKING_STATE: 'false'
+    PROJECT_UPDATE_VVV: 'false'
+    AWX_ROLES_ENABLED: 'true'
+    AWX_COLLECTIONS_ENABLED: 'true'
+    AWX_SHOW_PLAYBOOK_LINKS: 'false'
+    AWX_MOUNT_ISOLATED_PATHS_ON_K8S: 'false'
+    GALAXY_IGNORE_CERTS: 'false'
+    STDOUT_MAX_BYTES_DISPLAY: '1048576'
+    EVENT_STDOUT_MAX_BYTES_DISPLAY: '1024'
+    MAX_WEBSOCKET_EVENT_RATE: '30'
+    SCHEDULE_MAX_JOBS: '10'
+    DEFAULT_JOB_TIMEOUT: '0'
+    DEFAULT_JOB_IDLE_TIMEOUT: '0'
+    DEFAULT_INVENTORY_UPDATE_TIMEOUT: '0'
+    DEFAULT_PROJECT_UPDATE_TIMEOUT: '0'
+    ANSIBLE_FACT_CACHE_TIMEOUT: '0'
+    MAX_FORKS: '200'
+    LOG_AGGREGATOR_LOGGERS:
+      - awx
+      - activity_stream
+      - job_events
+      - system_tracking
+      - broadcast_websocket
+      - job_lifecycle
+    LOG_AGGREGATOR_INDIVIDUAL_FACTS: 'false'
+    LOG_AGGREGATOR_ENABLED: 'false'
+    LOG_AGGREGATOR_PROTOCOL: https
+    LOG_AGGREGATOR_TCP_TIMEOUT: '5'
+    LOG_AGGREGATOR_VERIFY_CERT: 'true'
+    LOG_AGGREGATOR_LEVEL: INFO
+    LOG_AGGREGATOR_ACTION_QUEUE_SIZE: '131072'
+    LOG_AGGREGATOR_ACTION_MAX_DISK_USAGE_GB: '1'
+    LOG_AGGREGATOR_MAX_DISK_USAGE_PATH: /var/lib/awx
+    LOG_AGGREGATOR_RSYSLOGD_DEBUG: 'false'
+    API_400_ERROR_LOG_FORMAT: status {status_code} received by user {user_name} attempting to access {url_path} from {remote_addr}
+    AUTOMATION_ANALYTICS_GATHER_INTERVAL: '14400'
+    IS_K8S: 'false'
+    BULK_JOB_MAX_LAUNCH: '100'
+    BULK_HOST_MAX_CREATE: '100'
+    BULK_HOST_MAX_DELETE: '250'
+    SUBSCRIPTION_USAGE_MODEL: unique_managed_hosts
+    CLEANUP_HOST_METRICS_LAST_TS: '2026-05-12T17:36:06.621324Z'
+    HOST_METRIC_SUMMARY_TASK_LAST_TS: '2026-05-12T18:06:06.630535Z'
+    AWX_CLEANUP_PATHS: 'true'
+    AWX_REQUEST_PROFILE: 'false'
+    DEFAULT_CONTAINER_RUN_OPTIONS:
+      - --network
+      - slirp4netns:enable_ipv6=true
+      - --security-opt
+      - label=level:s0:c100,c200
+    RECEPTOR_RELEASE_WORK: 'true'
+    RECEPTOR_KEEP_WORK_ON_ERROR: 'false'
+    OPA_PORT: '8181'
+    OPA_SSL: 'false'
+    OPA_REQUEST_TIMEOUT: '1.5'
+    OPA_REQUEST_RETRIES: '2'
+    SESSION_COOKIE_AGE: '1800'
+    SESSIONS_PER_USER: '-1'
+    DISABLE_LOCAL_AUTH: 'false'
+    AUTH_BASIC_ENABLED: 'true'
+    ALLOW_METRICS_FOR_ANONYMOUS_USERS: 'false'
+    PENDO_TRACKING_STATE: 'off'
+    MAX_UI_JOB_EVENTS: '4000'
+    UI_LIVE_UPDATES_ENABLED: 'true'
+    NAMED_URL_FORMATS:
+      execution_environments: <name>
+      organizations: <name>
+      teams: <name>++<organization.name>
+      credential_types: <name>+<kind>
+      credentials: <name>++<credential_type.name>+<credential_type.kind>++<organization.name>
+      notification_templates: <name>++<organization.name>
+      job_templates: <name>++<organization.name>
+      projects: <name>++<organization.name>
+      inventories: <name>++<organization.name>
+      hosts: <name>++<inventory.name>++<organization.name>
+      groups: <name>++<inventory.name>++<organization.name>
+      inventory_sources: <name>++<inventory.name>++<organization.name>
+      instance_groups: <name>
+      workflow_job_templates: <name>++<organization.name>
+      workflow_job_template_nodes: <identifier>++<workflow_job_template.name>++<organization.name>
+      labels: <name>++<organization.name>
+      users: <username>
+      instances: <hostname>
+    NAMED_URL_GRAPH_NODES:
+      execution_environments:
+        fields:
+          - name
+        adj_list: []
+      organizations:
+        fields:
+          - name
+        adj_list: []
+      teams:
+        fields:
+          - name
+        adj_list:
+          - - organization
+            - organizations
+      credential_types:
+        fields:
+          - name
+          - kind
+        adj_list: []
+      credentials:
+        fields:
+          - name
+        adj_list:
+          - - credential_type
+            - credential_types
+          - - organization
+            - organizations
+      notification_templates:
+        fields:
+          - name
+        adj_list:
+          - - organization
+            - organizations
+      job_templates:
+        fields:
+          - name
+        adj_list:
+          - - organization
+            - organizations
+      projects:
+        fields:
+          - name
+        adj_list:
+          - - organization
+            - organizations
+      inventories:
+        fields:
+          - name
+        adj_list:
+          - - organization
+            - organizations
+      hosts:
+        fields:
+          - name
+        adj_list:
+          - - inventory
+            - inventories
+      groups:
+        fields:
+          - name
+        adj_list:
+          - - inventory
+            - inventories
+      inventory_sources:
+        fields:
+          - name
+        adj_list:
+          - - inventory
+            - inventories
+      instance_groups:
+        fields:
+          - name
+        adj_list: []
+      workflow_job_templates:
+        fields:
+          - name
+        adj_list:
+          - - organization
+            - organizations
+      workflow_job_template_nodes:
+        fields:
+          - identifier
+        adj_list:
+          - - workflow_job_template
+            - workflow_job_templates
+      labels:
+        fields:
+          - name
+        adj_list:
+          - - organization
+            - organizations
+      users:
+        fields:
+          - username
+        adj_list: []
+      instances:
+        fields:
+          - hostname
+        adj_list: []
 ...

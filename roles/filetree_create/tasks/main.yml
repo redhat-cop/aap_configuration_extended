@@ -33,7 +33,7 @@
   tags:
     - yaml_format
   block:
-    - name: "Search for all the generated files"
+    - name: "Search for all generated YAML files"
       ansible.builtin.find:
         paths: "{{ output_path }}"
         recurse: true
@@ -42,7 +42,7 @@
           - '*.yml'
       register: _generated_files
 
-    - name: "Re-write all the generated files to make them more readable"
+    - name: "Format generated files (indent, truthy, document markers, trailing whitespace)"
       infra.aap_configuration_extended.format_yaml:
         path: "{{ _current_file.path }}"
         preserve_comments: true
@@ -54,6 +54,7 @@
       loop_control:
         loop_var: _current_file
         label: "{{ _current_file.path }}"
+      when: _generated_files.matched | default(0) | int > 0
 
 - name: "Remind to check all the 'ToDo:' entries in the output files"
   ansible.builtin.debug:

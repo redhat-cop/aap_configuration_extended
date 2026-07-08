@@ -127,7 +127,6 @@
                                         query_params={'not__description': 'imported'},
                                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                         return_all=true, max_objects=query_controller_api_max_objects)
-                                  if not current_inventory_hosts.has_inventory_sources else []
                                 }}"
   loop: "{{ inventory_lookvar }}"
   loop_control:
@@ -145,12 +144,11 @@
     groups_output_path: "{{   (output_path + '/' + inventory_organization | regex_replace('/', '_') + '/' + filetree_create_controller_groups + '/' + inventory_name | regex_replace('/', '_'))
                           if (flatten_output is not defined or (flatten_output | bool) == false)
                           else
-                            output_path + '/groups.yaml' }}"
+                            output_path + '/controller_groups.yaml' }}"
     current_groups_asset_value: "{{ query('ansible.platform.gateway_api', current_inventory_groups.related.groups,
                                           query_params={'not__description': 'imported'},
                                           host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                           return_all=true, max_objects=query_controller_api_max_objects)
-                                    if (not current_inventory_groups.has_inventory_sources or current_inventory_groups.kind is match('smart')) else []
                                 }}"
   loop: "{{ inventory_lookvar }}"
   loop_control:

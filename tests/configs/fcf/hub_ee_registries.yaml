@@ -1,0 +1,13 @@
+---
+hub_ee_registries:
+  - name: registry.redhat.io
+    url: https://registry.redhat.io/
+    policy: immediate
+    tls_validation: true
+    client_cert: ""
+    ca_cert: ""
+    download_concurrency: ""
+    proxy_url: ""
+    rate_limit: ""
+    is_indexable: true
+...

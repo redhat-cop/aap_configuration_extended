@@ -1,0 +1,12 @@
+---
+controller_groups:
+  - name: "manual_group"
+    description: |-
+      {%- raw -%}
+
+      {%- endraw -%}
+    inventory: "test_manual_hosts_inv"
+    hosts:
+      - HERE
+      - manual_host
+...

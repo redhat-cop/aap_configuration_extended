@@ -86,6 +86,7 @@ valid_tags:
   - controller_users
   - controller_workflow_job_templates
   - controller_instance_groups
+  - controller_instances
   - controller_applications
   - controller_labels
   - controller_schedules

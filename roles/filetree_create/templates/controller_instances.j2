@@ -1,0 +1,38 @@
+---
+{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
+{% set __exportable_node_types = ['execution', 'hop'] %}
+{% set __exportable_node_states = ['installed', 'deprovisioning'] %}
+{% set __exportable_instances = current_instances_asset_value | selectattr('node_type', 'defined') | selectattr('node_type', 'in', __exportable_node_types) | list %}
+controller_instances: {{ [] if __exportable_instances | length == 0 }}
+{% for instance in __exportable_instances %}
+  - hostname: "{{ instance.hostname }}"
+{%   if instance.capacity_adjustment is defined and instance.capacity_adjustment not in __empty_values %}
+    capacity_adjustment: {{ instance.capacity_adjustment }}
+{%   endif %}
+{%   if instance.enabled is defined %}
+    enabled: {{ instance.enabled | bool | lower }}
+{%   endif %}
+{%   if instance.managed_by_policy is defined %}
+    managed_by_policy: {{ instance.managed_by_policy | bool | lower }}
+{%   endif %}
+    node_type: "{{ instance.node_type }}"
+{%   if instance.node_state is defined and instance.node_state not in __empty_values and instance.node_state in __exportable_node_states %}
+    node_state: "{{ instance.node_state }}"
+{%   endif %}
+{%   if instance.listener_port is defined and instance.listener_port not in __empty_values %}
+    listener_port: {{ instance.listener_port }}
+{%   endif %}
+{%   if instance.peers is defined and instance.peers | length > 0 %}
+    peers:
+{%     for peer in instance.peers %}
+{%       set peer_id = peer | string %}
+{%       set peer_hostname = __receptor_peer_hostname_by_id[peer_id]
+                              | default(__instances_hostname_by_id[peer_id])
+                              | default(peer) %}
+      - "{{ peer_hostname }}"
+{%     endfor %}
+{%   endif %}
+{%   if instance.peers_from_control_nodes is defined %}
+    peers_from_control_nodes: {{ instance.peers_from_control_nodes | bool | lower }}
+{%   endif %}
+{% endfor %}

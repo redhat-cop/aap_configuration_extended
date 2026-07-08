@@ -1,0 +1,12 @@
+---
+eda_decision_environments:
+  - name: "Default Decision Environment"
+    description: ""
+    image_url: "registry.redhat.io/ansible-automation-platform-27/de-supported-rhel9:latest"
+    organization: "Default"
+  - name: "Hub Default Decision Environment"
+    description: ""
+    image_url: "aap27-rhel10.1.iam.lab/de-supported-rhel9:latest"
+    organization: "Default"
+    eda_credential: "Hub Decision Environment Container Registry"
+...

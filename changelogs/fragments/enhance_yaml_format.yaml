@@ -1,4 +1,0 @@
----
-bugfixes:
-  - Fix the output of the format_yaml.py module to correctly format the output (Certificates mainly)
-...

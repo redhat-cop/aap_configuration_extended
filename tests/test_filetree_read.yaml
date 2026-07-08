@@ -82,6 +82,7 @@
     filetree_controller_inventories: *custom_configs_path
     filetree_controller_inventory_sources: *custom_configs_path
     filetree_controller_instance_groups: *custom_configs_path
+    filetree_controller_instances: *custom_configs_path
     filetree_controller_hosts: *custom_configs_path
     filetree_controller_groups: *custom_configs_path
     filetree_controller_templates: *custom_configs_path
@@ -119,6 +120,7 @@
     filetree_controller_inventories: *fc_configs_path
     filetree_controller_inventory_sources: *fc_configs_path
     filetree_controller_instance_groups: *fc_configs_path
+    filetree_controller_instances: *fc_configs_path
     filetree_controller_hosts: *fc_configs_path
     filetree_controller_groups: *fc_configs_path
     filetree_controller_templates: *fc_configs_path
@@ -156,6 +158,7 @@
     filetree_controller_inventories: *fcf_configs_path
     filetree_controller_inventory_sources: *fcf_configs_path
     filetree_controller_instance_groups: *fcf_configs_path
+    filetree_controller_instances: *fcf_configs_path
     filetree_controller_hosts: *fcf_configs_path
     filetree_controller_groups: *fcf_configs_path
     filetree_controller_templates: *fcf_configs_path
@@ -201,6 +204,7 @@
     filetree_controller_inventories: *gv_configs_path
     filetree_controller_inventory_sources: *gv_configs_path
     filetree_controller_instance_groups: *gv_configs_path
+    filetree_controller_instances: *gv_configs_path
     filetree_controller_hosts: *gv_configs_path
     filetree_controller_groups: *gv_configs_path
     filetree_controller_templates: *gv_configs_path
