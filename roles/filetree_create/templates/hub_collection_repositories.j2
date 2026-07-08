@@ -1,13 +1,13 @@
 ---
 hub_collection_repositories: {{ [] if current_hub_collection_repositories_asset_value | length == 0 }}
 {% set __excluded_fields = ['pulp_href', 'pulp_created', 'pulp_last_updated', 'hidden_fields', 'last_sync_task'] %}
-{% set __list_items = [] %}
+{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
 {% for current_collection_repository in current_hub_collection_repositories_asset_value %}
-{%   for __map_item in (current_collection_repository | dict2items) if __map_item.key not in __excluded_fields %}
+{%   for __map_item in (current_collection_repository | dict2items) if __map_item.key not in __excluded_fields and __map_item.value not in __empty_values %}
 {%     if loop.index == 1 %}
-  - {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
+  - {{ __map_item.key }}: {{ __map_item.value | replace("\\'", "''") }}
 {%     else %}
-    {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
+    {{ __map_item.key }}: {{ __map_item.value | replace("\\'", "''") }}
 {%     endif %}
 {%-  endfor %}
 {% endfor %}
