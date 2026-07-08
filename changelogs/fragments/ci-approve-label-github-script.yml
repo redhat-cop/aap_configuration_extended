@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - apply the ci-approved label via actions/github-script in the trusted approval
+    workflow instead of gh pr edit, which fails without a git checkout
