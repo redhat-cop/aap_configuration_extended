@@ -153,6 +153,22 @@ options:
       type: float
       aliases: [ aap_request_timeout ]
       version_added: "2.6.0"
+    max_retries:
+      description:
+      - Specify the max retries to be used with some connection issues.
+      - Defaults to 5.
+      - If value not set, will try environment variable C(AAP_MAX_RETRIES) and then config files.
+      - This option requires a recent ansible.controller collection that exposes retry options.
+      type: int
+      aliases: [ aap_max_retries ]
+    retry_backoff_factor:
+      description:
+      - Backoff factor used when retrying connections.
+      - Defaults to 2.
+      - If value not set, will try environment variable C(AAP_RETRY_BACKOFF_FACTOR) and then config files.
+      - This option requires a recent ansible.controller collection that exposes retry options.
+      type: int
+      aliases: [ aap_retry_backoff_factor ]
     controller_config_file:
       description:
       - Path to the controller config file.
