@@ -1,3 +1,0 @@
----
-bugfixes:
-  - "CI - save Ansible collections cache immediately after install so fork PRs are not blocked when later sanity steps fail"

@@ -1,7 +1,9 @@
 ---
 # Untrusted code execution: pull_request (fork PRs have no secrets).
-# Pull request runs wait in approval-gate until pre-commit approval completes.
-# Push/schedule runs populate the Ansible collections cache for external PRs.
+# Pull request runs wait in approval-gate until pre-commit approval completes
+# (including populate-collections-cache). Collections are restored from the cache
+# populated by the trusted pre-commit-approve workflow — this workflow never
+# uses Automation Hub secrets.
 name: pre-commit and sanity tests
 
 on:
@@ -72,13 +74,21 @@ jobs:
               return data.workflow_runs[0];
             }
 
-            async function hasSuccessfulApprovalJob(runId) {
+            async function getJobs(runId) {
               const { data: jobsResponse } = await github.rest.actions.listJobsForWorkflowRun({
                 owner,
                 repo,
                 run_id: runId,
               });
-              return jobsResponse.jobs.find(
+              return jobsResponse.jobs;
+            }
+
+            function findJob(jobs, name) {
+              return jobs.find((job) => job.name === name);
+            }
+
+            function hasSuccessfulApprovalJob(jobs) {
+              return jobs.find(
                 (job) =>
                   (job.name === 'auto-approve' || job.name === 'manual-approval') &&
                   job.conclusion === 'success',
@@ -88,16 +98,17 @@ jobs:
             while (Date.now() < deadline) {
               // Escape hatch when approval labeling fails on base-branch workflow
               // (pull_request_target) but a maintainer applied ci-approved manually.
-              if (await hasCiApprovedLabel()) {
-                core.notice('Approved via ci-approved label', { title: 'CI approval gate' });
-                core.setOutput('approved', 'true');
-                return;
-              }
-
+              // Still require collections cache populate when an approval run exists.
               const approvalRun = await getLatestApprovalRun();
 
               if (!approvalRun) {
-                core.info('Waiting for pre-commit approval workflow to start...');
+                if (await hasCiApprovedLabel()) {
+                  core.info(
+                    'ci-approved label present but no approval workflow run yet; waiting...',
+                  );
+                } else {
+                  core.info('Waiting for pre-commit approval workflow to start...');
+                }
                 await sleep(pollIntervalMs);
                 continue;
               }
@@ -110,6 +121,53 @@ jobs:
                 continue;
               }
 
+              const jobs = await getJobs(approvalRun.id);
+              const populateJob = findJob(jobs, 'populate-collections-cache');
+              const approvalJob = hasSuccessfulApprovalJob(jobs);
+              const labelApproved = await hasCiApprovedLabel();
+
+              if (populateJob && populateJob.conclusion !== 'success') {
+                if (populateJob.conclusion == null || populateJob.status !== 'completed') {
+                  core.info(
+                    `Waiting for populate-collections-cache in workflow ${approvalRun.id}...`,
+                  );
+                } else {
+                  core.info(
+                    `populate-collections-cache in workflow ${approvalRun.id} concluded with ${populateJob.conclusion}; waiting for a new run...`,
+                  );
+                }
+                await sleep(pollIntervalMs);
+                continue;
+              }
+
+              if (!populateJob) {
+                // Older approval workflow without populate job: require label or approval job,
+                // and rely on an existing devel cache for restore.
+                core.info(
+                  `Approval workflow ${approvalRun.id} has no populate-collections-cache job (base branch may be outdated)`,
+                );
+              }
+
+              if (approvalJob) {
+                core.notice(
+                  `Approved by ${approvalJob.name} in workflow run ${approvalRun.id}` +
+                    (populateJob ? ' (collections cache populated)' : ''),
+                  { title: 'CI approval gate' },
+                );
+                core.setOutput('approved', 'true');
+                return;
+              }
+
+              if (labelApproved) {
+                core.notice(
+                  `Approved via ci-approved label` +
+                    (populateJob ? ` (collections cache from workflow ${approvalRun.id})` : ''),
+                  { title: 'CI approval gate' },
+                );
+                core.setOutput('approved', 'true');
+                return;
+              }
+
               if (approvalRun.conclusion !== 'success') {
                 core.info(
                   `Approval workflow ${approvalRun.id} concluded with ${approvalRun.conclusion}; waiting for ci-approved label or a new run...`,
@@ -118,47 +176,96 @@ jobs:
                 continue;
               }
 
-              const approvalJob = await hasSuccessfulApprovalJob(approvalRun.id);
-              if (!approvalJob) {
-                core.info(
-                  `Approval workflow ${approvalRun.id} completed without a successful approval job; waiting for ci-approved label or a new run...`,
-                );
-                await sleep(pollIntervalMs);
-                continue;
-              }
-
-              core.notice(
-                `Approved by ${approvalJob.name} in workflow run ${approvalRun.id}`,
-                { title: 'CI approval gate' },
+              core.info(
+                `Approval workflow ${approvalRun.id} completed without a successful approval job; waiting for ci-approved label or a new run...`,
               );
-              core.setOutput('approved', 'true');
-              return;
+              await sleep(pollIntervalMs);
             }
 
             core.setFailed('Timed out waiting for pre-commit approval workflow to complete');
             core.setOutput('approved', 'false');
 
+  # On push/schedule, the trusted approve workflow populates the cache in parallel.
+  # Wait for it so restore-only tests do not race a cold cache.
+  collections-cache-gate:
+    if: github.event_name == 'push' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - name: Wait for collections cache population
+        id: check
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+            const pollIntervalMs = 15_000;
+            const timeoutMs = 60 * 60 * 1000;
+            const deadline = Date.now() + timeoutMs;
+            const { owner, repo } = context.repo;
+            const headSha = context.sha;
+            const eventName = context.eventName;
+
+            while (Date.now() < deadline) {
+              const { data } = await github.rest.actions.listWorkflowRuns({
+                owner,
+                repo,
+                workflow_id: 'pre-commit-approve.yml',
+                head_sha: headSha,
+                event: eventName,
+                per_page: 5,
+              });
+              const run = data.workflow_runs[0];
+              if (!run) {
+                core.info('Waiting for pre-commit approval workflow (cache populate) to start...');
+                await sleep(pollIntervalMs);
+                continue;
+              }
+              if (run.status !== 'completed') {
+                core.info(`Waiting for cache populate workflow ${run.id} (${run.status})...`);
+                await sleep(pollIntervalMs);
+                continue;
+              }
+              const { data: jobsResponse } = await github.rest.actions.listJobsForWorkflowRun({
+                owner,
+                repo,
+                run_id: run.id,
+              });
+              const populateJob = jobsResponse.jobs.find(
+                (job) => job.name === 'populate-collections-cache',
+              );
+              if (populateJob && populateJob.conclusion === 'success') {
+                core.notice(
+                  `Collections cache ready via workflow ${run.id}`,
+                  { title: 'CI collections cache gate' },
+                );
+                core.setOutput('ready', 'true');
+                return;
+              }
+              core.info(
+                `populate-collections-cache not successful yet (conclusion=${populateJob && populateJob.conclusion}); waiting...`,
+              );
+              await sleep(pollIntervalMs);
+            }
+
+            core.setFailed('Timed out waiting for populate-collections-cache on approval workflow');
+            core.setOutput('ready', 'false');
+
   pre-commit-tests:
-    needs: approval-gate
+    needs: [approval-gate, collections-cache-gate]
     runs-on: ubuntu-latest
     if: >
       always() &&
       !cancelled() &&
-      (github.event_name == 'push' ||
-       github.event_name == 'schedule' ||
-       (github.event_name == 'pull_request' &&
-        needs.approval-gate.outputs.approved == 'true'))
+      ((github.event_name == 'pull_request' &&
+        needs.approval-gate.outputs.approved == 'true') ||
+       ((github.event_name == 'push' || github.event_name == 'schedule') &&
+        needs.collections-cache-gate.outputs.ready == 'true'))
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.12", "3.13", "3.14"]
-    env:
-      HAS_CERTIFIED_HUB: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
-      ANSIBLE_GALAXY_SERVER_LIST: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'certified,galaxy' || 'galaxy' }}
-      ANSIBLE_GALAXY_SERVER_CERTIFIED_URL: https://console.redhat.com/api/automation-hub/content/published/
-      ANSIBLE_GALAXY_SERVER_CERTIFIED_AUTH_URL: https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
-      ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && secrets.CRC_PUBLISH_KEY || '' }}
-      ANSIBLE_GALAXY_SERVER_GALAXY_URL: https://galaxy.ansible.com/api/
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
@@ -177,34 +284,11 @@ jobs:
           restore-keys: |
             ansible-collections-
 
-      - name: Install Ansible Galaxy collections
-        id: install_collections
-        if: >
-          env.HAS_CERTIFIED_HUB == 'true' &&
-          (steps.collections_cache.outputs.cache-hit != 'true' || github.event_name == 'schedule')
-        run: |
-          pip install ansible
-          ansible-galaxy collection install -r .github/collections/requirements.yml
-
-      # Save right after install so pre-commit/sanity failures cannot leave devel without a cache
-      # for fork PRs (which cannot use Automation Hub secrets).
-      - name: Save Ansible collections cache
-        if: >
-          matrix.python-version == '3.12' &&
-          (github.event_name == 'push' || github.event_name == 'schedule') &&
-          steps.install_collections.outcome == 'success'
-        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
-        with:
-          path: ~/.ansible/collections
-          key: ansible-collections-${{ hashFiles('.github/collections/requirements.yml', 'galaxy.yml', '.pre-commit-config.yaml') }}
-
       # cache-hit is exact-key only; cache-matched-key is set for exact or restore-keys hits.
-      - name: Require Ansible collections cache for external PRs
-        if: >
-          env.HAS_CERTIFIED_HUB != 'true' &&
-          steps.collections_cache.outputs.cache-matched-key == ''
+      - name: Require Ansible collections cache
+        if: steps.collections_cache.outputs.cache-matched-key == ''
         run: |
-          echo "::error::Ansible collections cache miss for an external PR. Collections require Automation Hub credentials and are restored from the default-branch cache populated by push to devel or the daily schedule."
+          echo "::error::Ansible collections cache miss. Collections are installed and cached by the trusted pre-commit approval workflow (pull_request_target / push to devel / schedule) using Automation Hub credentials. Re-run after that workflow has populated ansible-collections-*."
           exit 1
 
       - name: Run default pre-commit hooks

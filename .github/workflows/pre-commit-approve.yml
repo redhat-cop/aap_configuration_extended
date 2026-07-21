@@ -1,11 +1,16 @@
 ---
-# Trusted workflow: approval gate for external PRs and .github changes.
-# Does not checkout or execute PR code (no pwn-request risk).
+# Trusted workflow: approval gate + Ansible collections cache population.
+# Does not checkout or execute PR head code (no pwn-request risk).
+# Secrets (CRC_PUBLISH_KEY) are only used here; pre-commit-tests restores the cache.
 name: pre-commit approval
 
 on:
   pull_request_target:
     types: [opened, synchronize, reopened]
+  push:
+    branches: [devel]
+  schedule:
+    - cron: "0 6 * * *"
 
 permissions:
   contents: read
@@ -13,6 +18,7 @@ permissions:
 
 jobs:
   check-changes:
+    if: github.event_name == 'pull_request_target'
     runs-on: ubuntu-latest
     outputs:
       github_modified: ${{ steps.filter.outputs.github }}
@@ -33,6 +39,7 @@ jobs:
   auto-approve:
     needs: check-changes
     if: >-
+      github.event_name == 'pull_request_target' &&
       contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) &&
       needs.check-changes.outputs.github_modified == 'false'
     runs-on: ubuntu-latest
@@ -57,8 +64,9 @@ jobs:
   manual-approval:
     needs: check-changes
     if: >-
-      !contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) ||
-      needs.check-changes.outputs.github_modified == 'true'
+      github.event_name == 'pull_request_target' &&
+      (!contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) ||
+       needs.check-changes.outputs.github_modified == 'true')
     runs-on: ubuntu-latest
     environment: requires-approval
     # issues.addLabels requires write (tightened to read in #306 and broke labeling).
@@ -79,3 +87,49 @@ jobs:
             if (!labels.includes(label)) {
               await github.rest.issues.addLabels({ owner, repo, issue_number, labels: [label] });
             }
+
+  # Install certified collections with secrets and save the cache for untrusted test runs.
+  # Always uses the base/devel tree — never the PR head.
+  populate-collections-cache:
+    runs-on: ubuntu-latest
+    env:
+      ANSIBLE_GALAXY_SERVER_LIST: certified,galaxy
+      ANSIBLE_GALAXY_SERVER_CERTIFIED_URL: https://console.redhat.com/api/automation-hub/content/published/
+      ANSIBLE_GALAXY_SERVER_CERTIFIED_AUTH_URL: https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
+      ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN: ${{ secrets.CRC_PUBLISH_KEY }}
+      ANSIBLE_GALAXY_SERVER_GALAXY_URL: https://galaxy.ansible.com/api/
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.base.sha || github.sha }}
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+        with:
+          python-version: "3.12"
+
+      - name: Restore Ansible collections cache
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        id: collections_cache
+        with:
+          path: ~/.ansible/collections
+          key: ansible-collections-${{ hashFiles('.github/collections/requirements.yml', 'galaxy.yml', '.pre-commit-config.yaml') }}
+          restore-keys: |
+            ansible-collections-
+
+      - name: Install Ansible Galaxy collections
+        id: install_collections
+        if: >
+          steps.collections_cache.outputs.cache-hit != 'true' ||
+          github.event_name == 'schedule'
+        run: |
+          pip install ansible
+          ansible-galaxy collection install -r .github/collections/requirements.yml
+
+      - name: Save Ansible collections cache
+        if: >
+          steps.install_collections.outcome == 'success' &&
+          steps.collections_cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ~/.ansible/collections
+          key: ansible-collections-${{ hashFiles('.github/collections/requirements.yml', 'galaxy.yml', '.pre-commit-config.yaml') }}
