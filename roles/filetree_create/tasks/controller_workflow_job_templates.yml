@@ -46,7 +46,7 @@
                                           return_all=true, max_objects=query_controller_api_max_objects) }}"
       no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
-    - name: "Collect job template and inventory names from workflow nodes"
+    - name: "Collect job template, nested workflow, and inventory names from workflow nodes"
       ansible.builtin.set_fact:
         related_node_job_template_names: "{{ workflow_nodes_lookvar
           | map(attribute='summary_fields')
@@ -56,6 +56,15 @@
           | selectattr('unified_job_type', 'equalto', 'job')
           | map(attribute='name')
           | list | unique }}"
+        related_node_workflow_job_template_names: "{{ workflow_nodes_lookvar
+          | map(attribute='summary_fields')
+          | selectattr('unified_job_template', 'defined')
+          | map(attribute='unified_job_template')
+          | selectattr('unified_job_type', 'defined')
+          | selectattr('unified_job_type', 'equalto', 'workflow_job')
+          | map(attribute='name')
+          | list | unique
+          | difference([__related_wfjt.name]) }}"
         related_node_inventory_names: "{{ workflow_nodes_lookvar
           | map(attribute='summary_fields')
           | selectattr('inventory', 'defined')
@@ -121,6 +130,17 @@
       loop: "{{ related_node_job_template_names }}"
       loop_control:
         loop_var: related_node_jt_name_item
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export nested workflow job templates referenced by workflow nodes"
+      when: (related_node_workflow_job_template_names | default([]) | length) > 0
+      ansible.builtin.include_tasks: "controller_workflow_job_template_by_name.yml"
+      vars:
+        # Do not reuse workflow_job_template_name: it is often an extra var (-e) and cannot be overridden.
+        nested_workflow_job_template_name: "{{ related_node_wfjt_name_item }}"
+      loop: "{{ related_node_workflow_job_template_names }}"
+      loop_control:
+        loop_var: related_node_wfjt_name_item
       no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
     - name: "Export labels related to workflow job template"

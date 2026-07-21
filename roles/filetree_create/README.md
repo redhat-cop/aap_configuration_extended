@@ -609,7 +609,12 @@ ansible-playbook playbooks/import_filetree.yml \
 - Prefer **names** (`job_template_name`, `workflow_job_template_name`, `organization_filter`) over numeric `*_id` variables.
 - Re-run export after changing related objects on PRE; re-fill any new keys in `env_variables.yml`.
 - Approval nodes are described inline in the WFJT YAML; they do not create separate Controller objects to export.
-- Nested workflow nodes (`unified_job_type: workflow_job`) are not expanded in this related export; export those workflows separately if needed.
+- Nested workflow nodes (`unified_job_type: workflow_job`) are exported as Workflow Job Template
+  objects (by name) without recursively cascading their related set (avoids cycles). Re-run related
+  export on those nested workflows if you need their full dependency tree.
+- Job nodes (`unified_job_type: job`) still cascade each Job Template with its full related set.
+- If `yaml_format` warns about missing PyYAML, the export files are still valid; install PyYAML for
+  the configured `interpreter_python`, or use `--skip-tags yaml_format`.
 - See also playbooks: `export_job_template_related.yml`, `export_workflow_job_template_related.yml`, `import_filetree.yml`.
 
 ## License
