@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - "CI - restore pull-requests write permission on approval jobs so ci-approved labels can be applied"

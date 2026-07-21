@@ -36,6 +36,9 @@ jobs:
       contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) &&
       needs.check-changes.outputs.github_modified == 'false'
     runs-on: ubuntu-latest
+    # issues.addLabels requires write (tightened to read in #306 and broke labeling).
+    permissions:
+      pull-requests: write
     steps:
       - name: Trusted collaborator PR approved automatically
         run: echo "Trusted collaborator PR approved automatically."
@@ -58,6 +61,9 @@ jobs:
       needs.check-changes.outputs.github_modified == 'true'
     runs-on: ubuntu-latest
     environment: requires-approval
+    # issues.addLabels requires write (tightened to read in #306 and broke labeling).
+    permissions:
+      pull-requests: write
     steps:
       - name: Approval granted
         run: echo "Approval granted."
