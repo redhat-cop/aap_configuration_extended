@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
-# Run tox-ansible sanity using Automation Hub collections from the CI cache.
-# Clears galaxy.yml deps so ade does not contact Galaxy/AH, then copies cached
-# dependency collections into each tox env before ansible-test.
+# Run ansible-test sanity using the trusted CI collections cache directly.
+#
+# Layout required by ansible-test:
+#   <tree>/ansible_collections/<namespace>/<collection>/
+#
+# Cached AH deps live in ~/.ansible/collections/ansible_collections/ and are
+# symlinked in as siblings of the collection under test. No ade / Galaxy / AH
+# token is needed in the untrusted test job.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -9,68 +14,55 @@ cd "${ROOT}"
 
 CACHE_COLLECTIONS="${HOME}/.ansible/collections/ansible_collections"
 MATRIX_PYTHON="${MATRIX_PYTHON:-$(python3 -c 'import sys; print("%d.%d" % sys.version_info[:2])')}"
+TREE="${ROOT}/.ci-ansible-collections"
 
-python3 - <<'PY'
-from pathlib import Path
-import sys
+if [[ ! -d "${CACHE_COLLECTIONS}/ansible/controller" ]]; then
+  echo "::error::Cached ansible.controller missing at ${CACHE_COLLECTIONS}/ansible/controller"
+  exit 1
+fi
 
-try:
-    import yaml
-except ImportError:
-    import subprocess
+echo "::group::Build ansible_collections tree from cache + checkout"
+rm -rf "${TREE}"
+mkdir -p "${TREE}/ansible_collections/infra"
 
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "PyYAML"])
-    import yaml
+# Collection under test must be a real directory tree (ansible-test resolves paths).
+rsync -a \
+  --exclude '.git/' \
+  --exclude '.tox/' \
+  --exclude '.tox-ci-sanity/' \
+  --exclude '.ci-ansible-collections/' \
+  --exclude '.venv/' \
+  --exclude 'tests/output/' \
+  "${ROOT}/" "${TREE}/ansible_collections/infra/aap_configuration_extended/"
 
-path = Path("galaxy.yml")
-data = yaml.safe_load(path.read_text()) or {}
-data["dependencies"] = {}
-path.write_text(
-    yaml.safe_dump(
-        data,
-        default_flow_style=False,
-        sort_keys=False,
-        explicit_start=True,
-        explicit_end=True,
-    )
-)
-print("Cleared galaxy.yml dependencies for ade; deps come from CI collections cache")
-PY
-
-link_cached_deps() {
-  local site_packages="$1"
-  local root="${site_packages}/ansible_collections"
-  mkdir -p "${root}"
-  if [[ ! -d "${CACHE_COLLECTIONS}" ]]; then
-    echo "::error::Missing cached collections at ${CACHE_COLLECTIONS}"
-    return 1
+# Dependency collections: use the cache directly via symlinks (siblings).
+shopt -s nullglob
+for ns in "${CACHE_COLLECTIONS}"/*; do
+  [[ -d "${ns}" ]] || continue
+  name="$(basename "${ns}")"
+  if [[ "${name}" == "infra" ]]; then
+    mkdir -p "${TREE}/ansible_collections/infra"
+    for coll in "${ns}"/*; do
+      [[ -d "${coll}" ]] || continue
+      cname="$(basename "${coll}")"
+      if [[ "${cname}" == "aap_configuration_extended" ]]; then
+        continue
+      fi
+      ln -sfn "${coll}" "${TREE}/ansible_collections/infra/${cname}"
+    done
+  else
+    ln -sfn "${ns}" "${TREE}/ansible_collections/${name}"
   fi
-  local ns name coll cname
-  for ns in "${CACHE_COLLECTIONS}"/*; do
-    [[ -d "${ns}" ]] || continue
-    name="$(basename "${ns}")"
-    if [[ "${name}" == "infra" ]]; then
-      mkdir -p "${root}/infra"
-      for coll in "${ns}"/*; do
-        [[ -d "${coll}" ]] || continue
-        cname="$(basename "${coll}")"
-        # Keep the collection under test from ade; seed sibling infra.* deps from cache.
-        if [[ "${cname}" == "aap_configuration_extended" ]]; then
-          continue
-        fi
-        rm -rf "${root}/infra/${cname}"
-        cp -a "${coll}" "${root}/infra/${cname}"
-      done
-    else
-      rm -rf "${root}/${name}"
-      cp -a "${ns}" "${root}/${name}"
-    fi
-  done
-  test -d "${root}/ansible/controller"
-  echo "Linked cached collection deps into ${root}"
-}
+done
+shopt -u nullglob
 
-python3 -m pip install -q 'tox>=4' 'tox-ansible' 'ansible-dev-environment>=26.2.0'
+test -d "${TREE}/ansible_collections/infra/aap_configuration_extended/plugins"
+test -e "${TREE}/ansible_collections/ansible/controller"
+test -e "${TREE}/ansible_collections/infra/aap_configuration"
+echo "Collection tree ready at ${TREE}/ansible_collections"
+echo "::endgroup::"
+
+python3 -m pip install -q 'tox>=4' 'tox-ansible'
 
 mapfile -t ENVS < <(
   python3 -m tox --ansible --conf tox-ansible.ini -l \
@@ -80,53 +72,62 @@ mapfile -t ENVS < <(
 
 if [[ ${#ENVS[@]} -eq 0 ]]; then
   echo "::error::No sanity tox envs found for Python ${MATRIX_PYTHON}"
-  git checkout -- galaxy.yml
   exit 1
 fi
 
+install_ansible_core() {
+  local acv="$1"
+  case "${acv}" in
+    devel)
+      pip install -q "https://github.com/ansible/ansible/archive/devel.tar.gz"
+      ;;
+    milestone)
+      pip install -q "https://github.com/ansible/ansible/archive/milestone.tar.gz"
+      ;;
+    *)
+      local major minor next
+      major="${acv%%.*}"
+      minor="${acv#*.}"
+      next="$((minor + 1))"
+      pip install -q "ansible-core>=${major}.${minor}.0,<${major}.${next}.0"
+      ;;
+  esac
+}
+
 status=0
+COLL_DIR="${TREE}/ansible_collections/infra/aap_configuration_extended"
+
 for env in "${ENVS[@]}"; do
   py="$(sed -n 's/^sanity-py\([0-9][0-9]*\.[0-9][0-9]*\).*/\1/p' <<<"${env}")"
-  site="${ROOT}/.tox/${env}/lib/python${py}/site-packages"
-  coll_dir="${site}/ansible_collections/infra/aap_configuration_extended"
-  venv_bin="${ROOT}/.tox/${env}/bin"
+  acv="$(sed -n 's/^sanity-py[0-9.]*-//p' <<<"${env}")"
+  venv="${ROOT}/.tox-ci-sanity/${env}"
 
-  echo "::group::tox ${env} (create + ade install)"
-  if ! python3 -m tox --ansible --conf tox-ansible.ini -e "${env}" --notest; then
-    echo "::endgroup::"
+  echo "::group::Prepare ${env} (ansible-core ${acv}, python ${py})"
+  rm -rf "${venv}"
+  python3 -m venv "${venv}"
+  # shellcheck disable=SC1091
+  source "${venv}/bin/activate"
+  pip install -q --upgrade pip
+  if ! install_ansible_core "${acv}"; then
+    echo "::error::Failed to install ansible-core ${acv}"
+    deactivate || true
     status=1
+    echo "::endgroup::"
     continue
   fi
+  echo "ansible-core: $(python -c 'import ansible; print(ansible.__version__)')"
   echo "::endgroup::"
 
-  if [[ ! -d "${site}" ]]; then
-    echo "::error::Expected tox site-packages missing: ${site}"
-    status=1
-    continue
-  fi
-
-  echo "::group::Seed cached deps into ${env}"
-  if ! link_cached_deps "${site}"; then
-    echo "::endgroup::"
-    status=1
-    continue
-  fi
-  echo "::endgroup::"
-
-  echo "::group::ansible-test sanity (${env}, python ${py})"
+  echo "::group::ansible-test sanity (${env})"
   if ! (
-    cd "${coll_dir}"
-    # Prefer the env's ansible-test so collections resolve from this venv.
-    if [[ -x "${venv_bin}/ansible-test" ]]; then
-      "${venv_bin}/ansible-test" sanity --local --requirements --python "${py}"
-    else
-      PATH="${venv_bin}:${PATH}" ansible-test sanity --local --requirements --python "${py}"
-    fi
+    cd "${COLL_DIR}"
+    # Sibling collections from the cache are visible via the ansible_collections parent.
+    ansible-test sanity --local --requirements --python "${py}"
   ); then
     status=1
   fi
+  deactivate || true
   echo "::endgroup::"
 done
 
-git checkout -- galaxy.yml
 exit "${status}"

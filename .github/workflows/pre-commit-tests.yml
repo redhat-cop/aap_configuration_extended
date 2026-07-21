@@ -303,8 +303,8 @@ jobs:
       - name: Install system dependencies for EDA collection
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libsystemd-dev pkg-config libkrb5-dev
 
-      # ade would re-resolve galaxy.yml deps from Galaxy/AH; instead install the local
-      # collection only, then seed AH deps from the trusted collections cache into each tox env.
+      # Build an ansible_collections tree: checkout + symlinked deps from the trusted
+      # AH cache, then run ansible-test (no ade / no Automation Hub token in this job).
       - name: Run sanity (manual stage)
         env:
           MATRIX_PYTHON: ${{ matrix.python-version }}
