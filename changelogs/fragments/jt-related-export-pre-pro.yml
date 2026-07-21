@@ -1,0 +1,6 @@
+---
+minor_changes:
+  - filetree_create - Expand ``export_related_objects`` for Job Templates and Workflow Job Templates to export related Controller objects by **object name** (organization, inventory, credentials, credential types, execution environments, labels, notification templates, schedules; WFJT also exports each node JT with its related set).
+  - filetree_create - Add ``job_template_name`` / ``workflow_job_template_name`` and other ``*_name`` filters; prefer names over numeric IDs for Configuration as Code.
+  - filetree_create - Add ``env_fields_as_variables`` to export curated environment-specific fields as Ansible variable placeholders, and generate an ``env_variables.yml`` stub for PRE→PRO workflows.
+  - Add playbooks ``export_job_template_related.yml``, ``export_workflow_job_template_related.yml``, and ``import_filetree.yml`` for PRE→PRO migration (name-based).

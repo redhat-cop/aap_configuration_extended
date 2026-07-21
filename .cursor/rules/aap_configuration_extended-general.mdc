@@ -1,0 +1,24 @@
+---
+description: Core conventions for infra.aap_configuration_extended (CaC, filetree, FQCN)
+alwaysApply: true
+---
+
+# aap_configuration_extended — general rules
+
+## Configuration as Code: names, never IDs
+
+- Identify and reference Controller / Gateway / Hub / EDA objects by **name**, never by numeric API `id`.
+- In exported YAML, related objects must appear as names (`project: "My Project"`, `credentials: ["scm"]`, …). Do not emit `id`, `*_id`, or `*_ids` fields into CaC YAML.
+- User-facing filters and playbook extra vars prefer `*_name` / `organization_filter` / `label_filter` over `*_id`. Legacy `*_id` variables may remain for compatibility but must not be recommended in docs or examples.
+- Output filenames should use `omit_id: true` for CaC workflows so paths do not embed numeric IDs.
+- Internal API queries may still resolve names to IDs or use related URLs transiently; that resolution must not leak into committed CaC or public examples.
+
+## Roles
+
+- Pair **filetree_create** (API → YAML) with **filetree_read** (YAML → vars → `infra.aap_configuration.dispatch`).
+- Use FQCN `infra.aap_configuration_extended.*` and prefixes `controller_*`, `gateway_*`, `hub_*`, `eda_*`.
+
+## Skills
+
+- New filetree entities: [skills/add-filetree-entity/SKILL.md](../../skills/add-filetree-entity/SKILL.md)
+- Full roundtrip tests: [.cursor/skills/filetree-roundtrip-test/SKILL.md](../skills/filetree-roundtrip-test/SKILL.md)

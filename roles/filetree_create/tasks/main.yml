@@ -56,6 +56,11 @@
         label: "{{ _current_file.path }}"
       when: _generated_files.matched | default(0) | int > 0
 
+- name: "Generate env_variables stub from secrets/env placeholders"
+  ansible.builtin.include_tasks: generate_env_variables_stub.yml
+  tags:
+    - always
+
 - name: "Remind to check all the 'ToDo:' entries in the output files"
   ansible.builtin.debug:
     msg: "Please, check the existance of 'ToDo: ' entries in the files generated at '{{ output_path }}' with the following command: grep -R 'ToDo: ' '{{ output_path }}'"
