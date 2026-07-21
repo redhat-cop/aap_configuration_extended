@@ -291,13 +291,23 @@ jobs:
           echo "::error::Ansible collections cache miss. Collections are installed and cached by the trusted pre-commit approval workflow (pull_request_target / push to devel / schedule) using Automation Hub credentials. Re-run after that workflow has populated ansible-collections-*."
           exit 1
 
-      # tox-ansible `ade install` resolves galaxy.yml deps via ansible-galaxy. Without AH
-      # credentials that fails for ansible.controller. Deps are already in the trusted cache;
-      # point Ansible at them and clear remote deps for this ephemeral checkout only.
-      - name: Use cached collections for ade without Automation Hub
+      - name: Point Ansible at cached collections
         run: |
           echo "ANSIBLE_COLLECTIONS_PATH=${HOME}/.ansible/collections" >> "${GITHUB_ENV}"
-          echo "ANSIBLE_COLLECTIONS_PATHS=${HOME}/.ansible/collections" >> "${GITHUB_ENV}"
+          test -d "${HOME}/.ansible/collections/ansible_collections/ansible/controller"
+          test -d "${HOME}/.ansible/collections/ansible_collections/infra/aap_configuration"
+
+      - name: Run default pre-commit hooks
+        uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
+
+      - name: Install system dependencies for EDA collection
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libsystemd-dev pkg-config libkrb5-dev
+
+      # tox-ansible `ade install` resolves galaxy.yml deps via ansible-galaxy. Without AH
+      # credentials that fails for ansible.controller. Clear remote deps only for sanity,
+      # then restore galaxy.yml so the job does not look like pre-commit rewrote the tree.
+      - name: Run sanity (manual stage)
+        run: |
           python3 - <<'PY'
           from pathlib import Path
           import sys
@@ -310,22 +320,22 @@ jobs:
           path = Path("galaxy.yml")
           data = yaml.safe_load(path.read_text()) or {}
           data["dependencies"] = {}
-          path.write_text(yaml.safe_dump(data, sort_keys=False))
-          print("Cleared galaxy.yml dependencies; using ANSIBLE_COLLECTIONS_PATHS from cache")
+          path.write_text(
+              yaml.safe_dump(
+                  data,
+                  default_flow_style=False,
+                  sort_keys=False,
+                  explicit_start=True,
+                  explicit_end=True,
+              )
+          )
+          print("Cleared galaxy.yml dependencies for ade; using ANSIBLE_COLLECTIONS_PATH from cache")
           PY
-          test -d "${HOME}/.ansible/collections/ansible_collections/ansible/controller"
-          test -d "${HOME}/.ansible/collections/ansible_collections/infra/aap_configuration"
-
-      - name: Run default pre-commit hooks
-        uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
-
-      - name: Install system dependencies for EDA collection
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libsystemd-dev pkg-config libkrb5-dev
-
-      - name: Run sanity (manual stage)
-        uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
-        with:
-          extra_args: --hook-stage manual sanity --all-files
+          set +e
+          pre-commit run --hook-stage manual sanity --all-files
+          status=$?
+          git checkout -- galaxy.yml
+          exit "${status}"
 
   # Single check name for branch protection (matrix jobs report as pre-commit-tests (3.x)).
   pre-commit:

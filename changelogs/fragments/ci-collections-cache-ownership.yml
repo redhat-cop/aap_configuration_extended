@@ -3,4 +3,4 @@ bugfixes:
   - "CI - populate Ansible collections cache in the trusted pre-commit approval workflow (with Automation Hub secrets); pre-commit-tests only restores the cache"
   - "CI - restore pull-requests write permission on approval labeling jobs so ci-approved can be applied"
   - "CI - approval-gate accepts ci-approved label and waits for populate-collections-cache before running tests"
-  - "CI - point tox/ade at the restored collections cache and skip remote galaxy.yml dep resolve so sanity works without Automation Hub credentials"
+  - "CI - point tox/ade at the restored collections cache and skip remote galaxy.yml dep resolve during sanity so tests work without Automation Hub credentials"
