@@ -86,6 +86,11 @@ fi
 
 status=0
 for env in "${ENVS[@]}"; do
+  py="$(sed -n 's/^sanity-py\([0-9][0-9]*\.[0-9][0-9]*\).*/\1/p' <<<"${env}")"
+  site="${ROOT}/.tox/${env}/lib/python${py}/site-packages"
+  coll_dir="${site}/ansible_collections/infra/aap_configuration_extended"
+  venv_bin="${ROOT}/.tox/${env}/bin"
+
   echo "::group::tox ${env} (create + ade install)"
   if ! python3 -m tox --ansible --conf tox-ansible.ini -e "${env}" --notest; then
     echo "::endgroup::"
@@ -94,10 +99,12 @@ for env in "${ENVS[@]}"; do
   fi
   echo "::endgroup::"
 
-  site="$(
-    python3 -m tox --ansible --conf tox-ansible.ini -e "${env}" exec -- \
-      python -c 'import sysconfig; print(sysconfig.get_path("purelib"))'
-  )"
+  if [[ ! -d "${site}" ]]; then
+    echo "::error::Expected tox site-packages missing: ${site}"
+    status=1
+    continue
+  fi
+
   echo "::group::Seed cached deps into ${env}"
   if ! link_cached_deps "${site}"; then
     echo "::endgroup::"
@@ -106,11 +113,16 @@ for env in "${ENVS[@]}"; do
   fi
   echo "::endgroup::"
 
-  py="$(sed -n 's/^sanity-py\([0-9][0-9]*\.[0-9][0-9]*\).*/\1/p' <<<"${env}")"
-  coll_dir="${site}/ansible_collections/infra/aap_configuration_extended"
   echo "::group::ansible-test sanity (${env}, python ${py})"
-  if ! python3 -m tox --ansible --conf tox-ansible.ini -e "${env}" exec -- \
-    bash -c "cd \"${coll_dir}\" && ansible-test sanity --local --requirements --python '${py}'"; then
+  if ! (
+    cd "${coll_dir}"
+    # Prefer the env's ansible-test so collections resolve from this venv.
+    if [[ -x "${venv_bin}/ansible-test" ]]; then
+      "${venv_bin}/ansible-test" sanity --local --requirements --python "${py}"
+    else
+      PATH="${venv_bin}:${PATH}" ansible-test sanity --local --requirements --python "${py}"
+    fi
+  ); then
     status=1
   fi
   echo "::endgroup::"
