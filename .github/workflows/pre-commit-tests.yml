@@ -291,6 +291,31 @@ jobs:
           echo "::error::Ansible collections cache miss. Collections are installed and cached by the trusted pre-commit approval workflow (pull_request_target / push to devel / schedule) using Automation Hub credentials. Re-run after that workflow has populated ansible-collections-*."
           exit 1
 
+      # tox-ansible `ade install` resolves galaxy.yml deps via ansible-galaxy. Without AH
+      # credentials that fails for ansible.controller. Deps are already in the trusted cache;
+      # point Ansible at them and clear remote deps for this ephemeral checkout only.
+      - name: Use cached collections for ade without Automation Hub
+        run: |
+          echo "ANSIBLE_COLLECTIONS_PATH=${HOME}/.ansible/collections" >> "${GITHUB_ENV}"
+          echo "ANSIBLE_COLLECTIONS_PATHS=${HOME}/.ansible/collections" >> "${GITHUB_ENV}"
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys
+          try:
+              import yaml
+          except ImportError:
+              import subprocess
+              subprocess.check_call([sys.executable, "-m", "pip", "install", "PyYAML"])
+              import yaml
+          path = Path("galaxy.yml")
+          data = yaml.safe_load(path.read_text()) or {}
+          data["dependencies"] = {}
+          path.write_text(yaml.safe_dump(data, sort_keys=False))
+          print("Cleared galaxy.yml dependencies; using ANSIBLE_COLLECTIONS_PATHS from cache")
+          PY
+          test -d "${HOME}/.ansible/collections/ansible_collections/ansible/controller"
+          test -d "${HOME}/.ansible/collections/ansible_collections/infra/aap_configuration"
+
       - name: Run default pre-commit hooks
         uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
 
