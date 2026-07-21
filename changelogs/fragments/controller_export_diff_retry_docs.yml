@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - Document max_retries and retry_backoff_factor on controller_export_diff so validate-modules
+    matches ansible.controller 4.8.3 AUTH_ARGSPEC.

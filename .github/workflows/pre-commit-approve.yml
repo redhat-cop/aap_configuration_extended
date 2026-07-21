@@ -9,7 +9,7 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
+  pull-requests: read
 
 jobs:
   check-changes:
@@ -37,6 +37,8 @@ jobs:
       needs.check-changes.outputs.github_modified == 'false'
     runs-on: ubuntu-latest
     steps:
+      - name: Trusted collaborator PR approved automatically
+        run: echo "Trusted collaborator PR approved automatically."
       - name: Auto-apply approval label
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:

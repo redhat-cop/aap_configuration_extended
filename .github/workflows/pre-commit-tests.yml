@@ -1,12 +1,12 @@
 ---
 # Untrusted code execution: pull_request (fork PRs have no secrets).
-# Ansible collections from Automation Hub are restored from the default-branch
-# cache, which trusted push/schedule runs populate with CRC_PUBLISH_KEY.
+# Pull request runs wait in approval-gate until pre-commit approval completes.
+# Push/schedule runs populate the Ansible collections cache for external PRs.
 name: pre-commit and sanity tests
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, labeled]
+    types: [opened, synchronize, reopened]
   push:
     branches: [devel]
   schedule:
@@ -18,19 +18,124 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: read
+  actions: read
 
 jobs:
+  approval-gate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    outputs:
+      approved: ${{ steps.check.outputs.approved }}
+    steps:
+      - name: Wait for pre-commit approval workflow
+        id: check
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+            const pollIntervalMs = 30_000;
+            const timeoutMs = 360 * 60 * 1000;
+            const deadline = Date.now() + timeoutMs;
+
+            const { owner, repo } = context.repo;
+            const pullRequest = context.payload.pull_request;
+            const headSha = pullRequest.head.sha;
+
+            if (pullRequest.base.ref !== 'devel') {
+              core.setFailed(
+                `Pull request #${pullRequest.number} targets ${pullRequest.base.ref}, expected devel`,
+              );
+              core.setOutput('approved', 'false');
+              return;
+            }
+
+            async function getLatestApprovalRun() {
+              const { data } = await github.rest.actions.listWorkflowRuns({
+                owner,
+                repo,
+                workflow_id: 'pre-commit-approve.yml',
+                head_sha: headSha,
+                event: 'pull_request_target',
+                per_page: 5,
+              });
+              return data.workflow_runs[0];
+            }
+
+            async function hasSuccessfulApprovalJob(runId) {
+              const { data: jobsResponse } = await github.rest.actions.listJobsForWorkflowRun({
+                owner,
+                repo,
+                run_id: runId,
+              });
+              return jobsResponse.jobs.find(
+                (job) =>
+                  (job.name === 'auto-approve' || job.name === 'manual-approval') &&
+                  job.conclusion === 'success',
+              );
+            }
+
+            while (Date.now() < deadline) {
+              const approvalRun = await getLatestApprovalRun();
+
+              if (!approvalRun) {
+                core.info('Waiting for pre-commit approval workflow to start...');
+                await sleep(pollIntervalMs);
+                continue;
+              }
+
+              if (approvalRun.status !== 'completed') {
+                core.info(
+                  `Waiting for pre-commit approval workflow ${approvalRun.id} (${approvalRun.status})...`,
+                );
+                await sleep(pollIntervalMs);
+                continue;
+              }
+
+              if (approvalRun.conclusion !== 'success') {
+                core.setFailed(
+                  `pre-commit approval workflow ${approvalRun.id} concluded with ${approvalRun.conclusion}`,
+                );
+                core.setOutput('approved', 'false');
+                return;
+              }
+
+              const approvalJob = await hasSuccessfulApprovalJob(approvalRun.id);
+              if (!approvalJob) {
+                core.setFailed(
+                  `pre-commit approval workflow ${approvalRun.id} completed without a successful approval job`,
+                );
+                core.setOutput('approved', 'false');
+                return;
+              }
+
+              core.notice(
+                `Approved by ${approvalJob.name} in workflow run ${approvalRun.id}`,
+                { title: 'CI approval gate' },
+              );
+              core.setOutput('approved', 'true');
+              return;
+            }
+
+            core.setFailed('Timed out waiting for pre-commit approval workflow to complete');
+            core.setOutput('approved', 'false');
+
   pre-commit-tests:
+    needs: approval-gate
     runs-on: ubuntu-latest
     if: >
-      github.event_name != 'pull_request' ||
-      contains(github.event.pull_request.labels.*.name, 'ci-approved')
+      always() &&
+      !cancelled() &&
+      (github.event_name == 'push' ||
+       github.event_name == 'schedule' ||
+       (github.event_name == 'pull_request' &&
+        needs.approval-gate.outputs.approved == 'true'))
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.12", "3.13", "3.14"]
     env:
-      ANSIBLE_COLLECTIONS_CACHE_KEY: ansible-collections-${{ hashFiles('.github/collections/requirements.yml', 'galaxy.yml', '.pre-commit-config.yaml') }}
       HAS_CERTIFIED_HUB: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
       ANSIBLE_GALAXY_SERVER_LIST: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'certified,galaxy' || 'galaxy' }}
       ANSIBLE_GALAXY_SERVER_CERTIFIED_URL: https://console.redhat.com/api/automation-hub/content/published/
@@ -47,11 +152,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Restore Ansible collections cache
-        uses: actions/cache/restore@1bd1e96a41e5c6a8698213da4c832badfcbfdfdd # v4.2.0
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         id: collections_cache
         with:
           path: ~/.ansible/collections
-          key: ${{ env.ANSIBLE_COLLECTIONS_CACHE_KEY }}
+          key: ansible-collections-${{ hashFiles('.github/collections/requirements.yml', 'galaxy.yml', '.pre-commit-config.yaml') }}
           restore-keys: |
             ansible-collections-
 
@@ -88,10 +193,10 @@ jobs:
           matrix.python-version == '3.12' &&
           (github.event_name == 'push' || github.event_name == 'schedule') &&
           steps.install_collections.outcome == 'success'
-        uses: actions/cache/save@1bd1e96a41e5c6a8698213da4c832badfcbfdfdd # v4.2.0
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: ~/.ansible/collections
-          key: ${{ env.ANSIBLE_COLLECTIONS_CACHE_KEY }}
+          key: ansible-collections-${{ hashFiles('.github/collections/requirements.yml', 'galaxy.yml', '.pre-commit-config.yaml') }}
 
   # Single check name for branch protection (matrix jobs report as pre-commit-tests (3.x)).
   pre-commit:
