@@ -11,7 +11,7 @@ controller_notifications:
 {%   set __nt_as_var = (env_fields_as_variables | bool) and (key in env_fields_as_variables_map.controller_notification_templates) %}
 {%   set __nt_secret = (value is string) and ('$encrypted$' in value) and (secrets_as_variables | bool) %}
 {%   if __nt_as_var or __nt_secret %}
-      {{ key }}: "{{ value | filetree_as_var('controller_notification_templates', current_notification_templates_asset_value.name, key, true, secrets_as_variables_prefix) }}"
+      {{ key }}: "{{ value | infra.aap_configuration_extended.filetree_as_var('controller_notification_templates', current_notification_templates_asset_value.name, key, true, secrets_as_variables_prefix) }}"
 {%   elif value is mapping or (value | type_debug == 'list') %}
       {{ key }}: {{ value }}
 {%   elif (value | type_debug == 'int') %}

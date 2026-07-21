@@ -29,14 +29,14 @@ controller_templates:
 {% set __jt_scm_branch = template_overrides_resources.job_template[current_job_templates_asset_value.name].scm_branch
                   | default(template_overrides_global.job_template.scm_branch)
                   | default(current_job_templates_asset_value.scm_branch) %}
-    scm_branch: "{{ __jt_scm_branch | filetree_as_var('controller_job_templates', current_job_templates_asset_value.name, 'scm_branch', (env_fields_as_variables | bool) and ('scm_branch' in env_fields_as_variables_map.controller_job_templates), secrets_as_variables_prefix) }}"
+    scm_branch: "{{ __jt_scm_branch | infra.aap_configuration_extended.filetree_as_var('controller_job_templates', current_job_templates_asset_value.name, 'scm_branch', (env_fields_as_variables | bool) and ('scm_branch' in env_fields_as_variables_map.controller_job_templates), secrets_as_variables_prefix) }}"
     forks: {{ template_overrides_resources.job_template[current_job_templates_asset_value.name].forks
                   | default(template_overrides_global.job_template.forks)
                   | default(current_job_templates_asset_value.forks) }}
 {% set __jt_limit = template_overrides_resources.job_template[current_job_templates_asset_value.name].limit
                   | default(template_overrides_global.job_template.limit)
                   | default(current_job_templates_asset_value.limit) %}
-    limit: "{{ __jt_limit | filetree_as_var('controller_job_templates', current_job_templates_asset_value.name, 'limit', (env_fields_as_variables | bool) and ('limit' in env_fields_as_variables_map.controller_job_templates), secrets_as_variables_prefix) }}"
+    limit: "{{ __jt_limit | infra.aap_configuration_extended.filetree_as_var('controller_job_templates', current_job_templates_asset_value.name, 'limit', (env_fields_as_variables | bool) and ('limit' in env_fields_as_variables_map.controller_job_templates), secrets_as_variables_prefix) }}"
     verbosity: {{ template_overrides_resources.job_template[current_job_templates_asset_value.name].verbosity
                   | default(template_overrides_global.job_template.verbosity)
                   | default(current_job_templates_asset_value.verbosity) }}

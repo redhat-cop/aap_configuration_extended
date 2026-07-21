@@ -14,12 +14,24 @@
       order_by: 'organization,id'
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
+- name: "Assert the requested Workflow Job Template was found"
+  when: (workflow_job_template_name is defined) or (workflow_job_template_id is defined)
+  ansible.builtin.assert:
+    that:
+      - (workflow_job_templates_lookvar | length) > 0
+    fail_msg: >-
+      No Workflow Job Template matched
+      {{ 'name=' ~ workflow_job_template_name if workflow_job_template_name is defined else 'id=' ~ workflow_job_template_id }}.
+      Names with spaces must be passed as JSON extra vars, e.g.
+      -e '{"workflow_job_template_name":"My Workflow"}' (plain -e key=value truncates at the first space).
+
 - name: "Export related block for Workflow Job Template"
   when:
     - (workflow_job_template_name is defined) or (workflow_job_template_id is defined)
     - export_related_objects is defined and (export_related_objects | bool)
+    - (workflow_job_templates_lookvar | length) > 0
   vars:
-    __related_wfjt: "{{ workflow_job_templates_lookvar[0] }}"
+    __related_wfjt: "{{ workflow_job_templates_lookvar | first }}"
   block:
     - name: "Collect related object names from the Workflow Job Template"
       ansible.builtin.set_fact:

@@ -20,7 +20,7 @@ controller_hosts: {{ [] if current_hosts_asset_value | length == 0 }}
       or template_overrides_global.host.variables is defined
       or (host.variables and host.variables != '---' and host.variables != '') %}
 {%     if (env_fields_as_variables | bool) and ('variables' in env_fields_as_variables_map.controller_hosts) %}
-    variables: "{{ '' | filetree_as_var('controller_hosts', host.name, 'variables', true, secrets_as_variables_prefix) }}"
+    variables: "{{ '' | infra.aap_configuration_extended.filetree_as_var('controller_hosts', host.name, 'variables', true, secrets_as_variables_prefix) }}"
 {%     else %}
     variables:
 {%     set __host_variables = template_overrides_resources.host[host.name].variables

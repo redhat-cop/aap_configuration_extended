@@ -400,9 +400,13 @@ ansible-playbook playbooks/export_job_template_related.yml \
   -e aap_username=admin \
   -e aap_password='***' \
   -e aap_validate_certs=false \
-  -e job_template_name='Deploy App' \
+  -e '{"job_template_name":"Deploy App"}' \
   -e output_path=/tmp/jt_deploy_app_export
 ```
+
+> **Names with spaces:** Ansible's plain `-e key=value` form truncates at the first space
+> (`-e job_template_name='Deploy App'` becomes `Deploy`). Use JSON extra vars as above,
+> or a vars file (`-e @export_vars.yml`).
 
 Optional: limit API scope with `-e organization_filter=AppTeam`.
 
@@ -521,7 +525,7 @@ ansible-playbook playbooks/export_workflow_job_template_related.yml \
   -e aap_username=admin \
   -e aap_password='***' \
   -e aap_validate_certs=false \
-  -e workflow_job_template_name='Release Pipeline' \
+  -e '{"workflow_job_template_name":"Release Pipeline"}' \
   -e output_path=/tmp/wfjt_release_pipeline_export
 ```
 

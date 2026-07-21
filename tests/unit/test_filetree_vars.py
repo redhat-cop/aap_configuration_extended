@@ -12,20 +12,33 @@ import unittest
 
 
 def _load_filter_module():
-    plugin_path = os.path.join(
-        os.path.dirname(__file__),
-        "..",
-        "..",
-        "roles",
-        "filetree_create",
-        "filter_plugins",
-        "filetree_vars.py",
-    )
-    plugin_path = os.path.abspath(plugin_path)
-    spec = importlib.util.spec_from_file_location("filetree_vars", plugin_path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    candidates = [
+        os.path.join(
+            os.path.dirname(__file__),
+            "..",
+            "..",
+            "plugins",
+            "filter",
+            "filetree_vars.py",
+        ),
+        os.path.join(
+            os.path.dirname(__file__),
+            "..",
+            "..",
+            "roles",
+            "filetree_create",
+            "filter_plugins",
+            "filetree_vars.py",
+        ),
+    ]
+    for candidate in candidates:
+        plugin_path = os.path.abspath(candidate)
+        if os.path.exists(plugin_path):
+            spec = importlib.util.spec_from_file_location("filetree_vars", plugin_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+    raise FileNotFoundError("filetree_vars filter plugin not found in plugins/filter or role filter_plugins")
 
 
 class TestFiletreeVarsFilters(unittest.TestCase):

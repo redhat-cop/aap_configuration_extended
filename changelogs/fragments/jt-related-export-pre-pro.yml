@@ -4,3 +4,4 @@ minor_changes:
   - filetree_create - Add ``job_template_name`` / ``workflow_job_template_name`` and other ``*_name`` filters; prefer names over numeric IDs for Configuration as Code.
   - filetree_create - Add ``env_fields_as_variables`` to export curated environment-specific fields as Ansible variable placeholders, and generate an ``env_variables.yml`` stub for PRE→PRO workflows.
   - Add playbooks ``export_job_template_related.yml``, ``export_workflow_job_template_related.yml``, and ``import_filetree.yml`` for PRE→PRO migration (name-based).
+  - Add collection filter ``infra.aap_configuration_extended.filetree_as_var`` and document JSON ``-e`` usage for object names that contain spaces.

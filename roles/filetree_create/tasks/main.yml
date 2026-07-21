@@ -29,6 +29,11 @@
       tags: "{{ input_tag | to_yaml }}"
   tags: "{{ valid_tags }}"
 
+- name: "Generate env_variables stub from secrets/env placeholders"
+  ansible.builtin.include_tasks: generate_env_variables_stub.yml
+  tags:
+    - always
+
 - name: "Block to fix the output files' format"
   tags:
     - yaml_format
@@ -55,11 +60,6 @@
         loop_var: _current_file
         label: "{{ _current_file.path }}"
       when: _generated_files.matched | default(0) | int > 0
-
-- name: "Generate env_variables stub from secrets/env placeholders"
-  ansible.builtin.include_tasks: generate_env_variables_stub.yml
-  tags:
-    - always
 
 - name: "Remind to check all the 'ToDo:' entries in the output files"
   ansible.builtin.debug:

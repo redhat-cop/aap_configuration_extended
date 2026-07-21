@@ -24,7 +24,7 @@ ansible-playbook playbooks/export_job_template_related.yml \
   -e aap_hostname=aap-pre.example.com \
   -e aap_username=admin -e aap_password=secret \
   -e aap_validate_certs=false \
-  -e job_template_name='My Job Template' \
+  -e '{"job_template_name":"My Job Template"}' \
   -e output_path=/tmp/jt_export
 ```
 
@@ -35,9 +35,11 @@ ansible-playbook playbooks/export_workflow_job_template_related.yml \
   -e aap_hostname=aap-pre.example.com \
   -e aap_username=admin -e aap_password=secret \
   -e aap_validate_certs=false \
-  -e workflow_job_template_name='My Workflow' \
+  -e '{"workflow_job_template_name":"My Workflow"}' \
   -e output_path=/tmp/wfjt_export
 ```
+
+Names with spaces require JSON `-e` (or a vars file); plain `-e key='a b'` truncates at the first space.
 
 **JT exports:** organization, project, inventory (+ sources/hosts/groups unless skipped), credentials + credential types, execution environments, labels, notification templates, schedules, and the JT.
 

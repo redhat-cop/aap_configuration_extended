@@ -14,9 +14,12 @@
 #     -e aap_hostname=aap-pre.example.com \
 #     -e aap_username=admin -e aap_password=secret \
 #     -e aap_validate_certs=false \
-#     -e workflow_job_template_name='My Workflow' \
+#     -e '{"workflow_job_template_name":"My Workflow"}' \
 #     -e output_path=/tmp/wfjt_export
 #
+# Note: names with spaces MUST use JSON -e (or a vars file). Plain
+#   -e workflow_job_template_name='My Workflow' truncates to "My".
+
 - name: Export Workflow Job Template and related objects
   hosts: localhost
   connection: local
@@ -41,7 +44,9 @@
         that:
           - workflow_job_template_name is defined
           - workflow_job_template_name | length > 0
-        fail_msg: "Pass -e workflow_job_template_name='<name>' for the Workflow Job Template to export (CaC uses names, not IDs)."
+        fail_msg: >-
+          Pass -e '{"workflow_job_template_name":"<name>"}' for the Workflow Job Template
+          to export (CaC uses names, not IDs). Names with spaces require JSON -e or a vars file.
 
     - name: "Setup authentication (block)"
       when: aap_oauthtoken is not defined
