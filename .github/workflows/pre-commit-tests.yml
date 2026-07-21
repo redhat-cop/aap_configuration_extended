@@ -51,6 +51,15 @@ jobs:
               return;
             }
 
+            async function hasCiApprovedLabel() {
+              const { data: pr } = await github.rest.pulls.get({
+                owner,
+                repo,
+                pull_number: pullRequest.number,
+              });
+              return pr.labels.some((label) => label.name === 'ci-approved');
+            }
+
             async function getLatestApprovalRun() {
               const { data } = await github.rest.actions.listWorkflowRuns({
                 owner,
@@ -77,6 +86,14 @@ jobs:
             }
 
             while (Date.now() < deadline) {
+              // Escape hatch when approval labeling fails on base-branch workflow
+              // (pull_request_target) but a maintainer applied ci-approved manually.
+              if (await hasCiApprovedLabel()) {
+                core.notice('Approved via ci-approved label', { title: 'CI approval gate' });
+                core.setOutput('approved', 'true');
+                return;
+              }
+
               const approvalRun = await getLatestApprovalRun();
 
               if (!approvalRun) {
@@ -94,20 +111,20 @@ jobs:
               }
 
               if (approvalRun.conclusion !== 'success') {
-                core.setFailed(
-                  `pre-commit approval workflow ${approvalRun.id} concluded with ${approvalRun.conclusion}`,
+                core.info(
+                  `Approval workflow ${approvalRun.id} concluded with ${approvalRun.conclusion}; waiting for ci-approved label or a new run...`,
                 );
-                core.setOutput('approved', 'false');
-                return;
+                await sleep(pollIntervalMs);
+                continue;
               }
 
               const approvalJob = await hasSuccessfulApprovalJob(approvalRun.id);
               if (!approvalJob) {
-                core.setFailed(
-                  `pre-commit approval workflow ${approvalRun.id} completed without a successful approval job`,
+                core.info(
+                  `Approval workflow ${approvalRun.id} completed without a successful approval job; waiting for ci-approved label or a new run...`,
                 );
-                core.setOutput('approved', 'false');
-                return;
+                await sleep(pollIntervalMs);
+                continue;
               }
 
               core.notice(
