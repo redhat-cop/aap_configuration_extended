@@ -2,11 +2,11 @@
 {% set _value = value | replace("\\'", "''") %}
 {%- if '\n' in _value %}
 |-
-      {{ '{% raw %}' }}
+      {{ '{%- raw -%}' }}
 {{ _value | indent(width=6, first=true) }}
-      {{ '{% endraw %}' }}
+      {{ '{%- endraw -%}' }}
 {%- else -%}
-"{{ '{% raw %}' }}{{ _value | replace('\\', '\\\\') | replace('"', '\\"') }}{{ '{% endraw %}' }}"
+"{{ '{%- raw -%}' }}{{ _value | replace('\\', '\\\\') | replace('"', '\\"') }}{{ '{%- endraw -%}' }}"
 {%- endif -%}
 {%- endmacro %}
 ---

@@ -3,8 +3,9 @@
   ansible.builtin.set_fact:
     workflow_job_templates_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/workflow_job_templates/',
                                               query_params=(query_params | combine({'organization': organization_id} if organization_id is defined else {},
-                                                                                   {'id': workflow_job_template_id} if workflow_job_template_id is defined else {},
-                                                                                   {'labels__search': label_filter} if label_filter is defined else {})),
+                                                {'name': workflow_job_template_name} if workflow_job_template_name is defined else {},
+                                                {'id': workflow_job_template_id} if workflow_job_template_id is defined and workflow_job_template_name is not defined else {},
+                                                {'labels__search': label_filter} if label_filter is defined else {})),
                                               host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                                               return_all=true, max_objects=query_controller_api_max_objects)
                                      }}"
@@ -13,24 +14,153 @@
       order_by: 'organization,id'
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
-- name: "Block for exporting the related job templates"
-  when: workflow_job_template_id is defined and (export_related_objects is defined and export_related_objects)
+- name: "Assert the requested Workflow Job Template was found"
+  when: (workflow_job_template_name is defined) or (workflow_job_template_id is defined)
+  ansible.builtin.assert:
+    that:
+      - (workflow_job_templates_lookvar | length) > 0
+    fail_msg: >-
+      No Workflow Job Template matched
+      {{ 'name=' ~ workflow_job_template_name if workflow_job_template_name is defined else 'id=' ~ workflow_job_template_id }}.
+      Names with spaces must be passed as JSON extra vars, e.g.
+      -e '{"workflow_job_template_name":"My Workflow"}' (plain -e key=value truncates at the first space).
+
+- name: "Export related block for Workflow Job Template"
+  when:
+    - (workflow_job_template_name is defined) or (workflow_job_template_id is defined)
+    - export_related_objects is defined and (export_related_objects | bool)
+    - (workflow_job_templates_lookvar | length) > 0
+  vars:
+    __related_wfjt: "{{ workflow_job_templates_lookvar | first }}"
   block:
-    - name: "Get current Job Templates related to workflow from the API"
+    - name: "Collect related object names from the Workflow Job Template"
       ansible.builtin.set_fact:
-        workflow_node_job_templates_lookvar: "{{ query('ansible.platform.gateway_api', workflow_job_templates_lookvar[0]['related']['workflow_nodes'],
-                                                 host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
-                                                 return_all=true, max_objects=query_controller_api_max_objects)
-                                              }}"
+        related_organization_name: "{{ __related_wfjt.summary_fields.organization.name | default(omit, true) }}"
+        related_wfjt_inventory_name: "{{ __related_wfjt.summary_fields.inventory.name | default(omit, true) }}"
       no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
-    - name: "Export job templates related to to workflow"
+    - name: "Get workflow nodes for related export"
+      ansible.builtin.set_fact:
+        workflow_nodes_lookvar: "{{ query('ansible.platform.gateway_api', __related_wfjt.related.workflow_nodes,
+                                          host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                          return_all=true, max_objects=query_controller_api_max_objects) }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Collect job template, nested workflow, and inventory names from workflow nodes"
+      ansible.builtin.set_fact:
+        related_node_job_template_names: "{{ workflow_nodes_lookvar
+          | map(attribute='summary_fields')
+          | selectattr('unified_job_template', 'defined')
+          | map(attribute='unified_job_template')
+          | selectattr('unified_job_type', 'defined')
+          | selectattr('unified_job_type', 'equalto', 'job')
+          | map(attribute='name')
+          | list | unique }}"
+        related_node_workflow_job_template_names: "{{ workflow_nodes_lookvar
+          | map(attribute='summary_fields')
+          | selectattr('unified_job_template', 'defined')
+          | map(attribute='unified_job_template')
+          | selectattr('unified_job_type', 'defined')
+          | selectattr('unified_job_type', 'equalto', 'workflow_job')
+          | map(attribute='name')
+          | list | unique
+          | difference([__related_wfjt.name]) }}"
+        related_node_inventory_names: "{{ workflow_nodes_lookvar
+          | map(attribute='summary_fields')
+          | selectattr('inventory', 'defined')
+          | map(attribute='inventory')
+          | map(attribute='name')
+          | list | unique }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Query labels related to the Workflow Job Template"
+      ansible.builtin.set_fact:
+        related_label_names: "{{ query('ansible.platform.gateway_api', __related_wfjt.related.labels,
+                                       host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                       return_all=true, max_objects=query_controller_api_max_objects)
+                                | map(attribute='name') | list }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Query notification templates related to the Workflow Job Template"
+      ansible.builtin.set_fact:
+        related_notification_template_names: "{{ (query('ansible.platform.gateway_api', __related_wfjt.related.notification_templates_error,
+                  host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                  return_all=true, max_objects=query_controller_api_max_objects)
+            + query('ansible.platform.gateway_api', __related_wfjt.related.notification_templates_started,
+                    host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                    return_all=true, max_objects=query_controller_api_max_objects)
+            + query('ansible.platform.gateway_api', __related_wfjt.related.notification_templates_success,
+                    host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                    return_all=true, max_objects=query_controller_api_max_objects)
+            + query('ansible.platform.gateway_api', __related_wfjt.related.notification_templates_approvals,
+                    host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                    return_all=true, max_objects=query_controller_api_max_objects)) | map(attribute='name') | list | unique }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export organization related to workflow job template"
+      when: related_organization_name is defined
+      ansible.builtin.include_tasks: "controller_organizations.yml"
+      vars:
+        organization_name: "{{ related_organization_name }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export workflow-level inventory related to workflow job template"
+      when: related_wfjt_inventory_name is defined
+      ansible.builtin.include_tasks: "controller_inventories.yml"
+      vars:
+        inventory_name: "{{ related_wfjt_inventory_name }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export inventories referenced by workflow nodes"
+      when: (related_node_inventory_names | default([]) | length) > 0
+      ansible.builtin.include_tasks: "controller_inventories.yml"
+      vars:
+        inventory_name: "{{ related_node_inventory_name_item }}"
+      loop: "{{ related_node_inventory_names | difference([related_wfjt_inventory_name] if related_wfjt_inventory_name is defined else []) }}"
+      loop_control:
+        loop_var: related_node_inventory_name_item
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export job templates (with their related objects) referenced by workflow nodes"
+      when: (related_node_job_template_names | default([]) | length) > 0
       ansible.builtin.include_tasks: "controller_job_templates.yml"
       vars:
-        job_template_id: "{{ current_workflow_job_node_templates_asset_value['unified_job_template'] }}"
-      loop: "{{ workflow_node_job_templates_lookvar }}"
+        job_template_name: "{{ related_node_jt_name_item }}"
+        export_related_objects: true
+      loop: "{{ related_node_job_template_names }}"
       loop_control:
-        loop_var: current_workflow_job_node_templates_asset_value
+        loop_var: related_node_jt_name_item
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export nested workflow job templates referenced by workflow nodes"
+      when: (related_node_workflow_job_template_names | default([]) | length) > 0
+      ansible.builtin.include_tasks: "controller_workflow_job_template_by_name.yml"
+      vars:
+        # Do not reuse workflow_job_template_name: it is often an extra var (-e) and cannot be overridden.
+        nested_workflow_job_template_name: "{{ related_node_wfjt_name_item }}"
+      loop: "{{ related_node_workflow_job_template_names }}"
+      loop_control:
+        loop_var: related_node_wfjt_name_item
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export labels related to workflow job template"
+      when: (related_label_names | default([]) | length) > 0
+      ansible.builtin.include_tasks: "controller_labels.yml"
+      vars:
+        label_names: "{{ related_label_names }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export notification templates related to workflow job template"
+      when: (related_notification_template_names | default([]) | length) > 0
+      ansible.builtin.include_tasks: "controller_notification_templates.yml"
+      vars:
+        notification_template_names: "{{ related_notification_template_names }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export schedules related to workflow job template"
+      ansible.builtin.include_tasks: "controller_schedules.yml"
+      vars:
+        schedules_related_url: "{{ __related_wfjt.related.schedules }}"
       no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
 - name: "Block for to generate flatten output"

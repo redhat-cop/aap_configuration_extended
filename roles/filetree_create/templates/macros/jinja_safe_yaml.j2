@@ -4,11 +4,11 @@
 {% if value is string and ('{{' in value or '{%' in value) %}
 {%   if '\n' in value %}
 {{ pad }}{{ key }}: |-
-{{ pad }}  {{ '{% raw %}' }}
+{{ pad }}  {{ '{%- raw -%}' }}
 {{ value | indent(width=indent + 2, first=true) }}
-{{ pad }}  {{ '{% endraw %}' }}
+{{ pad }}  {{ '{%- endraw -%}' }}
 {%   else %}
-{{ pad }}{{ key }}: "{{ '{% raw %}' }}{{ value | replace('\\', '\\\\') | replace('"', '\\"') }}{{ '{% endraw %}' }}"
+{{ pad }}{{ key }}: "{{ '{%- raw -%}' }}{{ value | replace('\\', '\\\\') | replace('"', '\\"') }}{{ '{%- endraw -%}' }}"
 {%   endif %}
 {% else %}
 {{ pad }}{{ key }}: {{ value | to_yaml | trim }}

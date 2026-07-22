@@ -1,0 +1,123 @@
+---
+# Offline validation of env_variables stub generation (no live AAP required).
+# Run: ansible-playbook tests/test_env_variables_stub.yml
+- name: Test env_variables stub generation
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    output_path: "{{ playbook_dir }}/output/filetree_stub_test"
+    secrets_as_variables_prefix: vaulted
+    generate_env_variables_stub: true
+    env_variables_stub_path: "{{ output_path }}/env_variables.yml"
+    env_variables_stub_placeholder: CHANGE_ME
+
+  tasks:
+    - name: "Reset test output directory"
+      ansible.builtin.file:
+        path: "{{ output_path }}"
+        state: absent
+
+    - name: "Create fixture export tree"
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - "{{ output_path }}/DemoOrg/controller_projects.d"
+        - "{{ output_path }}/DemoOrg/controller_credentials.d"
+
+    - name: "Write fixture project with vaulted placeholders"
+      ansible.builtin.copy:
+        dest: "{{ output_path }}/DemoOrg/controller_projects.d/1_demo.yaml"
+        mode: "0644"
+        content: |
+          ---
+          controller_projects:
+            - name: demo
+              scm_url: "{{ '{{' }} vaulted_controller_projects_demo_scm_url {{ '}}' }}"
+              scm_branch: "{{ '{{' }} vaulted_controller_projects_demo_scm_branch {{ '}}' }}"
+          ...
+
+    - name: "Write fixture credential with vaulted secret"
+      ansible.builtin.copy:
+        dest: "{{ output_path }}/DemoOrg/controller_credentials.d/2_scm.yaml"
+        mode: "0644"
+        content: |
+          ---
+          controller_credentials:
+            - name: scm
+              inputs:
+                password: "{{ '{{' }} vaulted_controller_credentials_scm_password {{ '}}' }}"
+          ...
+
+    - name: "Run stub generation tasks"
+      ansible.builtin.include_role:
+        name: infra.aap_configuration_extended.filetree_create
+        tasks_from: generate_env_variables_stub.yml
+
+    - name: "Load generated stub"
+      ansible.builtin.include_vars:
+        file: "{{ env_variables_stub_path }}"
+        name: __stub_vars
+
+    - name: "Assert expected keys are present"
+      ansible.builtin.assert:
+        that:
+          - __stub_vars.vaulted_controller_projects_demo_scm_url == 'CHANGE_ME'
+          - __stub_vars.vaulted_controller_projects_demo_scm_branch == 'CHANGE_ME'
+          - __stub_vars.vaulted_controller_credentials_scm_password == 'CHANGE_ME'
+        fail_msg: "Stub file missing expected keys: {{ __stub_vars }}"
+
+    - name: "Assert related export task file still wires include_tasks"
+      ansible.builtin.command:
+        cmd: grep -E 'include_tasks:.*(controller_organizations|controller_credentials|controller_inventories|controller_schedules)' roles/filetree_create/tasks/controller_job_templates.yml
+      args:
+        chdir: "{{ playbook_dir }}/.."
+      register: __related_grep
+      changed_when: false
+
+    - name: "Assert related export covers expected object types"
+      ansible.builtin.assert:
+        that:
+          - "'controller_organizations' in __related_grep.stdout"
+          - "'controller_credentials' in __related_grep.stdout"
+          - "'controller_inventories' in __related_grep.stdout"
+          - "'controller_schedules' in __related_grep.stdout"
+
+    - name: "Assert related export selects objects by name, not id"
+      ansible.builtin.command:
+        cmd: grep -E 'related_(organization|project|inventory|credential|ee|label|notification).*_name' roles/filetree_create/tasks/controller_job_templates.yml
+      args:
+        chdir: "{{ playbook_dir }}/.."
+      register: __related_names_grep
+      changed_when: false
+
+    - name: "Assert name-based related facts exist"
+      ansible.builtin.assert:
+        that:
+          - "'related_organization_name' in __related_names_grep.stdout"
+          - "'related_project_name' in __related_names_grep.stdout"
+          - "'related_credential_names' in __related_names_grep.stdout"
+          - "'related_organization_id' not in __related_names_grep.stdout"
+
+    - name: "Assert WFJT related export is name-based and cascades to JTs"
+      ansible.builtin.command:
+        cmd: grep -E 'workflow_job_template_name|related_node_job_template_names|controller_job_templates.yml' roles/filetree_create/tasks/controller_workflow_job_templates.yml
+      args:
+        chdir: "{{ playbook_dir }}/.."
+      register: __wfjt_related_grep
+      changed_when: false
+
+    - name: "Assert WFJT related coverage"
+      ansible.builtin.assert:
+        that:
+          - "'workflow_job_template_name' in __wfjt_related_grep.stdout"
+          - "'related_node_job_template_names' in __wfjt_related_grep.stdout"
+          - "'controller_job_templates.yml' in __wfjt_related_grep.stdout"
+
+    - name: "Cleanup test output"
+      ansible.builtin.file:
+        path: "{{ output_path }}"
+        state: absent
+...
