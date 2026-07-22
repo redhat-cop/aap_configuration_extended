@@ -1,0 +1,13 @@
+---
+controller_execution_environments:
+  - name: "Minimal execution environment"
+    organization:  # Leave this empty organization to let the object_diff role to work properly
+    image: "registry.redhat.io/ansible-automation-platform-26/ee-minimal-rhel9:latest"
+    pull: ""
+    credential: "Default Execution Environment Registry Credential"
+  - name: "Default execution environment"
+    organization:  # Leave this empty organization to let the object_diff role to work properly
+    image: "registry.redhat.io/ansible-automation-platform-26/ee-supported-rhel9:latest"
+    pull: "missing"
+    credential: "Default Execution Environment Registry Credential"
+...

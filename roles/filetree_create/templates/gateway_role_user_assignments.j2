@@ -1,32 +1,45 @@
 ---
 gateway_role_user_assignments: {{ [] if current_gateway_role_user_assignments_asset_value | length == 0 }}
-{% for current_role_user_assignment in current_gateway_role_user_assignments_asset_value %}
-  - role_definition: "{{ template_overrides_resources.gateway_role_user_assignment[current_role_user_assignment.object_id].role_definition
+{% for current_role_user_assignment in current_gateway_role_user_assignments_asset_value
+       if not ((current_role_user_assignment.summary_fields.role_definition.name | default('')) is match('^galaxy\\.')) %}
+{%   set _override = template_overrides_resources.gateway_role_user_assignment[current_role_user_assignment.object_id] | default({}) %}
+{%   set _obj_id = current_role_user_assignment.object_id | default(none) %}
+{%   set _obj_id_str = _obj_id | string if _obj_id is not none else none %}
+{%   set _obj_ansible_id = _override.object_ansible_id
+        | default(template_overrides_global.gateway_role_user_assignment.object_ansible_id)
+        | default(current_role_user_assignment.object_ansible_id)
+        | default(none) %}
+{%   set _resource_name = (_override.object_ids | default([]) | first)
+        | default(_override.object_id)
+        | default((template_overrides_global.gateway_role_user_assignment.object_ids | default([]) | first) if template_overrides_global.gateway_role_user_assignment is defined else none)
+        | default(current_role_user_assignment.summary_fields.resource.name | default(none)) %}
+{%   set _is_numeric_id = _obj_id_str is not none and (_obj_id_str is match('^\d+$')) %}
+{%   set _is_uuid_id = _obj_id_str is not none and (_obj_id_str is match('^[0-9a-fA-F]{8}-')) %}
+  - role_definition: "{{ _override.role_definition
                      | default(template_overrides_global.gateway_role_user_assignment.role_definition)
                      | default(current_role_user_assignment.summary_fields.role_definition.name) }}"
-{%   if template_overrides_resources.gateway_role_user_assignment[current_role_user_assignment.object_id].object_id is defined
-        or template_overrides_global.gateway_role_user_assignment.object_id is defined
-        or current_role_user_assignment.object_id is defined %}
-    object_id: "{{ template_overrides_resources.gateway_role_user_assignment[current_role_user_assignment.object_id].object_id
+{%   if _resource_name is not none and _resource_name != '' and not _is_uuid_id %}
+    object_ids:
+      - "{{ _resource_name }}"
+{%   elif _override.object_id is defined or (_is_numeric_id and not _is_uuid_id) %}
+    object_id: "{{ _override.object_id
                      | default(template_overrides_global.gateway_role_user_assignment.object_id)
-                     | default(current_role_user_assignment.object_id) }}"
-{%   elif template_overrides_resources.gateway_role_user_assignment[current_role_user_assignment.object_id].object_ansible_id is defined
-          or template_overrides_global.gateway_role_user_assignment.object_ansible_id is defined
-          or current_role_user_assignment.object_ansible_id is defined %}
-    object_ansible_id: "{{ template_overrides_resources.gateway_role_user_assignment[current_role_user_assignment.object_id].object_ansible_id
-                     | default(template_overrides_global.gateway_role_user_assignment.object_ansible_id)
-                     | default(current_role_user_assignment.object_ansible_id) }}"
+                     | default(_obj_id) }}"
+{%   elif _obj_ansible_id is not none %}
+    object_ansible_id: "{{ _obj_ansible_id }}"
+{%   elif _is_uuid_id %}
+    object_ansible_id: "{{ _obj_id_str }}"
 {%   endif %}
-{%   if template_overrides_resources.gateway_role_user_assignment[current_role_user_assignment.object_id].username is defined
+{%   if _override.username is defined
         or template_overrides_global.gateway_role_user_assignment.username is defined
         or current_role_user_assignment.summary_fields.user.username is defined %}
-    user: "{{ template_overrides_resources.gateway_role_user_assignment[current_role_user_assignment.object_id].username
+    user: "{{ _override.username
                      | default(template_overrides_global.gateway_role_user_assignment.username)
                      | default(current_role_user_assignment.summary_fields.user.username) }}"
-{%   elif template_overrides_resources.gateway_role_user_assignment[current_role_user_assignment.object_id].user_ansible_id is defined
+{%   elif _override.user_ansible_id is defined
           or template_overrides_global.gateway_role_user_assignment.user_ansible_id is defined
           or current_role_user_assignment.user_ansible_id is defined %}
-    user_ansible_id: "{{ template_overrides_resources.gateway_role_user_assignment[current_role_user_assignment.object_id].user_ansible_id
+    user_ansible_id: "{{ _override.user_ansible_id
                      | default(template_overrides_global.gateway_role_user_assignment.user_ansible_id)
                      | default(current_role_user_assignment.user_ansible_id) }}"
 {%   endif %}

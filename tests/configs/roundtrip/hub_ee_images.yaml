@@ -1,0 +1,5 @@
+---
+# EE image tag management requires images that exist in Hub (name must include :tag).
+# Use an empty list for roundtrip seed; export step repopulates from the live environment.
+hub_ee_images: []
+...

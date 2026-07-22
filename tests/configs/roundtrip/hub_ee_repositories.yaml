@@ -1,0 +1,5 @@
+---
+hub_ee_repositories:
+  - name: ansible-automation-platform-26/ee-supported-rhel9
+  - name: ansible-automation-platform-25/ee-supported-rhel9
+...

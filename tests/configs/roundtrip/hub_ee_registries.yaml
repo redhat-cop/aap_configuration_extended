@@ -1,0 +1,8 @@
+---
+hub_ee_registries:
+  - name: registry.redhat.io
+    url: https://registry.redhat.io/
+    policy: immediate
+    tls_validation: true
+    is_indexable: true
+...

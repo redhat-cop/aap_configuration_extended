@@ -1,0 +1,28 @@
+{# Emit YAML values with native types (bool, int, dict, list) instead of quoted strings. #}
+{% macro render_scalar(value) -%}
+{%- if value is boolean -%}
+{{ value | bool | lower }}
+{%- elif value is number -%}
+{{ value }}
+{%- elif value is string and (value | lower) is match('^(true|false)$') -%}
+{{ value | bool | lower }}
+{%- elif value is string and value is match('^-?\d+$') -%}
+{{ value | int }}
+{%- elif value is string and value is match('^-?\d+\.\d+$') -%}
+{{ value | float }}
+{%- elif value is none or value == 'None' -%}
+""
+{%- elif value == '' -%}
+{{ '"{%- raw -%}{%- endraw -%}"' }}
+{%- else -%}
+"{{ value | replace('\\', '\\\\') | replace('"', '\\"') }}"
+{%- endif -%}
+{%- endmacro %}
+
+{% macro render_value(value, indent_width=0, first_indent=true) -%}
+{%- if value is mapping or (value is sequence and value is not string) -%}
+{{ value | to_nice_yaml(indent=2, sort_keys=false) | indent(width=indent_width, first=first_indent) }}
+{%- else -%}
+{{ render_scalar(value) }}
+{%- endif -%}
+{%- endmacro %}

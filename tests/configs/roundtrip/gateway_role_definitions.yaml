@@ -1,0 +1,9 @@
+---
+gateway_role_definitions:
+  - permissions:
+      - awx.execute_jobtemplate
+      - awx.view_jobtemplate
+    content_type: awx.jobtemplate
+    name: test_role
+    description: test_role
+...

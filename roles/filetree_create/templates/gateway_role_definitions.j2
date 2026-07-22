@@ -1,15 +1,20 @@
+{% import 'macros/export_field.j2' as export %}
+{% import 'macros/export_value.j2' as exportval %}
 ---
 gateway_role_definitions: {{ [] if current_gateway_role_definitions_asset_value | length == 0 }}
 {% set __excluded_fields = ['id', 'url', 'related', 'summary_fields', 'modified', 'created', 'modified_by', 'created_by', 'managed'] %}
 {% set __excluded_values = ['Platform Auditor'] %}
-{% set __list_items = [] %}
-{% for current_role_definition in current_gateway_role_definitions_asset_value if current_role_definition.name not in __excluded_values %}
+{% set __field_defaults = {'description': ''} %}
+{% for current_role_definition in current_gateway_role_definitions_asset_value if current_role_definition.name not in __excluded_values and not (current_role_definition.managed | default(false)) %}
+{%   set ns = namespace(first=true) %}
 {%   for __map_item in (current_role_definition | dict2items) if __map_item.key not in __excluded_fields %}
-{%     if loop.index == 1 %}
-  - {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
-{%     else %}
-    {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
+{%     if exportval.should_export_field(__map_item.key, __map_item.value, __field_defaults) | trim == 'true' %}
+{%       if ns.first %}
+  - {{ export.render(__map_item.key, __map_item.value, indent=0, first=true, field_defaults=__field_defaults) }}
+{%         set ns.first = false %}
+{%       else %}
+    {{ export.render(__map_item.key, __map_item.value, indent=0, first=true, field_defaults=__field_defaults) }}
+{%       endif %}
 {%     endif %}
-{%-  endfor %}
+{%   endfor %}
 {% endfor %}
-...
