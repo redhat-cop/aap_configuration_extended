@@ -1,0 +1,3 @@
+---
+minor_changes:
+  - filetree_create - When exporting a Workflow Job Template with ``export_related_objects``, walk nested workflow nodes recursively until Job Template leaves, export every nested WFJT on the path, and export each discovered Job Template with its full related set (with cycle detection).

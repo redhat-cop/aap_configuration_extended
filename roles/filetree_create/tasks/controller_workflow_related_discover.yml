@@ -1,0 +1,128 @@
+---
+# Discover all Workflow Job Templates and Job Templates reachable from a seed WFJT
+# by walking nested workflow nodes until only job (or approval) nodes remain.
+#
+# Required:
+#   __wfjt_discover_seed_name: name of the root Workflow Job Template
+#
+# Sets facts:
+#   __discovered_workflow_job_template_names: list[str]
+#   __discovered_job_template_names: list[str]
+#   __discovered_inventory_names: list[str]
+- name: "Walk nested workflow graph from seed: {{ __wfjt_discover_seed_name }}"
+  ansible.builtin.command:
+    argv: "{{ ['python3', '-c', __wfjt_discover_python, aap_hostname, __filetree_create_oauth_token, (aap_validate_certs | string), __wfjt_discover_seed_name] }}"
+  vars:
+    __wfjt_discover_python: |
+      import json
+      import ssl
+      import sys
+      import urllib.error
+      import urllib.parse
+      import urllib.request
+
+      host, token, verify_raw, seed = sys.argv[1:5]
+      verify = str(verify_raw).lower() in ("1", "true", "yes")
+      base = host if host.startswith(("http://", "https://")) else "https://{0}".format(host)
+      base = base.rstrip("/")
+      ctx = ssl.create_default_context() if verify else ssl._create_unverified_context()
+
+      def api_get(path, params=None):
+          url = path if path.startswith("http") else "{0}{1}".format(base, path if path.startswith("/") else "/" + path)
+          if params:
+              url = "{0}?{1}".format(url, urllib.parse.urlencode(params))
+          req = urllib.request.Request(url, headers={"Authorization": "Bearer {0}".format(token)})
+          with urllib.request.urlopen(req, context=ctx, timeout=120) as resp:
+              return json.loads(resp.read().decode("utf-8"))
+
+      def list_all(path, params=None):
+          params = dict(params or {})
+          params.setdefault("page_size", 200)
+          results = []
+          next_url = path
+          first = True
+          while next_url:
+              if first and not str(next_url).startswith("http"):
+                  data = api_get(next_url, params)
+                  first = False
+              else:
+                  # absolute next link from API
+                  req = urllib.request.Request(
+                      next_url if str(next_url).startswith("http") else "{0}{1}".format(base, next_url),
+                      headers={"Authorization": "Bearer {0}".format(token)},
+                  )
+                  with urllib.request.urlopen(req, context=ctx, timeout=120) as resp:
+                      data = json.loads(resp.read().decode("utf-8"))
+              if isinstance(data, dict) and "results" in data:
+                  results.extend(data.get("results") or [])
+                  next_url = data.get("next")
+              elif isinstance(data, list):
+                  results.extend(data)
+                  next_url = None
+              else:
+                  results.append(data)
+                  next_url = None
+          return results
+
+      workflows = set()
+      job_templates = set()
+      inventories = set()
+      queue = [seed]
+      seen = set()
+      max_nodes = 5000
+
+      while queue and len(seen) < max_nodes:
+          name = queue.pop(0)
+          if not name or name in seen:
+              continue
+          seen.add(name)
+          workflows.add(name)
+          matches = list_all("/api/controller/v2/workflow_job_templates/", {"name": name})
+          if not matches:
+              continue
+          wf = matches[0]
+          related = (wf.get("related") or {})
+          nodes_url = related.get("workflow_nodes")
+          if not nodes_url:
+              continue
+          nodes = list_all(nodes_url)
+          for node in nodes:
+              summary = node.get("summary_fields") or {}
+              inv = summary.get("inventory") or {}
+              if inv.get("name"):
+                  inventories.add(inv["name"])
+              ujt = summary.get("unified_job_template") or {}
+              ujt_name = ujt.get("name")
+              ujt_type = ujt.get("unified_job_type")
+              if not ujt_name:
+                  continue
+              if ujt_type == "job":
+                  job_templates.add(ujt_name)
+              elif ujt_type == "workflow_job":
+                  if ujt_name not in seen:
+                      queue.append(ujt_name)
+
+      print(json.dumps({
+          "workflows": sorted(workflows),
+          "job_templates": sorted(job_templates),
+          "inventories": sorted(inventories),
+      }))
+  register: __wfjt_discover_raw
+  changed_when: false
+  no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+- name: "Set discovered workflow graph facts"
+  ansible.builtin.set_fact:
+    __discovered_workflow_job_template_names: "{{ (__wfjt_discover_raw.stdout | from_json).workflows | default([]) }}"
+    __discovered_job_template_names: "{{ (__wfjt_discover_raw.stdout | from_json).job_templates | default([]) }}"
+    __discovered_inventory_names: "{{ (__wfjt_discover_raw.stdout | from_json).inventories | default([]) }}"
+  no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+- name: "Show discovered nested workflow export scope"
+  ansible.builtin.debug:
+    msg: >-
+      From {{ __wfjt_discover_seed_name }}: discovered
+      {{ __discovered_workflow_job_template_names | length }} workflow(s),
+      {{ __discovered_job_template_names | length }} job template(s),
+      {{ __discovered_inventory_names | length }} inventory name(s).
+...
