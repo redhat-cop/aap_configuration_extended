@@ -3,7 +3,7 @@
   ansible.builtin.set_fact:
     constructed_inventory_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/constructed_inventories/',
                                              query_params=(query_params | combine({'organization': organization_id})) if organization_id is defined else query_params,
-                                             host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                             host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                              return_all=true, max_objects=query_controller_api_max_objects)
                                     }}"
   vars:
@@ -99,7 +99,7 @@
                                       else
                                         output_path + '/inventory_sources.yaml' }}"
     current_inventory_sources_asset_value: "{{ query('ansible.platform.gateway_api', current_inventory_sources.related.inventory_sources,
-                                                    host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                                    host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                                     return_all=true, max_objects=query_controller_api_max_objects)
                                             }}"
     last_inventory: "{{ current_inventory_index == ((inventory_lookvar | length) - 1) }}"

@@ -26,9 +26,10 @@ controller_inventory_sources: {{ [] if current_inventory_sources_asset_value | l
 {%   if template_overrides_resources.inventory_source[inventory_source.name].limit is defined
       or template_overrides_global.inventory_source.limit is defined
       or inventory_source.limit is defined %}
-    limit: "{{ template_overrides_resources.inventory_source[inventory_source.name].limit
+{%     set __inv_src_limit = template_overrides_resources.inventory_source[inventory_source.name].limit
                      | default(template_overrides_global.inventory_source.limit)
-                     | default(inventory_source.limit) }}"
+                     | default(inventory_source.limit) %}
+    limit: "{{ __inv_src_limit | infra.aap_configuration_extended.filetree_as_var('controller_inventory_sources', inventory_source.name, 'limit', (env_fields_as_variables | bool) and ('limit' in env_fields_as_variables_map.controller_inventory_sources), secrets_as_variables_prefix) }}"
 {%   endif %}
 {%   if template_overrides_resources.inventory_source[inventory_source.name].source_project is defined
       or template_overrides_global.inventory_source.source_project is defined
@@ -40,19 +41,24 @@ controller_inventory_sources: {{ [] if current_inventory_sources_asset_value | l
 {%   if template_overrides_resources.inventory_source[inventory_source.name].source_path is defined
       or template_overrides_global.inventory_source.source_path is defined
       or inventory_source.source_path is defined %}
-    source_path: "{{ template_overrides_resources.inventory_source[inventory_source.name].source_path
+{%     set __inv_src_path = template_overrides_resources.inventory_source[inventory_source.name].source_path
                      | default(template_overrides_global.inventory_source.source_path)
-                     | default(inventory_source.source_path) }}"
+                     | default(inventory_source.source_path) %}
+    source_path: "{{ __inv_src_path | infra.aap_configuration_extended.filetree_as_var('controller_inventory_sources', inventory_source.name, 'source_path', (env_fields_as_variables | bool) and ('source_path' in env_fields_as_variables_map.controller_inventory_sources), secrets_as_variables_prefix) }}"
 {%   endif %}
 {%   if template_overrides_resources.inventory_source[inventory_source.name].source_vars is defined
       or template_overrides_global.inventory_source.source_vars is defined
       or (inventory_source.source_vars is defined and inventory_source.source_vars != '---' and inventory_source.source_vars != '') %}
+{%     if env_fields_as_variables | bool %}
+    source_vars: "{{ '' | infra.aap_configuration_extended.filetree_as_var('controller_inventory_sources', inventory_source.name, 'source_vars', true, secrets_as_variables_prefix) }}"
+{%     else %}
     source_vars:
 {%     set __inventory_source_vars = template_overrides_resources.inventory_source[inventory_source.name].source_vars
          | default(template_overrides_global.inventory_source.source_vars)
          | default(inventory_source.source_vars) %}
       {{ (__inventory_source_vars if __inventory_source_vars is mapping or (__inventory_source_vars | type_debug) == 'list' else (__inventory_source_vars | from_yaml))
          | to_nice_yaml(indent=2, sort_keys=false, width=4096) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*?){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true)}}
+{%-    endif %}
 {%-  endif %}
     inventory: "{{ inventory_source.summary_fields.inventory.name }}"
     update_on_launch: "{{ template_overrides_resources.inventory_source[inventory_source.name].update_on_launch
@@ -69,13 +75,13 @@ controller_inventory_sources: {{ [] if current_inventory_sources_asset_value | l
                     | default(inventory_source.summary_fields.credential.name) }}"
 {%   endif %}
 {%   set query_notification_error = query('ansible.platform.gateway_api', inventory_source.related.notification_templates_error,
-                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) %}
 {%   set query_notification_started = query('ansible.platform.gateway_api', inventory_source.related.notification_templates_started,
-                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) %}
 {%   set query_notification_success = query('ansible.platform.gateway_api', inventory_source.related.notification_templates_success,
-                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) %}
 {%   if query_notification_error | length > 0 %}
     notification_templates_error:

@@ -10,7 +10,7 @@
     - name: "Gets current Organizations configured"
       ansible.builtin.set_fact:
         __controller_api_organizations: "{{ query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations',
-                                                  host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                                  host=aap_hostname, oauth_token=__object_diff_oauth_token, verify_ssl=aap_validate_certs,
                                                   return_all=true, max_objects=query_controller_api_max_objects)
                                          }}"
       no_log: "{{ controller_configuration_object_diff_secure_logging }}"
@@ -33,19 +33,19 @@
         - protect_not_empty_orgs is defined
         - protect_not_empty_orgs
         - query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations/' + (__organizations_difference_list_empty_item.name | urlencode) + '/users/',
-                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs) | length == 0
+                host=aap_hostname, oauth_token=__object_diff_oauth_token, verify_ssl=aap_validate_certs) | length == 0
         - query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations/' + (__organizations_difference_list_empty_item.name | urlencode) + '/admins/',
-                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs) | length == 0
+                host=aap_hostname, oauth_token=__object_diff_oauth_token, verify_ssl=aap_validate_certs) | length == 0
         - query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations/' + (__organizations_difference_list_empty_item.name | urlencode) + '/inventories/',
-                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs) | length == 0
+                host=aap_hostname, oauth_token=__object_diff_oauth_token, verify_ssl=aap_validate_certs) | length == 0
         - query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations/' + (__organizations_difference_list_empty_item.name | urlencode) + '/teams/',
-                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs) | length == 0
+                host=aap_hostname, oauth_token=__object_diff_oauth_token, verify_ssl=aap_validate_certs) | length == 0
         - query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations/' + (__organizations_difference_list_empty_item.name | urlencode) + '/projects/',
-                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs) | length == 0
+                host=aap_hostname, oauth_token=__object_diff_oauth_token, verify_ssl=aap_validate_certs) | length == 0
         - query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations/' + (__organizations_difference_list_empty_item.name | urlencode) + '/job_templates/',
-                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs) | length == 0
+                host=aap_hostname, oauth_token=__object_diff_oauth_token, verify_ssl=aap_validate_certs) | length == 0
         - query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations/' + (__organizations_difference_list_empty_item.name | urlencode) + '/workflow_job_templates/',
-                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs) | length == 0
+                host=aap_hostname, oauth_token=__object_diff_oauth_token, verify_ssl=aap_validate_certs) | length == 0
 
     - name: "Set Organization differences"
       ansible.builtin.set_fact:

@@ -1,0 +1,54 @@
+---
+# Point every filetree_read path at the temp export dir for roundtrip re-import.
+# Used with: ansible-playbook test_filetree_read.yaml -e@configs/roundtrip_extra_vars/extra_vars_read_export.yml
+# Export output: test_filetree_create.yaml writes to /tmp/filetree_output_default (skip --tags cleanup).
+dir_orgs_vars: ''
+orgs: ''
+filetree_gateway_authenticators: /tmp/filetree_output_default
+filetree_gateway_authenticator_maps: /tmp/filetree_output_default
+filetree_gateway_settings: /tmp/filetree_output_default
+filetree_aap_organizations: /tmp/filetree_output_default
+filetree_aap_applications: /tmp/filetree_output_default
+filetree_gateway_http_ports: /tmp/filetree_output_default
+filetree_gateway_service_clusters: /tmp/filetree_output_default
+filetree_gateway_service_keys: /tmp/filetree_output_default
+filetree_gateway_service_nodes: /tmp/filetree_output_default
+filetree_gateway_services: /tmp/filetree_output_default
+filetree_aap_teams: /tmp/filetree_output_default
+filetree_aap_user_accounts: /tmp/filetree_output_default
+filetree_gateway_role_definitions: /tmp/filetree_output_default
+filetree_gateway_role_team_assignments: /tmp/filetree_output_default
+filetree_gateway_role_user_assignments: /tmp/filetree_output_default
+filetree_gateway_routes: /tmp/filetree_output_default
+filetree_controller_settings: /tmp/filetree_output_default
+filetree_controller_labels: /tmp/filetree_output_default
+filetree_controller_credential_types: /tmp/filetree_output_default
+filetree_controller_credentials: /tmp/filetree_output_default
+filetree_controller_credential_input_sources: /tmp/filetree_output_default
+filetree_controller_notifications: /tmp/filetree_output_default
+filetree_controller_projects: /tmp/filetree_output_default
+filetree_controller_execution_environments: /tmp/filetree_output_default
+filetree_controller_inventories: /tmp/filetree_output_default
+filetree_controller_inventory_sources: /tmp/filetree_output_default
+filetree_controller_instance_groups: /tmp/filetree_output_default
+filetree_controller_instances: /tmp/filetree_output_default
+filetree_controller_hosts: /tmp/filetree_output_default
+filetree_controller_groups: /tmp/filetree_output_default
+filetree_controller_templates: /tmp/filetree_output_default
+filetree_controller_workflow_job_templates: /tmp/filetree_output_default
+filetree_controller_schedules: /tmp/filetree_output_default
+filetree_controller_roles: /tmp/filetree_output_default
+filetree_eda_credential_types: /tmp/filetree_output_default
+filetree_eda_credentials: /tmp/filetree_output_default
+filetree_eda_decision_environments: /tmp/filetree_output_default
+filetree_eda_event_streams: /tmp/filetree_output_default
+filetree_eda_projects: /tmp/filetree_output_default
+filetree_eda_rulebook_activations: /tmp/filetree_output_default
+filetree_hub_namespaces: /tmp/filetree_output_default
+filetree_hub_collections: /tmp/filetree_output_default
+filetree_hub_collection_remotes: /tmp/filetree_output_default
+filetree_hub_collection_repositories: /tmp/filetree_output_default
+filetree_hub_ee_registries: /tmp/filetree_output_default
+filetree_hub_ee_repositories: /tmp/filetree_output_default
+filetree_hub_ee_images: /tmp/filetree_output_default
+...

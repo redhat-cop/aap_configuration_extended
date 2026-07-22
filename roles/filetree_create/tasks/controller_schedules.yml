@@ -1,11 +1,16 @@
 ---
 - name: "Get current Schedules from the API"
   ansible.builtin.set_fact:
-    schedules_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/schedules/',
-                                query_params=({'id': schedule_id} if schedule_id is defined else {}),
-                                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+    schedules_lookvar: "{{ query('ansible.platform.gateway_api',
+                                (schedules_related_url if schedules_related_url is defined else 'api/controller/v2/schedules/'),
+                                query_params=(query_params | combine({'name': schedule_name} if schedule_name is defined and schedules_related_url is not defined else {},
+                                  {'id': schedule_id} if schedule_id is defined and schedule_name is not defined and schedules_related_url is not defined else {},
+                                  {'unified_job_template': unified_job_template_id} if unified_job_template_id is defined and schedules_related_url is not defined else {})),
+                                host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                 return_all=true, max_objects=query_controller_api_max_objects)
                        }}"
+  vars:
+    query_params: {}
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
 - name: "Block for to generate flatten output"
@@ -27,13 +32,13 @@
         label_id: "{{ current_schedules_asset_value.id }}"
         label_name: "{{ current_schedules_asset_value.name | regex_replace('/', '_') }}"
         query_credentials: "{{ query('ansible.platform.gateway_api', current_schedules_asset_value.related.credentials,
-                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) if current_schedules_asset_value.related.credentials is defined else [] }}"
         query_instance_groups: "{{ query('ansible.platform.gateway_api', current_schedules_asset_value.related.instance_groups,
-                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) if current_schedules_asset_value.related.instance_groups is defined else [] }}"
         query_labels: "{{ query('ansible.platform.gateway_api', current_schedules_asset_value.related.labels,
-                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) if current_schedules_asset_value.related.labels is defined else [] }}"
         last_schedule: "{{ current_schedule_index == ((schedules_lookvar | length) - 1) }}"
       loop: "{{ schedules_lookvar }}"
@@ -67,13 +72,13 @@
         label_name: "{{ current_schedules_asset_value.name | regex_replace('/', '_') }}"
         __dest: "{{ output_path }}/{{ filetree_create_controller_schedules }}/{{ (label_id ~ '_') if omit_id is not defined else '' }}{{ label_name | regex_replace('/', '_') }}.yaml"
         query_credentials: "{{ query('ansible.platform.gateway_api', current_schedules_asset_value.related.credentials,
-                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) if current_schedules_asset_value.related.credentials is defined else [] }}"
         query_instance_groups: "{{ query('ansible.platform.gateway_api', current_schedules_asset_value.related.instance_groups,
-                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) if current_schedules_asset_value.related.instance_groups is defined else [] }}"
         query_labels: "{{ query('ansible.platform.gateway_api', current_schedules_asset_value.related.labels,
-                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) if current_schedules_asset_value.related.labels is defined else [] }}"
       loop: "{{ schedules_lookvar }}"
       loop_control:

@@ -1,0 +1,12 @@
+---
+controller_inventory_sources:
+  - name: RHVM-01-scm
+    source: scm
+    source_project: Test Inventory source project
+    source_path: phillips_hue/hosts
+    inventory: RHVM-01
+    organization: Satellite
+    overwrite: true
+    update_on_launch: false
+    wait: false
+...

@@ -1,5 +1,14 @@
 ---
 # tasks file for filetree_create
+- name: "Resolve OAuth token for API queries"
+  ansible.builtin.set_fact:
+    __filetree_create_oauth_token: "{{ __resolved_token }}"
+  vars:
+    __token_input: "{{ aap_token | default(aap_oauthtoken | default(none, true), true) }}"
+    __resolved_token: "{{ __token_input.token if __token_input is mapping else __token_input }}"
+  tags:
+    - always
+
 - name: "Check requirements (block)"
   tags:
     - always
@@ -29,9 +38,24 @@
       tags: "{{ input_tag | to_yaml }}"
   tags: "{{ valid_tags }}"
 
+- name: "Generate env_variables stub from secrets/env placeholders"
+  ansible.builtin.include_tasks: generate_env_variables_stub.yml
+  tags:
+    - always
+
+- name: "Check whether output directory exists"
+  ansible.builtin.stat:
+    path: "{{ output_path }}"
+  register: _output_path_stat
+  tags:
+    - yaml_format
+
 - name: "Block to fix the output files' format"
   tags:
     - yaml_format
+  when:
+    - _output_path_stat.stat.exists | default(false)
+    - _output_path_stat.stat.isdir | default(false)
   block:
     - name: "Search for all generated YAML files"
       ansible.builtin.find:
@@ -55,6 +79,13 @@
         loop_var: _current_file
         label: "{{ _current_file.path }}"
       when: _generated_files.matched | default(0) | int > 0
+  rescue:
+    - name: "Warn when yaml_format cannot run (e.g. missing PyYAML for interpreter_python)"
+      ansible.builtin.debug:
+        msg: >-
+          Skipping yaml_format: {{ ansible_failed_result.msg | default(ansible_failed_result) }}.
+          Export files are still present under {{ output_path }}.
+          Install PyYAML for the configured Python interpreter, or re-run with --skip-tags yaml_format.
 
 - name: "Remind to check all the 'ToDo:' entries in the output files"
   ansible.builtin.debug:

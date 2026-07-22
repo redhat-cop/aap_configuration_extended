@@ -5,52 +5,34 @@
   gather_facts: false
   tags:
     - always
-  vars:
-    # Controller connection variables
-    __aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
-    __aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
-    __aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
-    __aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
   tasks:
     - name: "Declare the connection variables for all the plays"
       ansible.builtin.set_fact:
-        aap_username: "{{ __aap_username }}"
-        aap_password: "{{ __aap_password }}"
-        aap_hostname: "{{ __aap_hostname }}"
-        aap_validate_certs: "{{ __aap_validate_certs }}"
+        aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+        aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+        aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+        aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
 
     - name: "Setup authentication (block)"
       no_log: "{{ controller_configuration_filetree_create_secure_logging | default(true) }}"
-      when: aap_oauthtoken is not defined
+      when: not (ansible_facts.get('aap_token') or aap_token is defined)
       block:
-        # - name: "Create a new token using username/password"
-        #   awx.awx.token:
-        #     description: 'Token for Automated Management'
-        #     scope: "write"
-        #     state: present
-        #     controller_host: "{{ aap_hostname }}"
-        #     aap_username: "{{ aap_username }}"
-        #     aap_password: "{{ aap_password }}"
-        #     validate_certs: "{{ aap_validate_certs }}"
-        #   register: authtoken_res_new
-        # - debug: var=authtoken_res_new
+        - name: "Create a new token using platform username/password"
+          ansible.platform.token:
+            description: 'Token for Automated Management'
+            scope: "write"
+            state: present
+            aap_hostname: "{{ aap_hostname }}"
+            aap_username: "{{ aap_username }}"
+            aap_password: "{{ aap_password }}"
+            aap_validate_certs: "{{ aap_validate_certs }}"
 
-        - name: "Get the Authentication Token for the future requests"
-          ansible.builtin.uri:
-            url: "https://{{ aap_hostname }}/api/gateway/v1/tokens/"
-            user: "{{ aap_username }}"
-            password: "{{ aap_password }}"
-            method: POST
-            force_basic_auth: true
-            validate_certs: "{{ aap_validate_certs }}"
-            status_code: 201
-          register: authtoken_res
-
-        - name: "Set the oauth token to be used since now"
-          ansible.builtin.set_fact:
-            aap_oauthtoken: "{{ authtoken_res.json.token }}"
-            aap_token: "{{ authtoken_res.json.token }}"
-            aap_oauthtoken_url: "{{ authtoken_res.json.url }}"
+    - name: "Expose aap_token dict for downstream plays"
+      ansible.builtin.set_fact:
+        aap_token: "{{ ansible_facts['aap_token'] }}"
+      when:
+        - ansible_facts.get('aap_token') is defined
+        - aap_token is not defined
 
 # Run example (All the plays): ansible-playbook -i configs/gv/inventory_test.yml test_filetree_read.yaml -e@configs/gv/vaults/test.yml
 - name: "Test the filetree_read reading custom inputs (custom)"
@@ -89,6 +71,70 @@
     filetree_controller_workflow_job_templates: *custom_configs_path
     filetree_controller_schedules: *custom_configs_path
     filetree_controller_roles: *custom_configs_path
+  roles:
+    - infra.aap_configuration_extended.filetree_read
+    - infra.aap_configuration.dispatch
+
+- name: "Test the filetree_read reading roundtrip inputs (roundtrip)"
+  # Run example: ansible-playbook test_filetree_read.yaml --skip-tags custom,fc,fcf,gv --tags "$(tr -d '\n' < configs/roundtrip/ansible_tags)"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tags:
+    - roundtrip
+  vars_files:
+    - "configs/roundtrip/ssh_private_key.yml"
+  vars:
+    dir_orgs_vars: ''
+    orgs: ''
+    filetree_read_run_all: true
+    filetree_gateway_authenticators: &roundtrip_configs_path "./configs/roundtrip"
+    filetree_gateway_authenticator_maps: *roundtrip_configs_path
+    filetree_gateway_settings: *roundtrip_configs_path
+    filetree_aap_organizations: *roundtrip_configs_path
+    filetree_aap_applications: *roundtrip_configs_path
+    filetree_gateway_http_ports: *roundtrip_configs_path
+    filetree_gateway_service_clusters: *roundtrip_configs_path
+    filetree_gateway_service_keys: *roundtrip_configs_path
+    filetree_gateway_service_nodes: *roundtrip_configs_path
+    filetree_gateway_services: *roundtrip_configs_path
+    filetree_aap_teams: *roundtrip_configs_path
+    filetree_aap_user_accounts: *roundtrip_configs_path
+    filetree_gateway_role_definitions: *roundtrip_configs_path
+    filetree_gateway_role_team_assignments: *roundtrip_configs_path
+    filetree_gateway_role_user_assignments: *roundtrip_configs_path
+    filetree_gateway_routes: *roundtrip_configs_path
+    filetree_controller_settings: *roundtrip_configs_path
+    filetree_controller_labels: *roundtrip_configs_path
+    filetree_controller_credential_types: *roundtrip_configs_path
+    filetree_controller_credentials: *roundtrip_configs_path
+    filetree_controller_credential_input_sources: *roundtrip_configs_path
+    filetree_controller_notifications: *roundtrip_configs_path
+    filetree_controller_projects: *roundtrip_configs_path
+    filetree_controller_execution_environments: *roundtrip_configs_path
+    filetree_controller_inventories: *roundtrip_configs_path
+    filetree_controller_inventory_sources: *roundtrip_configs_path
+    filetree_controller_instance_groups: *roundtrip_configs_path
+    filetree_controller_instances: *roundtrip_configs_path
+    filetree_controller_hosts: *roundtrip_configs_path
+    filetree_controller_groups: *roundtrip_configs_path
+    filetree_controller_templates: *roundtrip_configs_path
+    filetree_controller_workflow_job_templates: *roundtrip_configs_path
+    filetree_controller_schedules: *roundtrip_configs_path
+    filetree_controller_roles: *roundtrip_configs_path
+    filetree_eda_credential_types: *roundtrip_configs_path
+    filetree_eda_credentials: *roundtrip_configs_path
+    filetree_eda_decision_environments: *roundtrip_configs_path
+    filetree_eda_event_streams: *roundtrip_configs_path
+    filetree_eda_projects: *roundtrip_configs_path
+    filetree_eda_rulebook_activations: *roundtrip_configs_path
+    filetree_hub_namespaces: *roundtrip_configs_path
+    filetree_hub_collections: *roundtrip_configs_path
+    filetree_hub_collection_remotes: *roundtrip_configs_path
+    filetree_hub_collection_repositories: *roundtrip_configs_path
+    filetree_hub_ee_registries: *roundtrip_configs_path
+    filetree_hub_ee_repositories: *roundtrip_configs_path
+    filetree_hub_ee_images: *roundtrip_configs_path
   roles:
     - infra.aap_configuration_extended.filetree_read
     - infra.aap_configuration.dispatch
@@ -222,22 +268,17 @@
   gather_facts: false
   tags:
     - always
-  vars:
-    # Controller connection variables
-    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
-    aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
-    aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
-    aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
   tasks:
     - name: "Delete the Authentication Token used"
-      ansible.builtin.uri:
-        url: "https://{{ aap_hostname }}{{ aap_oauthtoken_url }}"
-        user: "{{ aap_username }}"
-        password: "{{ aap_password }}"
-        method: DELETE
-        force_basic_auth: true
-        validate_certs: "{{ aap_validate_certs }}"
-        status_code: 204
-      when: aap_oauthtoken_url is defined
+      ansible.platform.token:
+        existing_token: "{{ aap_token }}"
+        state: absent
+        aap_hostname: "{{ aap_hostname }}"
+        aap_username: "{{ aap_username }}"
+        aap_password: "{{ aap_password }}"
+        aap_validate_certs: "{{ aap_validate_certs }}"
+      when:
+        - aap_token is defined
+        - aap_token is mapping
 
 ...

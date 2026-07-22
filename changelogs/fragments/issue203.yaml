@@ -1,0 +1,9 @@
+---
+bugfixes:
+  - filetree_create - Export YAML with native types (booleans, integers, floats, dicts,
+    lists) instead of quoted strings across settings, authenticators, workflow
+    extra_data, hub objects, and related templates via shared Jinja macros (fixes
+    redhat-cop/aap_configuration_extended#203).
+  - filetree_create - Fix notification template export (IRC/messages), gateway role
+    user assignments, hub EE image tag filtering, and collection repository sync defaults.
+  - filetree_create - Standardize Jinja control-tag indentation in export templates.

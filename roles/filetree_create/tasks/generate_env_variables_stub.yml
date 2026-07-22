@@ -1,0 +1,57 @@
+---
+# Generate env_variables.yml stub from vaulted_* placeholders found in the export.
+- name: "Generate env_variables stub from exported placeholders"
+  when: generate_env_variables_stub | bool
+  block:
+    - name: "Find exported YAML files under output_path"
+      ansible.builtin.find:
+        paths: "{{ output_path }}"
+        recurse: true
+        patterns:
+          - '*.yaml'
+          - '*.yml'
+        excludes:
+          - 'env_variables.yml'
+      register: __env_stub_files
+
+    - name: "Initialize discovered env variable keys"
+      ansible.builtin.set_fact:
+        env_variable_keys: []
+
+    - name: "Extract vaulted variable names from exported files"
+      when: (__env_stub_files.matched | default(0) | int) > 0
+      ansible.builtin.command:
+        argv: "{{ ['python3', '-c', __env_stub_python, secrets_as_variables_prefix] + (__env_stub_files.files | map(attribute='path') | list) }}"
+      vars:
+        __env_stub_python: |
+          import pathlib, re, sys
+          prefix = sys.argv[1]
+          pattern = re.compile(r"\{\{\s*(" + re.escape(prefix) + r"_[a-zA-Z0-9_]+)\s*\}\}")
+          keys = set()
+          for path in sys.argv[2:]:
+              try:
+                  text = pathlib.Path(path).read_text(encoding="utf-8", errors="ignore")
+              except OSError:
+                  continue
+              keys.update(pattern.findall(text))
+          print("\n".join(sorted(keys)))
+      register: __env_stub_keys_raw
+      changed_when: false
+
+    - name: "Set discovered env variable keys"
+      when: __env_stub_keys_raw is defined and __env_stub_keys_raw.stdout is defined
+      ansible.builtin.set_fact:
+        env_variable_keys: "{{ (__env_stub_keys_raw.stdout_lines | default([])) | reject('equalto', '') | list }}"
+
+    - name: "Write env_variables stub file"
+      ansible.builtin.template:
+        src: templates/env_variables.j2
+        dest: "{{ env_variables_stub_path }}"
+        mode: "0644"
+
+    - name: "Show env_variables stub location"
+      ansible.builtin.debug:
+        msg: >-
+          Wrote {{ env_variable_keys | length }} placeholder variable(s) to
+          {{ env_variables_stub_path }}. Fill PRO values and pass with -e @{{ env_variables_stub_path }}.
+...

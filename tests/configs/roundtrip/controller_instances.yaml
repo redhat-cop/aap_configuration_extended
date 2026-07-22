@@ -1,0 +1,17 @@
+---
+controller_instances:
+  - hostname: "aap26exec1.bcnconsulting.com"
+    capacity_adjustment: 1.00
+    enabled: true
+    managed_by_policy: true
+    node_type: "execution"
+    listener_port: 27199
+    peers_from_control_nodes: false
+  - hostname: "aap26exec2.bcnconsulting.com"
+    capacity_adjustment: 1.00
+    enabled: true
+    managed_by_policy: true
+    node_type: "execution"
+    listener_port: 27199
+    peers_from_control_nodes: false
+...

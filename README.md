@@ -103,9 +103,9 @@ Define following vars here, or in `controller_configs/controller_auth.yml`
 You can also specify authentication by a combination of either:
 
 - `aap_hostname`, `aap_username`, `aap_password`
-- `aap_hostname`, `aap_oauthtoken`
+- `aap_hostname`, `aap_token`
 
-The OAuth2 token is the preferred method. You can obtain the token through the preferred `controller_token` module, or through the
+The OAuth2 token is the preferred method. Create one with `ansible.platform.token` and pass the returned dict (`token` and `id`) as `aap_token`, or supply a plain token string from vault or extra-vars. You can also obtain a token through the
 AWX CLI [login](https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html/automation_execution_api_overview/controller-api-auth-methods)
 command.
 
@@ -123,7 +123,7 @@ Config file syntax looks like this:
 [general]
 host = https://localhost:8043
 verify_ssl = true
-oauth_token = LEdCpKVKc4znzffcpQL5vLG8oyeku6
+oauth_token = <your-token-here>
 ```
 
 Controller token module would be invoked with this code:
@@ -180,6 +180,18 @@ See [our template](https://github.com/redhat-cop/aap_configuration_template) to 
 ### See Also
 
 - [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
+
+## PRE → PRO migration (Job Template / Workflow)
+
+To export a single Job Template or Workflow Job Template with related objects from PRE and import them into PRO (object **names** only; secrets and environment-specific fields as variables), see the complete examples in:
+
+[roles/filetree_create/README.md — PRE → PRO: complete examples](roles/filetree_create/README.md#pre--pro-complete-examples-job-template-and-workflow)
+
+Playbooks:
+
+- `playbooks/export_job_template_related.yml`
+- `playbooks/export_workflow_job_template_related.yml`
+- `playbooks/import_filetree.yml`
 
 ## Release and Upgrade Notes
 

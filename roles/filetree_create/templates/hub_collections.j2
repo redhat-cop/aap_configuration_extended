@@ -1,19 +1,27 @@
+{% import 'macros/export_field.j2' as export %}
+{% import 'macros/export_value.j2' as exportval %}
 ---
 hub_collections: {{ [] if current_hub_collections_asset_value | length == 0 }}
-{% set __excluded_fields = [] %}
-{% set __list_items = [] %}
 {% for current_collection in current_hub_collections_asset_value %}
-{%   for __map_item in (current_collection | dict2items) if __map_item.key not in __excluded_fields %}
-{%     if loop.index == 1 %}
-  - {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
-{%     else %}
-{%       if __map_item.key == 'resources' %}
-    {{ __map_item.key }}: |
-      {{ __map_item.value | default('""', true) | replace("\\'", "''") | indent(6) }}
+{%   set ns = namespace(first=true) %}
+{%   for __map_item in (current_collection | dict2items) %}
+{%     if exportval.should_export_field(__map_item.key, __map_item.value, {}) | trim == 'true' %}
+{%       if ns.first %}
+{%         if __map_item.key == 'resources' %}
+  - {{ __map_item.key }}: |
+      {{ __map_item.value | default('', true) | replace("\\'", "''") | indent(6) }}
+{%         else %}
+  - {{ export.render(__map_item.key, __map_item.value, indent=0, first=true) }}
+{%         endif %}
+{%         set ns.first = false %}
 {%       else %}
-    {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
+{%         if __map_item.key == 'resources' %}
+    {{ __map_item.key }}: |
+      {{ __map_item.value | default('', true) | replace("\\'", "''") | indent(6) }}
+{%         else %}
+    {{ export.render(__map_item.key, __map_item.value, indent=0, first=true) }}
+{%         endif %}
 {%       endif %}
 {%     endif %}
-{%-  endfor %}
+{%   endfor %}
 {% endfor %}
-...
