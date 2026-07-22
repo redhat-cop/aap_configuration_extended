@@ -33,9 +33,16 @@
     - __contents_filetree_hub_collection_repositories.results | length > 0
     - __populate_hub_collection_repositories_item.ansible_facts.hub_collection_repositories is defined
 
-- name: "Set Hub collection repositories data structure"
+- name: "Sanitize hub_collection_repositories empty-string fields before dispatch"
   ansible.builtin.set_fact:
-    hub_collection_repositories: "{{ __populate_hub_collection_repositories }}"
+    hub_collection_repositories: >-
+      {{
+        __populate_hub_collection_repositories
+        | map('dict2items')
+        | map('rejectattr', 'value', 'equalto', '')
+        | map('items2dict')
+        | list
+      }}
   no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
   when: __populate_hub_collection_repositories is defined
 ...

@@ -33,9 +33,25 @@
     - __contents_filetree_hub_namespaces.results | length > 0
     - __populate_hub_namespaces_item.ansible_facts.hub_namespaces is defined
 
+- name: "Sanitize hub_namespaces empty-string links before dispatch"
+  ansible.builtin.set_fact:
+    __sanitized_hub_namespaces: >-
+      {{
+        __sanitized_hub_namespaces | default([]) + [
+          __hub_namespace_item | combine({'links': []}, recursive=False)
+          if (__hub_namespace_item.links is defined and __hub_namespace_item.links is string)
+          else __hub_namespace_item
+        ]
+      }}
+  loop: "{{ __populate_hub_namespaces }}"
+  loop_control:
+    loop_var: __hub_namespace_item
+  no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
+  when: __populate_hub_namespaces is defined
+
 - name: "Set Hub namespaces data structure"
   ansible.builtin.set_fact:
-    hub_namespaces: "{{ __populate_hub_namespaces }}"
+    hub_namespaces: "{{ __sanitized_hub_namespaces | default(__populate_hub_namespaces) }}"
   no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
   when: __populate_hub_namespaces is defined
 ...
