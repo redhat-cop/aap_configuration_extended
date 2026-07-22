@@ -68,8 +68,14 @@ controller_workflows:
 {%       if extra_data_item.value | type_debug is match('list') %}
           {{ extra_data_item.key }}:
 {%         for current_list_item in extra_data_item.value if ((extra_data_item.value | string | length) > 0 and (extra_data_item.value | string) is not match('None')) %}
+{%           if current_list_item is number or current_list_item is boolean %}
+            - {{ current_list_item if current_list_item is number else (current_list_item | bool | lower) }}
+{%           else %}
             - {{ '"{%- raw -%}' }}{{ (current_list_item | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
+{%           endif %}
 {%         endfor %}
+{%       elif extra_data_item.value is number or extra_data_item.value is boolean %}
+          {{ extra_data_item.key }}: {{ extra_data_item.value if extra_data_item.value is number else (extra_data_item.value | bool | lower) }}
 {%       else %}
           {{ extra_data_item.key }}: {{ '"{%- raw -%}' }}{{ (extra_data_item.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
 {%       endif %}
