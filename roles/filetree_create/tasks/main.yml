@@ -64,6 +64,9 @@
         patterns:
           - '*.yaml'
           - '*.yml'
+        excludes:
+          # Keep stub comments / CHANGE_ME values; format_yaml collapses an empty stub to "{}".
+          - 'env_variables.yml'
       register: _generated_files
 
     - name: "Format generated files (indent, truthy, document markers, trailing whitespace)"

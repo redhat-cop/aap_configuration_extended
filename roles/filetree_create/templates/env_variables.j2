@@ -5,7 +5,8 @@
 #
 {% if env_variable_keys | length == 0 %}
 # No {{ secrets_as_variables_prefix }}_* placeholders were found in the export.
-{}
+# If you expected keys here, confirm secrets_as_variables / env_fields_as_variables
+# are enabled and that related JT/project objects (not only nested WFJT shells) were exported.
 {% else %}
 {% for key in env_variable_keys | sort %}
 {{ key }}: {{ env_variables_stub_placeholder }}
