@@ -23,9 +23,10 @@ controller_projects:
     scm_type: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_type
                   | default(template_overrides_global.project.scm_type)
                   | default(current_projects_asset_value.scm_type) }}"
-    scm_url: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_url
+{% set __project_scm_url = template_overrides_resources.project[current_projects_asset_value.name].scm_url
                  | default(template_overrides_global.project.scm_url)
-                 | default(current_projects_asset_value.scm_url) }}"
+                 | default(current_projects_asset_value.scm_url) %}
+    scm_url: "{{ __project_scm_url | infra.aap_configuration_extended.filetree_as_var('controller_projects', current_projects_asset_value.name, 'scm_url', (env_fields_as_variables | bool) and ('scm_url' in env_fields_as_variables_map.controller_projects), secrets_as_variables_prefix) }}"
 {% if template_overrides_resources.project[current_projects_asset_value.name].scm_credential is defined
       or template_overrides_global.scm_credential is defined
       or current_projects_asset_value.summary_fields.credential is defined %}
@@ -33,9 +34,10 @@ controller_projects:
                         | default(template_overrides_global.scm_credential)
                         | default(current_projects_asset_value.summary_fields.credential.name) }}"
 {% endif %}
-    scm_branch: "{{ template_overrides_resources.project[current_projects_asset_value.name].scm_branch
+{% set __project_scm_branch = template_overrides_resources.project[current_projects_asset_value.name].scm_branch
                     | default(template_overrides_global.project.scm_branch)
-                    | default(current_projects_asset_value.scm_branch) }}"
+                    | default(current_projects_asset_value.scm_branch) %}
+    scm_branch: "{{ __project_scm_branch | infra.aap_configuration_extended.filetree_as_var('controller_projects', current_projects_asset_value.name, 'scm_branch', (env_fields_as_variables | bool) and ('scm_branch' in env_fields_as_variables_map.controller_projects), secrets_as_variables_prefix) }}"
     scm_clean: {{ template_overrides_resources.project[current_projects_asset_value.name].scm_clean
                    | default(template_overrides_global.project.scm_clean)
                    | default(current_projects_asset_value.scm_clean | bool | lower) }}

@@ -1,0 +1,99 @@
+---
+# Export a single Workflow Job Template by name (no related-object cascade).
+# Used for nested workflow nodes so we do not recursively include
+# controller_workflow_job_templates.yml (Ansible skips same-file includes).
+#
+# Required vars:
+#   nested_workflow_job_template_name: <name>
+#     (must NOT reuse workflow_job_template_name — that is often an extra var
+#      and cannot be overridden by include_tasks vars)
+- name: "Get nested Workflow Job Template from the API: {{ nested_workflow_job_template_name }}"
+  ansible.builtin.set_fact:
+    __nested_wfjt_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/workflow_job_templates/',
+                                     query_params={'name': nested_workflow_job_template_name},
+                                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                     return_all=true, max_objects=query_controller_api_max_objects) }}"
+  no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+- name: "Assert nested Workflow Job Template was found: {{ nested_workflow_job_template_name }}"
+  ansible.builtin.assert:
+    that:
+      - (__nested_wfjt_lookvar | length) > 0
+    fail_msg: >-
+      Nested Workflow Job Template name={{ nested_workflow_job_template_name }} was not found.
+      Names with spaces must be passed as JSON extra vars.
+
+- name: "Write nested Workflow Job Template (non-flatten): {{ nested_workflow_job_template_name }}"
+  when: flatten_output is not defined or not (flatten_output | bool)
+  block:
+    - name: "Create output directory for nested Workflow Job Template: {{ nested_workflow_job_template_name }}"
+      ansible.builtin.file:
+        path: "{{ __path }}"
+        state: directory
+        mode: "0755"
+      vars:
+        __org: "{{ (__nested_wfjt_lookvar | first).summary_fields.organization.name | default(organization) | regex_replace('/', '_') }}"
+        __path: "{{ output_path }}/{{ __org }}/{{ filetree_create_controller_workflow_job_templates }}/"
+
+    - name: "Template nested Workflow Job Template: {{ nested_workflow_job_template_name }}"
+      ansible.builtin.template:
+        src: "templates/controller_workflow_job_templates.j2"
+        dest: "{{ __dest }}"
+        mode: "0644"
+      vars:
+        current_workflow_job_templates_asset_value: "{{ __nested_wfjt_lookvar | first }}"
+        workflow_job_template_organization: "{{ current_workflow_job_templates_asset_value.summary_fields.organization.name | default(organization) }}"
+        workflow_job_template_id: "{{ current_workflow_job_templates_asset_value.id }}"
+        __nested_wfjt_file_name: "{{ current_workflow_job_templates_asset_value.name | regex_replace('/', '_') }}"
+        __dest: "{{ output_path }}/{{ workflow_job_template_organization | regex_replace('/', '_') }}/{{ filetree_create_controller_workflow_job_templates }}/{{ (workflow_job_template_id ~ '_') if omit_id is not defined else '' }}{{ __nested_wfjt_file_name }}.yaml"
+        query_labels: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.labels,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         return_all=true, max_objects=query_controller_api_max_objects) }}"
+        query_notification_error: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.notification_templates_error,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         return_all=true, max_objects=query_controller_api_max_objects) }}"
+        query_notification_started: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.notification_templates_started,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         return_all=true, max_objects=query_controller_api_max_objects) }}"
+        query_notification_success: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.notification_templates_success,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         return_all=true, max_objects=query_controller_api_max_objects) }}"
+        query_notification_approvals: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.notification_templates_approvals,
+                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         return_all=true, max_objects=query_controller_api_max_objects) }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+- name: "Write nested Workflow Job Template (flatten): {{ nested_workflow_job_template_name }}"
+  when:
+    - flatten_output is defined
+    - flatten_output | bool
+  ansible.builtin.blockinfile:
+    create: true
+    mode: "0644"
+    insertafter: EOF
+    path: "{{ output_path }}/controller_workflow_job_templates.yaml"
+    marker: ""
+    block: "{{ lookup('template', 'templates/controller_workflow_job_templates.j2') }}"
+  vars:
+    workflow_job_templates_lookvar: "{{ __nested_wfjt_lookvar }}"
+    current_workflow_job_templates_asset_value: "{{ __nested_wfjt_lookvar | first }}"
+    workflow_job_template_organization: "{{ current_workflow_job_templates_asset_value.summary_fields.organization.name | default(organization) }}"
+    workflow_job_template_id: "{{ current_workflow_job_templates_asset_value.id }}"
+    query_labels: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.labels,
+                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     return_all=true, max_objects=query_controller_api_max_objects) }}"
+    query_notification_error: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.notification_templates_error,
+                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     return_all=true, max_objects=query_controller_api_max_objects) }}"
+    query_notification_started: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.notification_templates_started,
+                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     return_all=true, max_objects=query_controller_api_max_objects) }}"
+    query_notification_success: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.notification_templates_success,
+                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     return_all=true, max_objects=query_controller_api_max_objects) }}"
+    query_notification_approvals: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.notification_templates_approvals,
+                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     return_all=true, max_objects=query_controller_api_max_objects) }}"
+    last_workflow_job_template: true
+  no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+...

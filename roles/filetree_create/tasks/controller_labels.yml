@@ -2,7 +2,11 @@
 - name: "Get current Labels from the API"
   ansible.builtin.set_fact:
     labels_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/labels/',
-                              query_params=(query_params | combine({'organization': organization_id})) if organization_id is defined else query_params,
+                              query_params=(query_params | combine({'organization': organization_id} if organization_id is defined and label_name is not defined and label_names is not defined and label_id is not defined and label_ids is not defined else {},
+                                {'name': label_name} if label_name is defined else {},
+                                {'name__in': (label_names | join(','))} if label_names is defined and (label_names | length) > 0 and label_name is not defined else {},
+                                {'id': label_id} if label_id is defined and label_name is not defined and label_names is not defined else {},
+                                {'id__in': (label_ids | join(','))} if label_ids is defined and (label_ids | length) > 0 and label_id is not defined and label_name is not defined and label_names is not defined else {})),
                               host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
                               return_all=true, max_objects=query_controller_api_max_objects)
                        }}"
