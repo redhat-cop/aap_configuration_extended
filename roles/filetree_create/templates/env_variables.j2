@@ -1,0 +1,13 @@
+---
+# Stub of environment / secret variables discovered in the filetree export.
+# Fill in PRO (or target) values, optionally encrypt with ansible-vault, then pass:
+#   ansible-playbook ... -e @env_variables.yml
+#
+{% if env_variable_keys | length == 0 %}
+# No {{ secrets_as_variables_prefix }}_* placeholders were found in the export.
+{}
+{% else %}
+{% for key in env_variable_keys | sort %}
+{{ key }}: {{ env_variables_stub_placeholder }}
+{% endfor %}
+{% endif %}

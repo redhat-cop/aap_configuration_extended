@@ -4,7 +4,8 @@
     job_templates_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/job_templates/',
                                      query_params=(query_params | combine({'organization': organization_id} if organization_id is defined else {},
                                                                           {'project': project_id} if project_id is defined else {},
-                                                                          {'id': job_template_id} if job_template_id is defined else {},
+                                                                          {'name': job_template_name} if job_template_name is defined else {},
+                                                                          {'id': job_template_id} if job_template_id is defined and job_template_name is not defined else {},
                                                                           {'labels__search': label_filter} if label_filter is defined else {})),
                                      host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                      return_all=true, max_objects=query_controller_api_max_objects)
@@ -14,23 +15,240 @@
       order_by: 'organization,id'
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
-- name: "Export related block"
-  when: job_template_id is defined and (export_related_objects is defined and export_related_objects)
-  block:
-    - name: Set related project id when project is not defined
-      when: project_id is not defined
-      ansible.builtin.set_fact:
-        related_project_id: "{{ job_templates_lookvar[0]['summary_fields']['project']['id'] }}"
+- name: "Assert the requested Job Template was found"
+  when: (job_template_name is defined) or (job_template_id is defined)
+  ansible.builtin.assert:
+    that:
+      - (job_templates_lookvar | length) > 0
+    fail_msg: >-
+      No Job Template matched
+      {{ 'name=' ~ job_template_name if job_template_name is defined else 'id=' ~ job_template_id }}.
+      Names with spaces must be passed as JSON extra vars, e.g.
+      -e '{"job_template_name":"Demo Job Template"}' (plain -e key=value truncates at the first space).
 
-    - name: Set related project id when project is defined
-      when: project_id is defined
+- name: "Export related block"
+  when:
+    - (job_template_name is defined) or (job_template_id is defined)
+    - export_related_objects is defined and (export_related_objects | bool)
+    - (job_templates_lookvar | length) > 0
+  vars:
+    __related_jt: "{{ job_templates_lookvar | first }}"
+  block:
+    - name: "Collect related object names from the Job Template"
       ansible.builtin.set_fact:
-        related_project_id: "{{ project_id }}"
+        related_organization_name: "{{ __related_jt.summary_fields.organization.name | default(omit, true) }}"
+        related_project_name: "{{ project_name | default(__related_jt.summary_fields.project.name | default(omit, true), true) }}"
+        related_inventory_name: "{{ __related_jt.summary_fields.inventory.name | default(omit, true) }}"
+        related_ee_names: "{{ [__related_jt.summary_fields.execution_environment.name] if __related_jt.summary_fields.execution_environment is defined else [] }}"
+        related_credential_names: "{{ __related_jt.summary_fields.credentials | default([]) | map(attribute='name') | list }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Query labels related to the Job Template"
+      ansible.builtin.set_fact:
+        related_label_names: "{{ query('ansible.platform.gateway_api', __related_jt.related.labels,
+                                       host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                                       return_all=true, max_objects=query_controller_api_max_objects)
+                                | map(attribute='name') | list }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Query notification templates related to the Job Template"
+      ansible.builtin.set_fact:
+        related_notification_template_names: "{{ (query('ansible.platform.gateway_api', __related_jt.related.notification_templates_error,
+                  host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                  return_all=true, max_objects=query_controller_api_max_objects)
+            + query('ansible.platform.gateway_api', __related_jt.related.notification_templates_started,
+                    host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                    return_all=true, max_objects=query_controller_api_max_objects)
+            + query('ansible.platform.gateway_api', __related_jt.related.notification_templates_success,
+                    host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                    return_all=true, max_objects=query_controller_api_max_objects)) | map(attribute='name') | list | unique }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Fetch related project details for extra dependencies"
+      when: related_project_name is defined
+      ansible.builtin.set_fact:
+        related_project_detail: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/projects/',
+                                          query_params={'name': related_project_name},
+                                          host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                                          return_all=true, max_objects=query_controller_api_max_objects)
+                                    | first }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Extend related credentials and EEs from the project"
+      when: related_project_detail is defined
+      ansible.builtin.set_fact:
+        related_credential_names: "{{ (related_credential_names | default([])
+          + ([related_project_detail.summary_fields.credential.name]
+             if related_project_detail.summary_fields.credential is defined else []))
+          | unique | list }}"
+        related_ee_names: "{{ (related_ee_names | default([])
+          + ([related_project_detail.summary_fields.default_environment.name]
+             if related_project_detail.summary_fields.default_environment is defined else []))
+          | unique | list }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Fetch related credentials to discover credential types and EE pull credentials"
+      when: (related_credential_names | default([]) | length) > 0 or (related_ee_names | default([]) | length) > 0
+      block:
+        - name: "Query related credentials by name"
+          when: (related_credential_names | default([]) | length) > 0
+          ansible.builtin.set_fact:
+            related_credentials_detail: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/credentials/',
+                                                  query_params={'name__in': related_credential_names | join(',')},
+                                                  host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                                                  return_all=true, max_objects=query_controller_api_max_objects) }}"
+          no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+        - name: "Collect related credential type names"
+          when: related_credentials_detail is defined
+          ansible.builtin.set_fact:
+            related_credential_type_names: "{{ related_credentials_detail
+              | map(attribute='summary_fields')
+              | selectattr('credential_type', 'defined')
+              | map(attribute='credential_type')
+              | map(attribute='name')
+              | list | unique }}"
+          no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+        - name: "Query related execution environments by name"
+          when: (related_ee_names | default([]) | length) > 0
+          ansible.builtin.set_fact:
+            related_ees_detail: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/execution_environments/',
+                                          query_params={'name__in': related_ee_names | join(',')},
+                                          host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                                          return_all=true, max_objects=query_controller_api_max_objects) }}"
+          no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+        - name: "Extend related credentials with EE pull credentials"
+          when: related_ees_detail is defined
+          ansible.builtin.set_fact:
+            related_credential_names: "{{ (related_credential_names | default([])
+              + (related_ees_detail
+                 | selectattr('summary_fields.credential', 'defined')
+                 | map(attribute='summary_fields')
+                 | map(attribute='credential')
+                 | map(attribute='name')
+                 | list))
+              | unique | list }}"
+          no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+        - name: "Re-query credentials after EE credential extension"
+          when: (related_credential_names | default([]) | length) > 0
+          ansible.builtin.set_fact:
+            related_credentials_detail: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/credentials/',
+                                                  query_params={'name__in': related_credential_names | join(',')},
+                                                  host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                                                  return_all=true, max_objects=query_controller_api_max_objects) }}"
+            related_credential_type_names: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/credentials/',
+                                                     query_params={'name__in': related_credential_names | join(',')},
+                                                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                                                     return_all=true, max_objects=query_controller_api_max_objects)
+              | map(attribute='summary_fields')
+              | selectattr('credential_type', 'defined')
+              | map(attribute='credential_type')
+              | map(attribute='name')
+              | list | unique }}"
+          no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export organization related to job template"
+      when: related_organization_name is defined
+      ansible.builtin.include_tasks: "controller_organizations.yml"
+      vars:
+        organization_name: "{{ related_organization_name }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export credential types related to job template"
+      when: (related_credential_type_names | default([]) | length) > 0
+      ansible.builtin.include_tasks: "controller_credential_types.yml"
+      vars:
+        credential_type_names: "{{ related_credential_type_names }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export credentials related to job template"
+      when: (related_credential_names | default([]) | length) > 0
+      ansible.builtin.include_tasks: "controller_credentials.yml"
+      vars:
+        credential_names: "{{ related_credential_names }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export execution environments related to job template"
+      when: (related_ee_names | default([]) | length) > 0
+      ansible.builtin.include_tasks: "controller_execution_environments.yml"
+      vars:
+        execution_environment_names: "{{ related_ee_names }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
     - name: "Export project related to job template"
+      when: related_project_name is defined
       ansible.builtin.include_tasks: "controller_projects.yml"
       vars:
-        project_id: "{{ related_project_id }}"
+        project_name: "{{ related_project_name }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export inventory related to job template"
+      when: related_inventory_name is defined
+      ansible.builtin.include_tasks: "controller_inventories.yml"
+      vars:
+        inventory_name: "{{ related_inventory_name }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export inventory-source credentials discovered after inventory export"
+      when: related_inventory_name is defined
+      block:
+        - name: "Query inventory by name to resolve inventory sources"
+          ansible.builtin.set_fact:
+            related_inventory_detail: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/inventories/',
+                                                query_params={'name': related_inventory_name},
+                                                host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                                                return_all=true, max_objects=query_controller_api_max_objects)
+                                          | first }}"
+          no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+        - name: "Query inventory sources for related inventory"
+          ansible.builtin.set_fact:
+            related_inventory_sources: "{{ query('ansible.platform.gateway_api',
+                                                 related_inventory_detail.related.inventory_sources,
+                                                 host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                                                 return_all=true, max_objects=query_controller_api_max_objects) }}"
+          no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+        - name: "Collect inventory-source credential names"
+          ansible.builtin.set_fact:
+            related_inventory_source_credential_names: "{{ related_inventory_sources
+              | selectattr('summary_fields.credential', 'defined')
+              | map(attribute='summary_fields')
+              | map(attribute='credential')
+              | map(attribute='name')
+              | list | unique }}"
+          no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+        - name: "Export credentials used by inventory sources"
+          when:
+            - (related_inventory_source_credential_names | default([]) | length) > 0
+            - (related_inventory_source_credential_names | difference(related_credential_names | default([])) | length) > 0
+          ansible.builtin.include_tasks: "controller_credentials.yml"
+          vars:
+            credential_names: "{{ related_inventory_source_credential_names | difference(related_credential_names | default([])) }}"
+          no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export labels related to job template"
+      when: (related_label_names | default([]) | length) > 0
+      ansible.builtin.include_tasks: "controller_labels.yml"
+      vars:
+        label_names: "{{ related_label_names }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export notification templates related to job template"
+      when: (related_notification_template_names | default([]) | length) > 0
+      ansible.builtin.include_tasks: "controller_notification_templates.yml"
+      vars:
+        notification_template_names: "{{ related_notification_template_names }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export schedules related to job template"
+      ansible.builtin.include_tasks: "controller_schedules.yml"
+      vars:
+        schedules_related_url: "{{ __related_jt.related.schedules }}"
       no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
 - name: "Block for to generate flatten output"

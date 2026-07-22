@@ -1,11 +1,16 @@
 ---
 - name: "Get current Schedules from the API"
   ansible.builtin.set_fact:
-    schedules_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/schedules/',
-                                query_params=({'id': schedule_id} if schedule_id is defined else {}),
+    schedules_lookvar: "{{ query('ansible.platform.gateway_api',
+                                (schedules_related_url if schedules_related_url is defined else 'api/controller/v2/schedules/'),
+                                query_params=(query_params | combine({'name': schedule_name} if schedule_name is defined and schedules_related_url is not defined else {},
+                                  {'id': schedule_id} if schedule_id is defined and schedule_name is not defined and schedules_related_url is not defined else {},
+                                  {'unified_job_template': unified_job_template_id} if unified_job_template_id is defined and schedules_related_url is not defined else {})),
                                 host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                 return_all=true, max_objects=query_controller_api_max_objects)
                        }}"
+  vars:
+    query_params: {}
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
 - name: "Block for to generate flatten output"

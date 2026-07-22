@@ -76,7 +76,7 @@ controller_schedules:
          | default(current_schedules_asset_value.extra_data) %}
       {{ (__schedule_extra_data if __schedule_extra_data is mapping or (__schedule_extra_data | type_debug) == 'list' else (__schedule_extra_data | from_yaml))
          | to_nice_yaml(indent=2, sort_keys=false, width=4096) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*?){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true) | replace("$encrypted$", "\'\'")}}
-{%- endif -%}
+{% endif %}
 {% if query_credentials | length > 0 %}
     credentials:
 {%   for credential in query_credentials %}

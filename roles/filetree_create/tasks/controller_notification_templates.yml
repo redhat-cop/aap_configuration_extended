@@ -2,7 +2,11 @@
 - name: "Get current Notification Templates from the API"
   ansible.builtin.set_fact:
     notification_templates_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/notification_templates/',
-                                              query_params=(query_params | combine({'organization': organization_id})) if organization_id is defined else query_params,
+                                              query_params=(query_params | combine({'organization': organization_id} if organization_id is defined and notification_template_name is not defined and notification_template_names is not defined and notification_template_id is not defined and notification_template_ids is not defined else {},
+                                                {'name': notification_template_name} if notification_template_name is defined else {},
+                                                {'name__in': (notification_template_names | join(','))} if notification_template_names is defined and (notification_template_names | length) > 0 and notification_template_name is not defined else {},
+                                                {'id': notification_template_id} if notification_template_id is defined and notification_template_name is not defined and notification_template_names is not defined else {},
+                                                {'id__in': (notification_template_ids | join(','))} if notification_template_ids is defined and (notification_template_ids | length) > 0 and notification_template_id is not defined and notification_template_name is not defined and notification_template_names is not defined else {})),
                                               host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                               return_all=true, max_objects=query_controller_api_max_objects)
                                      }}"

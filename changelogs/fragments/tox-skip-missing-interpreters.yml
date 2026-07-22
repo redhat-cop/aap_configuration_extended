@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - "tox-ansible - set skip_missing_interpreters so CI matrix jobs only run sanity envs for the installed Python"

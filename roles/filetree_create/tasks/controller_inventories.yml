@@ -2,8 +2,9 @@
 - name: "Get the inventories from the API"
   ansible.builtin.set_fact:
     inventory_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/inventories/',
-                                 query_params=(query_params | combine({'organization': organization_id} if organization_id is defined else {},
-                                 {'id': inventory_id} if inventory_id is defined else {})),
+                                 query_params=(query_params | combine({'organization': organization_id} if organization_id is defined and inventory_name is not defined and inventory_id is not defined else {},
+                                   {'name': inventory_name} if inventory_name is defined else {},
+                                   {'id': inventory_id} if inventory_id is defined and inventory_name is not defined else {})),
                                  host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                  return_all=true, max_objects=query_controller_api_max_objects)
                         }}"

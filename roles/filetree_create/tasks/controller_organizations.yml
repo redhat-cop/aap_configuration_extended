@@ -2,7 +2,8 @@
 - name: "Get current Organizations from the API"
   ansible.builtin.set_fact:
     orgs_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/organizations/',
-                            query_params=(query_params | combine({'id': organization_id})) if organization_id is defined else query_params,
+                            query_params=(query_params | combine({'name': organization_name} if organization_name is defined else {},
+                              {'id': organization_id} if organization_id is defined and organization_name is not defined else {})),
                             host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                             return_all=true, max_objects=query_controller_api_max_objects)
                    }}"
@@ -56,7 +57,7 @@
 - name: "Block for to generate the filetree_create normal output"
   when: flatten_output is not defined or not (flatten_output | bool)
   block:
-    - name: "Create the output directory for organizations"
+    - name: "Create the output directory for organizations: {{ output_path + '/' + current_organization_dir.name }}"
       ansible.builtin.file:
         path: "{{ __path }}"
         state: directory

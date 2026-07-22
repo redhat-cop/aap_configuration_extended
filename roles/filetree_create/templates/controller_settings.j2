@@ -1,7 +1,11 @@
+{% import 'macros/yaml_value.j2' as yamlval %}
 ---
 controller_settings:
   settings:
-{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
+{% set __empty_values = [None, "None", [], {}, [{}]] %}
+{% if not (settings_export_from_changed | default(false)) %}
+{%   set __empty_values = __empty_values + [''] %}
+{% endif %}
 {% for key,value in all_settings[0].items() if value not in __empty_values %}
 {%   if value is mapping or value | type_debug == "list" %}
 {{ key | indent(width=4, first=True) }}:
@@ -13,7 +17,6 @@ controller_settings:
 {{ key | indent(width=4, first=True) }}: '{{ (value | string) | replace("'", "''") }}'
 {%     endif %}
 {%   else %}
-{{ key | indent(width=4, first=True) }}: "{{ value | replace('True', 'true') | replace('False', 'false') | replace('None', 'null') }}"
+{{ key | indent(width=4, first=True) }}: {{ yamlval.render_scalar(value) }}
 {%   endif %}
 {% endfor %}
-...

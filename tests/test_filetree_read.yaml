@@ -75,6 +75,70 @@
     - infra.aap_configuration_extended.filetree_read
     - infra.aap_configuration.dispatch
 
+- name: "Test the filetree_read reading roundtrip inputs (roundtrip)"
+  # Run example: ansible-playbook test_filetree_read.yaml --skip-tags custom,fc,fcf,gv --tags "$(tr -d '\n' < configs/roundtrip/ansible_tags)"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tags:
+    - roundtrip
+  vars_files:
+    - "configs/roundtrip/ssh_private_key.yml"
+  vars:
+    dir_orgs_vars: ''
+    orgs: ''
+    filetree_read_run_all: true
+    filetree_gateway_authenticators: &roundtrip_configs_path "./configs/roundtrip"
+    filetree_gateway_authenticator_maps: *roundtrip_configs_path
+    filetree_gateway_settings: *roundtrip_configs_path
+    filetree_aap_organizations: *roundtrip_configs_path
+    filetree_aap_applications: *roundtrip_configs_path
+    filetree_gateway_http_ports: *roundtrip_configs_path
+    filetree_gateway_service_clusters: *roundtrip_configs_path
+    filetree_gateway_service_keys: *roundtrip_configs_path
+    filetree_gateway_service_nodes: *roundtrip_configs_path
+    filetree_gateway_services: *roundtrip_configs_path
+    filetree_aap_teams: *roundtrip_configs_path
+    filetree_aap_user_accounts: *roundtrip_configs_path
+    filetree_gateway_role_definitions: *roundtrip_configs_path
+    filetree_gateway_role_team_assignments: *roundtrip_configs_path
+    filetree_gateway_role_user_assignments: *roundtrip_configs_path
+    filetree_gateway_routes: *roundtrip_configs_path
+    filetree_controller_settings: *roundtrip_configs_path
+    filetree_controller_labels: *roundtrip_configs_path
+    filetree_controller_credential_types: *roundtrip_configs_path
+    filetree_controller_credentials: *roundtrip_configs_path
+    filetree_controller_credential_input_sources: *roundtrip_configs_path
+    filetree_controller_notifications: *roundtrip_configs_path
+    filetree_controller_projects: *roundtrip_configs_path
+    filetree_controller_execution_environments: *roundtrip_configs_path
+    filetree_controller_inventories: *roundtrip_configs_path
+    filetree_controller_inventory_sources: *roundtrip_configs_path
+    filetree_controller_instance_groups: *roundtrip_configs_path
+    filetree_controller_instances: *roundtrip_configs_path
+    filetree_controller_hosts: *roundtrip_configs_path
+    filetree_controller_groups: *roundtrip_configs_path
+    filetree_controller_templates: *roundtrip_configs_path
+    filetree_controller_workflow_job_templates: *roundtrip_configs_path
+    filetree_controller_schedules: *roundtrip_configs_path
+    filetree_controller_roles: *roundtrip_configs_path
+    filetree_eda_credential_types: *roundtrip_configs_path
+    filetree_eda_credentials: *roundtrip_configs_path
+    filetree_eda_decision_environments: *roundtrip_configs_path
+    filetree_eda_event_streams: *roundtrip_configs_path
+    filetree_eda_projects: *roundtrip_configs_path
+    filetree_eda_rulebook_activations: *roundtrip_configs_path
+    filetree_hub_namespaces: *roundtrip_configs_path
+    filetree_hub_collections: *roundtrip_configs_path
+    filetree_hub_collection_remotes: *roundtrip_configs_path
+    filetree_hub_collection_repositories: *roundtrip_configs_path
+    filetree_hub_ee_registries: *roundtrip_configs_path
+    filetree_hub_ee_repositories: *roundtrip_configs_path
+    filetree_hub_ee_images: *roundtrip_configs_path
+  roles:
+    - infra.aap_configuration_extended.filetree_read
+    - infra.aap_configuration.dispatch
+
 - name: "Test the filetree_read reading the filetree_create default output (fc)"
   # Run example: ansible-playbook test_filetree_read.yaml --tags fc
   hosts: localhost

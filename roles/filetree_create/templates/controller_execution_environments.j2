@@ -19,9 +19,10 @@ controller_execution_environments: {{ [] if current_execution_environments_asset
 {%     else %}
     organization:  # Leave this empty organization to let the object_diff role to work properly
 {%     endif %}
-    image: "{{ template_overrides_resources.ee[ee.name].image
+    image: "{{ (template_overrides_resources.ee[ee.name].image
                | default(template_overrides_global.ee.image)
-               | default(ee.image) }}"
+               | default(ee.image))
+               | infra.aap_configuration_extended.filetree_as_var('controller_execution_environments', ee.name, 'image', (env_fields_as_variables | bool) and ('image' in env_fields_as_variables_map.controller_execution_environments), secrets_as_variables_prefix) }}"
     pull: "{{ template_overrides_resources.ee[ee.name].pull
               | default(template_overrides_global.ee.pull)
               | default(ee.pull) }}"

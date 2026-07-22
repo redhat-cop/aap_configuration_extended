@@ -38,6 +38,11 @@
       tags: "{{ input_tag | to_yaml }}"
   tags: "{{ valid_tags }}"
 
+- name: "Generate env_variables stub from secrets/env placeholders"
+  ansible.builtin.include_tasks: generate_env_variables_stub.yml
+  tags:
+    - always
+
 - name: "Check whether output directory exists"
   ansible.builtin.stat:
     path: "{{ output_path }}"
@@ -74,6 +79,13 @@
         loop_var: _current_file
         label: "{{ _current_file.path }}"
       when: _generated_files.matched | default(0) | int > 0
+  rescue:
+    - name: "Warn when yaml_format cannot run (e.g. missing PyYAML for interpreter_python)"
+      ansible.builtin.debug:
+        msg: >-
+          Skipping yaml_format: {{ ansible_failed_result.msg | default(ansible_failed_result) }}.
+          Export files are still present under {{ output_path }}.
+          Install PyYAML for the configured Python interpreter, or re-run with --skip-tags yaml_format.
 
 - name: "Remind to check all the 'ToDo:' entries in the output files"
   ansible.builtin.debug:
