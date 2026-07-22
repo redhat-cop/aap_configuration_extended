@@ -3,7 +3,7 @@
   ansible.builtin.set_fact:
     controller_organization_id: "{{ lookup('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/organizations',
                                             query_params={'name': orgs},
-                                            host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)
+                                            host=aap_hostname, oauth_token=__object_diff_oauth_token, verify_ssl=aap_validate_certs)
                                  }}"
   no_log: "{{ controller_configuration_object_diff_secure_logging }}"
 
@@ -12,7 +12,7 @@
     __controller_api_inventories: "{{ query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/inventories',
                                             query_params={'organization': controller_organization_id.id,
                                               'not__total_hosts': '0'},
-                                            host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                            host=aap_hostname, oauth_token=__object_diff_oauth_token, verify_ssl=aap_validate_certs,
                                             return_all=true, max_objects=query_controller_api_max_objects)
                                    | rejectattr('kind', 'in', ['smart', 'constructed']) | list }}"
   no_log: "{{ controller_configuration_object_diff_secure_logging }}"
@@ -22,7 +22,7 @@
     __controller_api_hosts: "{{ (__controller_api_hosts | default([])) + (query('ansible.platform.gateway_api', 'api/controller/' + controller_api_version + '/hosts',
                                     query_params={'inventory': current_inventory.id,
                                       'not__description': 'imported'},
-                                    host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                    host=aap_hostname, oauth_token=__object_diff_oauth_token, verify_ssl=aap_validate_certs,
                                     return_all=true, max_objects=query_controller_api_max_objects)
                              | rejectattr('has_inventory_sources') | list) }}"
   no_log: "{{ controller_configuration_object_diff_secure_logging }}"

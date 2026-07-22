@@ -2,6 +2,7 @@
 ---
 controller_workflows:
 {% endif %}
+{% import 'macros/yaml_value.j2' as yamlval %}
 {% set __empty_values = [None, '', "None", [], {}, [{}]] %}
   - name: "{{ current_workflow_job_templates_asset_value.name }}"
 {% if template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].description
@@ -18,7 +19,7 @@ controller_workflows:
     simplified_workflow_nodes:
 {% for node in query('ansible.platform.gateway_api', 'api/controller/v2/workflow_job_template_nodes/',
                      query_params={'workflow_job_template': current_workflow_job_templates_asset_value.id},
-                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) %}
       - identifier: "{{ node.identifier }}"
 {%   if node.summary_fields.inventory is defined %}
@@ -38,7 +39,7 @@ controller_workflows:
 {%       else %}
 {%         set jt_var = query('ansible.platform.gateway_api', 'api/controller/v2/job_templates',
                               query_params={'name': node.summary_fields.unified_job_template.name},
-                              host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                              host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                               return_all=true, max_objects=query_controller_api_max_objects) %}
 {%         if jt_var | length > 0 %}
 {%           if jt_var[0]['ask_verbosity_on_launch'] %}
@@ -62,41 +63,34 @@ controller_workflows:
         extra_data:
 {%     set extra_data_contents = template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].extra_data
                                | default(template_overrides_global.workflow_job_template.extra_data)
-                               | default(node.extra_data)
--%}
+                               | default(node.extra_data) %}
 {%     for extra_data_item in (extra_data_contents | dict2items) if ((extra_data_item.value | string | length) > 0 and (extra_data_item.value | string) is not match('None')) %}
 {%       if extra_data_item.value | type_debug is match('list') %}
           {{ extra_data_item.key }}:
 {%         for current_list_item in extra_data_item.value if ((extra_data_item.value | string | length) > 0 and (extra_data_item.value | string) is not match('None')) %}
-{%           if current_list_item is number or current_list_item is boolean %}
-            - {{ current_list_item if current_list_item is number else (current_list_item | bool | lower) }}
-{%           else %}
-            - {{ '"{%- raw -%}' }}{{ (current_list_item | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
-{%           endif %}
+            - {{ yamlval.render_scalar(current_list_item) }}
 {%         endfor %}
-{%       elif extra_data_item.value is number or extra_data_item.value is boolean %}
-          {{ extra_data_item.key }}: {{ extra_data_item.value if extra_data_item.value is number else (extra_data_item.value | bool | lower) }}
 {%       else %}
-          {{ extra_data_item.key }}: {{ '"{%- raw -%}' }}{{ (extra_data_item.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
+          {{ extra_data_item.key }}: {{ yamlval.render_scalar(extra_data_item.value) }}
 {%       endif %}
 {%     endfor %}
-{%-  endif %}
+{%   endif %}
 {%   if node.success_nodes is defined and node.success_nodes | length > 0 %}
         success_nodes:
 {%     for success in node.success_nodes %}
-          - "{{ query('ansible.platform.gateway_api', 'api/controller/v2/workflow_job_template_nodes/'+(success | string), host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)[0].identifier }}"
+          - "{{ query('ansible.platform.gateway_api', 'api/controller/v2/workflow_job_template_nodes/'+(success | string), host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs)[0].identifier }}"
 {%     endfor %}
 {%   endif %}
 {%   if node.always_nodes and node.always_nodes | length > 0 %}
         always_nodes:
 {%     for always in node.always_nodes %}
-          - "{{ query('ansible.platform.gateway_api', 'api/controller/v2/workflow_job_template_nodes/'+(always | string), host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)[0].identifier }}"
+          - "{{ query('ansible.platform.gateway_api', 'api/controller/v2/workflow_job_template_nodes/'+(always | string), host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs)[0].identifier }}"
 {%     endfor %}
 {%   endif %}
 {%   if node.failure_nodes and node.failure_nodes | length > 0 %}
         failure_nodes:
 {%     for failure in node.failure_nodes %}
-          - "{{ query('ansible.platform.gateway_api', 'api/controller/v2/workflow_job_template_nodes/'+(failure | string), host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs)[0].identifier }}"
+          - "{{ query('ansible.platform.gateway_api', 'api/controller/v2/workflow_job_template_nodes/'+(failure | string), host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs)[0].identifier }}"
 {%     endfor %}
 {%   endif %}
 {% endfor %}
@@ -132,9 +126,13 @@ controller_workflows:
                                  | default(template_overrides_global.workflow_template.extra_vars)
                                  | default(current_workflow_job_templates_asset_value.extra_vars) %}
 {%   set extra_vars_contents = __workflow_extra_vars if __workflow_extra_vars is mapping or (__workflow_extra_vars | type_debug) == 'list' else (__workflow_extra_vars | from_yaml) %}
--%}
-{%   for extra_vars_item in (extra_vars_contents | dict2items) if ((extra_vars_item.value | string | length) > 0 and (extra_vars_item.value | string) is not match('None')) %}
-{%     if extra_vars_item.value | type_debug is match('list') %}
+{%   for extra_vars_item in (extra_vars_contents | dict2items) if (
+        extra_vars_item.value == ''
+        or ((extra_vars_item.value | string | length) > 0 and (extra_vars_item.value | string) is not match('None'))
+      ) %}
+{%     if extra_vars_item.value == '' %}
+      {{ extra_vars_item.key }}: {{ '"{%- raw -%}{%- endraw -%}"' }}
+{%     elif extra_vars_item.value | type_debug is match('list') %}
       {{ extra_vars_item.key }}:
 {%       for current_list_item in extra_vars_item.value if ((extra_vars_item.value | string | length) > 0 and (extra_vars_item.value | string) is not match('None')) %}
         - {{ '"{%- raw -%}' }}{{ (current_list_item | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
@@ -182,7 +180,7 @@ controller_workflows:
 {% set survey_spec_contents = template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].survey_spec
                               | default(template_overrides_global.workflow_job_template.survey_spec)
                               | default(query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.survey_spec,
-                                              host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs))
+                                              host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs))
 -%}
 {% if template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].survey_spec is defined
       or template_overrides_global.workflow_job_template.survey_spec is defined

@@ -1,20 +1,30 @@
+{% import 'macros/export_field.j2' as export %}
+{% import 'macros/export_value.j2' as exportval %}
 ---
 hub_collection_remotes: {{ [] if current_hub_collection_remotes_asset_value | length == 0 }}
 {% set __excluded_fields = ['pulp_href', 'pulp_created', 'pulp_last_updated', 'hidden_fields', 'last_sync_task'] %}
-{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
-{% set __dict_items = ['requirements_file'] %}
+{% set __field_defaults = {
+  'auth_url': '', 'token': '', 'requirements': '', 'requirements_file': '',
+  'username': '', 'password': '', 'client_key': '', 'client_cert': '', 'ca_cert': '',
+  'client_key_path': '', 'client_cert_path': '', 'ca_cert_path': '',
+  'proxy_url': '', 'proxy_username': '', 'proxy_password': '',
+  'download_concurrency': '', 'max_retries': '', 'rate_limit': 8,
+  'signed_only': '', 'pulp_labels': '',
+} %}
 {% for current_collection_remote in current_hub_collection_remotes_asset_value %}
-{%   for __map_item in (current_collection_remote | dict2items) if __map_item.key not in __excluded_fields and __map_item.value not in __empty_values %}
-{%     if loop.index == 1 %}
-  - {{ __map_item.key }}: {{ __map_item.value | replace("\\'", "''") }}
-{%     else %}
-{%       if __map_item.key in __dict_items %}
-{%         set __hub_remote_value = __map_item.value | replace("\\'", "''") %}
-    {{ __map_item.key }}: {{ __hub_remote_value if __hub_remote_value is mapping or (__hub_remote_value | type_debug) == 'list' else (__hub_remote_value | from_yaml) }}
+{%   set ns = namespace(first=true) %}
+{%   for __map_item in (current_collection_remote | dict2items) if __map_item.key not in __excluded_fields %}
+{%     set __field_value = __map_item.value %}
+{%     if __map_item.key == 'requirements_file' and __field_value is string and __field_value | length > 0 %}
+{%       set __field_value = __field_value | from_yaml %}
+{%     endif %}
+{%     if exportval.should_export_field(__map_item.key, __field_value, __field_defaults) | trim == 'true' %}
+{%       if ns.first %}
+  - {{ export.render(__map_item.key, __field_value, indent=0, first=true, field_defaults=__field_defaults) }}
+{%         set ns.first = false %}
 {%       else %}
-    {{ __map_item.key }}: {{ __map_item.value | replace("\\'", "''") }}
+    {{ export.render(__map_item.key, __field_value, indent=0, first=true, field_defaults=__field_defaults) }}
 {%       endif %}
 {%     endif %}
-{%-  endfor %}
+{%   endfor %}
 {% endfor %}
-...

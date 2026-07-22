@@ -1,14 +1,27 @@
+{% import 'macros/export_field.j2' as export %}
+{% import 'macros/export_value.j2' as exportval %}
 ---
 hub_ee_registries: {{ [] if current_hub_ee_registries_asset_value | length == 0 }}
-{% set __excluded_fields = ['id', 'pulp_href', 'created_at', 'updated_at', 'last_sync_task', 'write_only_fields'] %}
-{% set __list_items = [] %}
+{% set __excluded_fields = ['id', 'pulp_href', 'created_at', 'updated_at', 'last_sync_task', 'write_only_fields', 'client_cert', 'ca_cert'] %}
+{% set __field_defaults = {
+  'username': '',
+  'password': '',
+  'download_concurrency': '',
+  'rate_limit': '',
+  'proxy_url': '',
+  'proxy_username': '',
+  'proxy_password': '',
+} %}
 {% for current_ee_registry in current_hub_ee_registries_asset_value %}
+{%   set ns = namespace(first=true) %}
 {%   for __map_item in (current_ee_registry | dict2items) if __map_item.key not in __excluded_fields %}
-{%     if loop.index == 1 %}
-  - {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
-{%     else %}
-    {{ __map_item.key }}: {{ __map_item.value | default('""' if __map_item.key not in __list_items else [], true) | replace("\\'", "''") }}
+{%     if exportval.should_export_field(__map_item.key, __map_item.value, __field_defaults) | trim == 'true' %}
+{%       if ns.first %}
+  - {{ export.render(__map_item.key, __map_item.value, indent=0, first=true, field_defaults=__field_defaults) }}
+{%         set ns.first = false %}
+{%       else %}
+    {{ export.render(__map_item.key, __map_item.value, indent=0, first=true, field_defaults=__field_defaults) }}
+{%       endif %}
 {%     endif %}
-{%-  endfor %}
+{%   endfor %}
 {% endfor %}
-...

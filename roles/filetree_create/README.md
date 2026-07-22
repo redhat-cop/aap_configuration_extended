@@ -75,23 +75,21 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
   pre_tasks:
     - name: "Setup authentication (block)"
       block:
-        - name: "Get the Authentication Token for the future requests"
-          ansible.builtin.uri:
-            url: "https://{{ aap_hostname }}/api/gateway/v1/tokens/"
-            user: "{{ aap_username }}"
-            password: "{{ aap_password }}"
-            method: POST
-            force_basic_auth: true
-            validate_certs: "{{ aap_validate_certs }}"
-            status_code: 201
-          register: authtoken_res
+        - name: "Create a new token using platform username/password"
+          ansible.platform.token:
+            description: 'Token for Automated Management'
+            scope: "write"
+            state: present
+            aap_hostname: "{{ aap_hostname }}"
+            aap_username: "{{ aap_username }}"
+            aap_password: "{{ aap_password }}"
+            aap_validate_certs: "{{ aap_validate_certs }}"
 
-        - name: "Set the oauth token to be used since now"
+        - name: "Expose aap_token dict for collection roles"
           ansible.builtin.set_fact:
-            aap_oauthtoken: "{{ authtoken_res.json.token }}"
-            aap_oauthtoken_url: "{{ authtoken_res.json.url }}"
+            aap_token: "{{ ansible_facts['aap_token'] }}"
       no_log: "{{ controller_configuration_filetree_create_secure_logging | default('false') }}"
-      when: aap_oauthtoken is not defined
+      when: not (ansible_facts.get('aap_token') or aap_token is defined)
       tags:
         - always
 
@@ -100,15 +98,16 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
 
   post_tasks:
     - name: "Delete the Authentication Token used"
-      ansible.builtin.uri:
-        url: "https://{{ aap_hostname }}{{ aap_oauthtoken_url }}"
-        user: "{{ aap_username }}"
-        password: "{{ aap_password }}"
-        method: DELETE
-        force_basic_auth: true
-        validate_certs: "{{ aap_validate_certs }}"
-        status_code: 204
-      when: aap_oauthtoken_url is defined
+      ansible.platform.token:
+        existing_token: "{{ aap_token }}"
+        state: absent
+        aap_hostname: "{{ aap_hostname }}"
+        aap_username: "{{ aap_username }}"
+        aap_password: "{{ aap_password }}"
+        aap_validate_certs: "{{ aap_validate_certs }}"
+      when:
+        - aap_token is defined
+        - aap_token is mapping
 ...
 ```
 
@@ -242,8 +241,7 @@ This example will export all object but some with modifications:
   connection: local
   gather_facts: false
   vars:
-    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
-    aap_oauthtoken : "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_OAUTHTOKEN')) }}"
+    aap_token: "{{ vault_aap_token | default(lookup('env', 'CONTROLLER_OAUTHTOKEN')) }}"
     aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
     aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
 
@@ -290,40 +288,39 @@ Sample playbook:
   pre_tasks:
     - name: "Setup authentication (block)"
       no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
-      when: aap_oauthtoken is not defined
+      when: not (ansible_facts.get('aap_token') or aap_token is defined)
       tags:
         - always
       block:
-        - name: "Get the Authentication Token for the future requests"
-          ansible.builtin.uri:
-            url: "https://{{ aap_hostname }}/api/gateway/v1/tokens/"
-            user: "{{ aap_username }}"
-            password: "{{ aap_password }}"
-            method: POST
-            force_basic_auth: true
-            validate_certs: "{{ aap_validate_certs }}"
-            status_code: 201
-          register: authtoken_res
+        - name: "Create a new token using platform username/password"
+          ansible.platform.token:
+            description: 'Token for Automated Management'
+            scope: "write"
+            state: present
+            aap_hostname: "{{ aap_hostname }}"
+            aap_username: "{{ aap_username }}"
+            aap_password: "{{ aap_password }}"
+            aap_validate_certs: "{{ aap_validate_certs }}"
 
-        - name: "Set the oauth token to be used since now"
+        - name: "Expose aap_token dict for collection roles"
           ansible.builtin.set_fact:
-            aap_oauthtoken: "{{ authtoken_res.json.token }}"
-            aap_oauthtoken_url: "{{ authtoken_res.json.url }}"
+            aap_token: "{{ ansible_facts['aap_token'] }}"
 
   roles:
     - infra.aap_configuration_extended.filetree_create
 
   post_tasks:
     - name: "Delete the Authentication Token used"
-      ansible.builtin.uri:
-        url: "https://{{ aap_hostname }}{{ aap_oauthtoken_url }}"
-        user: "{{ aap_username }}"
-        password: "{{ aap_password }}"
-        method: DELETE
-        force_basic_auth: true
-        validate_certs: "{{ aap_validate_certs }}"
-        status_code: 204
-      when: aap_oauthtoken_url is defined
+      ansible.platform.token:
+        existing_token: "{{ aap_token }}"
+        state: absent
+        aap_hostname: "{{ aap_hostname }}"
+        aap_username: "{{ aap_username }}"
+        aap_password: "{{ aap_password }}"
+        aap_validate_certs: "{{ aap_validate_certs }}"
+      when:
+        - aap_token is defined
+        - aap_token is mapping
 ...
 ```
 

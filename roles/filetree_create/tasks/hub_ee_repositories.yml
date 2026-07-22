@@ -5,7 +5,7 @@
                                            query_params=({'name': hub_ee_repository_name} if hub_ee_repository_name is defined else {}
                                                          | combine({'base_path': hub_ee_repository_base_path}) if hub_ee_repository_base_path is defined else {}
                                                          | combine({'remote': hub_ee_repository_remote}) if hub_ee_repository_remote is defined else {}),
-                                           host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                           host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                            return_all=true, max_objects=query_hub_api_max_objects)
                                   }}"
   no_log: "{{ hub_configuration_filetree_create_secure_logging }}"

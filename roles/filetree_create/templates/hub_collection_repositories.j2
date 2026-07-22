@@ -1,14 +1,20 @@
+{% import 'macros/export_field.j2' as export %}
+{% import 'macros/export_value.j2' as exportval %}
 ---
 hub_collection_repositories: {{ [] if current_hub_collection_repositories_asset_value | length == 0 }}
-{% set __excluded_fields = ['pulp_href', 'pulp_created', 'pulp_last_updated', 'hidden_fields', 'last_sync_task'] %}
-{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
+{% set __excluded_fields = ['pulp_href', 'pulp_created', 'pulp_last_updated', 'versions_href', 'latest_version_href'] %}
+{% set __field_defaults = {'description': '', 'remote': '', 'pulp_labels': ''} %}
 {% for current_collection_repository in current_hub_collection_repositories_asset_value %}
-{%   for __map_item in (current_collection_repository | dict2items) if __map_item.key not in __excluded_fields and __map_item.value not in __empty_values %}
-{%     if loop.index == 1 %}
-  - {{ __map_item.key }}: {{ __map_item.value | replace("\\'", "''") }}
-{%     else %}
-    {{ __map_item.key }}: {{ __map_item.value | replace("\\'", "''") }}
+{%   set ns = namespace(first=true) %}
+{%   for __map_item in (current_collection_repository | dict2items) if __map_item.key not in __excluded_fields %}
+{%     if exportval.should_export_field(__map_item.key, __map_item.value, __field_defaults) | trim == 'true' %}
+{%       if ns.first %}
+  - {{ export.render(__map_item.key, __map_item.value, indent=0, first=true, field_defaults=__field_defaults) }}
+{%         set ns.first = false %}
+{%       else %}
+    {{ export.render(__map_item.key, __map_item.value, indent=0, first=true, field_defaults=__field_defaults) }}
+{%       endif %}
 {%     endif %}
-{%-  endfor %}
+{%   endfor %}
+    sync: false
 {% endfor %}
-...

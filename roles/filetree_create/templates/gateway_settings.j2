@@ -1,15 +1,18 @@
+{% import 'macros/yaml_value.j2' as yamlval %}
 ---
 gateway_settings:
-{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
+{% set __empty_values = [None, "None", [], {}, [{}]] %}
+{% if not (settings_export_from_changed | default(false)) %}
+{%   set __empty_values = __empty_values + [''] %}
+{% endif %}
 {% for key,value in all_settings[0].items() if value not in __empty_values %}
 {%   if value is mapping or value | type_debug == "list" %}
 {{ key | indent(width=2, first=true) }}:
 {{ value | to_nice_yaml(indent=2, sort_keys=false) | indent(width=4, first=true) }}
-{%-  elif key == "jwt_public_key" %}{#
+{%   elif key == "jwt_public_key" %}{#
 {{ key | indent(width=2, first=true) }}: |-
 {{ value | indent(width=4, first=true) }}
-#}{%-  else %}
-{{ key | indent(width=2, first=true) }}: "{{ value | replace('True', 'true') | replace('False', 'false') | replace('None', 'null') }}"
+#}{%   else %}
+{{ key | indent(width=2, first=true) }}: {{ yamlval.render_scalar(value) }}
 {%   endif %}
 {% endfor %}
-...

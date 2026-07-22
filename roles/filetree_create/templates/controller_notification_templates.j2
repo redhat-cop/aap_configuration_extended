@@ -1,3 +1,4 @@
+{% import 'macros/yaml_value.j2' as yamlval %}
 {% if (current_notification_template_index | default(0)) == 0 %}
 ---
 controller_notifications:
@@ -12,20 +13,16 @@ controller_notifications:
 {%   set __nt_secret = (value is string) and ('$encrypted$' in value) and (secrets_as_variables | bool) %}
 {%   if __nt_as_var or __nt_secret %}
       {{ key }}: "{{ value | infra.aap_configuration_extended.filetree_as_var('controller_notification_templates', current_notification_templates_asset_value.name, key, true, secrets_as_variables_prefix) }}"
-{%   elif value is mapping or (value | type_debug == 'list') %}
+{%   elif value is mapping or (value is sequence and value is not string) %}
       {{ key }}: {{ value }}
-{%   elif (value | type_debug == 'int') %}
-      {{ key }}: {{ value | int }}
-{%   elif (value | lower) is match('true') or (value | lower) is match('false') %}
-      {{ key }}: {{ value | bool | lower }}
-{%   else %}
+{%   elif value is string and '\n' in value %}
       {{ key }}: |-
-        {{ '{%- raw -%}' }}
-        {{ value | replace('\n','\\n') | replace('"', '\\"') }}
-        {{ '{%- endraw -%}' }}
+        {{ value | indent(width=8, first=false) }}
+{%   else %}
+      {{ key }}: {{ yamlval.render_scalar(value) }}
 {%   endif %}
 {% endfor %}
-{% if     current_notification_templates_asset_value.messages is defined
+{%   if     current_notification_templates_asset_value.messages is defined
       and current_notification_templates_asset_value.messages
       and current_notification_templates_asset_value.messages | dict2items | rejectattr('value', 'in', __empty_values) | list | items2dict %}
     messages:
@@ -35,22 +32,26 @@ controller_notifications:
 {%     for key2,value2 in value.items() %}
         {{ key2 }}:
 {%       for key3,value3 in value2.items() %}
+{%         if value3 is string and '\n' in value3 %}
           {{ key3 }}: |-
-            {{ '{%- raw -%}' }}
-            {{ value3 | to_nice_yaml(indent=2, sort_keys=false) | indent(width=25, first=false) }}
-            {{ '{%- endraw -%}' }}
+            {{ value3 | indent(width=12, first=false) }}
+{%         else %}
+          {{ key3 }}: {{ yamlval.render_scalar(value3) }}
+{%         endif %}
 {%       endfor %}
-{%     endfor -%}
+{%     endfor %}
 {%   else %}
 {%     for key2,value2 in value.items() %}
+{%       if value2 is string and '\n' in value2 %}
         {{ key2 }}: |-
-          {{ '{%- raw -%}' }}
-          {{ value2 | to_nice_yaml(indent=2, sort_keys=false) | indent(width=21, first=false) }}
-          {{ '{%- endraw -%}' }}
-{%     endfor -%}
+          {{ value2 | indent(width=10, first=false) }}
+{%       else %}
+        {{ key2 }}: {{ yamlval.render_scalar(value2) }}
+{%       endif %}
+{%     endfor %}
 {%   endif %}
 {% endfor %}
-{% endif %}
-{% if last_notification_template | default(true) | bool %}
+{%   endif %}
+{%   if last_notification_template | default(true) | bool %}
 ...
 {% endif %}

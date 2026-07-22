@@ -4,7 +4,7 @@
     orgs_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/organizations/',
                             query_params=(query_params | combine({'name': organization_name} if organization_name is defined else {},
                               {'id': organization_id} if organization_id is defined and organization_name is not defined else {})),
-                            host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                            host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                             return_all=true, max_objects=query_controller_api_max_objects)
                    }}"
   vars:
@@ -29,16 +29,16 @@
         block: "{{ lookup('template', 'templates/controller_organizations.j2') }}"
       vars:
         query_notification_error: "{{ query('ansible.platform.gateway_api', current_organization.related.notification_templates_error,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_started: "{{ query('ansible.platform.gateway_api', current_organization.related.notification_templates_started,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_success: "{{ query('ansible.platform.gateway_api', current_organization.related.notification_templates_success,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_approvals: "{{ query('ansible.platform.gateway_api', current_organization.related.notification_templates_approvals,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         last_organization: "{{ current_organization_index == ((orgs_lookvar | length) - 1) }}"
       loop: "{{ orgs_lookvar }}"
@@ -77,16 +77,16 @@
       vars:
         __dest: "{{ output_path }}/{{ current_organization.name | regex_replace('/', '_') }}/controller_organization.yaml"
         query_notification_error: "{{ query('ansible.platform.gateway_api', current_organization.related.notification_templates_error,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_started: "{{ query('ansible.platform.gateway_api', current_organization.related.notification_templates_started,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_success: "{{ query('ansible.platform.gateway_api', current_organization.related.notification_templates_success,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_approvals: "{{ query('ansible.platform.gateway_api', current_organization.related.notification_templates_approvals,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
       loop: "{{ orgs_lookvar }}"
       loop_control:

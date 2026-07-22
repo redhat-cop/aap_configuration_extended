@@ -69,6 +69,27 @@ Mirror `controller_instance_groups.yml`:
 
 ### 4. Verify
 
+Use `tests/ansible.cfg` (`inject_facts_as_vars = false`) when running integration playbooks from `tests/`.
+
+#### Test playbooks — authentication
+
+- Use `ansible.platform.token` (never `ansible.builtin.uri` against `/api/gateway/v1/tokens/`).
+- Roles read `aap_token` (dict from `ansible.platform.token`, or string from vault/extra-vars) or deprecated string `aap_oauthtoken`; roles extract the token string for `gateway_api` lookups.
+- Skip token creation with a single condition: `when: not (ansible_facts.get('aap_token') or aap_token is defined)`.
+- Multi-play tests: declare connection vars once in the first play with `set_fact` directly (no intermediate `__aap_*` play vars).
+- After `ansible.platform.token` creates a token, expose the dict **outside** the auth block (the block `when` re-evaluates after the fact exists and would skip later tasks):
+
+```yaml
+- name: "Expose aap_token dict for collection roles"
+  ansible.builtin.set_fact:
+    aap_token: "{{ ansible_facts['aap_token'] }}"
+  when:
+    - ansible_facts.get('aap_token') is defined
+    - aap_token is not defined
+```
+
+- Revoke temporary tokens with `ansible.platform.token` (`state: absent`, `existing_token: "{{ aap_token }}"`, when `aap_token` is a mapping).
+
 ```bash
 # Export (venv + collections path as in collection README / local practice)
 ansible-playbook tests/test_filetree_create.yaml -e@vault-aap-controller.yaml --tags flatten --skip-tags cleanup

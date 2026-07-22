@@ -1,7 +1,6 @@
 ---
 bugfixes:
-  - filetree_create hub export templates omit null or empty API values instead of writing
-    empty strings for optional integer and list fields
   - filetree_create hub_namespaces export normalizes API empty-string links to an empty list
+    before the shared export macros decide whether to omit the field
   - filetree_read sanitizes hub_namespaces links and hub collection remotes or repositories
     empty-string fields so previously exported files import correctly

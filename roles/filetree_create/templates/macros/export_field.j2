@@ -1,0 +1,14 @@
+{# Render a key/value pair for filetree export, preserving non-default empty strings. #}
+{% import 'macros/yaml_value.j2' as yamlval %}
+{% import 'macros/export_value.j2' as exportval %}
+{% macro render(key, value, indent=0, first=false, field_defaults={}) -%}
+{%- if exportval.should_export_field(key, value, field_defaults) | trim != 'true' -%}
+{%- elif value is mapping or (value is sequence and value is not string) -%}
+{{ key | indent(width=indent, first=first) }}:
+{{ yamlval.render_value(value, indent_width=indent + 4, first_indent=true) }}
+{%- elif value == '' -%}
+{{ key | indent(width=indent, first=first) }}: {{ exportval.render_empty_string() }}
+{%- else -%}
+{{ key | indent(width=indent, first=first) }}: {{ yamlval.render_scalar(value) }}
+{%- endif -%}
+{%- endmacro %}

@@ -2,7 +2,7 @@
 - name: "Get current Instances from the API"
   ansible.builtin.set_fact:
     instances_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/instances/',
-                                 host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                 host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                  return_all=true, max_objects=query_controller_api_max_objects)
                           }}"
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
@@ -10,7 +10,7 @@
 - name: "Get current Receptor Addresses from the API"
   ansible.builtin.set_fact:
     receptor_addresses_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/receptor_addresses/',
-                                           host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                           host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                            return_all=true, max_objects=query_controller_api_max_objects)
                                     }}"
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
