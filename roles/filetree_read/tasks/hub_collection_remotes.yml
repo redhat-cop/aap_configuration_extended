@@ -33,9 +33,16 @@
     - __contents_filetree_hub_collection_remotes.results | length > 0
     - __populate_hub_collection_remotes_item.ansible_facts.hub_collection_remotes is defined
 
-- name: "Set Hub collection remotes data structure"
+- name: "Sanitize hub_collection_remotes empty-string fields before dispatch"
   ansible.builtin.set_fact:
-    hub_collection_remotes: "{{ __populate_hub_collection_remotes }}"
+    hub_collection_remotes: >-
+      {{
+        __populate_hub_collection_remotes
+        | map('dict2items')
+        | map('rejectattr', 'value', 'equalto', '')
+        | map('items2dict')
+        | list
+      }}
   no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
   when: __populate_hub_collection_remotes is defined
 ...
