@@ -62,6 +62,43 @@ hub_configuration_filetree_create_secure_logging: "{{ controller_configuration_s
 secrets_as_variables: true
 secrets_as_variables_prefix: "vaulted"
 
+# When true, selected non-secret but environment-specific fields are exported as
+# Ansible variable references (same naming scheme as secrets_as_variables).
+# Defaults to true whenever export_related_objects is enabled.
+env_fields_as_variables: "{{ export_related_objects | default(false) | bool }}"
+
+# Write {output_path}/env_variables.yml listing every discovered vaulted_* key.
+generate_env_variables_stub: "{{ env_fields_as_variables | bool or secrets_as_variables | bool }}"
+env_variables_stub_path: "{{ output_path }}/env_variables.yml"
+env_variables_stub_placeholder: "CHANGE_ME"
+
+# Object-type -> field names that should become variables when env_fields_as_variables is true.
+env_fields_as_variables_map:
+  controller_projects:
+    - scm_url
+    - scm_branch
+  controller_execution_environments:
+    - image
+  controller_inventory_sources:
+    - source_path
+    - limit
+  controller_hosts:
+    - variables
+  controller_job_templates:
+    - scm_branch
+    - limit
+  controller_notification_templates:
+    - url
+    - host
+    - sender
+    - recipients
+    - password
+    - token
+    - account_token
+    - webhook_url
+    - http_method
+    - headers
+
 organization: 'ORGANIZATIONLESS'
 
 input_tag:

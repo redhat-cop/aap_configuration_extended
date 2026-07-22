@@ -1,0 +1,95 @@
+---
+# Import a filetree export into AAP (PRO), resolving secrets/env placeholders.
+#
+# Required:
+#   - Exported tree path via dir_orgs_vars
+#   - PRO connection vars (aap_hostname / credentials or token)
+#   - Filled env_variables file: -e @/path/to/env_variables.yml
+#   - orgs: organization folder name (required by filetree_read when not using create layout)
+#
+# Example (direct from filetree_create output):
+#   ansible-playbook playbooks/import_filetree.yml \
+#     -e aap_hostname=aap-pro.example.com \
+#     -e aap_username=admin -e aap_password=secret \
+#     -e aap_validate_certs=false \
+#     -e dir_orgs_vars=/tmp/jt_export \
+#     -e filetree_create_layout=true \
+#     -e @/tmp/jt_export/env_variables.yml
+#
+- name: Import filetree configuration into AAP
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+    aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL') | default(true)) }}"
+    dir_orgs_vars: "{{ lookup('env', 'FILETREE_OUTPUT') | default('/tmp/filetree_output', true) }}"
+    # When true, point all filetree_* paths at dir_orgs_vars so recursive find
+    # loads the layout produced by filetree_create (ORG/*.d and root YAML files).
+    filetree_create_layout: true
+
+  pre_tasks:
+    - name: "Remap filetree_read paths to filetree_create output layout"
+      when: filetree_create_layout | bool
+      ansible.builtin.set_fact:
+        filetree_controller_settings: "{{ dir_orgs_vars }}"
+        filetree_controller_labels: "{{ dir_orgs_vars }}"
+        filetree_controller_credential_types: "{{ dir_orgs_vars }}"
+        filetree_controller_credentials: "{{ dir_orgs_vars }}"
+        filetree_controller_credential_input_sources: "{{ dir_orgs_vars }}"
+        filetree_controller_notifications: "{{ dir_orgs_vars }}"
+        filetree_controller_projects: "{{ dir_orgs_vars }}"
+        filetree_controller_execution_environments: "{{ dir_orgs_vars }}"
+        filetree_controller_inventories: "{{ dir_orgs_vars }}"
+        filetree_controller_inventory_sources: "{{ dir_orgs_vars }}"
+        filetree_controller_instance_groups: "{{ dir_orgs_vars }}"
+        filetree_controller_instances: "{{ dir_orgs_vars }}"
+        filetree_controller_hosts: "{{ dir_orgs_vars }}"
+        filetree_controller_groups: "{{ dir_orgs_vars }}"
+        filetree_controller_templates: "{{ dir_orgs_vars }}"
+        filetree_controller_workflow_job_templates: "{{ dir_orgs_vars }}"
+        filetree_controller_schedules: "{{ dir_orgs_vars }}"
+        filetree_controller_roles: "{{ dir_orgs_vars }}"
+        filetree_aap_organizations: "{{ dir_orgs_vars }}"
+        orgs: "{{ orgs | default('_unused_with_filetree_create_layout') }}"
+
+    - name: "Setup authentication (block)"
+      when: aap_oauthtoken is not defined
+      no_log: "{{ controller_configuration_filetree_read_secure_logging | default(false) }}"
+      tags:
+        - always
+      block:
+        - name: "Get the Authentication Token for the future requests"
+          ansible.builtin.uri:
+            url: "https://{{ aap_hostname }}/api/gateway/v1/tokens/"
+            user: "{{ aap_username }}"
+            password: "{{ aap_password }}"
+            method: POST
+            force_basic_auth: true
+            validate_certs: "{{ aap_validate_certs }}"
+            status_code: 201
+          register: authtoken_res
+
+        - name: "Set the oauth token to be used since now"
+          ansible.builtin.set_fact:
+            aap_oauthtoken: "{{ authtoken_res.json.token }}"
+            aap_oauthtoken_url: "{{ authtoken_res.json.url }}"
+
+  roles:
+    - infra.aap_configuration_extended.filetree_read
+    - infra.aap_configuration.dispatch
+
+  post_tasks:
+    - name: "Delete the Authentication Token used"
+      ansible.builtin.uri:
+        url: "https://{{ aap_hostname }}{{ aap_oauthtoken_url }}"
+        user: "{{ aap_username }}"
+        password: "{{ aap_password }}"
+        method: DELETE
+        force_basic_auth: true
+        validate_certs: "{{ aap_validate_certs }}"
+        status_code: 204
+      when: aap_oauthtoken_url is defined
+...

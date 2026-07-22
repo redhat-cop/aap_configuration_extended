@@ -1,4 +1,10 @@
 ---
 bugfixes:
-  - apply the ci-approved label via actions/github-script in the trusted approval
-    workflow instead of gh pr edit, which fails without a git checkout
+  - compute the Ansible collections cache key in cache steps instead of job env,
+    because hashFiles is not available in jobs.<job_id>.env
+  - wait in the pull request approval-gate job until pre-commit approval completes
+    before running tests, instead of re-running workflows via workflow_run
+  - gate pull_request test execution on a successful pre-commit approval workflow run
+    for the current head SHA
+  - remove ci-approved labels now that approval completion is the gate signal
+  - fix invalid actions/cache commit pin that prevented cache restore and save
