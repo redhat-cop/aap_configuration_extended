@@ -5,7 +5,7 @@
                                  query_params=(query_params | combine({'organization': organization_id} if organization_id is defined and inventory_name is not defined and inventory_id is not defined else {},
                                    {'name': inventory_name} if inventory_name is defined else {},
                                    {'id': inventory_id} if inventory_id is defined and inventory_name is not defined else {})),
-                                 host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                 host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                  return_all=true, max_objects=query_controller_api_max_objects)
                         }}"
   vars:
@@ -102,7 +102,7 @@
                                       else
                                         output_path + '/inventory_sources.yaml' }}"
     current_inventory_sources_asset_value: "{{ query('ansible.platform.gateway_api', current_inventory_sources.related.inventory_sources,
-                                                    host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                                    host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                                     return_all=true, max_objects=query_controller_api_max_objects)
                                               if current_inventory_sources.has_inventory_sources else []
                                             }}"
@@ -126,7 +126,7 @@
                             output_path + '/controller_hosts.yaml' }}"
     current_hosts_asset_value: "{{ query('ansible.platform.gateway_api', current_inventory_hosts.related.hosts,
                                         query_params={'not__description': 'imported'},
-                                        host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                        host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                         return_all=true, max_objects=query_controller_api_max_objects)
                                 }}"
   loop: "{{ inventory_lookvar }}"
@@ -148,7 +148,7 @@
                             output_path + '/controller_groups.yaml' }}"
     current_groups_asset_value: "{{ query('ansible.platform.gateway_api', current_inventory_groups.related.groups,
                                           query_params={'not__description': 'imported'},
-                                          host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                          host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                           return_all=true, max_objects=query_controller_api_max_objects)
                                 }}"
   loop: "{{ inventory_lookvar }}"

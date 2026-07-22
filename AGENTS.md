@@ -6,6 +6,8 @@ For Job Template or Workflow Job Template PRE→PRO migration (related export + 
 
 Collection conventions: [.cursor/rules/aap_configuration_extended-general.mdc](.cursor/rules/aap_configuration_extended-general.mdc).
 
+Test and example playbooks: use `ansible.platform.token` for OAuth; see the **Test playbooks — authentication** section in the skill above (no `__aap_*` staging vars; single `when` for token creation).
+
 ## Configuration as Code baseline
 
 - **Names, never IDs.** CaC YAML, playbook extra vars, and docs must identify objects by name (`job_template_name`, `organization_filter`, `project_name`, …). Do not recommend or document numeric `*_id` selectors for new work.

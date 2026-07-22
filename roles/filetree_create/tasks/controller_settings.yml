@@ -2,7 +2,7 @@
 - name: "Get changed Controller Settings from the API"
   ansible.builtin.set_fact:
     all_settings: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/settings/changed/',
-                            host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                            host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                             return_all=true, max_objects=query_controller_api_max_objects)
                        }}"
     settings_export_from_changed: true

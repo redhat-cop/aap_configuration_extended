@@ -5,7 +5,7 @@ hub_namespaces: {{ [] if current_hub_namespaces_asset_value | length == 0 }}
 {% set __excluded_fields = ['id', 'pulp_href', 'related_fields', 'metadata_sha256', 'avatar_sha256'] %}
 {% for current_namespace in current_hub_namespaces_asset_value %}
 {%   set __current_namespace_details = lookup('ansible.platform.gateway_api', 'api/galaxy/_ui/v1/namespaces/' + current_namespace.name,
-                                              host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                              host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                               return_all=true, max_objects=query_hub_api_max_objects) %}
 {%   set ns = namespace(first=true) %}
 {%   for __map_item in (__current_namespace_details | dict2items) if __map_item.key not in __excluded_fields %}

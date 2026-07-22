@@ -215,7 +215,7 @@ controller_templates:
 {% set survey_spec_contents = template_overrides_resources.job_template[current_job_templates_asset_value.name].survey_spec
                               | default(template_overrides_global.job_template.survey_spec)
                               | default(query('ansible.platform.gateway_api', current_job_templates_asset_value.related.survey_spec,
-                                              host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs))
+                                              host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs))
 -%}
 {% if template_overrides_resources.job_template[current_job_templates_asset_value.name].survey_spec is defined
       or template_overrides_global.job_template.survey_spec is defined

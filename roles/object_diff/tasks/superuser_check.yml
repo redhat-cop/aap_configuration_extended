@@ -7,7 +7,7 @@
           'ansible.platform.gateway_api',
           'api/gateway/' ~ gateway_api_version ~ '/me',
           host=aap_hostname,
-          oauth_token=aap_oauthtoken,
+          oauth_token=__object_diff_oauth_token,
           verify_ssl=aap_validate_certs
         )
       }}

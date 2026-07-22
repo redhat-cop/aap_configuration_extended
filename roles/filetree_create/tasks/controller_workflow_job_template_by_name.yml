@@ -11,7 +11,7 @@
   ansible.builtin.set_fact:
     __nested_wfjt_lookvar: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/workflow_job_templates/',
                                      query_params={'name': nested_workflow_job_template_name},
-                                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                      return_all=true, max_objects=query_controller_api_max_objects) }}"
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
@@ -47,19 +47,19 @@
         __nested_wfjt_file_name: "{{ current_workflow_job_templates_asset_value.name | regex_replace('/', '_') }}"
         __dest: "{{ output_path }}/{{ workflow_job_template_organization | regex_replace('/', '_') }}/{{ filetree_create_controller_workflow_job_templates }}/{{ (workflow_job_template_id ~ '_') if omit_id is not defined else '' }}{{ __nested_wfjt_file_name }}.yaml"
         query_labels: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.labels,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_error: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.notification_templates_error,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_started: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.notification_templates_started,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_success: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.notification_templates_success,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_approvals: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.notification_templates_approvals,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
       no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
@@ -80,19 +80,19 @@
     workflow_job_template_organization: "{{ current_workflow_job_templates_asset_value.summary_fields.organization.name | default(organization) }}"
     workflow_job_template_id: "{{ current_workflow_job_templates_asset_value.id }}"
     query_labels: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.labels,
-                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) }}"
     query_notification_error: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.notification_templates_error,
-                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) }}"
     query_notification_started: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.notification_templates_started,
-                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) }}"
     query_notification_success: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.notification_templates_success,
-                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) }}"
     query_notification_approvals: "{{ query('ansible.platform.gateway_api', current_workflow_job_templates_asset_value.related.notification_templates_approvals,
-                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) }}"
     last_workflow_job_template: true
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"

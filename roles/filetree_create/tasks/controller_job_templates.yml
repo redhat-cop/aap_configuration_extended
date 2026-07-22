@@ -7,7 +7,7 @@
                                                                           {'name': job_template_name} if job_template_name is defined else {},
                                                                           {'id': job_template_id} if job_template_id is defined and job_template_name is not defined else {},
                                                                           {'labels__search': label_filter} if label_filter is defined else {})),
-                                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                      return_all=true, max_objects=query_controller_api_max_objects)
                             }}"
   vars:
@@ -46,7 +46,7 @@
     - name: "Query labels related to the Job Template"
       ansible.builtin.set_fact:
         related_label_names: "{{ query('ansible.platform.gateway_api', __related_jt.related.labels,
-                                       host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                       host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                        return_all=true, max_objects=query_controller_api_max_objects)
                                 | map(attribute='name') | list }}"
       no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
@@ -54,13 +54,13 @@
     - name: "Query notification templates related to the Job Template"
       ansible.builtin.set_fact:
         related_notification_template_names: "{{ (query('ansible.platform.gateway_api', __related_jt.related.notification_templates_error,
-                  host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                  host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                   return_all=true, max_objects=query_controller_api_max_objects)
             + query('ansible.platform.gateway_api', __related_jt.related.notification_templates_started,
-                    host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                    host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                     return_all=true, max_objects=query_controller_api_max_objects)
             + query('ansible.platform.gateway_api', __related_jt.related.notification_templates_success,
-                    host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                    host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                     return_all=true, max_objects=query_controller_api_max_objects)) | map(attribute='name') | list | unique }}"
       no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
@@ -69,7 +69,7 @@
       ansible.builtin.set_fact:
         related_project_detail: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/projects/',
                                           query_params={'name': related_project_name},
-                                          host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                          host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                           return_all=true, max_objects=query_controller_api_max_objects)
                                     | first }}"
       no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
@@ -95,7 +95,7 @@
           ansible.builtin.set_fact:
             related_credentials_detail: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/credentials/',
                                                   query_params={'name__in': related_credential_names | join(',')},
-                                                  host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                                  host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                                   return_all=true, max_objects=query_controller_api_max_objects) }}"
           no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
@@ -115,7 +115,7 @@
           ansible.builtin.set_fact:
             related_ees_detail: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/execution_environments/',
                                           query_params={'name__in': related_ee_names | join(',')},
-                                          host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                          host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                           return_all=true, max_objects=query_controller_api_max_objects) }}"
           no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
@@ -137,11 +137,11 @@
           ansible.builtin.set_fact:
             related_credentials_detail: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/credentials/',
                                                   query_params={'name__in': related_credential_names | join(',')},
-                                                  host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                                  host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                                   return_all=true, max_objects=query_controller_api_max_objects) }}"
             related_credential_type_names: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/credentials/',
                                                      query_params={'name__in': related_credential_names | join(',')},
-                                                     host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                                      return_all=true, max_objects=query_controller_api_max_objects)
               | map(attribute='summary_fields')
               | selectattr('credential_type', 'defined')
@@ -199,7 +199,7 @@
           ansible.builtin.set_fact:
             related_inventory_detail: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/inventories/',
                                                 query_params={'name': related_inventory_name},
-                                                host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                                host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                                 return_all=true, max_objects=query_controller_api_max_objects)
                                           | first }}"
           no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
@@ -208,7 +208,7 @@
           ansible.builtin.set_fact:
             related_inventory_sources: "{{ query('ansible.platform.gateway_api',
                                                  related_inventory_detail.related.inventory_sources,
-                                                 host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                                                 host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                                  return_all=true, max_objects=query_controller_api_max_objects) }}"
           no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
@@ -271,16 +271,16 @@
         job_template_id: "{{ current_job_templates_asset_value.id }}"
         job_template_name: "{{ current_job_templates_asset_value.name | regex_replace('/', '_') }}"
         query_labels: "{{ query('ansible.platform.gateway_api', current_job_templates_asset_value.related.labels,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_error: "{{ query('ansible.platform.gateway_api', current_job_templates_asset_value.related.notification_templates_error,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_started: "{{ query('ansible.platform.gateway_api', current_job_templates_asset_value.related.notification_templates_started,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_success: "{{ query('ansible.platform.gateway_api', current_job_templates_asset_value.related.notification_templates_success,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         last_job_template: "{{ current_job_template_index == ((job_templates_lookvar | length) - 1) }}"
       loop: "{{ job_templates_lookvar }}"
@@ -328,16 +328,16 @@
         job_template_name: "{{ current_job_templates_asset_value.name | regex_replace('/', '_') }}"
         __dest: "{{ output_path }}/{{ job_template_organization | regex_replace('/', '_') }}/{{ filetree_create_controller_templates }}/{{ (job_template_id ~ '_') if omit_id is not defined else '' }}{{ job_template_name | regex_replace('/', '_') }}.yaml"
         query_labels: "{{ query('ansible.platform.gateway_api', current_job_templates_asset_value.related.labels,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_error: "{{ query('ansible.platform.gateway_api', current_job_templates_asset_value.related.notification_templates_error,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_started: "{{ query('ansible.platform.gateway_api', current_job_templates_asset_value.related.notification_templates_started,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_success: "{{ query('ansible.platform.gateway_api', current_job_templates_asset_value.related.notification_templates_success,
-                         host=aap_hostname, oauth_token=aap_oauthtoken, verify_ssl=aap_validate_certs,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
       loop: "{{ job_templates_lookvar }}"
       loop_control:

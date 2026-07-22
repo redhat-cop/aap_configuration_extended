@@ -8,7 +8,7 @@
       ansible.builtin.set_fact:
         organization_id: "{{ lookup('ansible.platform.gateway_api', 'api/gateway/v1/organizations',
                                     query_params={'name': organization_filter},
-                                    host=aap_hostname, oauth_token=aap_oauthtoken,
+                                    host=aap_hostname, oauth_token=__filetree_create_oauth_token,
                                     verify_ssl=aap_validate_certs).id
                           }}"
       no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
@@ -22,7 +22,7 @@
     - name: "Set the fact to control whether the PAH is available or not"
       ansible.builtin.set_fact:
         __pah_available: "{{ 'galaxy' in lookup('ansible.platform.gateway_api', '/api/',
-                       host=aap_hostname, oauth_token=aap_oauthtoken,
+                       host=aap_hostname, oauth_token=__filetree_create_oauth_token,
                        verify_ssl=aap_validate_certs).apis }}"
 
 - name: Include tasks (block)
