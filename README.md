@@ -123,7 +123,7 @@ Config file syntax looks like this:
 [general]
 host = https://localhost:8043
 verify_ssl = true
-oauth_token = LEdCpKVKc4znzffcpQL5vLG8oyeku6
+oauth_token = <your-token-here>
 ```
 
 Controller token module would be invoked with this code:
@@ -163,6 +163,18 @@ See [our template](https://github.com/redhat-cop/aap_configuration_template) to 
 ### See Also
 
 - [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
+
+## PRE → PRO migration (Job Template / Workflow)
+
+To export a single Job Template or Workflow Job Template with related objects from PRE and import them into PRO (object **names** only; secrets and environment-specific fields as variables), see the complete examples in:
+
+[roles/filetree_create/README.md — PRE → PRO: complete examples](roles/filetree_create/README.md#pre--pro-complete-examples-job-template-and-workflow)
+
+Playbooks:
+
+- `playbooks/export_job_template_related.yml`
+- `playbooks/export_workflow_job_template_related.yml`
+- `playbooks/import_filetree.yml`
 
 ## Release and Upgrade Notes
 
