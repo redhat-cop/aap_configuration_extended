@@ -19,12 +19,16 @@ controller_hosts: {{ [] if current_hosts_asset_value | length == 0 }}
 {%   if template_overrides_resources.host[host.name].variables is defined
       or template_overrides_global.host.variables is defined
       or (host.variables and host.variables != '---' and host.variables != '') %}
+{%     if (env_fields_as_variables | bool) and ('variables' in env_fields_as_variables_map.controller_hosts) %}
+    variables: "{{ '' | infra.aap_configuration_extended.filetree_as_var('controller_hosts', host.name, 'variables', true, secrets_as_variables_prefix) }}"
+{%     else %}
     variables:
 {%     set __host_variables = template_overrides_resources.host[host.name].variables
          | default(template_overrides_global.host.variables)
          | default(host.variables) %}
       {{ (__host_variables if __host_variables is mapping or (__host_variables | type_debug) == 'list' else (__host_variables | from_yaml))
          | to_nice_yaml(indent=2, sort_keys=false, width=4096) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*?){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true)}}
+{%-    endif %}
 {%-  endif %}
 {% endfor %}
 ...

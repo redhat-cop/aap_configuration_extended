@@ -1,0 +1,95 @@
+---
+# Export a single Job Template and all related Controller objects from AAP (PRE).
+#
+# Required extra vars:
+#   job_template_name: <name>   # CaC uses object names, never numeric IDs
+#   aap_hostname / aap_username / aap_password (or aap_oauthtoken)
+#
+# Optional:
+#   output_path: /tmp/filetree_output
+#   organization_filter: MyOrg
+#
+# Example:
+#   ansible-playbook playbooks/export_job_template_related.yml \
+#     -e aap_hostname=aap-pre.example.com \
+#     -e aap_username=admin -e aap_password=secret \
+#     -e aap_validate_certs=false \
+#     -e '{"job_template_name":"My Job Template"}' \
+#     -e output_path=/tmp/jt_export
+#
+# Note: names with spaces MUST use JSON -e (or a vars file). Plain
+#   -e job_template_name='My Job Template' truncates to "My".
+
+- name: Export Job Template and related objects
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+    aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL') | default(true)) }}"
+    output_path: "{{ lookup('env', 'FILETREE_OUTPUT') | default('/tmp/filetree_output', true) }}"
+    input_tag:
+      - controller_job_templates
+    export_related_objects: true
+    secrets_as_variables: true
+    env_fields_as_variables: true
+    generate_env_variables_stub: true
+    # CaC filenames must not embed numeric object IDs
+    omit_id: true
+
+  pre_tasks:
+    - name: "Assert job_template_name is provided"
+      ansible.builtin.assert:
+        that:
+          - job_template_name is defined
+          - job_template_name | length > 0
+        fail_msg: >-
+          Pass -e '{"job_template_name":"<name>"}' for the Job Template to export
+          (CaC uses names, not IDs). Names with spaces require JSON -e or a vars file.
+
+    - name: "Setup authentication (block)"
+      when: aap_oauthtoken is not defined
+      no_log: "{{ controller_configuration_filetree_create_secure_logging | default(false) }}"
+      tags:
+        - always
+      block:
+        - name: "Get the Authentication Token for the future requests"
+          ansible.builtin.uri:
+            url: "https://{{ aap_hostname }}/api/gateway/v1/tokens/"
+            user: "{{ aap_username }}"
+            password: "{{ aap_password }}"
+            method: POST
+            force_basic_auth: true
+            validate_certs: "{{ aap_validate_certs }}"
+            status_code: 201
+          register: authtoken_res
+
+        - name: "Set the oauth token to be used since now"
+          ansible.builtin.set_fact:
+            aap_oauthtoken: "{{ authtoken_res.json.token }}"
+            aap_oauthtoken_url: "{{ authtoken_res.json.url }}"
+
+  roles:
+    - infra.aap_configuration_extended.filetree_create
+
+  post_tasks:
+    - name: "Delete the Authentication Token used"
+      ansible.builtin.uri:
+        url: "https://{{ aap_hostname }}{{ aap_oauthtoken_url }}"
+        user: "{{ aap_username }}"
+        password: "{{ aap_password }}"
+        method: DELETE
+        force_basic_auth: true
+        validate_certs: "{{ aap_validate_certs }}"
+        status_code: 204
+      when: aap_oauthtoken_url is defined
+
+    - name: "Remind next steps for PRO import"
+      ansible.builtin.debug:
+        msg:
+          - "Export written under {{ output_path }}"
+          - "Fill PRO values in {{ output_path }}/env_variables.yml (optionally ansible-vault encrypt it)"
+          - "Import with: ansible-playbook playbooks/import_filetree.yml -e dir_orgs_vars={{ output_path }} -e @{{ output_path }}/env_variables.yml ..."
+...
