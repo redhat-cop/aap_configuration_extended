@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - filetree_create - Avoid ansible-core task-name templating warnings by not referencing the loop variable in the organizations output-directory task name (path remains in the loop label).
+  - filetree_create - Stop writing an empty mapping (``{}``) into ``env_variables.yml`` when no ``vaulted_*`` placeholders are found, and exclude that stub from ``yaml_format`` so comments are preserved.

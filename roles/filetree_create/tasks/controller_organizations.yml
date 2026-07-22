@@ -57,7 +57,7 @@
 - name: "Block for to generate the filetree_create normal output"
   when: flatten_output is not defined or not (flatten_output | bool)
   block:
-    - name: "Create the output directory for organizations: {{ output_path + '/' + current_organization_dir.name }}"
+    - name: "Create the output directory for organizations"
       ansible.builtin.file:
         path: "{{ __path }}"
         state: directory

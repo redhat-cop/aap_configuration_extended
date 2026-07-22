@@ -610,6 +610,12 @@ ansible-playbook playbooks/import_filetree.yml \
   (or approval) leaves are reached. Every nested Workflow Job Template on the path is exported, and
   every discovered Job Template is exported with its full related set. Cycles are skipped.
 - Job nodes (`unified_job_type: job`) cascade each Job Template with its full related set.
+- Nested workflow nodes (`unified_job_type: workflow_job`) are exported as Workflow Job Template
+  objects (by name) without recursively cascading their related set (avoids cycles). Re-run related
+  export on those nested workflows if you need their full dependency tree (and their `env_variables.yml` keys).
+- Job nodes (`unified_job_type: job`) still cascade each Job Template with its full related set.
+- If `env_variables.yml` has no keys, the export had no `vaulted_*` placeholders (for example a WFJT whose
+  nodes are only nested workflows). Export those nested workflows (or a JT) with related objects enabled.
 - If `yaml_format` warns about missing PyYAML, the export files are still valid; install PyYAML for
   the configured `interpreter_python`, or use `--skip-tags yaml_format`.
 - See also playbooks: `export_job_template_related.yml`, `export_workflow_job_template_related.yml`, `import_filetree.yml`.
