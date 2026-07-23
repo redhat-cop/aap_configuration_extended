@@ -607,8 +607,9 @@ ansible-playbook playbooks/import_filetree.yml \
 - Re-run export after changing related objects on PRE; re-fill any new keys in `env_variables.yml`.
 - Approval nodes are described inline in the WFJT YAML; they do not create separate Controller objects to export.
 - Nested workflow nodes (`unified_job_type: workflow_job`) are followed recursively until Job Template
-  (or approval) leaves are reached. Every nested Workflow Job Template on the path is exported, and
-  every discovered Job Template is exported with its full related set. Cycles are skipped.
+  (or approval) leaves are reached (lookup ``infra.aap_configuration_extended.workflow_related_graph``).
+  Every nested Workflow Job Template on the path is exported, and every discovered Job Template is
+  exported with its full related set. Cycles are skipped.
 - Job nodes (`unified_job_type: job`) cascade each Job Template with its full related set.
 - Nested workflow nodes (`unified_job_type: workflow_job`) are exported as Workflow Job Template
   objects (by name) without recursively cascading their related set (avoids cycles). Re-run related

@@ -1,6 +1,6 @@
 ---
 # Export a single Workflow Job Template by name (YAML only; no related cascade).
-# Used after controller_workflow_related_discover.yml walks the nested workflow graph.
+# Used after workflow_related_graph discovery walks the nested workflow graph.
 #
 # Required vars:
 #   nested_workflow_job_template_name: <name>
