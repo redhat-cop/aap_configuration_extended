@@ -16,6 +16,9 @@ controller_hosts: {{ [] if current_hosts_asset_value | length == 0 }}
       {{ '{%- endraw -%}' }}
 {%   endif %}
     inventory: "{{ host.summary_fields.inventory.name | default('ToDo: The host \'' + host.name + '\' must have an associated inventory') }}"
+    enabled: {{ template_overrides_resources.host[host.name].enabled
+                | default(template_overrides_global.host.enabled)
+                | default(host.enabled | bool | lower) }}
 {%   if template_overrides_resources.host[host.name].variables is defined
       or template_overrides_global.host.variables is defined
       or (host.variables and host.variables != '---' and host.variables != '') %}

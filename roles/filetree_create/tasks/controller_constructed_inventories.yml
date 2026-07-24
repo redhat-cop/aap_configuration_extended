@@ -82,7 +82,7 @@
         __task_name_append: "{{ filetree_create_controller_inventories }} output yaml file in {{ output_path }}"
         inventory_organization: "{{ current_inventories_asset_value.summary_fields.organization.name | default(organization) }}"
         inventory_name: "{{ current_inventories_asset_value.name | regex_replace('/', '_') }}"
-        __dest: "{{ output_path }}/{{ inventory_organization | regex_replace('/', '_') }}/{{ filetree_create_controller_inventories }}/{{ inventory_name | regex_replace('/', '_') }}/{{ (current_inventories_asset_value.id ~ '_') if omit_id is not defined else '' }}{{ inventory_name | regex_replace('/', '_') }}.yaml"
+        __dest: "{{ output_path }}/{{ inventory_organization | regex_replace('/', '_') }}/{{ filetree_create_controller_inventories }}/{{ inventory_name | regex_replace('/', '_') }}/{{ (current_inventories_asset_value.id ~ '_') if not (omit_id | default(false) | bool) else '' }}{{ inventory_name | regex_replace('/', '_') }}.yaml"
       loop: "{{ constructed_inventory_lookvar }}"
       loop_control:
         loop_var: current_inventories_asset_value
