@@ -1,10 +1,10 @@
-# controller_configuration.object_diff
+# infra.aap_configuration_extended.object_diff
 
-An ansible role to manage the object diff of the AWX or Automation Controller configuration. This role leverage the controller_object_diff.py lookup plugin of the infra.controller_configuration, comparing two lists, one taken directly from the API and the other one from the git repository, and it could be used to delete objects in the AWX or Automation Controller that are not defined in the git repository list.
+An ansible role to manage the object diff of the AWX or Automation Controller configuration. This role leverage the controller_object_diff.py lookup plugin of the infra.aap_configuration_extended, comparing two lists, one taken directly from the API and the other one from the git repository, and it could be used to delete objects in the AWX or Automation Controller that are not defined in the git repository list.
 
 ## Requirements
 
-`ansible-galaxy collection install -r tests/collections/requirements.yml` to be installed. Currently: `infra.controller_configuration`, `ansible.platform` and `ansible.hub`.
+`ansible-galaxy collection install -r tests/collections/requirements.yml` to be installed. Currently: `infra.aap_configuration`, `ansible.platform` and `ansible.hub`.
 
 ## Role Variables
 
@@ -21,13 +21,13 @@ The following Variables set the organization where should be applied the configu
 
 ## Role Tags
 
-The role is designed to be used with tags, each tags correspond to an AWX or Automation Controller object to be managed by ansible.
+The role is designed to be used with tags; each tag corresponds to an AWX or Automation Controller object type managed by this role. The default task list is defined in `defaults/main.yml` as `controller_configuration_object_diff_tasks`.
 
-> :warning: List of object type managed by this role: controller_credentials, controller_credential_types, controller_host_groups, controller_hosts, controller_inventories, controller_inventory_sources, controller_job_templates, controller_organizations, controller_projects, controller_teams, controller_users, controller_workflow_job_templates.
+> :warning: Object types managed by this role: `controller_applications`, `controller_credentials`, `controller_credential_types`, `controller_execution_environments`, `controller_host_groups`, `controller_hosts`, `controller_instance_groups`, `controller_inventories`, `controller_inventory_sources`, `controller_job_templates`, `controller_notification_templates`, `controller_organizations`, `controller_projects`, `controller_roles`, `controller_schedules`, `controller_teams`, `controller_users`, `controller_workflow_job_templates`.
 
 ```bash
 $ ansible-playbook object_diff.yml --list-tags
-      TASK TAGS: [controller_credentials, controller_credential_types, controller_host_groups, controller_hosts, controller_inventories, controller_inventory_sources, controller_job_templates, controller_organizations, controller_projects, controller_teams, controller_users, controller_workflow_job_templates]
+      TASK TAGS: [always, controller_applications, controller_credentials, controller_credential_types, controller_execution_environments, controller_host_groups, controller_hosts, controller_instance_groups, controller_inventories, controller_inventory_sources, controller_job_templates, controller_notification_templates, controller_organizations, controller_projects, controller_roles, controller_schedules, controller_teams, controller_users, controller_workflow_job_templates]
 ```
 
 ## IMPORTANT
@@ -36,7 +36,7 @@ To correctly manage `roles`, they can only be defined by a super-admin organizat
 
 ## Example Playbook
 
-```bash
+```yaml
 ---
 - hosts: localhost
   connection: local
@@ -71,33 +71,27 @@ To correctly manage `roles`, they can only be defined by a super-admin organizat
   roles:
     - role: infra.aap_configuration_extended.filetree_read
     - role: infra.aap_configuration_extended.object_diff
-      vars:
-        controller_configuration_object_diff_tasks:
-          - {name: controller_workflow_job_templates, var: controller_workflows, tags: controller_workflow_job_templates}
-          - {name: controller_job_templates, var: controller_templates, tags: controller_job_templates}
-          - {name: controller_user_accounts, var: aap_user_accounts, tags: controller_users}
-          - {name: controller_host_groups, var: controller_groups, tags: controller_host_groups}
-          - {name: controller_hosts, var: controller_hosts, tags: controller_hosts}
-          - {name: controller_inventory_sources, var: controller_inventory_sources, tags: controller_inventory_sources}
-          - {name: controller_inventories, var: controller_inventories, tags: controller_inventories}
-          - {name: controller_projects, var: controller_projects, tags: controller_projects}
-          - {name: controller_credentials, var: controller_credentials, tags: controller_credentials}
-          - {name: controller_credential_types, var: controller_credential_types, tags: controller_credential_types}
-          - {name: controller_organizations, var: aap_organizations, tags: controller_organizations}
     - role: infra.aap_configuration.dispatch
       vars:
         controller_configuration_dispatcher_roles:
+          - {role: controller_schedules, var: controller_schedules, tags: controller_schedules}
           - {role: controller_workflow_job_templates, var: controller_workflows, tags: controller_workflow_job_templates}
           - {role: controller_job_templates, var: controller_templates, tags: controller_job_templates}
+          - {role: controller_roles, var: controller_roles, tags: controller_roles}
+          - {role: controller_teams, var: aap_teams, tags: controller_teams}
           - {role: controller_users, var: aap_user_accounts, tags: controller_users}
           - {role: controller_host_groups, var: controller_groups, tags: controller_host_groups}
           - {role: controller_hosts, var: controller_hosts, tags: controller_hosts}
+          - {role: controller_applications, var: aap_applications, tags: controller_applications}
+          - {role: controller_execution_environments, var: controller_execution_environments, tags: controller_execution_environments}
           - {role: controller_inventory_sources, var: controller_inventory_sources, tags: controller_inventory_sources}
           - {role: controller_inventories, var: controller_inventories, tags: controller_inventories}
           - {role: controller_projects, var: controller_projects, tags: controller_projects}
+          - {role: controller_notification_templates, var: controller_notifications, tags: controller_notification_templates}
           - {role: controller_credentials, var: controller_credentials, tags: controller_credentials}
           - {role: controller_credential_types, var: controller_credential_types, tags: controller_credential_types}
           - {role: controller_organizations, var: aap_organizations, tags: controller_organizations}
+          - {role: controller_instance_groups, var: controller_instance_groups, tags: controller_instance_groups}
 
   post_tasks:
     - name: "Delete the Authentication Token used"
@@ -111,7 +105,9 @@ To correctly manage `roles`, they can only be defined by a super-admin organizat
       when:
         - aap_token is defined
         - aap_token is mapping
+```
 
+```bash
 $ ansible-playbook drop_diff.yml --tags ${CONTROLLER_OBJECT} -e "{orgs: ${ORGANIZATION}, dir_orgs_vars: orgs_vars, env: ${ENVIRONMENT} }" --vault-password-file ./.vault_pass.txt -e @orgs_vars/env/${ENVIRONMENT}/configure_connection_controller_credentials.yml ${OTHER}
 ```
 
