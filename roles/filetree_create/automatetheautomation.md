@@ -45,7 +45,8 @@ Let's talk about how to achieve the ***Desired State*** idea, which is implement
 - teams ([Issue opened](https://issues.redhat.com/projects/AAP/issues/AAP-2393): There's no option to differentiate the externally generated teams)
 - users
 - workflow_job_templates
-  - workflow_job_template_node
+
+> **Note:** `object_diff` removes entire Workflow Job Templates that are absent from CaC. It does **not** diff individual workflow nodes. To drop nodes that remain in AAP after you remove them from the YAML definition, set `destroy_current_nodes: true` when applying the workflow with `infra.aap_configuration.controller_workflow_job_templates` (via `dispatch`). See the [object_diff README](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/roles/object_diff/README.md#workflow-job-template-nodes) and [issue #149](https://github.com/redhat-cop/aap_configuration_extended/issues/149).
 
 ## Sample Organization Directory Structure
 
