@@ -136,6 +136,7 @@ valid_tags:
   - gateway_http_ports
   - gateway_organizations
   - gateway_role_definitions
+  - gateway_role_team_assignments
   - gateway_role_user_assignments
   - gateway_routes
   - gateway_service_clusters
