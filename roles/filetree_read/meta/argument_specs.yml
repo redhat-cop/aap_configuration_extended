@@ -5,17 +5,22 @@ argument_specs:
     options:
       orgs:
         type: str
-        required: true
-        description: This variable sets the organization where should be applied the configuration.
+        required: false
+        description: Organization name used in hierarchical CaC paths. Required for the default layout; optional when `filetree_create_layout` is true (a placeholder is applied).
       dir_orgs_vars:
         type: str
         required: true
-        description: This variable sets the directory path where the variables will be store.
+        description: Directory path for CaC variables. With `filetree_create_layout`, set this to the `filetree_create` export root (`output_path`).
       env:
         type: str
         default: dev
         required: false
         description: This variable sets the life-cycle environment to use.
+      filetree_create_layout:
+        type: bool
+        default: false
+        required: false
+        description: When true, remap all filetree_* paths to dir_orgs_vars so recursive find loads a filetree_create export tree.
       controller_location:
         type: str
         default: ''

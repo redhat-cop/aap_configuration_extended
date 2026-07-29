@@ -51,6 +51,10 @@ controller_configuration_object_diff_tasks:
 
 controller_configuration_object_diff_secure_logging: "{{ controller_configuration_secure_logging | default(true) }}"
 
+# When false (default), refuse to run user account diff if aap_user_accounts is empty
+# while the Controller still has users (usually a filetree_read path-layout mistake).
+object_diff_allow_empty_user_cac: false
+
 controller_api_version: "v2"
 gateway_api_version: "v1"
 

@@ -1,0 +1,8 @@
+---
+bugfixes:
+  - filetree_read - Add ``filetree_create_layout`` to remap all ``filetree_*``
+    paths onto the export root so a ``filetree_create`` tree can be loaded
+    without rearranging directories (fixes #204).
+  - object_diff - Fail clearly when ``aap_user_accounts`` is empty while the
+    Controller still has users, surface user-diff errors outside ``no_log``,
+    and skip users missing ``associated_authenticators`` (fixes #205).

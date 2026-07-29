@@ -29,32 +29,10 @@
     # When true, point all filetree_* paths at dir_orgs_vars so recursive find
     # loads the layout produced by filetree_create (ORG/*.d and root YAML files).
     filetree_create_layout: true
+    # Placeholder for hierarchical defaults; remapped away when filetree_create_layout is true.
+    orgs: "{{ orgs | default('_unused_with_filetree_create_layout') }}"
 
   pre_tasks:
-    - name: "Remap filetree_read paths to filetree_create output layout"
-      when: filetree_create_layout | bool
-      ansible.builtin.set_fact:
-        filetree_controller_settings: "{{ dir_orgs_vars }}"
-        filetree_controller_labels: "{{ dir_orgs_vars }}"
-        filetree_controller_credential_types: "{{ dir_orgs_vars }}"
-        filetree_controller_credentials: "{{ dir_orgs_vars }}"
-        filetree_controller_credential_input_sources: "{{ dir_orgs_vars }}"
-        filetree_controller_notifications: "{{ dir_orgs_vars }}"
-        filetree_controller_projects: "{{ dir_orgs_vars }}"
-        filetree_controller_execution_environments: "{{ dir_orgs_vars }}"
-        filetree_controller_inventories: "{{ dir_orgs_vars }}"
-        filetree_controller_inventory_sources: "{{ dir_orgs_vars }}"
-        filetree_controller_instance_groups: "{{ dir_orgs_vars }}"
-        filetree_controller_instances: "{{ dir_orgs_vars }}"
-        filetree_controller_hosts: "{{ dir_orgs_vars }}"
-        filetree_controller_groups: "{{ dir_orgs_vars }}"
-        filetree_controller_templates: "{{ dir_orgs_vars }}"
-        filetree_controller_workflow_job_templates: "{{ dir_orgs_vars }}"
-        filetree_controller_schedules: "{{ dir_orgs_vars }}"
-        filetree_controller_roles: "{{ dir_orgs_vars }}"
-        filetree_aap_organizations: "{{ dir_orgs_vars }}"
-        orgs: "{{ orgs | default('_unused_with_filetree_create_layout') }}"
-
     - name: "Setup authentication (block)"
       when: aap_oauthtoken is not defined
       no_log: "{{ controller_configuration_filetree_read_secure_logging | default(false) }}"
@@ -78,7 +56,10 @@
             aap_oauthtoken_url: "{{ authtoken_res.json.url }}"
 
   roles:
-    - infra.aap_configuration_extended.filetree_read
+    - role: infra.aap_configuration_extended.filetree_read
+      vars:
+        # Role remaps all filetree_* paths when filetree_create_layout is true.
+        filetree_create_layout: "{{ filetree_create_layout | default(true) }}"
     - infra.aap_configuration.dispatch
 
   post_tasks:

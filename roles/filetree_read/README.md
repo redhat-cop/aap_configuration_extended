@@ -14,9 +14,10 @@ The following Variables set the organization where should be applied the configu
 
 |Variable Name|Type|Default Value|Required|Description|
 |:---:|:---:|:---:|:---:|:---:|
-|`orgs`|String|N/A|yes|This variable sets the organization where should be applied the configuration.|
-|`dir_orgs_vars`|String|N/A|yes|This variable sets the directory path where the variables will be store.|
+|`orgs`|String|N/A|yes*|This variable sets the organization where should be applied the configuration. Not required when `filetree_create_layout` is true (a placeholder is set automatically).|
+|`dir_orgs_vars`|String|N/A|yes|This variable sets the directory path where the variables will be store. With `filetree_create_layout: true`, set this to the `filetree_create` `output_path` root.|
 |`env:`|String|dev|no|This variable sets the life-cycle environment to use.|
+|`filetree_create_layout`|Boolean|`false`|no|When `true`, remap all `filetree_*` paths to `dir_orgs_vars` so recursive find loads a tree produced by `filetree_create` (`{ORG}/*.d` and root YAML files). Enables export→import roundtrip without rearranging directories.|
 |`controller_location`|String|''|no|This variable sets object localtion. It is useful when the configuration need to be replicated in an active/passive sites architecture|
 |`filetree_controller_settings`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_settings.d/|no|Directory path to load controller object variables|
 |`filetree_aap_organizations`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_organizations.d/|no|Directory path to load controller object variables|
@@ -55,6 +56,27 @@ The following Variables set the organization where should be applied the configu
 |`filetree_controller_include`|String/List(String)|omit|no|patterns for find to include only matching|
 |`filetree_controller_exclude`|String/List(String)|omit|no|patterns for find to exclude matching|
 |`filetree_controller_regex`|bool|false|no|switch to allow find to use_regex in combination with include/exclude default matches find default|
+
+### Roundtrip from `filetree_create`
+
+`filetree_create` writes an export-centric tree (`{output_path}/{ORG}/controller_projects.d/…` plus root-level YAML such as `gateway_users.yaml`). The hierarchical CaC defaults above (`…/env/common/…`) do **not** match that layout.
+
+To load a fresh export without rearranging files:
+
+```yaml
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    dir_orgs_vars: ./filetree_export   # same as filetree_create output_path
+    filetree_create_layout: true
+    orgs: unused                       # placeholder; paths are remapped
+  roles:
+    - infra.aap_configuration_extended.filetree_read
+    - infra.aap_configuration.dispatch
+```
+
+Or use `playbooks/import_filetree.yml` with `-e filetree_create_layout=true -e dir_orgs_vars=/path/to/export`.
 
 ### Data Structure
 
