@@ -2,36 +2,72 @@
 ---
 aap_organizations:
 {% endif %}
+{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
   - name: "{{ current_organization.name }}"
+{% set __org_description = template_overrides_resources.organization[current_organization.name].description
+                     | default(template_overrides_global.organization.description)
+                     | default(current_organization.description) | regex_replace("'", "''") %}
+{% if __org_description not in __empty_values %}
     description: |-
       {{ '{%- raw -%}' }}
-      {{ template_overrides_resources.organization[current_organization.name].description
-                     | default(template_overrides_global.organization.description)
-                     | default(current_organization.description) | regex_replace("'", "''") }}
+      {{ __org_description }}
       {{ '{%- endraw -%}' }}
-{% if query_notification_error | length > 0 %}
+{% endif %}
+{% set __org_max_hosts = template_overrides_resources.organization[current_organization.name].max_hosts
+                     | default(template_overrides_global.organization.max_hosts)
+                     | default(current_organization.max_hosts) %}
+{% if __org_max_hosts is defined and __org_max_hosts not in __empty_values %}
+    max_hosts: {{ __org_max_hosts }}
+{% endif %}
+{% set __org_custom_virtualenv = template_overrides_resources.organization[current_organization.name].custom_virtualenv
+                     | default(template_overrides_global.organization.custom_virtualenv)
+                     | default(current_organization.custom_virtualenv) %}
+{% if __org_custom_virtualenv is defined and __org_custom_virtualenv not in __empty_values %}
+    custom_virtualenv: "{{ __org_custom_virtualenv }}"
+{% endif %}
+{% if template_overrides_resources.organization[current_organization.name].default_environment is defined
+      or template_overrides_global.organization.default_environment is defined
+      or (current_organization.summary_fields.default_environment is defined
+          and current_organization.summary_fields.default_environment.name is defined) %}
+    default_environment: "{{ template_overrides_resources.organization[current_organization.name].default_environment
+                             | default(template_overrides_global.organization.default_environment)
+                             | default(current_organization.summary_fields.default_environment.name) }}"
+{% endif %}
+{% if query_galaxy_credentials | default([]) | length > 0 %}
+    galaxy_credentials:
+{%   for galaxy_credential in query_galaxy_credentials %}
+      - "{{ galaxy_credential.name }}"
+{%   endfor %}
+{% endif %}
+{% if query_instance_groups | default([]) | length > 0 %}
+    instance_groups:
+{%   for instance_group in query_instance_groups %}
+      - "{{ instance_group.name }}"
+{%   endfor %}
+{% endif %}
+{% if query_notification_error | default([]) | length > 0 %}
     notification_templates_error:
-{% for notification_error in query_notification_error %}
+{%   for notification_error in query_notification_error %}
       - "{{ notification_error.name }}"
-{% endfor %}
+{%   endfor %}
 {% endif %}
-{% if query_notification_started | length > 0 %}
+{% if query_notification_started | default([]) | length > 0 %}
     notification_templates_started:
-{% for notification_started in query_notification_started %}
+{%   for notification_started in query_notification_started %}
       - "{{ notification_started.name }}"
-{% endfor %}
+{%   endfor %}
 {% endif %}
-{% if query_notification_success | length > 0 %}
+{% if query_notification_success | default([]) | length > 0 %}
     notification_templates_success:
-{% for notification_success in query_notification_success %}
+{%   for notification_success in query_notification_success %}
       - "{{ notification_success.name }}"
-{% endfor %}
+{%   endfor %}
 {% endif %}
-{% if query_notification_approvals | length > 0 %}
+{% if query_notification_approvals | default([]) | length > 0 %}
     notification_templates_approvals:
-{% for notification_approval in query_notification_approvals %}
+{%   for notification_approval in query_notification_approvals %}
       - "{{ notification_approval.name }}"
-{% endfor %}
+{%   endfor %}
 {% endif %}
 {% if last_organization | default(true) | bool %}
 ...
