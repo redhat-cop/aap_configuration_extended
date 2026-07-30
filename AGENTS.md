@@ -10,6 +10,7 @@ Test and example playbooks: use `ansible.platform.token` for OAuth; see the **Te
 
 ## Commits and pre-commit
 
+- Ensure hooks are installed once per clone: `pre-commit install` (without this, `git commit` will not run the suite and CI/reviewers will catch failures later).
 - **Never commit** unless local pre-commit hooks pass on the changed files (`pre-commit run --files …` or `pre-commit run`).
 - That includes ansible-lint, changelog validation, galaxy-importer, and the other hooks in `.pre-commit-config.yaml`.
 - If ansible-lint cannot reach Galaxy (proxy/tunnel errors), re-run with `--offline` and a local `ANSIBLE_COLLECTIONS_PATH` that already has the required collections — do not skip the hook or use `--no-verify`.
