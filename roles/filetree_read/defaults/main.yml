@@ -3,10 +3,12 @@
 
 # Organization and Environment Variables
 env: dev
-# When true, point all filetree_* paths at dir_orgs_vars so recursive find
-# loads the layout produced by filetree_create (ORG/*.d and root YAML files).
-# Use with dir_orgs_vars set to the export root (e.g. output_path from create).
-filetree_create_layout: false
+# Input layout for path defaults:
+#   hierarchical — dir_orgs_vars/orgs/env/{common|env}/… (CaC authoring)
+#   create       — filetree_create export tree; all filetree_* → dir_orgs_vars
+#   flatten      — filetree_create flatten_output; same path remap as create
+# Deprecated alias: filetree_create_layout: true → create (see apply task).
+controller_configuration_filetree_read_layout: hierarchical
 controller_configuration_filetree_read_secure_logging: "{{ controller_configuration_secure_logging | default(true) }}"
 
 # Gateway Directory Paths

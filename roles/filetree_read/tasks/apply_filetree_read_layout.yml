@@ -1,10 +1,31 @@
 ---
-# Remap all filetree_* search roots to dir_orgs_vars so recursive find can load
-# the layout produced by filetree_create (ORG/*.d and root-level YAML files).
-- name: "Remap filetree_read paths to filetree_create output layout"
-  when: filetree_create_layout | bool
+# Resolve input layout and, for create/flatten, remap all filetree_* search roots
+# to dir_orgs_vars (export root). Matches how tests/configs/fc and fcf point every
+# path at a single tree root; orgs and env are unused in those modes.
+#
+# Layout values:
+#   hierarchical (default) — dir_orgs_vars/orgs/env/{common|env}/…
+#   create                 — filetree_create non-flatten export tree
+#   flatten                — filetree_create flatten_output tree (same path remap)
+#
+# Deprecated: filetree_create_layout: true maps to create when the new layout
+# var is still hierarchical.
+- name: "Resolve filetree_read input layout"
   ansible.builtin.set_fact:
-    orgs: "{{ orgs | default('_unused_with_filetree_create_layout') }}"
+    __filetree_read_layout: >-
+      {{
+        controller_configuration_filetree_read_layout
+        if (controller_configuration_filetree_read_layout | default('hierarchical')) in ['create', 'flatten']
+        else (
+          'create'
+          if (filetree_create_layout | default(false) | bool)
+          else (controller_configuration_filetree_read_layout | default('hierarchical'))
+        )
+      }}
+
+- name: "Remap filetree_read paths to create/flatten export root"
+  when: __filetree_read_layout in ['create', 'flatten']
+  ansible.builtin.set_fact:
     filetree_gateway_authenticators: "{{ dir_orgs_vars }}"
     filetree_gateway_authenticator_maps: "{{ dir_orgs_vars }}"
     filetree_gateway_settings: "{{ dir_orgs_vars }}"
@@ -52,3 +73,4 @@
     filetree_hub_ee_registries: "{{ dir_orgs_vars }}"
     filetree_hub_ee_repositories: "{{ dir_orgs_vars }}"
     filetree_hub_ee_images: "{{ dir_orgs_vars }}"
+...

@@ -59,7 +59,6 @@ ansible-playbook playbooks/import_filetree.yml \
   -e aap_username=admin -e aap_password=secret \
   -e aap_validate_certs=false \
   -e dir_orgs_vars=/tmp/jt_export \
-  -e filetree_create_layout=true \
   -e @/tmp/jt_export/env_variables.yml
 ```
 

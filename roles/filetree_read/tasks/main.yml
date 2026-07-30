@@ -1,7 +1,7 @@
 ---
 # tasks file for filetree_read
-- name: "Apply filetree_create output layout when requested"
-  ansible.builtin.include_tasks: apply_filetree_create_layout.yml
+- name: "Apply filetree_read input layout when create or flatten"
+  ansible.builtin.include_tasks: apply_filetree_read_layout.yml
   tags: always
 
 - name: "Include Tasks to config"

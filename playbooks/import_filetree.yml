@@ -2,18 +2,20 @@
 # Import a filetree export into AAP (PRO), resolving secrets/env placeholders.
 #
 # Required:
-#   - Exported tree path via dir_orgs_vars
+#   - Exported tree path via dir_orgs_vars (filetree_create output_path)
 #   - PRO connection vars (aap_hostname / credentials or token)
 #   - Filled env_variables file: -e @/path/to/env_variables.yml
-#   - orgs: organization folder name (required by filetree_read when not using create layout)
 #
-# Example (direct from filetree_create output):
+# Uses controller_configuration_filetree_read_layout=create so filetree_read
+# searches the export tree (ORG/*.d and root YAML) without rearranging into
+# hierarchical orgs/env paths. orgs and env are unused in this mode.
+#
+# Example:
 #   ansible-playbook playbooks/import_filetree.yml \
 #     -e aap_hostname=aap-pro.example.com \
 #     -e aap_username=admin -e aap_password=secret \
 #     -e aap_validate_certs=false \
 #     -e dir_orgs_vars=/tmp/jt_export \
-#     -e filetree_create_layout=true \
 #     -e @/tmp/jt_export/env_variables.yml
 #
 - name: Import filetree configuration into AAP
@@ -26,11 +28,7 @@
     aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
     aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL') | default(true)) }}"
     dir_orgs_vars: "{{ lookup('env', 'FILETREE_OUTPUT') | default('/tmp/filetree_output', true) }}"
-    # When true, point all filetree_* paths at dir_orgs_vars so recursive find
-    # loads the layout produced by filetree_create (ORG/*.d and root YAML files).
-    filetree_create_layout: true
-    # Placeholder for hierarchical defaults; remapped away when filetree_create_layout is true.
-    orgs: "{{ orgs | default('_unused_with_filetree_create_layout') }}"
+    controller_configuration_filetree_read_layout: create
 
   pre_tasks:
     - name: "Setup authentication (block)"
@@ -56,10 +54,7 @@
             aap_oauthtoken_url: "{{ authtoken_res.json.url }}"
 
   roles:
-    - role: infra.aap_configuration_extended.filetree_read
-      vars:
-        # Role remaps all filetree_* paths when filetree_create_layout is true.
-        filetree_create_layout: "{{ filetree_create_layout | default(true) }}"
+    - infra.aap_configuration_extended.filetree_read
     - infra.aap_configuration.dispatch
 
   post_tasks:
@@ -73,4 +68,7 @@
         validate_certs: "{{ aap_validate_certs }}"
         status_code: 204
       when: aap_oauthtoken_url is defined
+      no_log: "{{ controller_configuration_filetree_read_secure_logging | default(false) }}"
+      tags:
+        - always
 ...

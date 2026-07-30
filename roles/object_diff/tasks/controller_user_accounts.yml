@@ -35,8 +35,9 @@
     msg: >-
       object_diff found {{ __controller_api_user_accounts | length }} user(s) on the Controller
       but aap_user_accounts is empty. Usually filetree_read did not load users (wrong path layout).
-      For a filetree_create export tree, set filetree_create_layout: true and dir_orgs_vars to the
-      export root. To force comparing against an empty list, set object_diff_allow_empty_user_cac: true.
+      For a filetree_create export tree, set controller_configuration_filetree_read_layout: create
+      and dir_orgs_vars to the export root. To force comparing against an empty list, set
+      object_diff_allow_empty_user_cac: true.
   when:
     - not (object_diff_allow_empty_user_cac | default(false) | bool)
     - (aap_user_accounts | default([]) | length) == 0
