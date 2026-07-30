@@ -2,4 +2,5 @@
 bugfixes:
   - filetree_create - Document ``*_secure_logging`` role variables in the README
     and align defaults with ``aap_configuration_secure_logging`` (with legacy
-    ``controller_configuration_secure_logging`` fallback) (fixes #304).
+    ``controller_configuration_secure_logging`` fallback)
+    (fixes redhat-cop/aap_configuration_extended#304).
