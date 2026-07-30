@@ -14,7 +14,7 @@ The following Variables set the organization where should be applied the configu
 
 |Variable Name|Type|Default Value|Required|Description|
 |:---:|:---:|:---:|:---:|:---:|
-|`orgs`|String|N/A|yes*|Organization folder for hierarchical CaC paths. Required when `controller_configuration_filetree_read_layout` is `hierarchical`; unused for `create`/`flatten`.|
+|`orgs`|String|`''`|yes*|Organization folder for hierarchical CaC paths. Required (non-empty) when `controller_configuration_filetree_read_layout` is `hierarchical`; unused for `create`/`flatten` (default empty so argument_specs path defaults still resolve).|
 |`dir_orgs_vars`|String|N/A|yes|Base directory for variables. With `create`/`flatten` layout, set this to the `filetree_create` `output_path` root.|
 |`env:`|String|dev|no|Life-cycle environment for hierarchical paths. Unused for `create`/`flatten`.|
 |`controller_configuration_filetree_read_layout`|String|`hierarchical`|no|Input path layout: `hierarchical` (CaC `orgs`/`env`), `create` (filetree_create export tree), or `flatten` (flatten_output tree). `create` and `flatten` remap all `filetree_*` paths to `dir_orgs_vars`.|

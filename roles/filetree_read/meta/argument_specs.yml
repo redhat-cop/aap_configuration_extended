@@ -5,6 +5,7 @@ argument_specs:
     options:
       orgs:
         type: str
+        default: ''
         required: false
         description: "Organization name used in hierarchical CaC paths. Required for controller_configuration_filetree_read_layout=hierarchical; unused for create/flatten layouts."
       dir_orgs_vars:

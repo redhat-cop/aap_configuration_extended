@@ -2,6 +2,9 @@
 # defaults file for casc_implementation
 
 # Organization and Environment Variables
+# Default empty so argument_specs path defaults can resolve when using create/flatten
+# layouts (orgs/env unused there). Hierarchical CaC still requires a real orgs value.
+orgs: ''
 env: dev
 # Input layout for path defaults:
 #   hierarchical — dir_orgs_vars/orgs/env/{common|env}/… (CaC authoring)
