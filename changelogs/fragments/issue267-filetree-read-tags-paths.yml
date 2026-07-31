@@ -1,0 +1,7 @@
+---
+minor_changes:
+  - >-
+    filetree_read - Accept both short and prefixed Ansible tags (matching
+    ``infra.aap_configuration.dispatch``) and add ``filetree_gateway_*`` path
+    aliases that also search legacy ``aap_*`` and ``filetree_create`` output
+    directories (fixes redhat-cop/aap_configuration_extended#267).
