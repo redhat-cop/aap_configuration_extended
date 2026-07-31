@@ -225,6 +225,8 @@ controller_workflows:
       description: "{{ spec_item.description }}"
 {%   endfor %}
 {% endif %}
+{% import 'macros/inline_object_roles.j2' as inline_roles with context %}
+{{ inline_roles.render(current_workflow_job_templates_asset_value) }}
 {% if last_workflow_job_template | default(true) | bool %}
 ...
 {% endif %}

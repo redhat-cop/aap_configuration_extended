@@ -88,6 +88,8 @@ controller_projects:
       - "{{ notification_success.name }}"
 {% endfor %}
 {% endif %}
+{% import 'macros/inline_object_roles.j2' as inline_roles with context %}
+{{ inline_roles.render(current_projects_asset_value) }}
 {% if last_project | default(true) | bool %}
 ...
 {% endif %}

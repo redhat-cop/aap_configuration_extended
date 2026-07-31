@@ -1,0 +1,58 @@
+{# Emit optional inline object ``roles`` for infra.aap_configuration.
+   Enabled when export_inline_object_roles is true (default false).
+   Call before each template's trailing ``...`` / last_* trailer:
+
+   {% import 'macros/inline_object_roles.j2' as inline_roles with context %}
+   {{ inline_roles.render(current_inventories_asset_value) }}
+#}
+{% macro render(asset, indent=4) -%}
+{%- if (export_inline_object_roles | default(false) | bool)
+      and asset is mapping
+      and asset.related is defined
+      and asset.related.object_roles is defined
+      and asset.related.object_roles not in [None, '', 'None'] -%}
+{%- set __object_roles = query('ansible.platform.gateway_api', asset.related.object_roles,
+        host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+        return_all=true, max_objects=query_controller_api_max_objects) -%}
+{%- set ns = namespace(roles={}) -%}
+{%- for __role in __object_roles -%}
+{%-   set __role_key = __role.name | lower | regex_replace('[^a-z0-9]+', '') -%}
+{%-   set __users = query('ansible.platform.gateway_api', __role.related.users,
+        host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+        return_all=true, max_objects=query_controller_api_max_objects)
+        | map(attribute='username') | list -%}
+{%-   set __teams = query('ansible.platform.gateway_api', __role.related.teams,
+        host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+        return_all=true, max_objects=query_controller_api_max_objects)
+        | map(attribute='name') | list -%}
+{%-   if (__users | length) > 0 or (__teams | length) > 0 -%}
+{%-     set __entry = {} -%}
+{%-     if (__teams | length) > 0 -%}
+{%-       set __entry = __entry | combine({'teams': __teams | sort}) -%}
+{%-     endif -%}
+{%-     if (__users | length) > 0 -%}
+{%-       set __entry = __entry | combine({'users': __users | sort}) -%}
+{%-     endif -%}
+{%-     set ns.roles = ns.roles | combine({__role_key: __entry}) -%}
+{%-   endif -%}
+{%- endfor -%}
+{%- if ns.roles | length > 0 %}
+{{ (' ' * indent) ~ 'roles:' }}
+{%   for __rk in ns.roles.keys() | sort %}
+{{ (' ' * (indent + 2)) ~ __rk ~ ':' }}
+{%     if ns.roles[__rk].teams is defined %}
+{{ (' ' * (indent + 4)) ~ 'teams:' }}
+{%       for __t in ns.roles[__rk].teams %}
+{{ (' ' * (indent + 6)) ~ '- ' ~ __t }}
+{%       endfor %}
+{%     endif %}
+{%     if ns.roles[__rk].users is defined %}
+{{ (' ' * (indent + 4)) ~ 'users:' }}
+{%       for __u in ns.roles[__rk].users %}
+{{ (' ' * (indent + 6)) ~ '- ' ~ __u }}
+{%       endfor %}
+{%     endif %}
+{%   endfor %}
+{%- endif -%}
+{%- endif -%}
+{%- endmacro %}
