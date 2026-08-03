@@ -5,7 +5,8 @@
                                 (schedules_related_url if schedules_related_url is defined else 'api/controller/v2/schedules/'),
                                 query_params=(query_params | combine({'name': schedule_name} if schedule_name is defined and schedules_related_url is not defined else {},
                                   {'id': schedule_id} if schedule_id is defined and schedule_name is not defined and schedules_related_url is not defined else {},
-                                  {'unified_job_template': unified_job_template_id} if unified_job_template_id is defined and schedules_related_url is not defined else {})),
+                                  {'unified_job_template': unified_job_template_id} if unified_job_template_id is defined and schedules_related_url is not defined else {},
+                                  {'unified_job_template__organization': organization_id} if organization_id is defined and schedule_name is not defined and schedule_id is not defined and unified_job_template_id is not defined and schedules_related_url is not defined else {})),
                                 host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                 return_all=true, max_objects=query_controller_api_max_objects)
                        }}"
@@ -70,7 +71,7 @@
       vars:
         label_id: "{{ current_schedules_asset_value.id }}"
         label_name: "{{ current_schedules_asset_value.name | regex_replace('/', '_') }}"
-        __dest: "{{ output_path }}/{{ filetree_create_controller_schedules }}/{{ (label_id ~ '_') if omit_id is not defined else '' }}{{ label_name | regex_replace('/', '_') }}.yaml"
+        __dest: "{{ output_path }}/{{ filetree_create_controller_schedules }}/{{ (label_id ~ '_') if not (omit_id | default(false) | bool) else '' }}{{ label_name | regex_replace('/', '_') }}.yaml"
         query_credentials: "{{ query('ansible.platform.gateway_api', current_schedules_asset_value.related.credentials,
                      host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) if current_schedules_asset_value.related.credentials is defined else [] }}"

@@ -1,0 +1,13 @@
+---
+bugfixes:
+  - filetree_read - Add ``controller_configuration_filetree_read_layout``
+    (``hierarchical`` / ``create`` / ``flatten``) so a ``filetree_create``
+    export tree can be loaded by remapping ``filetree_*`` paths to
+    ``dir_orgs_vars``. Deprecated alias ``filetree_create_layout`` (when true)
+    still maps to ``create`` (fixes #204).
+  - filetree_read - Default ``orgs`` to an empty string so argument_specs path
+    defaults resolve under create/flatten layouts, and apply layout remap with
+    ``apply.tags=always`` so CLI ``--tags`` runs still remap paths.
+  - object_diff - Fail clearly when ``aap_user_accounts`` is empty while the
+    Controller still has users, surface user-diff errors outside ``no_log``,
+    and skip users missing ``associated_authenticators`` (fixes #205).

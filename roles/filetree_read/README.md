@@ -25,9 +25,11 @@ The following Variables set the organization where should be applied the configu
 
 |Variable Name|Type|Default Value|Required|Description|
 |:---:|:---:|:---:|:---:|:---:|
-|`orgs`|String|N/A|yes|This variable sets the organization where should be applied the configuration.|
-|`dir_orgs_vars`|String|N/A|yes|This variable sets the directory path where the variables will be store.|
-|`env:`|String|dev|no|This variable sets the life-cycle environment to use.|
+|`orgs`|String|`''`|yes*|Organization folder for hierarchical CaC paths. Required (non-empty) when `controller_configuration_filetree_read_layout` is `hierarchical`; unused for `create`/`flatten` (default empty so argument_specs path defaults still resolve).|
+|`dir_orgs_vars`|String|N/A|yes|Base directory for variables. With `create`/`flatten` layout, set this to the `filetree_create` `output_path` root.|
+|`env:`|String|dev|no|Life-cycle environment for hierarchical paths. Unused for `create`/`flatten`.|
+|`controller_configuration_filetree_read_layout`|String|`hierarchical`|no|Input path layout: `hierarchical` (CaC `orgs`/`env`), `create` (filetree_create export tree), or `flatten` (flatten_output tree). `create` and `flatten` remap all `filetree_*` paths to `dir_orgs_vars`.|
+|`filetree_create_layout`|Boolean|`false`|no|**Deprecated.** When `true` and layout is still `hierarchical`, behaves like `controller_configuration_filetree_read_layout: create`.|
 |`controller_location`|String|''|no|This variable sets object localtion. It is useful when the configuration need to be replicated in an active/passive sites architecture|
 |`filetree_controller_settings`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_settings.d/|no|Directory path to load controller object variables|
 |`filetree_aap_organizations`|String/List(String)|{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_organizations.d/|no|Directory path to load controller object variables|
@@ -66,6 +68,37 @@ The following Variables set the organization where should be applied the configu
 |`filetree_controller_include`|String/List(String)|omit|no|patterns for find to include only matching|
 |`filetree_controller_exclude`|String/List(String)|omit|no|patterns for find to exclude matching|
 |`filetree_controller_regex`|bool|false|no|switch to allow find to use_regex in combination with include/exclude default matches find default|
+
+### Input layouts
+
+`filetree_read` accepts several input tree shapes (same idea as the `custom` / `fc` / `fcf` / `gv` plays in `tests/test_filetree_read.yaml`):
+
+| Layout | Variable | Path model | `orgs` / `env` |
+| --- | --- | --- | --- |
+| Hierarchical CaC | `controller_configuration_filetree_read_layout: hierarchical` (default) | `{{ dir_orgs_vars }}/{{ orgs }}/env/common/` or `…/env/{{ env }}/` | Required |
+| `filetree_create` export | `…_layout: create` | All `filetree_*` → `dir_orgs_vars` (recursive find) | Unused |
+| Flatten export | `…_layout: flatten` | Same remap as `create` | Unused |
+| Manual overrides | set each `filetree_*` yourself | Whatever you point at (e.g. group_vars) | As needed |
+
+### Roundtrip from `filetree_create`
+
+`filetree_create` writes an export-centric tree (`{output_path}/{ORG}/controller_projects.d/…` plus root-level YAML such as `gateway_users.yaml`). That is **not** the hierarchical CaC defaults (`…/env/common/…`).
+
+To load a fresh export without rearranging files:
+
+```yaml
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    dir_orgs_vars: ./filetree_export   # same as filetree_create output_path
+    controller_configuration_filetree_read_layout: create
+  roles:
+    - infra.aap_configuration_extended.filetree_read
+    - infra.aap_configuration.dispatch
+```
+
+Or use `playbooks/import_filetree.yml` with `-e dir_orgs_vars=/path/to/export` (layout defaults to `create` in that playbook).
 
 ### Data Structure
 

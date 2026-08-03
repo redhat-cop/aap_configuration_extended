@@ -90,5 +90,5 @@
         msg:
           - "Export written under {{ output_path }}"
           - "Fill PRO values in {{ output_path }}/env_variables.yml (optionally ansible-vault encrypt it)"
-          - "Import with: ansible-playbook playbooks/import_filetree.yml -e dir_orgs_vars={{ output_path }} -e filetree_create_layout=true -e @{{ output_path }}/env_variables.yml ..."
+          - "Import with: ansible-playbook playbooks/import_filetree.yml -e dir_orgs_vars={{ output_path }} -e @{{ output_path }}/env_variables.yml ..."
 ...

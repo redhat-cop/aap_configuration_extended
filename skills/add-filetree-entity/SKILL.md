@@ -104,6 +104,12 @@ ansible-playbook tests/test_filetree_read.yaml --tags fcf,instances \
 
 `changelogs/fragments/issueNNN.yaml` — bugfix or minor entry for create and read.
 
+### 6. Pre-commit before commit
+
+- Run `pre-commit run --files <changed files>` (or full `pre-commit run`) and fix every failure before creating a git commit.
+- Never use `--no-verify` to bypass hooks.
+- If ansible-lint fails fetching Galaxy collections (network/proxy), use `ansible-lint --offline` with `ANSIBLE_COLLECTIONS_PATH` pointing at already-installed collections, then re-run the pre-commit ansible-lint hook in an environment that can use those collections. Do not commit red lint.
+
 ## Reference implementation
 
 **controller_instances** (issue #235): global object, peers resolved via `receptor_addresses_lookvar` + `__receptor_peer_hostname_by_id` in create; read task matches instance_groups pattern with tag `instances`.

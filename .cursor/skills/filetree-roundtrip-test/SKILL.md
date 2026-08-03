@@ -88,6 +88,10 @@ Point `extra_vars_read_export.yml` at `/tmp/filetree_output_default`.
 - Step 3 is idempotent (`changed=0` or only benign async retries).
 - For data-type fixes: spot-check `controller_settings.yaml` / `gateway_settings.yaml` for native YAML types (`int`, `bool`, dicts), not quoted strings.
 
+## Pre-commit
+
+Before committing any roundtrip-related code changes, ensure `pre-commit run` passes on those files (including ansible-lint). Never commit with failing hooks or `--no-verify`.
+
 ## Logs
 
 Save logs under `/tmp/filetree_roundtrip_test/step{1,2,3}_*.log` for post-mortem.

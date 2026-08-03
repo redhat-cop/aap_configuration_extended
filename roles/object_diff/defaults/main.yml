@@ -43,13 +43,17 @@ controller_configuration_object_diff_tasks:
   - {name: controller_inventory_sources, var: controller_inventory_sources, tags: controller_inventory_sources}
   - {name: controller_inventories, var: controller_inventories, tags: controller_inventories}
   - {name: controller_projects, var: controller_projects, tags: controller_projects}
-  - {name: controller_notification_templates, var: controller_notification_templates, tags: controller_notification_templates}
+  - {name: controller_notification_templates, var: controller_notifications, tags: controller_notification_templates}
   - {name: controller_credentials, var: controller_credentials, tags: controller_credentials}
   - {name: controller_credential_types, var: controller_credential_types, tags: controller_credential_types}
   - {name: controller_organizations, var: aap_organizations, tags: controller_organizations}
   - {name: controller_instance_groups, var: controller_instance_groups, tags: controller_instance_groups}
 
 controller_configuration_object_diff_secure_logging: "{{ controller_configuration_secure_logging | default(true) }}"
+
+# When false (default), refuse to run user account diff if aap_user_accounts is empty
+# while the Controller still has users (usually a filetree_read path-layout mistake).
+object_diff_allow_empty_user_cac: false
 
 controller_api_version: "v2"
 gateway_api_version: "v1"
