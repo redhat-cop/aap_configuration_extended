@@ -55,6 +55,21 @@ The following variables are required for that role to work properly:
 | `hub_ee_repository_remote` | N/A | no | str | Filter the repositories to be exported from the PAH throuhg it's repository's remote field. |
 | `hub_role_name` | N/A | no | str | Filter the Roles to be exported from the PAH through it's name. |
 
+### Secure Logging Variables
+
+These variables control Ansible `no_log` on tasks that may touch credentials or tokens.
+If neither a role-specific nor a shared variable is set, secure logging defaults to `false`.
+
+Each `*_filetree_create_secure_logging` variable defaults to `aap_configuration_secure_logging`, then to the legacy `controller_configuration_secure_logging`. That lets you toggle secure logging for the whole CaC suite with one variable, or override it per component (Controller / EDA / Hub).
+
+| Variable Name | Default Value | Required | Type | Description |
+| :------------ | :-----------: | :------: | :------: | :---------- |
+| `controller_configuration_filetree_create_secure_logging` | `false` (via shared cascade) | no | bool | Whether to hide Controller export task output from the log (`no_log`). |
+| `eda_configuration_filetree_create_secure_logging` | `false` (via shared cascade) | no | bool | Whether to hide EDA export task output from the log (`no_log`). |
+| `hub_configuration_filetree_create_secure_logging` | `false` (via shared cascade) | no | bool | Whether to hide Hub export task output from the log (`no_log`). |
+| `aap_configuration_secure_logging` | `false` | no | bool | Shared secure-logging default across `infra.aap_configuration` / `infra.aap_configuration_extended` roles. |
+| `controller_configuration_secure_logging` | `false` | no | bool | Legacy shared default; used when `aap_configuration_secure_logging` is unset. |
+
 ## Dependencies
 
 A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
