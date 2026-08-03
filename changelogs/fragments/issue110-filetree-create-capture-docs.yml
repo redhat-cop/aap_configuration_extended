@@ -1,0 +1,6 @@
+---
+minor_changes:
+  - >-
+    docs - Clarify that ``filetree_create`` is the supported way to capture
+    existing AAP objects as Configuration as Code, including name filters and
+    remaining gaps (related to redhat-cop/aap_configuration_extended#110).
