@@ -16,7 +16,12 @@
   block:
     - name: "Populate User Accounts list"
       ansible.builtin.set_fact:
-        populate_controller_api_user_accounts_without_external_accounts: "{{ __controller_api_user_accounts | selectattr('associated_authenticators', 'equalto', {}) | map('combine', {'type': 'user'}) }}"
+        populate_controller_api_user_accounts_without_external_accounts: >-
+          {{ __controller_api_user_accounts
+             | selectattr('associated_authenticators', 'defined')
+             | selectattr('associated_authenticators', 'equalto', {})
+             | map('combine', {'type': 'user'})
+             | list }}
       no_log: "{{ controller_configuration_object_diff_secure_logging }}"
 
     - name: "Set User Accounts from API without External Accounts Data Structure"
@@ -24,6 +29,19 @@
         __controller_api_user_accounts: "{{ populate_controller_api_user_accounts_without_external_accounts }}"
       no_log: "{{ controller_configuration_object_diff_secure_logging }}"
       when: populate_controller_api_user_accounts_without_external_accounts is defined
+
+- name: "Refuse empty CaC user list when Controller has users"
+  ansible.builtin.fail:
+    msg: >-
+      object_diff found {{ __controller_api_user_accounts | length }} user(s) on the Controller
+      but aap_user_accounts is empty. Usually filetree_read did not load users (wrong path layout).
+      For a filetree_create export tree, set controller_configuration_filetree_read_layout: create
+      and dir_orgs_vars to the export root. To force comparing against an empty list, set
+      object_diff_allow_empty_user_cac: true.
+  when:
+    - not (object_diff_allow_empty_user_cac | default(false) | bool)
+    - (aap_user_accounts | default([]) | length) == 0
+    - (__controller_api_user_accounts | default([]) | length) > 0
 
 - name: "User account differences (block)"
   when:
@@ -36,9 +54,18 @@
                                               with_present=include_present_state, set_absent=true) | flatten
                                      }}"
       no_log: "{{ controller_configuration_object_diff_secure_logging }}"
+      register: __user_accounts_diff_task
 
     - name: "Sets the difference of User Accounts between what is on the Controller versus CasC on SCM"
       ansible.builtin.set_fact:
         aap_user_accounts: "{{ __user_accounts_difference }}"
       no_log: "{{ controller_configuration_object_diff_secure_logging }}"
+  rescue:
+    - name: "Surface User Accounts object_diff error without no_log"
+      ansible.builtin.fail:
+        msg: >-
+          object_diff failed while comparing user accounts
+          (api={{ __controller_api_user_accounts | default([]) | length }},
+          cac={{ aap_user_accounts | default([]) | length }}):
+          {{ ansible_failed_result.msg | default(ansible_failed_result) }}
 ...

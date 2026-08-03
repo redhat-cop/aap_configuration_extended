@@ -516,13 +516,12 @@ ansible-playbook playbooks/import_filetree.yml \
   -e aap_password='***' \
   -e aap_validate_certs=false \
   -e dir_orgs_vars=/tmp/jt_deploy_app_export \
-  -e filetree_create_layout=true \
   -e @/tmp/jt_deploy_app_export/env_variables.yml
 ```
 
 If the file is vault-encrypted, add `--ask-vault-pass` (or `--vault-password-file`).
 
-`filetree_create_layout=true` makes `filetree_read` search the export tree as produced by `filetree_create` (no need to rearrange into `env/common` vs `env/<env>` first).
+`playbooks/import_filetree.yml` sets `controller_configuration_filetree_read_layout=create` so `filetree_read` searches the export tree as produced by `filetree_create` (no need to rearrange into `env/common` vs `env/<env>` first).
 
 ---
 
@@ -611,7 +610,6 @@ ansible-playbook playbooks/import_filetree.yml \
   -e aap_password='***' \
   -e aap_validate_certs=false \
   -e dir_orgs_vars=/tmp/wfjt_release_pipeline_export \
-  -e filetree_create_layout=true \
   -e @/tmp/wfjt_release_pipeline_export/env_variables.yml
 ```
 

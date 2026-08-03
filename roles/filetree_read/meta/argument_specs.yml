@@ -5,17 +5,34 @@ argument_specs:
     options:
       orgs:
         type: str
-        required: true
-        description: This variable sets the organization where should be applied the configuration.
+        default: ''
+        required: false
+        description: "Organization name used in hierarchical CaC paths. Required for controller_configuration_filetree_read_layout=hierarchical; unused for create/flatten layouts."
       dir_orgs_vars:
         type: str
         required: true
-        description: This variable sets the directory path where the variables will be store.
+        description: Directory path for CaC variables. With create/flatten layout, set this to the `filetree_create` export root (`output_path`).
       env:
         type: str
         default: dev
         required: false
-        description: This variable sets the life-cycle environment to use.
+        description: Life-cycle environment segment for hierarchical paths. Unused for create/flatten layouts.
+      controller_configuration_filetree_read_layout:
+        type: str
+        default: hierarchical
+        required: false
+        choices:
+          - hierarchical
+          - create
+          - flatten
+        description: >-
+          Input path layout. hierarchical uses orgs/env defaults; create and flatten remap all
+          filetree_* paths to dir_orgs_vars (filetree_create export root, same as tests fc/fcf).
+      filetree_create_layout:
+        type: bool
+        default: false
+        required: false
+        description: Deprecated. When true and layout is still hierarchical, behaves like controller_configuration_filetree_read_layout=create.
       controller_location:
         type: str
         default: ''

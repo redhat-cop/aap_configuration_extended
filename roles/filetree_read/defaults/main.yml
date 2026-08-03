@@ -2,7 +2,16 @@
 # defaults file for casc_implementation
 
 # Organization and Environment Variables
+# Default empty so argument_specs path defaults can resolve when using create/flatten
+# layouts (orgs/env unused there). Hierarchical CaC still requires a real orgs value.
+orgs: ''
 env: dev
+# Input layout for path defaults:
+#   hierarchical — dir_orgs_vars/orgs/env/{common|env}/… (CaC authoring)
+#   create       — filetree_create export tree; all filetree_* → dir_orgs_vars
+#   flatten      — filetree_create flatten_output; same path remap as create
+# Deprecated alias: filetree_create_layout: true → create (see apply task).
+controller_configuration_filetree_read_layout: hierarchical
 controller_configuration_filetree_read_secure_logging: "{{ controller_configuration_secure_logging | default(true) }}"
 
 # Gateway Directory Paths
