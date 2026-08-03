@@ -1,7 +1,6 @@
 ---
-# Export a single Workflow Job Template by name (no related-object cascade).
-# Used for nested workflow nodes so we do not recursively include
-# controller_workflow_job_templates.yml (Ansible skips same-file includes).
+# Export a single Workflow Job Template by name (YAML only; no related cascade).
+# Used after workflow_related_graph discovery walks the nested workflow graph.
 #
 # Required vars:
 #   nested_workflow_job_template_name: <name>

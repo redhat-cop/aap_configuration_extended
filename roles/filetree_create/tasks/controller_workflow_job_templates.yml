@@ -39,38 +39,10 @@
         related_wfjt_inventory_name: "{{ __related_wfjt.summary_fields.inventory.name | default(omit, true) }}"
       no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
-    - name: "Get workflow nodes for related export"
-      ansible.builtin.set_fact:
-        workflow_nodes_lookvar: "{{ query('ansible.platform.gateway_api', __related_wfjt.related.workflow_nodes,
-                                          host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
-                                          return_all=true, max_objects=query_controller_api_max_objects) }}"
-      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
-
-    - name: "Collect job template, nested workflow, and inventory names from workflow nodes"
-      ansible.builtin.set_fact:
-        related_node_job_template_names: "{{ workflow_nodes_lookvar
-          | map(attribute='summary_fields')
-          | selectattr('unified_job_template', 'defined')
-          | map(attribute='unified_job_template')
-          | selectattr('unified_job_type', 'defined')
-          | selectattr('unified_job_type', 'equalto', 'job')
-          | map(attribute='name')
-          | list | unique }}"
-        related_node_workflow_job_template_names: "{{ workflow_nodes_lookvar
-          | map(attribute='summary_fields')
-          | selectattr('unified_job_template', 'defined')
-          | map(attribute='unified_job_template')
-          | selectattr('unified_job_type', 'defined')
-          | selectattr('unified_job_type', 'equalto', 'workflow_job')
-          | map(attribute='name')
-          | list | unique
-          | difference([__related_wfjt.name]) }}"
-        related_node_inventory_names: "{{ workflow_nodes_lookvar
-          | map(attribute='summary_fields')
-          | selectattr('inventory', 'defined')
-          | map(attribute='inventory')
-          | map(attribute='name')
-          | list | unique }}"
+    - name: "Discover nested workflows and job templates reachable from this Workflow Job Template"
+      ansible.builtin.include_tasks: "controller_workflow_related_discover.yml"
+      vars:
+        __wfjt_discover_seed_name: "{{ __related_wfjt.name }}"
       no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
     - name: "Query labels related to the Workflow Job Template"
@@ -104,43 +76,41 @@
         organization_name: "{{ related_organization_name }}"
       no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
-    - name: "Export workflow-level inventory related to workflow job template"
-      when: related_wfjt_inventory_name is defined
+    - name: "Build inventory name list for the workflow graph"
+      ansible.builtin.set_fact:
+        __related_graph_inventory_names: "{{ ((__discovered_inventory_names | default([])) + ([related_wfjt_inventory_name] if related_wfjt_inventory_name is defined else [])) | unique | list }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export inventories referenced by the workflow graph"
+      when: (__related_graph_inventory_names | length) > 0
       ansible.builtin.include_tasks: "controller_inventories.yml"
       vars:
-        inventory_name: "{{ related_wfjt_inventory_name }}"
-      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
-
-    - name: "Export inventories referenced by workflow nodes"
-      when: (related_node_inventory_names | default([]) | length) > 0
-      ansible.builtin.include_tasks: "controller_inventories.yml"
-      vars:
-        inventory_name: "{{ related_node_inventory_name_item }}"
-      loop: "{{ related_node_inventory_names | difference([related_wfjt_inventory_name] if related_wfjt_inventory_name is defined else []) }}"
+        inventory_name: "{{ related_graph_inventory_name_item }}"
+      loop: "{{ __related_graph_inventory_names }}"
       loop_control:
-        loop_var: related_node_inventory_name_item
+        loop_var: related_graph_inventory_name_item
       no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
-    - name: "Export job templates (with their related objects) referenced by workflow nodes"
-      when: (related_node_job_template_names | default([]) | length) > 0
-      ansible.builtin.include_tasks: "controller_job_templates.yml"
-      vars:
-        job_template_name: "{{ related_node_jt_name_item }}"
-        export_related_objects: true
-      loop: "{{ related_node_job_template_names }}"
-      loop_control:
-        loop_var: related_node_jt_name_item
-      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
-
-    - name: "Export nested workflow job templates referenced by workflow nodes"
-      when: (related_node_workflow_job_template_names | default([]) | length) > 0
+    - name: "Export nested Workflow Job Templates discovered in the graph"
+      when: ((__discovered_workflow_job_template_names | default([])) | difference([__related_wfjt.name]) | length) > 0
       ansible.builtin.include_tasks: "controller_workflow_job_template_by_name.yml"
       vars:
         # Do not reuse workflow_job_template_name: it is often an extra var (-e) and cannot be overridden.
-        nested_workflow_job_template_name: "{{ related_node_wfjt_name_item }}"
-      loop: "{{ related_node_workflow_job_template_names }}"
+        nested_workflow_job_template_name: "{{ related_graph_wfjt_name_item }}"
+      loop: "{{ (__discovered_workflow_job_template_names | default([])) | difference([__related_wfjt.name]) }}"
       loop_control:
-        loop_var: related_node_wfjt_name_item
+        loop_var: related_graph_wfjt_name_item
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Export Job Templates (with related objects) discovered in the workflow graph"
+      when: (__discovered_job_template_names | default([]) | length) > 0
+      ansible.builtin.include_tasks: "controller_job_templates.yml"
+      vars:
+        job_template_name: "{{ related_graph_jt_name_item }}"
+        export_related_objects: true
+      loop: "{{ __discovered_job_template_names }}"
+      loop_control:
+        loop_var: related_graph_jt_name_item
       no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
     - name: "Export labels related to workflow job template"

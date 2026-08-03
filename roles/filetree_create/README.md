@@ -35,7 +35,7 @@ The following variables are required for that role to work properly:
 | `show_encrypted` | N/A | no | bool | Whether to remove the string '\$encrypted\$' in credentials output (not the actual credential value). |
 | `omit_id` | N/A | no | bool | Whether to create output files without numeric object id prefixes. Recommended `true` for CaC. |
 | `organization` | N/A | no | str | Default organization for all objects that have not been set in the source controller. |
-| `export_related_objects` | False | no | bool | Whether to export related objects when a single JT or WFJT is exported by name. JT: organization, project, inventory (+ sources/hosts/groups unless skipped), credentials (+ types), EEs, labels, notification templates, schedules. WFJT: organization, inventories, each node JT with its full related set, labels, notification templates (incl. approvals), schedules. |
+| `export_related_objects` | False | no | bool | Whether to export related objects when a single JT or WFJT is exported by name. JT: organization, project, inventory (+ sources/hosts/groups unless skipped), credentials (+ types), EEs, labels, notification templates, schedules. WFJT: organization, inventories, nested workflow nodes recursively until Job Template leaves, each discovered JT with its full related set, labels, notification templates (incl. approvals), schedules. |
 | `env_fields_as_variables` | `export_related_objects` | no | bool | Whether to export selected non-secret but environment-specific fields as Ansible variable references (same naming scheme as `secrets_as_variables`). |
 | `generate_env_variables_stub` | true when secrets/env-as-vars | no | bool | Whether to write `{output_path}/env_variables.yml` listing every discovered `{{ vaulted_* }}` placeholder for PRO (or other env) values. |
 | `env_variables_stub_path` | `{{ output_path }}/env_variables.yml` | no | str | Destination path for the env variables stub file. |
@@ -621,6 +621,11 @@ ansible-playbook playbooks/import_filetree.yml \
 - Prefer **names** (`job_template_name`, `workflow_job_template_name`, `organization_filter`) over numeric `*_id` variables.
 - Re-run export after changing related objects on PRE; re-fill any new keys in `env_variables.yml`.
 - Approval nodes are described inline in the WFJT YAML; they do not create separate Controller objects to export.
+- Nested workflow nodes (`unified_job_type: workflow_job`) are followed recursively until Job Template
+  (or approval) leaves are reached (lookup ``infra.aap_configuration_extended.workflow_related_graph``).
+  Every nested Workflow Job Template on the path is exported, and every discovered Job Template is
+  exported with its full related set. Cycles are skipped.
+- Job nodes (`unified_job_type: job`) cascade each Job Template with its full related set.
 - Nested workflow nodes (`unified_job_type: workflow_job`) are exported as Workflow Job Template
   objects (by name) without recursively cascading their related set (avoids cycles). Re-run related
   export on those nested workflows if you need their full dependency tree (and their `env_variables.yml` keys).
