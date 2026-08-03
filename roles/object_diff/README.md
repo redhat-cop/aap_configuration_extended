@@ -34,6 +34,32 @@ $ ansible-playbook object_diff.yml --list-tags
 
 To correctly manage `roles`, they can only be defined by a super-admin organization, so all the roles in the Ansible Controller instance are managed by only one organization.
 
+## Workflow Job Template nodes
+
+`object_diff` compares **Workflow Job Templates as whole objects** (typically by name and organization). It does **not** compare or mark individual workflow nodes as `state: absent`.
+
+If a Workflow Job Template still exists in both the Controller API and your CaC list, but you removed one or more nodes from the YAML definition, `__workflow_job_templates_difference` will stay empty for that template. That is expected: the template itself is still present in code.
+
+To remove nodes that exist in AAP but are no longer defined in CaC, set `destroy_current_nodes: true` on the workflow (or rely on the equivalent option in `infra.aap_configuration.controller_workflow_job_templates`) when applying configuration via `dispatch`. See the [controller_workflow_job_templates role documentation](https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_workflow_job_templates/README.md) for details.
+
+Example:
+
+```yaml
+controller_workflows:
+  - name: My Workflow
+    organization: Default
+    destroy_current_nodes: true
+    workflow_nodes:
+      - identifier: node_a
+        unified_job_template: Job Template A
+        success_nodes:
+          - node_b
+      - identifier: node_b
+        unified_job_template: Job Template B
+```
+
+Related: [issue #149](https://github.com/redhat-cop/aap_configuration_extended/issues/149).
+
 ## Example Playbook
 
 ```yaml
@@ -128,3 +154,4 @@ GPLv3+
 - Issues:
   - Users and Teams must be managed by users with privileges.
   - Due to the Team Object doesn't return from API any field related to external account on Controller API, which help to filter if the teams comes from an External Source and not to be deleted by the Object Diff Ansible automation process.
+  - Workflow Job Template **nodes** are outside the scope of `object_diff`. Removing a node from CaC does not produce an absent entry in `__workflow_job_templates_difference`; use `destroy_current_nodes: true` when applying the workflow (see [Workflow Job Template nodes](#workflow-job-template-nodes)).
