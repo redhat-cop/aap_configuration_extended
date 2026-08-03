@@ -1,0 +1,7 @@
+---
+minor_changes:
+  - >-
+    filetree_create - Add optional ``export_inline_object_roles`` to embed
+    ``infra.aap_configuration`` inline object ``roles`` (users/teams) on
+    inventories, projects, job templates, workflow job templates, credentials,
+    and instance groups (fixes redhat-cop/aap_configuration_extended#311).

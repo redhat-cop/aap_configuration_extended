@@ -288,6 +288,8 @@ controller_templates:
                                         | default(template_overrides_global.job_template.prevent_instance_group_fallback)
                                         | default(current_job_templates_asset_value.prevent_instance_group_fallback | bool | lower) }}
 {% endif %}
+{% import 'macros/inline_object_roles.j2' as inline_roles with context %}
+{{ inline_roles.render(current_job_templates_asset_value) }}
 {% if last_job_template | default(true) | bool %}
 ...
 {% endif %}

@@ -13,5 +13,7 @@ controller_instance_groups: {{ [] if current_instance_groups_asset_value | lengt
       - "{{ instance.hostname }}"
 {%     endfor %}
 {%   endif %}
+{%   import 'macros/inline_object_roles.j2' as inline_roles with context %}
+{{ inline_roles.render(ig) }}
 {% endfor %}
 ...

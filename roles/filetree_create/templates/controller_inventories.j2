@@ -101,6 +101,8 @@ controller_inventories:
 {%     endfor %}
 {%   endif %}
 {% endif %}
+{% import 'macros/inline_object_roles.j2' as inline_roles with context %}
+{{ inline_roles.render(current_inventories_asset_value) }}
 {% if last_inventory | default(true) | bool %}
 ...
 {% endif %}

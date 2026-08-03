@@ -30,6 +30,11 @@ argument_specs:
         required: false
         type: bool
         description: Whether to create output files without objects id.
+      export_inline_object_roles:
+        default: false
+        required: false
+        type: bool
+        description: When true, embed infra.aap_configuration inline object roles (users/teams) on inventories, projects, job templates, workflow job templates, credentials, and instance groups.
 
       # Async variables
       controller_configuration_async_retries:
