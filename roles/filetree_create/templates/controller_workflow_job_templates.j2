@@ -133,17 +133,19 @@ controller_workflows:
     webhook_service: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].webhook_service
                          | default(template_overrides_global.workflow_template.webhook_service)
                          | default(current_workflow_job_templates_asset_value.webhook_service) }}"
-{% if template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].extra_vars is defined
-      or template_overrides_global.workflow_template.extra_vars is defined
-      or (current_workflow_job_templates_asset_value.extra_vars and (
-        (current_workflow_job_templates_asset_value.extra_vars is mapping and current_workflow_job_templates_asset_value.extra_vars | length > 0)
-        or (current_workflow_job_templates_asset_value.extra_vars is string and current_workflow_job_templates_asset_value.extra_vars | length > 0)
-      )) %}
-    extra_vars:
-{%   set __workflow_extra_vars = template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].extra_vars
+{% set __workflow_extra_vars = template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].extra_vars
                                  | default(template_overrides_global.workflow_template.extra_vars)
-                                 | default(current_workflow_job_templates_asset_value.extra_vars) %}
-{%   set extra_vars_contents = __workflow_extra_vars if __workflow_extra_vars is mapping or (__workflow_extra_vars | type_debug) == 'list' else (__workflow_extra_vars | from_yaml) %}
+                                 | default(current_workflow_job_templates_asset_value.extra_vars)
+                                 | default('') %}
+{% if __workflow_extra_vars is mapping or (__workflow_extra_vars | type_debug) == 'list' %}
+{%   set extra_vars_contents = __workflow_extra_vars %}
+{% elif __workflow_extra_vars is string and (__workflow_extra_vars | length > 0) %}
+{%   set extra_vars_contents = __workflow_extra_vars | from_yaml %}
+{% else %}
+{%   set extra_vars_contents = none %}
+{% endif %}
+{% if extra_vars_contents is mapping and (extra_vars_contents | length > 0) %}
+    extra_vars:
 {%   for extra_vars_item in (extra_vars_contents | dict2items) if (
         extra_vars_item.value == ''
         or ((extra_vars_item.value | string | length) > 0 and (extra_vars_item.value | string) is not match('None'))
@@ -159,6 +161,9 @@ controller_workflows:
       {{ extra_vars_item.key }}: {{ '"{%- raw -%}' }}{{ (extra_vars_item.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
 {%     endif %}
 {%   endfor %}
+{% elif __workflow_extra_vars is string and (__workflow_extra_vars | length > 0) %}
+{# Comment-only (or otherwise non-mapping) YAML: keep original text; from_yaml is None and must not hit dict2items #}
+    extra_vars: {{ '"{%- raw -%}' }}{{ (__workflow_extra_vars | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
 {% else %}
     extra_vars: ""
 {% endif %}
