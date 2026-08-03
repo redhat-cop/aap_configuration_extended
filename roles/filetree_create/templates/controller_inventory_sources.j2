@@ -67,7 +67,17 @@ controller_inventory_sources: {{ [] if current_inventory_sources_asset_value | l
     overwrite: "{{ template_overrides_resources.inventory_source[inventory_source.name].overwrite
                    | default(template_overrides_global.inventory_source.overwrite)
                    | default(inventory_source.overwrite) }}"
-{%   if template_overrides_global.inventory_source.credential is defined
+    overwrite_vars: "{{ template_overrides_resources.inventory_source[inventory_source.name].overwrite_vars
+                        | default(template_overrides_global.inventory_source.overwrite_vars)
+                        | default(inventory_source.overwrite_vars) }}"
+{%   if template_overrides_resources.inventory_source[inventory_source.name].execution_environment is defined
+      or template_overrides_global.inventory_source.execution_environment is defined
+      or inventory_source.summary_fields.execution_environment is defined %}
+    execution_environment: "{{ template_overrides_resources.inventory_source[inventory_source.name].execution_environment
+                               | default(template_overrides_global.inventory_source.execution_environment)
+                               | default(inventory_source.summary_fields.execution_environment.name) }}"
+{%   endif %}
+{%   if template_overrides_resources.inventory_source[inventory_source.name].credential is defined
       or template_overrides_global.inventory_source.credential is defined
       or inventory_source.summary_fields.credential is defined %}
     credential: "{{ template_overrides_resources.inventory_source[inventory_source.name].credential

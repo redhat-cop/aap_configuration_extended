@@ -2,7 +2,8 @@
 - name: "Get current Teams from the Gateway API"
   ansible.builtin.set_fact:
     gateway_teams_lookvar: "{{ query('ansible.platform.gateway_api', 'api/gateway/v1/teams/',
-                                     query_params=(query_params | combine({'id': team_id})) if team_id is defined else query_params,
+                                     query_params=(query_params | combine({'id': team_id} if team_id is defined else {},
+                                       {'organization': organization_id} if organization_id is defined and team_id is not defined else {})),
                                      host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                      return_all=true, max_objects=query_controller_api_max_objects)
                             }}"

@@ -16,6 +16,13 @@ controller_workflows:
       {{ '{%- endraw -%}' }}
 {% endif %}
     organization: "{{ current_workflow_job_templates_asset_value.summary_fields.organization.name | default(organization if organization != 'ORGANIZATIONLESS' else 'ToDo: The WF \'' + current_workflow_job_templates_asset_value.name + '\' must belong to an organization') }}"
+{% if template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].inventory is defined
+      or template_overrides_global.workflow_template.inventory is defined
+      or current_workflow_job_templates_asset_value.summary_fields.inventory is defined %}
+    inventory: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].inventory
+                   | default(template_overrides_global.workflow_template.inventory)
+                   | default(current_workflow_job_templates_asset_value.summary_fields.inventory.name) }}"
+{% endif %}
     simplified_workflow_nodes:
 {% for node in query('ansible.platform.gateway_api', 'api/controller/v2/workflow_job_template_nodes/',
                      query_params={'workflow_job_template': current_workflow_job_templates_asset_value.id},
@@ -92,6 +99,17 @@ controller_workflows:
 {%     for failure in node.failure_nodes %}
           - "{{ query('ansible.platform.gateway_api', 'api/controller/v2/workflow_job_template_nodes/'+(failure | string), host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs)[0].identifier }}"
 {%     endfor %}
+{%   endif %}
+{%   if node.related.credentials is defined %}
+{%     set query_node_credentials = query('ansible.platform.gateway_api', node.related.credentials,
+                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                     return_all=true, max_objects=query_controller_api_max_objects) %}
+{%     if query_node_credentials | length > 0 %}
+        credentials:
+{%       for credential in query_node_credentials %}
+          - "{{ credential.name }}"
+{%       endfor %}
+{%     endif %}
 {%   endif %}
 {% endfor %}
     ask_variables_on_launch: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].ask_variables_on_launch
