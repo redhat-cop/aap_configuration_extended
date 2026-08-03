@@ -1,0 +1,7 @@
+---
+minor_changes:
+  - >-
+    object_diff - Document that Workflow Job Template node removal is not handled by
+    object_diff and requires ``destroy_current_nodes: true`` on
+    ``infra.aap_configuration.controller_workflow_job_templates``
+    (fixes documentation gap for redhat-cop/aap_configuration_extended#149).

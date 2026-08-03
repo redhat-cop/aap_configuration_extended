@@ -1,0 +1,6 @@
+---
+bugfixes:
+  - filetree_create - Export organization ``max_hosts``, ``custom_virtualenv``,
+    ``default_environment``, ``galaxy_credentials``, and ``instance_groups``
+    (by name) into ``aap_organizations`` alongside existing notification
+    templates (fixes #196).
