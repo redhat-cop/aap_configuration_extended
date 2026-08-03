@@ -18,19 +18,37 @@ controller_configuration_filetree_read_secure_logging: "{{ controller_configurat
 filetree_gateway_authenticators: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_authenticators.d/"
 filetree_gateway_authenticator_maps: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_authenticator_maps.d/"
 filetree_gateway_settings: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_settings.d/"
-filetree_aap_organizations: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_organizations.d/"
-filetree_aap_applications: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_applications.d/"
+# Preferred gateway_* names (issue #267). Legacy filetree_aap_* kept as aliases.
+filetree_gateway_organizations: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/gateway_organizations.d/"
+filetree_gateway_applications: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/gateway_applications.d/"
 filetree_gateway_http_ports: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_http_ports.d/"
 filetree_gateway_service_clusters: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_service_clusters.d/"
 filetree_gateway_service_keys: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_service_keys.d/"
 filetree_gateway_service_nodes: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_service_nodes.d/"
 filetree_gateway_services: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_services.d/"
-filetree_aap_teams: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_teams.d/"
-filetree_aap_user_accounts: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/aap_users.d/"
+filetree_gateway_teams: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/gateway_teams.d/"
+filetree_gateway_users: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_users.d/"
 filetree_gateway_role_definitions: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_role_definitions.d/"
 filetree_gateway_role_team_assignments: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_role_team_assignments.d/"
 filetree_gateway_role_user_assignments: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_role_user_assignments.d/"
 filetree_gateway_routes: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_routes.d/"
+
+# Legacy aap_* path vars — search preferred gateway_* dirs, legacy aap_* trees,
+# and filetree_create output dirs (controller_teams.d / controller_users.d / aap_applications.d).
+filetree_aap_organizations:
+  - "{{ filetree_gateway_organizations }}"
+  - "{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_organizations.d/"
+filetree_aap_applications:
+  - "{{ filetree_gateway_applications }}"
+  - "{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_applications.d/"
+filetree_aap_teams:
+  - "{{ filetree_gateway_teams }}"
+  - "{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_teams.d/"
+  - "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_teams.d/"
+filetree_aap_user_accounts:
+  - "{{ filetree_gateway_users }}"
+  - "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/aap_users.d/"
+  - "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_users.d/"
 
 # Controller Directory Paths
 filetree_controller_settings: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_settings.d/"
@@ -70,59 +88,60 @@ filetree_hub_ee_repositories: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/hub_
 filetree_hub_ee_images: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/hub_ee_images.d/"
 
 # filetree_read tasks order and name
+# Tags include both short and prefixed forms to match infra.aap_configuration.dispatch (v4.5.0+).
 controller_configuration_filetree_read_tasks:
   # Gateway tasks
-  - {name: gateway_authenticators, var: gateway_authenticators, tags: authenticators}
-  - {name: gateway_authenticator_maps, var: gateway_authenticator_maps, tags: authenticator_maps}
-  - {name: gateway_settings, var: gateway_settings, tags: settings}
-  - {name: gateway_organizations, var: aap_organizations, tags: organizations}
-  - {name: gateway_applications, var: aap_applications, tags: applications}
-  - {name: gateway_http_ports, var: gateway_http_ports, tags: http_ports}
-  - {name: gateway_service_clusters, var: gateway_service_clusters, tags: service_clusters}
-  - {name: gateway_service_keys, var: gateway_service_keys, tags: service_keys}
-  - {name: gateway_service_nodes, var: gateway_service_nodes, tags: service_nodes}
-  - {name: gateway_services, var: gateway_services, tags: services}
-  - {name: gateway_teams, var: aap_teams, tags: teams}
-  - {name: gateway_users, var: aap_user_accounts, tags: users}
-  - {name: gateway_role_definitions, var: gateway_role_definitions, tags: role_definitions}
-  - {name: gateway_role_team_assignments, var: gateway_role_team_assignments, tags: role_team_assignments}
-  - {name: gateway_role_user_assignments, var: gateway_role_user_assignments, tags: role_user_assignments}
-  - {name: gateway_routes, var: gateway_routes, tags: routes}
+  - {name: gateway_authenticators, var: gateway_authenticators, tags: [authenticators, gateway_authenticators]}
+  - {name: gateway_authenticator_maps, var: gateway_authenticator_maps, tags: [authenticator_maps, gateway_authenticator_maps]}
+  - {name: gateway_settings, var: gateway_settings, tags: [settings, gateway_settings]}
+  - {name: gateway_organizations, var: aap_organizations, tags: [organizations, gateway_organizations]}
+  - {name: gateway_applications, var: aap_applications, tags: [applications, gateway_applications]}
+  - {name: gateway_http_ports, var: gateway_http_ports, tags: [http_ports, gateway_http_ports]}
+  - {name: gateway_service_clusters, var: gateway_service_clusters, tags: [service_clusters, gateway_service_clusters]}
+  - {name: gateway_service_keys, var: gateway_service_keys, tags: [service_keys, gateway_service_keys]}
+  - {name: gateway_service_nodes, var: gateway_service_nodes, tags: [service_nodes, gateway_service_nodes]}
+  - {name: gateway_services, var: gateway_services, tags: [services, gateway_services]}
+  - {name: gateway_teams, var: aap_teams, tags: [teams, gateway_teams]}
+  - {name: gateway_users, var: aap_user_accounts, tags: [users, gateway_users]}
+  - {name: gateway_role_definitions, var: gateway_role_definitions, tags: [role_definitions, gateway_role_definitions]}
+  - {name: gateway_role_team_assignments, var: gateway_role_team_assignments, tags: [role_team_assignments, gateway_role_team_assignments]}
+  - {name: gateway_role_user_assignments, var: gateway_role_user_assignments, tags: [role_user_assignments, gateway_role_user_assignments]}
+  - {name: gateway_routes, var: gateway_routes, tags: [routes, gateway_routes]}
 
   # Controller tasks
-  - {name: controller_settings, var: controller_settings, tags: settings}
-  - {name: controller_labels, var: controller_labels, tags: labels}
-  - {name: controller_credential_types, var: controller_credential_types, tags: credential_types}
-  - {name: controller_credential_input_sources, var: controller_credential_input_sources, tags: credential_input_sources}
-  - {name: controller_credentials, var: controller_credentials, tags: credentials}
-  - {name: controller_notification_templates, var: controller_notifications, tags: notification_templates}
-  - {name: controller_projects, var: controller_projects, tags: ['projects', 'inventories']}
-  - {name: controller_execution_environments, var: controller_execution_environments, tags: execution_environments}
-  - {name: controller_inventories, var: controller_inventories, tags: inventories}
-  - {name: controller_inventory_sources, var: controller_inventory_sources, tags: ['inventory_sources', 'inventories']}
-  - {name: controller_instance_groups, var: controller_instance_groups, tags: instance_groups}
-  - {name: controller_instances, var: controller_instances, tags: instances}
-  - {name: controller_hosts, var: controller_hosts, tags: ['hosts', 'inventories']}
-  - {name: controller_host_groups, var: controller_groups, tags: ['inventories', 'host_groups']}
-  - {name: controller_job_templates, var: controller_templates, tags: job_templates}
-  - {name: controller_workflow_job_templates, var: controller_workflows, tags: workflow_job_templates}
-  - {name: controller_schedules, var: controller_schedules, tags: schedules}
-  - {name: controller_roles, var: controller_roles, tags: roles}
+  - {name: controller_settings, var: controller_settings, tags: [settings, controller_settings]}
+  - {name: controller_labels, var: controller_labels, tags: [labels, controller_labels]}
+  - {name: controller_credential_types, var: controller_credential_types, tags: [credential_types, controller_credential_types]}
+  - {name: controller_credential_input_sources, var: controller_credential_input_sources, tags: [credential_input_sources, controller_credential_input_sources]}
+  - {name: controller_credentials, var: controller_credentials, tags: [credentials, controller_credentials]}
+  - {name: controller_notification_templates, var: controller_notifications, tags: [notification_templates, controller_notification_templates]}
+  - {name: controller_projects, var: controller_projects, tags: [projects, inventories, controller_projects]}
+  - {name: controller_execution_environments, var: controller_execution_environments, tags: [execution_environments, controller_execution_environments]}
+  - {name: controller_inventories, var: controller_inventories, tags: [inventories, controller_inventories]}
+  - {name: controller_inventory_sources, var: controller_inventory_sources, tags: [inventory_sources, inventories, controller_inventory_sources]}
+  - {name: controller_instance_groups, var: controller_instance_groups, tags: [instance_groups, controller_instance_groups]}
+  - {name: controller_instances, var: controller_instances, tags: [instances, controller_instances]}
+  - {name: controller_hosts, var: controller_hosts, tags: [hosts, inventories, controller_hosts]}
+  - {name: controller_host_groups, var: controller_groups, tags: [inventories, host_groups, controller_host_groups]}
+  - {name: controller_job_templates, var: controller_templates, tags: [job_templates, controller_job_templates]}
+  - {name: controller_workflow_job_templates, var: controller_workflows, tags: [workflow_job_templates, controller_workflow_job_templates]}
+  - {name: controller_schedules, var: controller_schedules, tags: [schedules, controller_schedules]}
+  - {name: controller_roles, var: controller_roles, tags: [roles, controller_roles]}
 
-  # EDA tasks
-  - {name: eda_credential_types, var: eda_credential_types, tags: eda_credential_types}
-  - {name: eda_credentials, var: eda_credentials, tags: eda_credentials}
-  - {name: eda_decision_environments, var: eda_decision_environments, tags: eda_decision_environments}
-  - {name: eda_event_streams, var: eda_event_streams, tags: eda_event_streams}
-  - {name: eda_projects, var: eda_projects, tags: eda_projects}
-  - {name: eda_rulebook_activations, var: eda_rulebook_activations, tags: eda_rulebook_activations}
+  # EDA tasks (short tags match infra.aap_configuration.dispatch)
+  - {name: eda_credential_types, var: eda_credential_types, tags: [credential_type, eda_credential_types]}
+  - {name: eda_credentials, var: eda_credentials, tags: [credential, eda_credentials]}
+  - {name: eda_decision_environments, var: eda_decision_environments, tags: [decision_environment, eda_decision_environments]}
+  - {name: eda_event_streams, var: eda_event_streams, tags: [event_stream, eda_event_streams]}
+  - {name: eda_projects, var: eda_projects, tags: [project, eda_projects]}
+  - {name: eda_rulebook_activations, var: eda_rulebook_activations, tags: [rulebook_activation, eda_rulebook_activations]}
 
-  # Hub tasks
-  - {name: hub_namespaces, var: hub_namespaces, tags: hub_namespaces}
-  - {name: hub_collections, var: hub_collections, tags: hub_collections}
-  - {name: hub_collection_remotes, var: hub_collection_remotes, tags: hub_collection_remotes}
-  - {name: hub_collection_repositories, var: hub_collection_repositories, tags: hub_collection_repositories}
-  - {name: hub_ee_registries, var: hub_ee_registries, tags: hub_ee_registries}
-  - {name: hub_ee_repositories, var: hub_ee_repositories, tags: hub_ee_repositories}
-  - {name: hub_ee_images, var: hub_ee_images, tags: hub_ee_images}
+  # Hub tasks (short tags match infra.aap_configuration.dispatch)
+  - {name: hub_namespaces, var: hub_namespaces, tags: [namespaces, hub_namespaces]}
+  - {name: hub_collections, var: hub_collections, tags: [collections, hub_collections]}
+  - {name: hub_collection_remotes, var: hub_collection_remotes, tags: [collectionremote, hub_collection_remotes]}
+  - {name: hub_collection_repositories, var: hub_collection_repositories, tags: [collectionsrep, hub_collection_repositories]}
+  - {name: hub_ee_registries, var: hub_ee_registries, tags: [registries, hub_ee_registries]}
+  - {name: hub_ee_repositories, var: hub_ee_repositories, tags: [repos, hub_ee_repositories]}
+  - {name: hub_ee_images, var: hub_ee_images, tags: [images, hub_ee_images]}
 ...

@@ -6,6 +6,17 @@ An ansible role which reads variables from a hierarchical and scalable directory
 
 This role requires the [awx.awx](https://docs.ansible.com/ansible/latest/collections/awx/awx/index.html) or [ansible.controller](https://console.redhat.com/ansible/automation-hub/repo/published/ansible/controller) Ansible collection.
 
+## Tags and path naming (dispatch alignment)
+
+Task tags accept **both** the short form and the prefixed form used by
+`infra.aap_configuration.dispatch` (v4.5.0+), for example `credentials` and
+`controller_credentials`, or `organizations` and `gateway_organizations`.
+That lets a single `--tags` list drive `filetree_read` → `object_diff` → `dispatch`.
+
+Gateway path variables prefer `filetree_gateway_*` names. Legacy `filetree_aap_*`
+vars remain and default to a list that also searches legacy `aap_*.d/` trees and
+`filetree_create` output dirs (`controller_teams.d`, `controller_users.d`, …).
+
 ## Role Variables
 
 ### Organization and Environment Variables

@@ -6,7 +6,7 @@
     patterns: "{{ filetree_controller_include | default(omit) }}"
     excludes: "{{ filetree_controller_exclude | default(omit) }}"
     use_regex: "{{ filetree_controller_regex | default(false) }}"
-    contains: "aap_organizations:"
+    contains: "(aap_organizations|gateway_organizations):"
     read_whole_file: true
     recurse: true
   register: __list_files_aap_organizations
@@ -22,7 +22,10 @@
 
 - name: "Populate Organizations list"
   ansible.builtin.set_fact:
-    __populate_aap_organizations: "{{ (__populate_aap_organizations | default([])) + __populate_organizations_list_item.ansible_facts.aap_organizations }}"
+    __populate_aap_organizations: >-
+      {{ (__populate_aap_organizations | default([]))
+         + (__populate_organizations_list_item.ansible_facts.aap_organizations
+            | default(__populate_organizations_list_item.ansible_facts.gateway_organizations | default([]))) }}
   loop: "{{ __contents_filetree_aap_organizations.results }}"
   loop_control:
     loop_var: __populate_organizations_list_item
@@ -31,7 +34,9 @@
     - __contents_filetree_aap_organizations is defined
     - __contents_filetree_aap_organizations.results is defined
     - __contents_filetree_aap_organizations.results | length > 0
-    - __populate_organizations_list_item.ansible_facts.aap_organizations is defined
+    - >-
+      __populate_organizations_list_item.ansible_facts.aap_organizations is defined
+      or __populate_organizations_list_item.ansible_facts.gateway_organizations is defined
 
 - name: "Set Organization Data Structure"
   ansible.builtin.set_fact:

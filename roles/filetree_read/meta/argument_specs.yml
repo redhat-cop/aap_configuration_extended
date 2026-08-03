@@ -45,9 +45,14 @@ argument_specs:
         description: Directory path to load controller object variables
       filetree_aap_organizations:
         type: raw
-        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_organizations.d/"
+        default: "{{ [filetree_gateway_organizations, dir_orgs_vars ~ '/' ~ orgs ~ '/env/common/aap_organizations.d/'] }}"
         required: false
-        description: Directory path to load controller object variables
+        description: Directory path(s) to load organization variables (legacy name; prefers filetree_gateway_organizations plus aap_organizations.d).
+      filetree_gateway_organizations:
+        type: raw
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/gateway_organizations.d/"
+        required: false
+        description: Preferred directory path to load gateway organization variables.
       filetree_controller_labels:
         type: raw
         default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_labels.d/"
@@ -55,14 +60,24 @@ argument_specs:
         description: Directory path to load controller object variables
       filetree_aap_user_accounts:
         type: raw
-        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/controller_users.d/"
+        default: "{{ [filetree_gateway_users, dir_orgs_vars ~ '/' ~ orgs ~ '/env/' ~ env ~ '/aap_users.d/', dir_orgs_vars ~ '/' ~ orgs ~ '/env/' ~ env ~ '/controller_users.d/'] }}"
         required: false
-        description: Directory path to load controller object variables
+        description: Directory path(s) to load user account variables (legacy name; also searches gateway_users.d and controller_users.d).
+      filetree_gateway_users:
+        type: raw
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/{{ env }}/gateway_users.d/"
+        required: false
+        description: Preferred directory path to load gateway user variables.
       filetree_aap_teams:
         type: raw
-        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_teams.d/"
+        default: "{{ [filetree_gateway_teams, dir_orgs_vars ~ '/' ~ orgs ~ '/env/common/aap_teams.d/', dir_orgs_vars ~ '/' ~ orgs ~ '/env/common/controller_teams.d/'] }}"
         required: false
-        description: Directory path to load controller object variables
+        description: Directory path(s) to load team variables (legacy name; also searches gateway_teams.d and controller_teams.d).
+      filetree_gateway_teams:
+        type: raw
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/gateway_teams.d/"
+        required: false
+        description: Preferred directory path to load gateway team variables.
       filetree_controller_credential_types:
         type: raw
         default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_credential_types.d/"
@@ -95,9 +110,14 @@ argument_specs:
         description: Directory path to load controller object variables
       filetree_aap_applications:
         type: raw
-        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/aap_applications.d/"
+        default: "{{ [filetree_gateway_applications, dir_orgs_vars ~ '/' ~ orgs ~ '/env/common/aap_applications.d/'] }}"
         required: false
-        description: Directory path to load controller object variables
+        description: Directory path(s) to load application variables (legacy name; prefers filetree_gateway_applications plus aap_applications.d).
+      filetree_gateway_applications:
+        type: raw
+        default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/gateway_applications.d/"
+        required: false
+        description: Preferred directory path to load gateway application variables.
       filetree_controller_inventories:
         type: raw
         default: "{{ dir_orgs_vars }}/{{ orgs }}/env/common/controller_inventories.d/"
