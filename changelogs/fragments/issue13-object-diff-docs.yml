@@ -1,0 +1,7 @@
+---
+bugfixes:
+  - object_diff - Document all supported object tags (including notification templates,
+    roles, schedules, applications, execution environments, and instance groups) in
+    the role README (fixes redhat-cop/aap_configuration_extended#13).
+  - object_diff - Align ``controller_configuration_object_diff_tasks`` notification
+    entry ``var`` with ``controller_notifications``.
