@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - 'filetree_create - Fix ``default_environment`` export for projects (was reading the wrong asset variable). Fixes #308.'
+  - 'filetree_create - Export ``enabled`` on hosts, ``overwrite_vars`` and ``execution_environment`` on inventory sources, top-level ``inventory`` on workflows, node ``credentials`` on workflow nodes, and ``organization`` on schedules. Fixes #308.'

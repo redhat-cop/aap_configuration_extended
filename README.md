@@ -150,6 +150,10 @@ A complete example of how to use all of the roles present in the collection is a
 
 The input data can be organized in a very flexible way, letting the user use anything from a single file to an entire file tree to store the controller objects definitions, which could be used as a logical segregation of different applications, as needed in real scenarios.
 
+### Capturing existing objects (ClickOps → CaC)
+
+To export objects already present in AAP into YAML for `infra.aap_configuration.dispatch`, use the [`filetree_create`](roles/filetree_create/README.md) role (then [`filetree_read`](roles/filetree_read/README.md) to load the tree). See [docs/filetree_create_capture.md](docs/filetree_create_capture.md) for name filters, examples, and known gaps.
+
 ### Controller Export
 
 The awx command line can export json that is compatible with this collection.

@@ -87,7 +87,7 @@
             project_organization: "{{ current_projects_asset_value.organization_id | default(organization, true) }}"
             project_id: "{{ current_projects_asset_value.id }}"
             project_name: "{{ current_projects_asset_value.name | regex_replace('/', '_') }}"
-            __dest: "{{ output_path }}/{{ project_organization | regex_replace('/', '_') }}/{{ filetree_create_eda_projects }}/{{ (project_id ~ '_') if omit_id is not defined else '' }}{{ project_name | regex_replace('/', '_') }}.yaml"
+            __dest: "{{ output_path }}/{{ project_organization | regex_replace('/', '_') }}/{{ filetree_create_eda_projects }}/{{ (project_id ~ '_') if not (omit_id | default(false) | bool) else '' }}{{ project_name | regex_replace('/', '_') }}.yaml"
             query_notification_error: "{{ query('ansible.platform.gateway_api', current_projects_asset_value.related.notification_templates_error,
                              host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                              return_all=true, max_objects=query_eda_api_max_objects) }}"

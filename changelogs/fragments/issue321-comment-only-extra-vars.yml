@@ -1,0 +1,6 @@
+---
+bugfixes:
+  - filetree_create - Export job/workflow template ``extra_vars`` that contain only
+    YAML comments without failing on ``dict2items`` when ``from_yaml`` returns
+    ``None`` (fixes redhat-cop/aap_configuration_extended#321; regression from
+    redhat-cop/aap_configuration_extended#270 after redhat-cop/aap_configuration_extended#226).

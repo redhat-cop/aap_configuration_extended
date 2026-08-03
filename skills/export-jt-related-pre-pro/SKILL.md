@@ -43,7 +43,7 @@ Names with spaces require JSON `-e` (or a vars file); plain `-e key='a b'` trunc
 
 **JT exports:** organization, project, inventory (+ sources/hosts/groups unless skipped), credentials + credential types, execution environments, labels, notification templates, schedules, and the JT.
 
-**WFJT exports:** organization, inventories (workflow-level and per-node), each node Job Template **with its full related set**, labels, notification templates (including approvals), schedules, and the WFJT.
+**WFJT exports:** organization, inventories, nested Workflow Job Templates recursively until Job Template leaves, each discovered JT **with its full related set**, labels, notification templates (including approvals), schedules, and the root WFJT.
 
 Secrets and curated env fields become `{{ vaulted_* }}` placeholders; stub at `{output_path}/env_variables.yml`.
 
