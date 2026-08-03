@@ -103,7 +103,7 @@
 
     - name: "Assert WFJT related export is name-based and cascades to JTs"
       ansible.builtin.command:
-        cmd: grep -E 'workflow_job_template_name|related_node_job_template_names|controller_job_templates.yml' roles/filetree_create/tasks/controller_workflow_job_templates.yml
+        cmd: grep -E 'workflow_job_template_name|__discovered_job_template_names|controller_workflow_related_discover|controller_job_templates.yml' roles/filetree_create/tasks/controller_workflow_job_templates.yml
       args:
         chdir: "{{ playbook_dir }}/.."
       register: __wfjt_related_grep
@@ -113,7 +113,8 @@
       ansible.builtin.assert:
         that:
           - "'workflow_job_template_name' in __wfjt_related_grep.stdout"
-          - "'related_node_job_template_names' in __wfjt_related_grep.stdout"
+          - "'__discovered_job_template_names' in __wfjt_related_grep.stdout"
+          - "'controller_workflow_related_discover' in __wfjt_related_grep.stdout"
           - "'controller_job_templates.yml' in __wfjt_related_grep.stdout"
 
     - name: "Cleanup test output"

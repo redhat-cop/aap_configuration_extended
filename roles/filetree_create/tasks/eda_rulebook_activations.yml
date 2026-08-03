@@ -93,7 +93,7 @@
             rulebook_activation_organization: "{{ current_rulebook_activations_asset_value.organization_id | default(organization, true) }}"
             rulebook_activation_id: "{{ current_rulebook_activations_asset_value.id }}"
             rulebook_activation_name: "{{ current_rulebook_activations_asset_value.name | regex_replace('/', '_') }}"
-            __dest: "{{ output_path }}/{{ rulebook_activation_organization | regex_replace('/', '_') }}/{{ filetree_create_eda_rulebook_activations }}/{{ (rulebook_activation_id ~ '_') if omit_id is not defined else '' }}{{ rulebook_activation_name | regex_replace('/', '_') }}.yaml"
+            __dest: "{{ output_path }}/{{ rulebook_activation_organization | regex_replace('/', '_') }}/{{ filetree_create_eda_rulebook_activations }}/{{ (rulebook_activation_id ~ '_') if not (omit_id | default(false) | bool) else '' }}{{ rulebook_activation_name | regex_replace('/', '_') }}.yaml"
             query_organization_name: "{{ (query('ansible.platform.gateway_api', 'api/eda/v1/organizations/' + current_rulebook_activations_asset_value.organization_id | string,
                                                 host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                                 return_all=true, max_objects=query_eda_api_max_objects) | first).name

@@ -2,7 +2,8 @@
 - name: "Get current Authenticator Maps from the Gateway API"
   ansible.builtin.set_fact:
     gateway_authenticator_maps_lookvar: "{{ query('ansible.platform.gateway_api', 'api/gateway/v1/authenticator_maps/',
-                                            query_params=(query_params | combine({'id': authenticator_map_id})) if authenticator_map_id is defined else query_params,
+                                            query_params=(query_params | combine({'id': authenticator_map_id} if authenticator_map_id is defined else {},
+                                              {'organization': organization_filter} if organization_filter is defined and organization_filter | length > 0 and authenticator_map_id is not defined else {})),
                                             host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                             return_all=true, max_objects=query_controller_api_max_objects)
                                         }}"

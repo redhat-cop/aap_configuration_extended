@@ -1,0 +1,69 @@
+---
+gateway_role_team_assignments: {{ [] if current_gateway_role_team_assignments_asset_value | length == 0 }}
+{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
+{% for current_role_team_assignment in current_gateway_role_team_assignments_asset_value
+       if not ((current_role_team_assignment.summary_fields.role_definition.name | default('')) is match('^galaxy\\.')) %}
+{%   set _override = template_overrides_resources.gateway_role_team_assignment[current_role_team_assignment.object_id | default(current_role_team_assignment.id)] | default({}) %}
+{%   set _obj_id = current_role_team_assignment.object_id | default(none) %}
+{%   set _obj_id_str = _obj_id | string if _obj_id is not none else none %}
+{%   set _obj_ansible_id = _override.object_ansible_id
+        | default(template_overrides_global.gateway_role_team_assignment.object_ansible_id)
+        | default(current_role_team_assignment.object_ansible_id)
+        | default(none) %}
+{%   set _resource_name = current_role_team_assignment.summary_fields.resource.name | default(none) %}
+{%   if _override.assignment_objects is defined and (_override.assignment_objects | length > 0) %}
+{%     set _resource_name = _override.assignment_objects[0].name | default(_resource_name) %}
+{%   endif %}
+{%   set _ct_candidates = [
+        ((_override.assignment_objects | default([{}]))[0].type | default('')),
+        (current_role_team_assignment.summary_fields.content_type.model | default('')),
+        (current_role_team_assignment.summary_fields.resource.type | default('')),
+        (current_role_team_assignment.content_type | default(''))
+      ] %}
+{%   set _ct_raw = (_ct_candidates | select('string') | reject('equalto', '') | list | first | default('')) | lower %}
+{%   set _object_type = 'organizations' if ('organization' in _ct_raw) else ('teams' if ('team' in _ct_raw) else none) %}
+{%   set _is_numeric_id = _obj_id_str is not none and (_obj_id_str is match('^\d+$')) %}
+{%   set _is_uuid_id = _obj_id_str is not none and (_obj_id_str is match('^[0-9a-fA-F]{8}-')) %}
+  - role_definition: "{{ _override.role_definition
+                     | default(template_overrides_global.gateway_role_team_assignment.role_definition)
+                     | default(current_role_team_assignment.summary_fields.role_definition.name) }}"
+{%   if _override.team is defined
+        or template_overrides_global.gateway_role_team_assignment.team is defined
+        or current_role_team_assignment.summary_fields.team.name is defined %}
+    team: "{{ _override.team
+                     | default(template_overrides_global.gateway_role_team_assignment.team)
+                     | default(current_role_team_assignment.summary_fields.team.name) }}"
+{%   elif _override.team_ansible_id is defined
+          or template_overrides_global.gateway_role_team_assignment.team_ansible_id is defined
+          or current_role_team_assignment.team_ansible_id is defined %}
+    team_ansible_id: "{{ _override.team_ansible_id
+                     | default(template_overrides_global.gateway_role_team_assignment.team_ansible_id)
+                     | default(current_role_team_assignment.team_ansible_id) }}"
+{%   endif %}
+{%   if _override.assignment_objects is defined %}
+    assignment_objects:
+{%     for _ao in _override.assignment_objects %}
+      - {% if _ao.name is defined %}name: "{{ _ao.name }}"
+{%       if _ao.type is defined %}
+        type: "{{ _ao.type }}"
+{%       endif %}
+{%     elif _ao.object_ansible_id is defined %}object_ansible_id: "{{ _ao.object_ansible_id }}"
+{%     elif _ao.object_id is defined %}object_id: {{ _ao.object_id }}
+{%     endif %}
+{%     endfor %}
+{%   elif _resource_name is not none and _resource_name not in __empty_values and _object_type is not none %}
+    assignment_objects:
+      - name: "{{ _resource_name }}"
+        type: "{{ _object_type }}"
+{%   elif _obj_ansible_id is not none and _obj_ansible_id not in __empty_values %}
+    assignment_objects:
+      - object_ansible_id: "{{ _obj_ansible_id }}"
+{%   elif _is_uuid_id %}
+    assignment_objects:
+      - object_ansible_id: "{{ _obj_id_str }}"
+{%   elif _is_numeric_id %}
+    assignment_objects:
+      - object_id: {{ _obj_id }}
+{%   endif %}
+{% endfor %}
+...

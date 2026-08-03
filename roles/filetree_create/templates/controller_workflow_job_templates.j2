@@ -16,6 +16,13 @@ controller_workflows:
       {{ '{%- endraw -%}' }}
 {% endif %}
     organization: "{{ current_workflow_job_templates_asset_value.summary_fields.organization.name | default(organization if organization != 'ORGANIZATIONLESS' else 'ToDo: The WF \'' + current_workflow_job_templates_asset_value.name + '\' must belong to an organization') }}"
+{% if template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].inventory is defined
+      or template_overrides_global.workflow_template.inventory is defined
+      or current_workflow_job_templates_asset_value.summary_fields.inventory is defined %}
+    inventory: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].inventory
+                   | default(template_overrides_global.workflow_template.inventory)
+                   | default(current_workflow_job_templates_asset_value.summary_fields.inventory.name) }}"
+{% endif %}
     simplified_workflow_nodes:
 {% for node in query('ansible.platform.gateway_api', 'api/controller/v2/workflow_job_template_nodes/',
                      query_params={'workflow_job_template': current_workflow_job_templates_asset_value.id},
@@ -93,6 +100,17 @@ controller_workflows:
           - "{{ query('ansible.platform.gateway_api', 'api/controller/v2/workflow_job_template_nodes/'+(failure | string), host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs)[0].identifier }}"
 {%     endfor %}
 {%   endif %}
+{%   if node.related.credentials is defined %}
+{%     set query_node_credentials = query('ansible.platform.gateway_api', node.related.credentials,
+                     host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                     return_all=true, max_objects=query_controller_api_max_objects) %}
+{%     if query_node_credentials | length > 0 %}
+        credentials:
+{%       for credential in query_node_credentials %}
+          - "{{ credential.name }}"
+{%       endfor %}
+{%     endif %}
+{%   endif %}
 {% endfor %}
     ask_variables_on_launch: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].ask_variables_on_launch
                                  | default(template_overrides_global.workflow_template.ask_variables_on_launch)
@@ -115,17 +133,19 @@ controller_workflows:
     webhook_service: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].webhook_service
                          | default(template_overrides_global.workflow_template.webhook_service)
                          | default(current_workflow_job_templates_asset_value.webhook_service) }}"
-{% if template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].extra_vars is defined
-      or template_overrides_global.workflow_template.extra_vars is defined
-      or (current_workflow_job_templates_asset_value.extra_vars and (
-        (current_workflow_job_templates_asset_value.extra_vars is mapping and current_workflow_job_templates_asset_value.extra_vars | length > 0)
-        or (current_workflow_job_templates_asset_value.extra_vars is string and current_workflow_job_templates_asset_value.extra_vars | length > 0)
-      )) %}
-    extra_vars:
-{%   set __workflow_extra_vars = template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].extra_vars
+{% set __workflow_extra_vars = template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].extra_vars
                                  | default(template_overrides_global.workflow_template.extra_vars)
-                                 | default(current_workflow_job_templates_asset_value.extra_vars) %}
-{%   set extra_vars_contents = __workflow_extra_vars if __workflow_extra_vars is mapping or (__workflow_extra_vars | type_debug) == 'list' else (__workflow_extra_vars | from_yaml) %}
+                                 | default(current_workflow_job_templates_asset_value.extra_vars)
+                                 | default('') %}
+{% if __workflow_extra_vars is mapping or (__workflow_extra_vars | type_debug) == 'list' %}
+{%   set extra_vars_contents = __workflow_extra_vars %}
+{% elif __workflow_extra_vars is string and (__workflow_extra_vars | length > 0) %}
+{%   set extra_vars_contents = __workflow_extra_vars | from_yaml %}
+{% else %}
+{%   set extra_vars_contents = none %}
+{% endif %}
+{% if extra_vars_contents is mapping and (extra_vars_contents | length > 0) %}
+    extra_vars:
 {%   for extra_vars_item in (extra_vars_contents | dict2items) if (
         extra_vars_item.value == ''
         or ((extra_vars_item.value | string | length) > 0 and (extra_vars_item.value | string) is not match('None'))
@@ -141,6 +161,9 @@ controller_workflows:
       {{ extra_vars_item.key }}: {{ '"{%- raw -%}' }}{{ (extra_vars_item.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
 {%     endif %}
 {%   endfor %}
+{% elif __workflow_extra_vars is string and (__workflow_extra_vars | length > 0) %}
+{# Comment-only (or otherwise non-mapping) YAML: keep original text; from_yaml is None and must not hit dict2items #}
+    extra_vars: {{ '"{%- raw -%}' }}{{ (__workflow_extra_vars | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
 {% else %}
     extra_vars: ""
 {% endif %}

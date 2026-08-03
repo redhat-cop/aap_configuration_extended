@@ -1,0 +1,34 @@
+---
+# Discover all Workflow Job Templates and Job Templates reachable from a seed WFJT
+# by walking nested workflow nodes until only job (or approval) nodes remain.
+#
+# Required:
+#   __wfjt_discover_seed_name: name of the root Workflow Job Template
+#
+# Sets facts:
+#   __discovered_workflow_job_template_names: list[str]
+#   __discovered_job_template_names: list[str]
+#   __discovered_inventory_names: list[str]
+- name: "Discover nested workflows and job templates from seed: {{ __wfjt_discover_seed_name }}"
+  ansible.builtin.set_fact:
+    __discovered_workflow_job_template_names: "{{ __wfjt_related_graph.workflows | default([]) }}"
+    __discovered_job_template_names: "{{ __wfjt_related_graph.job_templates | default([]) }}"
+    __discovered_inventory_names: "{{ __wfjt_related_graph.inventories | default([]) }}"
+  vars:
+    __wfjt_related_graph: "{{ query('infra.aap_configuration_extended.workflow_related_graph',
+                                    __wfjt_discover_seed_name,
+                                    host=aap_hostname,
+                                    oauth_token=__filetree_create_oauth_token,
+                                    verify_ssl=aap_validate_certs,
+                                    max_objects=query_controller_api_max_objects)
+                             | first }}"
+  no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+- name: "Show discovered nested workflow export scope"
+  ansible.builtin.debug:
+    msg: >-
+      From {{ __wfjt_discover_seed_name }}: discovered
+      {{ __discovered_workflow_job_template_names | length }} workflow(s),
+      {{ __discovered_job_template_names | length }} job template(s),
+      {{ __discovered_inventory_names | length }} inventory name(s).
+...
