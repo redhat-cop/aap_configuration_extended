@@ -1,0 +1,4 @@
+---
+minor_changes:
+  - filetree_create - Export gateway role team assignments (``gateway_role_team_assignments``)
+    by name, mirroring user assignments export (fixes #310).

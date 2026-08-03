@@ -30,6 +30,11 @@ argument_specs:
         required: false
         type: bool
         description: Whether to create output files without objects id.
+      export_inline_object_roles:
+        default: false
+        required: false
+        type: bool
+        description: When true, embed infra.aap_configuration inline object roles (users/teams) on inventories, projects, job templates, workflow job templates, credentials, and instance groups.
 
       # Async variables
       controller_configuration_async_retries:
@@ -43,15 +48,30 @@ argument_specs:
 
       # No_log variables
       controller_configuration_filetree_create_secure_logging:
-        default: "{{ controller_configuration_secure_logging | default(false) }}"
+        default: "{{ aap_configuration_secure_logging | default(controller_configuration_secure_logging | default(false)) }}"
         required: false
         type: bool
-        description: Whether or not to include the sensitive tasks from this role in the log. Set this value to `true` if you will be providing your sensitive values from elsewhere.
+        description: Whether or not to hide Controller export task output from the log (`no_log`). Defaults to `aap_configuration_secure_logging`, then legacy `controller_configuration_secure_logging`.
+      eda_configuration_filetree_create_secure_logging:
+        default: "{{ aap_configuration_secure_logging | default(controller_configuration_secure_logging | default(false)) }}"
+        required: false
+        type: bool
+        description: Whether or not to hide EDA export task output from the log (`no_log`). Defaults to `aap_configuration_secure_logging`, then legacy `controller_configuration_secure_logging`.
+      hub_configuration_filetree_create_secure_logging:
+        default: "{{ aap_configuration_secure_logging | default(controller_configuration_secure_logging | default(false)) }}"
+        required: false
+        type: bool
+        description: Whether or not to hide Hub export task output from the log (`no_log`). Defaults to `aap_configuration_secure_logging`, then legacy `controller_configuration_secure_logging`.
+      aap_configuration_secure_logging:
+        default: false
+        required: false
+        type: bool
+        description: Shared secure-logging default across `infra.aap_configuration` / `infra.aap_configuration_extended` roles.
       controller_configuration_secure_logging:
         default: false
         required: false
         type: bool
-        description: This variable enables secure logging across all roles as a default.
+        description: Legacy shared secure-logging default used when `aap_configuration_secure_logging` is unset.
 
       # Generic across all roles
       controller_state:

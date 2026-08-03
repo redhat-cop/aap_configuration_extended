@@ -19,6 +19,31 @@ controller_schedules:
     unified_job_template: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].unified_job_template
                 | default(template_overrides_global.schedule.unified_job_template)
                 | default(current_schedules_asset_value.summary_fields.unified_job_template.name) }}"
+{% if template_overrides_resources.schedule[current_schedules_asset_value.name].organization is defined
+      or template_overrides_global.schedule.organization is defined
+      or current_schedules_asset_value.summary_fields.organization is defined
+      or (organization_filter is defined and organization_filter | length > 0)
+      or current_schedules_asset_value.related.unified_job_template is defined %}
+{%   set _org = namespace(value=none) %}
+{%   if template_overrides_resources.schedule[current_schedules_asset_value.name].organization is defined
+        or template_overrides_global.schedule.organization is defined %}
+{%     set _org.value = template_overrides_resources.schedule[current_schedules_asset_value.name].organization
+                   | default(template_overrides_global.schedule.organization) %}
+{%   elif current_schedules_asset_value.summary_fields.organization is defined %}
+{%     set _org.value = current_schedules_asset_value.summary_fields.organization.name %}
+{%   elif organization_filter is defined and organization_filter | length > 0 %}
+{%     set _org.value = organization_filter %}
+{%   elif current_schedules_asset_value.related.unified_job_template is defined %}
+{%     set __ujt_for_org = query('ansible.platform.gateway_api', current_schedules_asset_value.related.unified_job_template,
+                                  host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs) %}
+{%     if (__ujt_for_org | length > 0) and __ujt_for_org[0].summary_fields.organization is defined %}
+{%       set _org.value = __ujt_for_org[0].summary_fields.organization.name %}
+{%     endif %}
+{%   endif %}
+{%   if _org.value not in [None, '', 'None'] %}
+    organization: "{{ _org.value }}"
+{%   endif %}
+{% endif %}
 {% if template_overrides_resources.schedule[current_schedules_asset_value.name].inventory is defined
       or template_overrides_global.schedule.inventory is defined
       or current_schedules_asset_value.summary_fields.inventory is defined %}

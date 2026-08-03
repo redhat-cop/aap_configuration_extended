@@ -43,7 +43,7 @@ controller_configuration_object_diff_tasks:
   - {name: controller_inventory_sources, var: controller_inventory_sources, tags: controller_inventory_sources}
   - {name: controller_inventories, var: controller_inventories, tags: controller_inventories}
   - {name: controller_projects, var: controller_projects, tags: controller_projects}
-  - {name: controller_notification_templates, var: controller_notification_templates, tags: controller_notification_templates}
+  - {name: controller_notification_templates, var: controller_notifications, tags: controller_notification_templates}
   - {name: controller_credentials, var: controller_credentials, tags: controller_credentials}
   - {name: controller_credential_types, var: controller_credential_types, tags: controller_credential_types}
   - {name: controller_organizations, var: aap_organizations, tags: controller_organizations}

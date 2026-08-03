@@ -52,12 +52,16 @@ query_gateway_api_max_objects: 10000
 query_eda_api_max_objects: 10000
 query_hub_api_max_objects: 10000
 export_related_objects: false
+# When true, embed infra.aap_configuration inline object ``roles`` (users/teams)
+# on inventories, projects, job templates, workflow job templates, credentials,
+# and instance groups. Default false keeps the separate controller_roles export.
+export_inline_object_roles: false
 skip_inventory_sources: false
 skip_inventory_hosts: false
 skip_inventory_groups: false
-controller_configuration_filetree_create_secure_logging: "{{ controller_configuration_secure_logging | default('false') }}"
-eda_configuration_filetree_create_secure_logging: "{{ controller_configuration_secure_logging | default('false') }}"
-hub_configuration_filetree_create_secure_logging: "{{ controller_configuration_secure_logging | default('false') }}"
+controller_configuration_filetree_create_secure_logging: "{{ aap_configuration_secure_logging | default(controller_configuration_secure_logging | default(false)) }}"
+eda_configuration_filetree_create_secure_logging: "{{ aap_configuration_secure_logging | default(controller_configuration_secure_logging | default(false)) }}"
+hub_configuration_filetree_create_secure_logging: "{{ aap_configuration_secure_logging | default(controller_configuration_secure_logging | default(false)) }}"
 
 secrets_as_variables: true
 secrets_as_variables_prefix: "vaulted"
@@ -136,6 +140,7 @@ valid_tags:
   - gateway_http_ports
   - gateway_organizations
   - gateway_role_definitions
+  - gateway_role_team_assignments
   - gateway_role_user_assignments
   - gateway_routes
   - gateway_service_clusters
