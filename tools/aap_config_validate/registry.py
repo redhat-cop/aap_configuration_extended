@@ -314,6 +314,25 @@ LEGACY_ALIASES: Dict[str, str] = {
     "schedules": "controller_schedules",
 }
 
+# Additional names used by filetree exports, older templates, and
+# infra.aap_configuration_template env-suffixed files. Values are the
+# canonical dispatch variable names.
+VAR_ALIASES: Dict[str, str] = {
+    **LEGACY_ALIASES,
+    "gateway_organizations": "aap_organizations",
+    "controller_organizations": "aap_organizations",
+    "controller_teams": "aap_teams",
+    "gateway_teams": "aap_teams",
+    "controller_users": "aap_user_accounts",
+    "controller_user_accounts": "aap_user_accounts",
+    "gateway_users": "aap_user_accounts",
+    "controller_notification_templates": "controller_notifications",
+    "http_ports": "gateway_http_ports",
+    "controller_applications": "aap_applications",
+    "gateway_applications": "aap_applications",
+    "controller_host_groups": "controller_groups",
+}
+
 # Well-known non-resource variables that are valid in config files.
 KNOWN_GLOBAL_VARS: Set[str] = {
     "aap_hostname",
@@ -345,6 +364,7 @@ KNOWN_GLOBAL_VARS: Set[str] = {
     "gateway_validate_certs",
     "gateway_request_timeout",
     "ah_host",
+    "ah_hostname",
     "ah_username",
     "ah_password",
     "ah_token",
@@ -368,10 +388,27 @@ KNOWN_GLOBAL_VARS: Set[str] = {
     "controller_settings_individuale",
     "temp_controller_bulk_hosts",
     "temp_controller_bulk_launch_jobs",
-    # Hub publish vars
+    # Hub publish / extra hub roles (ansible.hub, not aap_configuration dispatch)
     "hub_collection_list",
     "hub_custom_collections",
     "hub_configuration_dispatcher_roles_include_publish",
+    "hub_group_roles",
+    "hub_roles",
+    "controller_license",
+    # infra.ee_utilities (common in aap_configuration_template)
+    "ee_list",
+    "ee_image_push",
+    "ee_validate_certs",
+    "ee_create_ansible_config",
+    "ee_base_image",
+    "ee_builder_image",
+    "ee_auth_file",
+    "ee_executable",
+    "ee_ca_cert_dir",
+    "ee_sign_by",
+    # filetree_read hierarchical vars
+    "orgs",
+    "dir_orgs_vars",
     # Dispatch control
     "aap_configuration_dispatcher_exclude_roles",
     "dispatch_include_wildcard_vars",
@@ -383,12 +420,23 @@ def get_dispatch_var_names() -> Set[str]:
     return {entry.var for entry in ALL_DISPATCH}
 
 
+def get_canonical_var(name: str) -> str:
+    """Map an alias or legacy name to its canonical dispatch variable."""
+    return VAR_ALIASES.get(name, name)
+
+
+def get_wildcard_base_names() -> Set[str]:
+    """Names that may appear with an env/team suffix (``*_all``, ``*_dev``, …)."""
+    names = get_dispatch_var_names()
+    names.update(VAR_ALIASES.keys())
+    return names
+
+
 def get_all_known_vars() -> Set[str]:
     """Return the set of all variable names the collection recognises."""
     known = set(KNOWN_GLOBAL_VARS)
     known.update(get_dispatch_var_names())
-    for alias in LEGACY_ALIASES:
-        known.add(alias)
+    known.update(VAR_ALIASES.keys())
     return known
 
 

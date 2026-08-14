@@ -81,7 +81,7 @@ class TestRequiredFields:
 
 class TestTypeCheck:
     def test_wrong_type_warns(self):
-        config = {"controller_instances": [{"hostname": "h1", "enabled": "yes"}]}
+        config = {"controller_instances": [{"hostname": "h1", "enabled": ["not", "a", "bool"]}]}
         issues = validate(config)
         warnings = [i for i in issues if "expected type" in i.message]
         assert len(warnings) == 1
@@ -216,8 +216,18 @@ class TestWildcardVarDetection:
     def test_secure_logging_excluded(self):
         assert is_wildcard_var("controller_templates_secure_logging") is None
 
-    def test_unknown_prefix_not_wildcard(self):
-        assert is_wildcard_var("foobar_stuff") is None
+    def test_known_global_not_wildcard(self):
+        assert is_wildcard_var("controller_settings_individuale") is None
+
+    def test_empty_list_overlay_on_dict_settings(self):
+        config = {
+            "controller_settings": {"settings": {"FOO": True}},
+            "controller_settings_dev": [],
+        }
+        merged, issues = merge_wildcard_vars(config)
+        assert not any(i.severity is Severity.ERROR for i in issues)
+        assert merged["controller_settings"]["settings"]["FOO"] is True
+        assert "controller_settings_dev" not in merged
 
     def test_longer_base_preferred(self):
         # controller_inventory_sources should match before controller_inventories
@@ -308,6 +318,124 @@ class TestWildcardVarMerging:
         assert not any(i.severity is Severity.WARNING and "not found in" in i.message and "EMEA Org" in i.message for i in issues)
 
 
+class TestRepoConfigs:
+    """Smoke test: run validator against this collection's filetree/roundtrip configs."""
+
+    @pytest.fixture()
+    def repo_root(self):
+        from pathlib import Path
+
+        return Path(__file__).resolve().parents[2]
+
+    def test_roundtrip_configs_no_errors(self, repo_root):
+        from aap_config_validate.loader import load_paths
+
+        roundtrip = repo_root / "tests" / "configs" / "roundtrip"
+        if not roundtrip.is_dir():
+            pytest.skip("roundtrip configs not present")
+        config, load_errors, sources = load_paths([str(roundtrip)])
+        assert not load_errors
+        merged, merge_issues = merge_wildcard_vars(config, sources=sources)
+        issues = list(merge_issues) + validate(merged, sources=sources)
+        errors = [i for i in issues if i.severity is Severity.ERROR]
+        assert not errors, [f"{e.source}: {e.path}: {e.message}" for e in errors]
+
+
+class TestScalarCoercion:
+    def test_quoted_int_accepted(self):
+        config = {"controller_instances": [{"hostname": "h1", "listener_port": "27199"}]}
+        issues = validate(config)
+        assert not any("expected type" in i.message for i in issues)
+
+    def test_quoted_bool_accepted(self):
+        config = {"controller_instances": [{"hostname": "h1", "enabled": "False"}]}
+        issues = validate(config)
+        assert not any("expected type" in i.message for i in issues)
+
+    def test_json_object_string_accepted_as_dict(self):
+        config = {"gateway_authenticators": [{"name": "local", "configuration": "{}"}]}
+        issues = validate(config)
+        assert not any("expected type" in i.message for i in issues)
+
+    def test_empty_string_skips_choice(self):
+        config = {"controller_execution_environments": [{"name": "EE", "image": "img", "pull": ""}]}
+        issues = validate(config)
+        assert not any("not in allowed choices" in i.message for i in issues)
+
+    def test_bool_not_accepted_as_int(self):
+        config = {"controller_templates": [{"name": "JT1", "verbosity": True}]}
+        issues = validate(config)
+        assert any("expected type" in i.message for i in issues)
+
+    def test_empty_string_required_field_is_missing(self):
+        config = {"controller_projects": [{"name": ""}]}
+        issues = validate(config)
+        assert any("missing required field" in i.message and '"name"' in i.message for i in issues)
+
+
+class TestAliasesAndXref:
+    def test_gateway_organizations_alias(self):
+        config = {
+            "gateway_organizations": [{"name": "Org1"}],
+            "controller_projects": [{"name": "P1", "organization": "Org1"}],
+        }
+        issues = validate(config)
+        assert not any("unknown variable" in i.message for i in issues)
+        assert not any("not found in" in i.message for i in issues)
+        assert not any("missing required" in i.message for i in issues)
+
+    def test_component_filter_still_indexes_orgs(self):
+        config = {
+            "aap_organizations": [{"name": "Org1"}],
+            "controller_projects": [{"name": "P1", "organization": "Org1"}],
+        }
+        issues = validate(config, components=["controller"])
+        assert not any("not found in" in i.message for i in issues)
+        assert not any("not defined in config" in i.message for i in issues)
+
+    def test_state_absent_skips_other_required(self):
+        config = {"controller_credentials": [{"name": "old", "state": "absent"}]}
+        issues = validate(config)
+        assert not any("missing required field" in i.message and "credential_type" in i.message for i in issues)
+
+    def test_duplicate_names_warn(self):
+        config = {"controller_projects": [{"name": "P1"}, {"name": "P1"}]}
+        issues = validate(config)
+        assert any("duplicate" in i.message for i in issues)
+
+    def test_role_assignments_not_flagged_as_duplicate_names(self):
+        config = {
+            "controller_roles": [
+                {"role": "use", "inventory": "inv1"},
+                {"role": "use", "inventory": "inv2"},
+            ]
+        }
+        issues = validate(config)
+        assert not any("duplicate" in i.message for i in issues)
+
+    def test_wildcard_maps_alias_suffix_to_canonical(self):
+        from aap_config_validate.validators import is_wildcard_var
+
+        assert is_wildcard_var("controller_notification_templates_dev") == "controller_notifications"
+        assert is_wildcard_var("http_ports_dev") == "gateway_http_ports"
+        assert is_wildcard_var("aap_organizations_all") == "aap_organizations"
+
+
+class TestWildcardAuto:
+    def test_suffixed_vars_merged_without_flag(self):
+        from aap_config_validate.validators import config_has_wildcard_vars
+
+        config = {
+            "controller_templates_all": [{"name": "JT1"}],
+        }
+        assert config_has_wildcard_vars(config)
+        merged, issues = merge_wildcard_vars(config)
+        assert not any(i.severity is Severity.ERROR for i in issues)
+        assert "controller_templates" in merged
+        assert merged["controller_templates"][0]["name"] == "JT1"
+        assert "controller_templates_all" not in merged
+
+
 class TestRealConfigs:
     """Smoke test: run validator against the repo's own test configs."""
 
@@ -323,7 +451,7 @@ class TestRealConfigs:
     def test_controller_configs_no_errors(self, repo_root):
         from aap_config_validate.loader import load_paths
 
-        config, load_errors = load_paths([str(repo_root / "tests" / "configs" / "controller")])
+        config, load_errors, _sources = load_paths([str(repo_root / "tests" / "configs" / "controller")])
         assert not load_errors
         issues = validate(config)
         errors = [i for i in issues if i.severity is Severity.ERROR]
@@ -332,7 +460,7 @@ class TestRealConfigs:
     def test_gateway_configs_no_errors(self, repo_root):
         from aap_config_validate.loader import load_paths
 
-        config, load_errors = load_paths([str(repo_root / "tests" / "configs" / "gateway")])
+        config, load_errors, _sources = load_paths([str(repo_root / "tests" / "configs" / "gateway")])
         assert not load_errors
         issues = validate(config)
         errors = [i for i in issues if i.severity is Severity.ERROR]
@@ -341,7 +469,7 @@ class TestRealConfigs:
     def test_eda_configs_no_errors(self, repo_root):
         from aap_config_validate.loader import load_paths
 
-        config, load_errors = load_paths([str(repo_root / "tests" / "configs" / "eda")])
+        config, load_errors, _sources = load_paths([str(repo_root / "tests" / "configs" / "eda")])
         assert not load_errors
         issues = validate(config)
         errors = [i for i in issues if i.severity is Severity.ERROR]
@@ -350,7 +478,7 @@ class TestRealConfigs:
     def test_hub_configs_no_errors(self, repo_root):
         from aap_config_validate.loader import load_paths
 
-        config, load_errors = load_paths([str(repo_root / "tests" / "configs" / "hub")])
+        config, load_errors, _sources = load_paths([str(repo_root / "tests" / "configs" / "hub")])
         issues = validate(config)
         errors = [i for i in issues if i.severity is Severity.ERROR]
         assert not errors, [f"{e.path}: {e.message}" for e in errors]

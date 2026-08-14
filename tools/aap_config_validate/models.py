@@ -21,6 +21,7 @@ class Issue:
     path: str
     message: str
     suggestion: Optional[str] = None
+    source: Optional[str] = None
 
 
 @dataclass
