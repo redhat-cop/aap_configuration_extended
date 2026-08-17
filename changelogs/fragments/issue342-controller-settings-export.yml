@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - 'filetree_create - Export ``AWX_ANSIBLE_CALLBACK_PLUGINS`` and ``DEFAULT_EXECUTION_ENVIRONMENT`` in controller_settings even when empty or null. Fixes #342.'
