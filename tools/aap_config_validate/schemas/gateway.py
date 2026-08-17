@@ -16,7 +16,7 @@ GATEWAY_SCHEMAS = [
             "enabled": Field(type="bool"),
             "create_objects": Field(type="bool"),
             "remove_users": Field(type="bool"),
-            "configuration": Field(type="dict"),
+            "configuration": Field(type="str|dict"),
             "auto_migrate_users_to": Field(type="str"),
             "type": Field(type="str"),
             "order": Field(type="int"),
@@ -57,6 +57,7 @@ GATEWAY_SCHEMAS = [
     ResourceSchema(
         var="aap_organizations",
         roles=["gateway_organizations"],
+        aliases=["gateway_organizations", "controller_organizations"],
         component="gateway",
         item_schema={
             "name": Field(type="str", required=True),
@@ -81,6 +82,7 @@ GATEWAY_SCHEMAS = [
     ResourceSchema(
         var="aap_applications",
         roles=["gateway_applications", "controller_applications"],
+        aliases=["controller_applications", "gateway_applications"],
         component="gateway",
         item_schema={
             "name": Field(type="str", required=True),
@@ -90,10 +92,10 @@ GATEWAY_SCHEMAS = [
             "description": Field(type="str"),
             "authorization_grant_type": Field(type="str", choices=["password", "authorization-code"]),
             "client_type": Field(type="str", choices=["public", "confidential"]),
-            "redirect_uris": Field(type="list"),
+            "redirect_uris": Field(type="str|list"),
             "skip_authorization": Field(type="bool"),
             "algorithm": Field(type="str", choices=["", "RS256", "HS256"]),
-            "post_logout_redirect_uris": Field(type="list"),
+            "post_logout_redirect_uris": Field(type="str|list"),
             "user": Field(type="str"),
             "state": Field(type="str", choices=["present", "absent", "exists", "enforced"]),
         },
@@ -101,6 +103,7 @@ GATEWAY_SCHEMAS = [
     ResourceSchema(
         var="gateway_http_ports",
         roles=["gateway_http_ports"],
+        aliases=["http_ports"],
         component="gateway",
         item_schema={
             "name": Field(type="str", required=True),
@@ -184,6 +187,7 @@ GATEWAY_SCHEMAS = [
     ResourceSchema(
         var="aap_teams",
         roles=["gateway_teams"],
+        aliases=["controller_teams", "gateway_teams"],
         component="gateway",
         item_schema={
             "name": Field(type="str", required=True),
@@ -197,16 +201,22 @@ GATEWAY_SCHEMAS = [
     ResourceSchema(
         var="aap_user_accounts",
         roles=["gateway_users"],
+        aliases=["controller_users", "controller_user_accounts", "gateway_users"],
         component="gateway",
         item_id_field="username",
         item_schema={
             "username": Field(type="str", required=True),
             "password": Field(type="str"),
             "email": Field(type="str"),
-            "first_name": Field(type="str"),
-            "last_name": Field(type="str"),
+            "first_name": Field(type="str", aliases=["firstname"]),
+            "last_name": Field(type="str", aliases=["lastname"]),
+            "firstname": Field(type="str", aliases=["first_name"]),
+            "lastname": Field(type="str", aliases=["last_name"]),
             "is_superuser": Field(type="bool", aliases=["superuser"]),
-            "is_platform_auditor": Field(type="bool", aliases=["auditor"]),
+            "superuser": Field(type="bool", aliases=["is_superuser"]),
+            "is_platform_auditor": Field(type="bool", aliases=["auditor", "is_auditor"]),
+            "is_auditor": Field(type="bool", aliases=["is_platform_auditor", "auditor"]),
+            "auditor": Field(type="bool", aliases=["is_platform_auditor", "is_auditor"]),
             "update_secrets": Field(type="bool"),
             "organizations": Field(type="list"),
             "authenticators": Field(type="list"),

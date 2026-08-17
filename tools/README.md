@@ -16,6 +16,9 @@ Offline configuration validator for the [infra.aap_configuration](https://github
 - **Legacy alias support** &mdash; recognises old-style variable names like `job_templates` alongside `controller_templates`
 - **Jinja-aware** &mdash; gracefully skips values containing `{{ }}` or `lookup()` expressions
 - **Ansible tag-aware** &mdash; handles `!unsafe`, `!vault`, and `!vault-encrypted` YAML tags
+- **Ansible scalar coercion** &mdash; accepts quoted values like `"0"`, `"false"`, `"False"`, and `"{}"` that Ansible would coerce at apply time
+- **Source locations** &mdash; issues include the YAML file they came from
+- **Filetree and dispatch layouts** &mdash; works on flat `infra.aap_configuration` var files and on `filetree_create` / hierarchical `.d/` trees
 
 ## Supported Components
 
@@ -73,10 +76,10 @@ aap-config-validate --format json configs/
 
 ```text
 usage: aap-config-validate [-h] [--config FILE] [--format {text,json}]
-                           [--strict]
+                           [--strict] [--no-strict]
                            [--component {controller,gateway,hub,eda}]
                            [--no-color] [--show-info]
-                           [--wildcard-vars {auto,always,never}]
+                           [--wildcard-vars {auto,always,never}] [--version]
                            paths [paths ...]
 ```
 
@@ -86,10 +89,12 @@ usage: aap-config-validate [-h] [--config FILE] [--format {text,json}]
 | `--config FILE`, `-c FILE` | Path to a `.aap-validate.yml` config file (default: auto-detect from cwd) |
 | `--format {text,json}` | Output format (default: `text`) |
 | `--strict` | Treat warnings as errors (exit code 1) |
+| `--no-strict` | Do not treat warnings as errors (overrides `strict: true` in the config file) |
 | `--component COMP` | Limit validation to a component; may be repeated (e.g. `--component controller --component eda`) |
-| `--no-color` | Disable coloured terminal output |
+| `--no-color` | Disable coloured terminal output (also honours `NO_COLOR` and non-TTY stdout) |
 | `--show-info` | Include INFO-level messages (Jinja skips, unresolvable xrefs) |
 | `--wildcard-vars {auto,always,never}` | Control wildcard variable merging (see below) |
+| `--version` | Print the tool version and exit |
 
 ### Exit Codes
 
@@ -111,8 +116,8 @@ usage: aap-config-validate [-h] [--config FILE] [--format {text,json}]
 ### Text (default)
 
 ```text
-ERROR: controller_credentials[0] ("My Cred"): missing required field "credential_type"
-WARNING: controller_templates[1] ("Deploy"): field "projet" not recognised (did you mean "project"?)
+ERROR: configs/credentials.yml: controller_credentials[0] ("My Cred"): missing required field "credential_type"
+WARNING: configs/templates.yml: controller_templates[1] ("Deploy"): field "projet" not recognised (did you mean "project"?)
 
 Found 1 error(s), 1 warning(s). Config is NOT valid.
 ```
@@ -126,7 +131,8 @@ Found 1 error(s), 1 warning(s). Config is NOT valid.
       "severity": "ERROR",
       "path": "controller_credentials[0] (\"My Cred\")",
       "message": "missing required field \"credential_type\"",
-      "suggestion": null
+      "suggestion": null,
+      "file": "configs/credentials.yml"
     }
   ],
   "summary": {
@@ -143,7 +149,7 @@ The `infra.aap_configuration` collection supports wildcard variables, where suff
 
 | Mode | Behavior |
 | :--- | :--- |
-| `auto` (default) | Merges only when `dispatch_include_wildcard_vars: true` is set in your config |
+| `auto` (default) | Merges when `dispatch_include_wildcard_vars: true` is set **or** when suffixed vars like `controller_templates_all` are present (as in [aap_configuration_template](https://github.com/redhat-cop/aap_configuration_template)) |
 | `always` | Always merges wildcard-suffixed variables |
 | `never` | Never merges; suffixed variables are silently ignored |
 
@@ -169,6 +175,30 @@ controller_templates_production:
 
 With `auto` or `always`, both templates are validated together as a single merged list.
 
+Empty overlays such as `controller_settings_dev: []` next to a dict-form `controller_settings_all` are ignored (they do not produce a type-mismatch error).
+
+## Config layouts
+
+### Dispatch / template style
+
+Flat YAML files whose top-level keys are dispatch variables (`controller_templates`, `aap_organizations`, …), including env-suffixed names (`controller_templates_all`, `controller_templates_dev`) as used by [aap_configuration_template](https://github.com/redhat-cop/aap_configuration_template):
+
+```bash
+aap-config-validate config/all config/dev
+```
+
+Directory scans skip `secrets.yml` / `secrets.yaml` by default (vaulted extra vars). Pass a secrets file explicitly if you want it parsed.
+
+### Filetree style
+
+Per-object files under `*.d/` directories produced by `filetree_create` / consumed by `filetree_read`. Validate **one environment at a time** so objects that exist in both `dev` and `prod` are not reported as duplicates:
+
+```bash
+aap-config-validate orgs_vars/ExampleOrg/env/common orgs_vars/ExampleOrg/env/prod
+```
+
+Aliases such as `gateway_organizations`, `controller_organizations`, `controller_user_accounts`, and `controller_notification_templates` are recognised and checked against the canonical dispatch schemas.
+
 ## Configuration File
 
 Create a `.aap-validate.yml` (or `.aap-validate.yaml`) in your project root to customize validator behavior. The file is auto-detected from the current working directory, or you can specify it explicitly with `--config`.
@@ -180,6 +210,9 @@ An annotated example is provided at `tools/.aap-validate.example.yml`.
 ```yaml
 # ── File/directory exclusions ────────────────────────────────
 # Glob patterns matched against relative paths within the scanned directory.
+# Nested paths such as tests/fixtures are matched as a whole, not only
+# by the last path component. Directory scans also skip secrets.yml,
+# .git, .github, .svn, __pycache__, and .tox by default.
 
 exclude_files:
   - "*.bak"
@@ -219,7 +252,7 @@ disable_checks:
 
 # Valid check names:
 #   var_names, structure, required_fields, types,
-#   unknown_fields, state, choices, xref
+#   unknown_fields, state, choices, xref, duplicates
 
 # ── Extra known variables ──────────────────────────────────
 # Additional variable names to register as valid.
@@ -279,11 +312,11 @@ Verifies that resource variables have the expected shape. Most resources expect 
 
 ### Required Fields (`required_fields`)
 
-Each resource schema defines which fields are mandatory (e.g. `name` for most resources, `credential_type` for credentials). Missing required fields produce an ERROR.
+Each resource schema defines which fields are mandatory (e.g. `name` for most resources, `credential_type` for credentials). Missing required fields produce an ERROR. Empty strings are treated as unset. When `state` is `absent`, only the identity field (`name` / `username` / `hostname`) is required.
 
 ### Type Check (`types`)
 
-Warns when a field value doesn't match the expected type (e.g. a string where a list is expected). Jinja expressions are always skipped. Union types like `str|dict` and `str|list` are supported.
+Warns when a field value doesn't match the expected type (e.g. a list where a string is expected). Jinja expressions are always skipped. Union types like `str|dict` and `str|list` are supported. Quoted Ansible scalars (`"0"`, `"false"`, `"False"`, `"{}"`) are accepted when they coerce to the expected type. Empty strings are treated as unset, not as a type error.
 
 ### Unknown Fields (`unknown_fields`)
 
@@ -299,7 +332,11 @@ Enum fields like `job_type` (`run`, `check`), `verbosity` (0-5), and `scm_type` 
 
 ### Cross-Reference Validation (`xref`)
 
-When a field references another resource by name (e.g. a job template's `project` field referencing `controller_projects`), the validator checks that the referenced name exists in your config. If the target resource type isn't defined at all, it produces an INFO (the resource may already exist on the server).
+When a field references another resource by name (e.g. a job template's `project` field referencing `controller_projects`), the validator checks that the referenced name exists in your config. If the target resource type isn't defined at all, it produces an INFO (the resource may already exist on the server). `--component` still builds the cross-reference index from **all** loaded resources, so filtering to controller still resolves `aap_organizations`.
+
+### Duplicate names (`duplicates`)
+
+Warns when the same `name` / `username` / `hostname` appears twice in one resource list. Role assignments are skipped (many items share `role: use` with different targets).
 
 ## CI/CD Integration
 
@@ -323,8 +360,8 @@ repos:
         name: Validate AAP configuration
         entry: aap-config-validate --strict
         language: python
-        additional_dependencies: ['pyyaml>=6.0']
-        files: '\.yml$'
+        additional_dependencies: ['./tools']
+        files: 'config/.*\.(yml|yaml)$'
         pass_filenames: true
 ```
 
@@ -337,8 +374,9 @@ validate-config:
     - pip install ./tools
     - aap-config-validate --strict --format json configs/ > validation-report.json
   artifacts:
-    reports:
-      codequality: validation-report.json
+    when: always
+    paths:
+      - validation-report.json
 ```
 
 ## Running Tests

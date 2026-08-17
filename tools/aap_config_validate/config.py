@@ -28,7 +28,7 @@ class ValidatorConfig:
     ignore_fields: Dict[str, List[str]] = dc_field(default_factory=dict)
 
     # Validation checks to disable entirely
-    # Choices: var_names, structure, required_fields, types, unknown_fields, state, choices, xref
+    # Choices: var_names, structure, required_fields, types, unknown_fields, state, choices, xref, duplicates
     disable_checks: List[str] = dc_field(default_factory=list)
 
     # Extra known variables to register (treated like KNOWN_GLOBAL_VARS)
@@ -47,9 +47,14 @@ class ValidatorConfig:
         return any(fnmatch.fnmatch(name, pat) or fnmatch.fnmatch(Path(name).name, pat) for pat in self.exclude_files)
 
     def should_exclude_dir(self, dirpath: str | Path) -> bool:
-        """Return True if *dirpath* matches any exclude_dirs pattern."""
-        name = str(dirpath)
-        return any(fnmatch.fnmatch(name, pat) or fnmatch.fnmatch(Path(name).name, pat) for pat in self.exclude_dirs)
+        """Return True if *dirpath* matches any exclude_dirs pattern.
+
+        Patterns match the full relative path (``tests/fixtures``), the
+        final path component (``.git``), or a glob against either.
+        """
+        path = Path(dirpath)
+        candidates = {str(dirpath), path.as_posix(), path.name}
+        return any(fnmatch.fnmatch(candidate, pat) for candidate in candidates for pat in self.exclude_dirs)
 
     def is_var_ignored(self, var_name: str) -> bool:
         return any(fnmatch.fnmatch(var_name, pat) for pat in self.ignore_vars)
@@ -62,7 +67,7 @@ class ValidatorConfig:
         return check_name in self.disable_checks
 
 
-VALID_CHECK_NAMES = frozenset({"var_names", "structure", "required_fields", "types", "unknown_fields", "state", "choices", "xref"})
+VALID_CHECK_NAMES = frozenset({"var_names", "structure", "required_fields", "types", "unknown_fields", "state", "choices", "xref", "duplicates"})
 
 
 def load_config(path: Optional[str | Path] = None, search_dir: Optional[str | Path] = None) -> ValidatorConfig:

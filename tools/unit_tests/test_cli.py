@@ -108,9 +108,40 @@ class TestCLI:
             main([str(tmp_path), "--no-color"])
         assert exc_info.value.code == 0
 
-    def test_wildcard_vars_auto_disabled(self, tmp_path):
-        # Without dispatch_include_wildcard_vars, suffixed vars are not merged
-        # but they shouldn't cause unknown-var warnings either
+    def test_wildcard_vars_auto_merges_without_flag(self, tmp_path):
+        (tmp_path / "wildcard.yml").write_text(
+            textwrap.dedent("""\
+                controller_credentials_all:
+                  - name: cred1
+                    credential_type: Machine
+            """),
+            encoding="utf-8",
+        )
+        with pytest.raises(SystemExit) as exc_info:
+            main([str(tmp_path), "--no-color"])
+        assert exc_info.value.code == 0
+
+    def test_source_file_in_output(self, bad_config_dir, capsys):
+        with pytest.raises(SystemExit):
+            main([str(bad_config_dir), "--no-color"])
+        captured = capsys.readouterr()
+        assert "bad.yml" in captured.out
+
+    def test_missing_config_file_exit_1(self, config_dir, capsys):
+        with pytest.raises(SystemExit) as exc_info:
+            main([str(config_dir), "--config", "/no/such/aap-validate.yml", "--no-color"])
+        assert exc_info.value.code == 1
+        captured = capsys.readouterr()
+        assert "not found" in captured.err.lower() or "not found" in captured.out.lower()
+
+    def test_version(self, capsys):
+        with pytest.raises(SystemExit) as exc_info:
+            main(["--version"])
+        assert exc_info.value.code == 0
+        captured = capsys.readouterr()
+        assert "0.2.0" in captured.out
+
+    def test_wildcard_vars_never(self, tmp_path):
         (tmp_path / "wildcard.yml").write_text(
             textwrap.dedent("""\
                 controller_templates_extra:
@@ -119,5 +150,5 @@ class TestCLI:
             encoding="utf-8",
         )
         with pytest.raises(SystemExit) as exc_info:
-            main([str(tmp_path), "--no-color"])
+            main([str(tmp_path), "--wildcard-vars", "never", "--no-color"])
         assert exc_info.value.code == 0

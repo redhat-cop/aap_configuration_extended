@@ -4,8 +4,9 @@
 # All settings are optional — omit anything you don't need.
 
 # ── File/directory exclusions ─────────────────────────────────────
-# Glob patterns matched against file/directory paths.
-# Use to skip test data, scratch files, or generated configs.
+# Glob patterns matched against file/directory paths (including nested
+# relative paths such as tests/fixtures). Directory scans also skip
+# secrets.yml, .git, .github, .svn, __pycache__, and .tox by default.
 
 exclude_files:
   - "*.bak"
@@ -40,7 +41,7 @@ exclude_dirs:
 # ── Disable checks ──────────────────────────────────────────────
 # Completely disable specific validation checks.
 # Valid names: var_names, structure, required_fields, types,
-#              unknown_fields, state, choices, xref
+#              unknown_fields, state, choices, xref, duplicates
 
 # disable_checks:
 #   - xref

@@ -96,8 +96,111 @@ class TestLoadYamlFile:
         with pytest.raises(ValueError, match="Failed to parse"):
             load_yaml_file(p)
 
+    def test_vault_block_scalar(self, tmp_yaml):
+        p = tmp_yaml(
+            "vault.yml",
+            """\
+            controller_credentials:
+              - name: cred1
+                credential_type: Machine
+                inputs:
+                  password: !vault |
+                    $ANSIBLE_VAULT;1.1;AES256
+                    6632643864386130
+            ...
+        """,
+        )
+        data = load_yaml_file(p)
+        assert "ANSIBLE_VAULT" in data["controller_credentials"][0]["inputs"]["password"]
 
-class TestLoadPaths:
+    def test_list_sources_tracked(self, tmp_yaml):
+        tmp_yaml(
+            "a.yml",
+            """\
+            controller_projects:
+              - name: P1
+        """,
+        )
+        tmp_yaml(
+            "b.yml",
+            """\
+            controller_projects:
+              - name: P2
+        """,
+        )
+        config, errors, sources = load_paths([str(tmp_yaml.dir)])
+        assert not errors
+        assert sources["controller_projects"][0].endswith("a.yml")
+        assert sources["controller_projects"][1].endswith("b.yml")
+
+    def test_dict_deep_merge(self, tmp_yaml):
+        tmp_yaml(
+            "a.yml",
+            """\
+            controller_settings:
+              settings:
+                KEY_A: 1
+                NESTED:
+                  X: 1
+        """,
+        )
+        tmp_yaml(
+            "b.yml",
+            """\
+            controller_settings:
+              settings:
+                KEY_B: 2
+                NESTED:
+                  Y: 2
+        """,
+        )
+        config, errors, _sources = load_paths([str(tmp_yaml.dir)])
+        assert not errors
+        settings = config["controller_settings"]["settings"]
+        assert settings["KEY_A"] == 1
+        assert settings["KEY_B"] == 2
+        assert settings["NESTED"]["X"] == 1
+        assert settings["NESTED"]["Y"] == 2
+
+    def test_dir_scan_skips_secrets_by_default(self, tmp_yaml):
+        tmp_yaml(
+            "good.yml",
+            """\
+            controller_projects:
+              - name: P1
+        """,
+        )
+        tmp_yaml(
+            "secrets.yml",
+            """\
+            super_secret: !vault |
+              $ANSIBLE_VAULT;1.1;AES256
+              abc
+        """,
+        )
+        config, errors, _sources = load_paths([str(tmp_yaml.dir)])
+        assert not errors
+        assert "controller_projects" in config
+        assert "super_secret" not in config
+
+    def test_nested_exclude_dirs(self, tmp_yaml):
+        from aap_config_validate.config import ValidatorConfig
+
+        nested = tmp_yaml.dir / "tests" / "fixtures"
+        nested.mkdir(parents=True)
+        (nested / "bad.yml").write_text("controller_projects: not-a-list\n", encoding="utf-8")
+        tmp_yaml(
+            "ok.yml",
+            """\
+            controller_projects:
+              - name: P1
+        """,
+        )
+        cfg = ValidatorConfig(exclude_dirs=["tests/fixtures"])
+        config, errors, _sources = load_paths([str(tmp_yaml.dir)], cfg=cfg)
+        assert not errors
+        assert len(config["controller_projects"]) == 1
+
     def test_directory(self, tmp_yaml):
         tmp_yaml(
             "a.yml",
@@ -114,7 +217,7 @@ class TestLoadPaths:
                 organization: Default
         """,
         )
-        config, errors = load_paths([str(tmp_yaml.dir)])
+        config, errors, _sources = load_paths([str(tmp_yaml.dir)])
         assert not errors
         assert "controller_projects" in config
         assert "controller_inventories" in config
@@ -134,12 +237,12 @@ class TestLoadPaths:
               - name: P2
         """,
         )
-        config, errors = load_paths([str(tmp_yaml.dir)])
+        config, errors, _sources = load_paths([str(tmp_yaml.dir)])
         assert not errors
         assert len(config["controller_projects"]) == 2
 
     def test_nonexistent_path(self):
-        config, errors = load_paths(["/nonexistent/path"])
+        config, errors, _sources = load_paths(["/nonexistent/path"])
         assert config == {}
         assert len(errors) == 1
         assert "not found" in errors[0]

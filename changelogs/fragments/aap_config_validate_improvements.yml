@@ -1,0 +1,8 @@
+---
+minor_changes:
+  - aap-config-validate - Accept Ansible-quoted scalars (``"0"``, ``"false"``, ``"{}"``), treat empty strings as unset, and skip extra required fields when ``state: absent``.
+  - aap-config-validate - Report the source YAML file on each issue; deep-merge dicts across files; match nested ``exclude_dirs`` paths such as ``tests/fixtures``.
+  - aap-config-validate - Recognise filetree and template aliases (``gateway_organizations``, ``controller_user_accounts``, ``controller_templates_all``, …) and merge env-suffixed vars in ``auto`` mode when those suffixes are present.
+bugfixes:
+  - aap-config-validate - Keep organization names in the cross-reference index when ``--component controller`` is used.
+  - aap-config-validate - Do not treat ``bool`` as ``int``; do not treat known vars such as ``controller_settings_individuale`` as wildcard suffixes; ignore empty ``[]`` overlays on dict-form settings.
