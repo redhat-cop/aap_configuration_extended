@@ -6,8 +6,15 @@ controller_settings:
 {% if not (settings_export_from_changed | default(false)) %}
 {%   set __empty_values = __empty_values + [''] %}
 {% endif %}
-{% set __settings_always_export = settings_export_include_empty | default([]) %}
-{% for key,value in all_settings[0].items() if (value not in __empty_values) or (key in __settings_always_export) %}
+{% set __global_settings = template_overrides_global.controller_setting | default({}) %}
+{% set __resource_settings = template_overrides_resources.controller_setting | default({}) %}
+{% set __api_settings = all_settings[0] | default({}) %}
+{% set __all_keys = (__api_settings.keys() | list + __global_settings.keys() | list + __resource_settings.keys() | list) | unique %}
+{% for key in __all_keys %}
+{%   set value = __resource_settings[key] | default(__global_settings[key]) | default(__api_settings[key]) %}
+{%   if (value not in __empty_values)
+        or __global_settings[key] is defined
+        or __resource_settings[key] is defined %}
 {%   if value is mapping or value | type_debug == "list" %}
 {{ key | indent(width=4, first=True) }}:
 {{ value | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=True) }}
@@ -19,5 +26,6 @@ controller_settings:
 {%     endif %}
 {%   else %}
 {{ key | indent(width=4, first=True) }}: {{ yamlval.render_scalar(value) }}
+{%   endif %}
 {%   endif %}
 {% endfor %}

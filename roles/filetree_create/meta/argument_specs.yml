@@ -35,15 +35,6 @@ argument_specs:
         required: false
         type: bool
         description: When true, embed infra.aap_configuration inline object roles (users/teams) on inventories, projects, job templates, workflow job templates, credentials, and instance groups.
-      settings_export_include_empty:
-        default:
-          - AWX_ANSIBLE_CALLBACK_PLUGINS
-          - DEFAULT_EXECUTION_ENVIRONMENT
-        required: false
-        type: list
-        elements: str
-        description: Controller settings keys exported even when null or an empty list.
-
       # Async variables
       controller_configuration_async_retries:
         default: 30
