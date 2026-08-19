@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - 'filetree_create - Export gateway role user assignments with ``object_ids`` (resource names) instead of deprecated numeric ``object_id``. Fixes #298.'

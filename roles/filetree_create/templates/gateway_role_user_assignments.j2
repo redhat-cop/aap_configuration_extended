@@ -10,25 +10,70 @@ gateway_role_user_assignments: {{ [] if current_gateway_role_user_assignments_as
         | default(current_role_user_assignment.object_ansible_id)
         | default(none) %}
 {%   set _resource_name = (_override.object_ids | default([]) | first)
-        | default(_override.object_id)
         | default((template_overrides_global.gateway_role_user_assignment.object_ids | default([]) | first) if template_overrides_global.gateway_role_user_assignment is defined else none)
-        | default(current_role_user_assignment.summary_fields.resource.name | default(none)) %}
+        | default(current_role_user_assignment.summary_fields.resource.name | default(none))
+        | default(current_role_user_assignment.summary_fields.resource_name | default(none)) %}
 {%   set _is_numeric_id = _obj_id_str is not none and (_obj_id_str is match('^\d+$')) %}
 {%   set _is_uuid_id = _obj_id_str is not none and (_obj_id_str is match('^[0-9a-fA-F]{8}-')) %}
+{%   set _is_numeric_name = _resource_name is not none and (_resource_name | string is match('^\d+$')) %}
+{%   if (_resource_name is none or _resource_name == '' or _is_numeric_name) and _is_numeric_id %}
+{%     set _ct_raw = (
+          (current_role_user_assignment.summary_fields.content_type.model | default(''))
+          ~ (current_role_user_assignment.summary_fields.resource.type | default(''))
+          ~ (current_role_user_assignment.content_type | default(''))
+        ) | lower %}
+{%     if 'organization' in _ct_raw %}
+{%       set _probe_endpoints = ['api/gateway/v1/organizations/'] %}
+{%     elif 'team' in _ct_raw %}
+{%       set _probe_endpoints = ['api/gateway/v1/teams/'] %}
+{%     elif 'credential' in _ct_raw %}
+{%       set _probe_endpoints = ['api/controller/v2/credentials/'] %}
+{%     elif 'project' in _ct_raw %}
+{%       set _probe_endpoints = ['api/controller/v2/projects/'] %}
+{%     elif 'inventory' in _ct_raw %}
+{%       set _probe_endpoints = ['api/controller/v2/inventories/'] %}
+{%     else %}
+{%       set _probe_endpoints = [
+            'api/gateway/v1/organizations/',
+            'api/gateway/v1/teams/',
+            'api/controller/v2/credentials/',
+            'api/controller/v2/projects/',
+            'api/controller/v2/inventories/'
+          ] %}
+{%     endif %}
+{%     set _name_ns = namespace(value=none) %}
+{%     for _probe_ep in _probe_endpoints %}
+{%       if _name_ns.value is none %}
+{%         set _probe_hits = query('ansible.platform.gateway_api', _probe_ep,
+              query_params={'id': _obj_id},
+              host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+              return_all=true, max_objects=query_controller_api_max_objects) %}
+{%         if _probe_hits | length > 0 and _probe_hits[0].name is defined %}
+{%           set _name_ns.value = _probe_hits[0].name %}
+{%         endif %}
+{%       endif %}
+{%     endfor %}
+{%     if _name_ns.value is not none %}
+{%       set _resource_name = _name_ns.value %}
+{%     endif %}
+{%   endif %}
   - role_definition: "{{ _override.role_definition
                      | default(template_overrides_global.gateway_role_user_assignment.role_definition)
                      | default(current_role_user_assignment.summary_fields.role_definition.name) }}"
-{%   if _resource_name is not none and _resource_name != '' and not _is_uuid_id %}
+{%   if _override.object_ids is defined %}
+    object_ids:
+{{ _override.object_ids | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=true) }}
+{%   elif _resource_name is not none and _resource_name != '' and not _is_uuid_id and not (_resource_name | string is match('^\d+$')) %}
     object_ids:
       - "{{ _resource_name }}"
-{%   elif _override.object_id is defined or (_is_numeric_id and not _is_uuid_id) %}
-    object_id: "{{ _override.object_id
-                     | default(template_overrides_global.gateway_role_user_assignment.object_id)
-                     | default(_obj_id) }}"
 {%   elif _obj_ansible_id is not none %}
     object_ansible_id: "{{ _obj_ansible_id }}"
 {%   elif _is_uuid_id %}
     object_ansible_id: "{{ _obj_id_str }}"
+{%   elif _override.object_id is defined %}
+    object_id: "{{ _override.object_id
+                     | default(template_overrides_global.gateway_role_user_assignment.object_id)
+                     | default(_obj_id) }}"
 {%   endif %}
 {%   if _override.username is defined
         or template_overrides_global.gateway_role_user_assignment.username is defined
