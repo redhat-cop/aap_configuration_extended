@@ -35,7 +35,6 @@ argument_specs:
         required: false
         type: bool
         description: When true, embed infra.aap_configuration inline object roles (users/teams) on inventories, projects, job templates, workflow job templates, credentials, and instance groups.
-
       # Async variables
       controller_configuration_async_retries:
         default: 30
