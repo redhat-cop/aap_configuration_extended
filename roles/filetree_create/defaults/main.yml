@@ -66,6 +66,13 @@ hub_configuration_filetree_create_secure_logging: "{{ aap_configuration_secure_l
 secrets_as_variables: true
 secrets_as_variables_prefix: "vaulted"
 
+# Export defaults for controller settings omitted from settings/changed/ or filtered as
+# empty. Keys defined here are always exported (see controller_settings.j2).
+template_overrides_global:
+  controller_setting:
+    AWX_ANSIBLE_CALLBACK_PLUGINS: []
+    DEFAULT_EXECUTION_ENVIRONMENT: ""
+
 # When true, selected non-secret but environment-specific fields are exported as
 # Ansible variable references (same naming scheme as secrets_as_variables).
 # Defaults to true whenever export_related_objects is enabled.

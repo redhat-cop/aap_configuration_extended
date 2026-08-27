@@ -46,8 +46,8 @@ The following variables are required for that role to work properly:
 | `skip_inventory_sources` | False | no | bool | Whether the inventory sources should be exported with inventory. |
 | `skip_inventory_hosts` | False | no | bool | Whether the inventory hosts should be exported with inventory. |
 | `skip_inventory_groups` | False | no | bool | Whether the inventory groups should be exported with inventory. |
-| `templates_overrides_resources` | N/A | no | dict | Whether the certain objects should be modified during the export. |
-| `templates_overrides_global` | N/A | no | dict | Whether the all objects should be modified during the export. |
+| `template_overrides_resources` | N/A | no | dict | Per-object export overrides (resource dict takes precedence over global). |
+| `template_overrides_global` | see defaults | no | dict | Global export overrides applied to all objects of a given type. Includes `controller_setting` defaults for keys that must export even when empty (see below). |
 | `hub_collection_name` | N/A | no | str | Filter the collections to be exported from the PAH through it's name. |
 | `hub_collection_namespace` | N/A | no | str | Filter the collections to be exported from the PAH through it's namespace. |
 | `hub_collection_remote_name` | N/A | no | str | Filter the collection remotes to be exported from the PAH through it's name. |
@@ -261,12 +261,12 @@ This example will export all object but some with modifications:
     aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
     aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
 
-    templates_overrides_resources:
+    template_overrides_resources:
       job_template:
         job_template_example:
           scm_branch: "dev"
 
-    templates_overrides_global:
+    template_overrides_global:
       job_template:
         scm_branch: "main"
       project:
@@ -279,6 +279,31 @@ This example will export all object but some with modifications:
 
 ...
 ```
+
+### Controller settings export defaults
+
+Role defaults include `template_overrides_global.controller_setting` so `AWX_ANSIBLE_CALLBACK_PLUGINS` and `DEFAULT_EXECUTION_ENVIRONMENT` are always written to `controller_settings.yaml`, even when the API omits them from `settings/changed` or returns an empty value. Use the same mechanism to add more keys or override values at export time (per key via `template_overrides_resources.controller_setting.<SETTING_NAME>`).
+
+**Important:** play-level `template_overrides_global` replaces the role default dict for that variable. If you set `template_overrides_global` in your playbook, include a `controller_setting` block (or merge with role defaults) so those export defaults are not lost. For example:
+
+```yaml
+template_overrides_global:
+  job_template:
+    scm_branch: main
+  controller_setting:
+    AWX_ANSIBLE_CALLBACK_PLUGINS: []
+    DEFAULT_EXECUTION_ENVIRONMENT: ""
+```
+
+Or merge explicitly:
+
+```yaml
+template_overrides_global: "{{ (template_overrides_global | default({})) | combine({
+  'job_template': {'scm_branch': 'main'},
+}, recursive=True) }}"
+```
+
+When using `combine`, keep the `controller_setting` keys from role defaults unless you intentionally override them.
 
 ## Usage example for the `secrets_as_variables` feature
 
