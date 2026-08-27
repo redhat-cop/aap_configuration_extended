@@ -6,13 +6,16 @@ gateway_settings:
 {%   set __empty_values = __empty_values + [''] %}
 {% endif %}
 {% for key,value in all_settings[0].items() if value not in __empty_values %}
+{%   set __gs_secret = (value is string) and ('$encrypted$' in value) and (secrets_as_variables | bool) %}
 {%   if value is mapping or value | type_debug == "list" %}
 {{ key | indent(width=2, first=true) }}:
 {{ value | to_nice_yaml(indent=2, sort_keys=false) | indent(width=4, first=true) }}
 {%   elif key == "jwt_public_key" %}{#
 {{ key | indent(width=2, first=true) }}: |-
 {{ value | indent(width=4, first=true) }}
-#}{%   else %}
+#}{%   elif __gs_secret %}
+{{ key | indent(width=2, first=true) }}: "{{ value | infra.aap_configuration_extended.filetree_as_var('gateway_settings', 'settings', key, true, secrets_as_variables_prefix) }}"
+{%   else %}
 {{ key | indent(width=2, first=true) }}: {{ yamlval.render_scalar(value) }}
 {%   endif %}
 {% endfor %}
