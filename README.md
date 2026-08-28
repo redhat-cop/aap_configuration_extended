@@ -160,6 +160,23 @@ The awx command line can export json that is compatible with this collection.
 In addition there is an awx.awx/ansible.controller export module that use the awx command line to export.
 See [the export guide](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/EXPORT_README.md) for more details
 
+### AAP Instance Migration
+
+Need to migrate from one AAP instance to another? This collection includes a comprehensive migration playbook that handles the complete export and import process. The migration playbook:
+
+- Exports all resources (organizations, credentials, inventories, job templates, workflows, etc.) from a source AAP instance
+- Imports the configuration into a target AAP instance
+- Validates the migration and checks for configuration drift
+- Supports partial migrations (by organization or specific resources)
+
+See [the migration guide](MIGRATION_GUIDE.md) for complete instructions and examples.
+
+Quick start:
+```bash
+ansible-playbook infra.aap_configuration_extended.migrate_aap_instance.yml \
+  -e @migration_vars.yml
+```
+
 ### Template Example
 
 See [our template](https://github.com/redhat-cop/aap_configuration_template) to use in order to start using the collections can be found
