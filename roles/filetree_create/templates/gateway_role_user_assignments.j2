@@ -10,9 +10,10 @@ gateway_role_user_assignments: {{ [] if current_gateway_role_user_assignments_as
         | default(current_role_user_assignment.object_ansible_id)
         | default(none) %}
 {%   set _resource_name = (_override.object_ids | default([]) | first)
-        | default((template_overrides_global.gateway_role_user_assignment.object_ids | default([]) | first) if template_overrides_global.gateway_role_user_assignment is defined else none)
-        | default(current_role_user_assignment.summary_fields.resource.name | default(none))
-        | default(current_role_user_assignment.summary_fields.resource_name | default(none)) %}
+        | default((template_overrides_global.gateway_role_user_assignment.object_ids | default([]) | first)
+                  if template_overrides_global.gateway_role_user_assignment is defined else none, true)
+        | default(current_role_user_assignment.summary_fields.resource.name, true)
+        | default(current_role_user_assignment.summary_fields.resource_name, true) %}
 {%   set _is_numeric_id = _obj_id_str is not none and (_obj_id_str is match('^\d+$')) %}
 {%   set _is_uuid_id = _obj_id_str is not none and (_obj_id_str is match('^[0-9a-fA-F]{8}-')) %}
 {%   set _is_numeric_name = _resource_name is not none and (_resource_name | string is match('^\d+$')) %}

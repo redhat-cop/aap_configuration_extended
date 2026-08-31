@@ -10,8 +10,8 @@ gateway_role_team_assignments: {{ [] if current_gateway_role_team_assignments_as
         | default(template_overrides_global.gateway_role_team_assignment.object_ansible_id)
         | default(current_role_team_assignment.object_ansible_id)
         | default(none) %}
-{%   set _resource_name = current_role_team_assignment.summary_fields.resource.name | default(none)
-        | default(current_role_team_assignment.summary_fields.resource_name | default(none)) %}
+{%   set _resource_name = current_role_team_assignment.summary_fields.resource.name
+        | default(current_role_team_assignment.summary_fields.resource_name, true) %}
 {%   if _override.assignment_objects is defined and (_override.assignment_objects | length > 0) and _override.assignment_objects[0].name is defined %}
 {%     set _resource_name = _override.assignment_objects[0].name | default(_resource_name) %}
 {%   endif %}
