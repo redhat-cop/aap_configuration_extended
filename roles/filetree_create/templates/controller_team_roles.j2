@@ -3,7 +3,10 @@
 controller_roles:
 {% endif %}
 {% for role in object_roles %}
-{%   if (role|dict2items)[0].value.resource_type is defined %}
+{%   set __role_entry = (role | dict2items)[0] %}
+{%   set __resource_type = __role_entry.value.resource_type | default('') %}
+{%   if not ((export_inline_object_roles | default(false) | bool) and (__resource_type in inline_object_role_resource_types)) %}
+{%   if __role_entry.value.resource_type is defined %}
   - team: "{{ team_name }}"
 {%   if (role|dict2items)[0].value.resource_names | length > 0 %}
 {%     if (role|dict2items)[0].value.resource_type is match('organization') %}
@@ -28,6 +31,7 @@ controller_roles:
 {%     endfor %}
 {%   endif %}
     role: "{% if (role|dict2items)[0].key | lower == 'approve' %}approval{% else %}{{ (role|dict2items)[0].key | lower | regex_replace(' ', '_') }}{% endif %}"
+{%   endif %}
 {%   endif %}
 {% endfor %}
 {% if last_team_role | default(true) | bool %}
