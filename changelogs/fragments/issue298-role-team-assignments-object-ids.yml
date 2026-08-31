@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - 'filetree_create - Export gateway role team assignments with named ``assignment_objects`` instead of numeric ``object_id``. Follow-up to #298.'
