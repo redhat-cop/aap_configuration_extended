@@ -7,32 +7,32 @@ controller_roles:
 {%   set __role_value = __role_entry.value %}
 {%   set __resource_type = __role_value.resource_type | default('') %}
 {%   if not ((export_inline_object_roles | default(false) | bool) and (__resource_type in inline_object_role_resource_types)) %}
-{%   if __resource_type is defined and __resource_type != '' %}
+{%     if __resource_type is defined and __resource_type != '' %}
   - team: "{{ team_name }}"
-{%   if __role_value.resource_names | length > 0 %}
-{%     if __resource_type is match('organization') %}
+{%       if __role_value.resource_names | length > 0 %}
+{%         if __resource_type is match('organization') %}
     organizations:
-{%     elif __resource_type is match('team') %}
+{%         elif __resource_type is match('team') %}
     target_teams:
-{%     elif __resource_type is match('job_template') %}
+{%         elif __resource_type is match('job_template') %}
     job_templates:
-{%     elif __resource_type is match('inventory') %}
+{%         elif __resource_type is match('inventory') %}
     inventories:
-{%     elif __resource_type is match('workflow_job_template') %}
+{%         elif __resource_type is match('workflow_job_template') %}
     workflows:
-{%     elif __resource_type is match('project') %}
+{%         elif __resource_type is match('project') %}
     projects:
-{%     elif __resource_type is match('credential') %}
+{%         elif __resource_type is match('credential') %}
     credentials:
-{%     elif __resource_type is match('instance_group') %}
+{%         elif __resource_type is match('instance_group') %}
     instance_groups:
-{%     endif %}
-{%     for object_name in __role_value.resource_names %}
+{%         endif %}
+{%         for object_name in __role_value.resource_names %}
       - "{{ object_name }}"
-{%     endfor %}
-{%   endif %}
+{%         endfor %}
+{%       endif %}
     role: "{% if __role_entry.key | lower == 'approve' %}approval{% else %}{{ __role_entry.key | lower | regex_replace(' ', '_') }}{% endif %}"
-{%   endif %}
+{%     endif %}
 {%   endif %}
 {% endfor %}
 {% if last_team_role | default(true) | bool %}
