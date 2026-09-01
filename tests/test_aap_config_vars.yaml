@@ -1,0 +1,135 @@
+---
+# Integration test for infra.aap_configuration_extended.aap_config_vars
+#
+# Run from the collection repo:
+#   tests/scripts/run_aap_config_vars_integration.sh
+#
+# Or manually (after pointing ANSIBLE_COLLECTIONS_PATH at this collection):
+#   ansible-playbook tests/test_aap_config_vars.yaml
+- name: Integration test for aap_config_vars
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    fixture_src: "{{ playbook_dir }}/configs/aap_config_vars"
+    fixture_workdir: "{{ playbook_dir }}/.cache/aap_config_vars_fixture"
+    env: dev
+  tasks:
+    - name: Reset fixture working copy
+      ansible.builtin.file:
+        path: "{{ fixture_workdir }}"
+        state: absent
+
+    - name: Copy fixture config tree
+      ansible.builtin.copy:
+        src: "{{ fixture_src }}/"
+        dest: "{{ fixture_workdir }}/config/"
+        mode: preserve
+
+    - name: Initialize git repository for incremental tests  # noqa: command-instead-of-module
+      ansible.builtin.command:
+        cmd: "{{ item }}"
+        chdir: "{{ fixture_workdir }}"
+      loop:
+        - git init -b main
+        - git config user.email test@example.com
+        - git config user.name test
+        - git add .
+        - git commit -m base
+      changed_when: false
+
+    - name: Full load
+      infra.aap_configuration_extended.aap_config_vars:
+        config_dir: "{{ fixture_workdir }}/config"
+        env: "{{ env }}"
+      register: full_load
+
+    - name: Assert full load mode and merged facts
+      ansible.builtin.assert:
+        that:
+          - full_load.aap_config_mode == 'full'
+          - full_load.ansible_facts.controller_templates_all | length == 2
+          - full_load.ansible_facts.controller_projects_all | length == 1
+          - full_load.ansible_facts.console_token == 'initial-token'
+          - full_load.ansible_included_var_files | length >= 3
+
+    - name: Apply working-tree changes for incremental test
+      ansible.builtin.copy:
+        dest: "{{ fixture_workdir }}/config/all/controller_job_templates.yml"
+        mode: "0644"
+        content: |
+          ---
+          controller_templates_all:
+            - name: keep
+              organization: config_as_code
+              verbosity: 0
+            - name: edit
+              organization: config_as_code
+              verbosity: 1
+            - name: added
+              organization: config_as_code
+              verbosity: 0
+
+    - name: Update secrets for always_load check
+      ansible.builtin.copy:
+        dest: "{{ fixture_workdir }}/config/dev/secrets.yml"
+        mode: "0644"
+        content: |
+          ---
+          console_token: updated-token
+
+    - name: Incremental load against HEAD
+      infra.aap_configuration_extended.aap_config_vars:
+        config_dir: "{{ fixture_workdir }}/config"
+        env: "{{ env }}"
+        changed_only: true
+        git_base: HEAD
+      register: incremental_load
+
+    - name: Assert incremental load keeps only changed objects plus secrets
+      ansible.builtin.assert:
+        that:
+          - incremental_load.aap_config_mode == 'incremental'
+          - incremental_load.aap_config_git_base == 'HEAD'
+          - incremental_load.aap_config_git_base_sha | length == 40
+          - incremental_load.ansible_facts.console_token == 'updated-token'
+          - incremental_load.ansible_facts.controller_templates_all | map(attribute='name') | list == ['edit', 'added']
+          - incremental_load.ansible_facts.controller_projects_all is not defined
+          - incremental_load.aap_config_changed_vars.controller_templates_all | map(attribute='action') | list == ['modified', 'added']
+          - incremental_load.aap_config_changed_vars.console_token[0].action == 'always_loaded'
+
+    - name: Commit incremental changes so include_absent has a baseline with added  # noqa: command-instead-of-module
+      ansible.builtin.command:
+        cmd: git commit -am "incremental changes"
+        chdir: "{{ fixture_workdir }}"
+      changed_when: false
+
+    - name: Remove an object and test include_absent
+      ansible.builtin.copy:
+        dest: "{{ fixture_workdir }}/config/all/controller_job_templates.yml"
+        mode: "0644"
+        content: |
+          ---
+          controller_templates_all:
+            - name: keep
+              organization: config_as_code
+              verbosity: 0
+            - name: edit
+              organization: config_as_code
+              verbosity: 1
+
+    - name: Incremental load with include_absent
+      infra.aap_configuration_extended.aap_config_vars:
+        config_dir: "{{ fixture_workdir }}/config"
+        env: "{{ env }}"
+        changed_only: true
+        git_base: HEAD
+        include_absent: true
+      register: absent_load
+
+    - name: Assert removed object is emitted with state absent
+      ansible.builtin.assert:
+        that:
+          - absent_load.ansible_facts.controller_templates_all | selectattr('name', 'equalto', 'added') | map(attribute='state') | list == ['absent']
+          - absent_load.aap_config_changed_vars.controller_templates_all | selectattr('action', 'equalto', 'removed') | list | length == 1
+...

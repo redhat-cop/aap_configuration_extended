@@ -1,0 +1,9 @@
+---
+controller_templates_all:
+  - name: keep
+    organization: config_as_code
+    verbosity: 0
+  - name: edit
+    organization: config_as_code
+    verbosity: 0
+...

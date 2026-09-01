@@ -32,6 +32,8 @@ collections:
 
 The **format_yaml** module uses **PyYAML** (`import yaml`), which ships with **ansible-core** on the controller. Managed nodes need `python3-yaml` (or PyYAML in the execution environment) if the module runs there. The collection no longer requires ruamel.yaml. See `ansible-doc infra.aap_configuration_extended.format_yaml` for options (preserve vs round-trip, `!unsafe`, null handling, and regex scalar quoting).
 
+The **aap_config_vars** module (with a matching action plugin) loads the `config/all/` plus `config/<env>/` tree used by the [AAP Configuration Template](https://github.com/redhat-cop/aap_configuration_template) and sets those vars as facts for `infra.aap_configuration.dispatch`. With `changed_only: true` it keeps only objects that changed in git. See [aap_config_vars](docs/AAP_CONFIG_VARS.md) and `ansible-doc infra.aap_configuration_extended.aap_config_vars`.
+
 ## Links to Ansible Automation Platform Collections
 
 |                                      Collection Name                                |            Purpose            |
@@ -159,6 +161,10 @@ To export objects already present in AAP into YAML for `infra.aap_configuration.
 The awx command line can export json that is compatible with this collection.
 In addition there is an awx.awx/ansible.controller export module that use the awx command line to export.
 See [the export guide](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/EXPORT_README.md) for more details
+
+### Load configuration vars
+
+`infra.aap_configuration_extended.aap_config_vars` replaces `include_vars` for the template `config/` tree. Default is a full load; pass `changed_only: true` to dispatch only objects that differ from a git ref. See [aap_config_vars](docs/AAP_CONFIG_VARS.md).
 
 ### Template Example
 
