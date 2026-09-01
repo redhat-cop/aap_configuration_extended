@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - 'filetree_create - Export native integers and additional fields for ``controller_instance_groups``. Fixes #339.'
