@@ -1,3 +1,4 @@
 ---
 bugfixes:
   - 'filetree_create - Export gateway role team assignments with named ``assignment_objects`` instead of numeric ``object_id``. Follow-up to #298.'
+  - 'filetree_create - Guard missing ``summary_fields.resource_name`` when exporting gateway role user and team assignments.'

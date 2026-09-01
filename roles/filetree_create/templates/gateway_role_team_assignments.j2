@@ -10,15 +10,18 @@ gateway_role_team_assignments: {{ [] if current_gateway_role_team_assignments_as
         | default(template_overrides_global.gateway_role_team_assignment.object_ansible_id)
         | default(current_role_team_assignment.object_ansible_id)
         | default(none) %}
-{%   set _resource_name = current_role_team_assignment.summary_fields.resource.name
-        | default(current_role_team_assignment.summary_fields.resource_name, true) %}
+{%   set _sf = current_role_team_assignment.summary_fields | default({}) %}
+{%   set _resource = _sf.resource | default({}) %}
+{%   set _resource_name = _resource.name | default(none)
+        | default(_sf.resource_name | default(none), true) %}
 {%   if _override.assignment_objects is defined and (_override.assignment_objects | length > 0) and _override.assignment_objects[0].name is defined %}
 {%     set _resource_name = _override.assignment_objects[0].name | default(_resource_name) %}
 {%   endif %}
+{%   set _content_type = _sf.content_type | default({}) %}
 {%   set _ct_candidates = [
         ((_override.assignment_objects | default([{}]))[0].type | default('')),
-        (current_role_team_assignment.summary_fields.content_type.model | default('')),
-        (current_role_team_assignment.summary_fields.resource.type | default('')),
+        (_content_type.model | default('')),
+        (_resource.type | default('')),
         (current_role_team_assignment.content_type | default(''))
       ] %}
 {%   set _ct_raw = (_ct_candidates | select('string') | reject('equalto', '') | list | first | default('')) | lower %}

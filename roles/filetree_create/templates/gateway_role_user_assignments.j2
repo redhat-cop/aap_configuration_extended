@@ -9,18 +9,21 @@ gateway_role_user_assignments: {{ [] if current_gateway_role_user_assignments_as
         | default(template_overrides_global.gateway_role_user_assignment.object_ansible_id)
         | default(current_role_user_assignment.object_ansible_id)
         | default(none) %}
+{%   set _sf = current_role_user_assignment.summary_fields | default({}) %}
+{%   set _resource = _sf.resource | default({}) %}
 {%   set _resource_name = (_override.object_ids | default([]) | first)
         | default((template_overrides_global.gateway_role_user_assignment.object_ids | default([]) | first)
                   if template_overrides_global.gateway_role_user_assignment is defined else none, true)
-        | default(current_role_user_assignment.summary_fields.resource.name, true)
-        | default(current_role_user_assignment.summary_fields.resource_name, true) %}
+        | default(_resource.name | default(none), true)
+        | default(_sf.resource_name | default(none), true) %}
 {%   set _is_numeric_id = _obj_id_str is not none and (_obj_id_str is match('^\d+$')) %}
 {%   set _is_uuid_id = _obj_id_str is not none and (_obj_id_str is match('^[0-9a-fA-F]{8}-')) %}
 {%   set _is_numeric_name = _resource_name is not none and (_resource_name | string is match('^\d+$')) %}
 {%   if (_resource_name is none or _resource_name == '' or _is_numeric_name) and _is_numeric_id %}
+{%     set _content_type = _sf.content_type | default({}) %}
 {%     set _ct_raw = (
-          (current_role_user_assignment.summary_fields.content_type.model | default(''))
-          ~ (current_role_user_assignment.summary_fields.resource.type | default(''))
+          (_content_type.model | default(''))
+          ~ (_resource.type | default(''))
           ~ (current_role_user_assignment.content_type | default(''))
         ) | lower %}
 {%     if 'organization' in _ct_raw %}
