@@ -10,20 +10,60 @@ gateway_role_team_assignments: {{ [] if current_gateway_role_team_assignments_as
         | default(template_overrides_global.gateway_role_team_assignment.object_ansible_id)
         | default(current_role_team_assignment.object_ansible_id)
         | default(none) %}
-{%   set _resource_name = current_role_team_assignment.summary_fields.resource.name | default(none) %}
-{%   if _override.assignment_objects is defined and (_override.assignment_objects | length > 0) %}
+{%   set _sf = current_role_team_assignment.summary_fields | default({}) %}
+{%   set _resource = _sf.resource | default({}) %}
+{%   set _resource_name = _resource.name | default(none)
+        | default(_sf.resource_name | default(none), true) %}
+{%   if _override.assignment_objects is defined and (_override.assignment_objects | length > 0) and _override.assignment_objects[0].name is defined %}
 {%     set _resource_name = _override.assignment_objects[0].name | default(_resource_name) %}
 {%   endif %}
+{%   set _content_type = _sf.content_type | default({}) %}
 {%   set _ct_candidates = [
         ((_override.assignment_objects | default([{}]))[0].type | default('')),
-        (current_role_team_assignment.summary_fields.content_type.model | default('')),
-        (current_role_team_assignment.summary_fields.resource.type | default('')),
+        (_content_type.model | default('')),
+        (_resource.type | default('')),
         (current_role_team_assignment.content_type | default(''))
       ] %}
 {%   set _ct_raw = (_ct_candidates | select('string') | reject('equalto', '') | list | first | default('')) | lower %}
 {%   set _object_type = 'organizations' if ('organization' in _ct_raw) else ('teams' if ('team' in _ct_raw) else none) %}
 {%   set _is_numeric_id = _obj_id_str is not none and (_obj_id_str is match('^\d+$')) %}
 {%   set _is_uuid_id = _obj_id_str is not none and (_obj_id_str is match('^[0-9a-fA-F]{8}-')) %}
+{%   set _is_numeric_name = _resource_name is not none and (_resource_name | string is match('^\d+$')) %}
+{%   if (_resource_name is none or _resource_name == '' or _is_numeric_name) and _is_numeric_id %}
+{%     if 'organization' in _ct_raw %}
+{%       set _probe_endpoints = ['api/gateway/v1/organizations/'] %}
+{%     elif 'team' in _ct_raw %}
+{%       set _probe_endpoints = ['api/gateway/v1/teams/'] %}
+{%     else %}
+{%       set _probe_endpoints = [
+            'api/gateway/v1/organizations/',
+            'api/gateway/v1/teams/'
+          ] %}
+{%     endif %}
+{%     set _name_ns = namespace(value=none, object_type=none) %}
+{%     for _probe_ep in _probe_endpoints %}
+{%       if _name_ns.value is none %}
+{%         set _probe_hits = query('ansible.platform.gateway_api', _probe_ep,
+              query_params={'id': _obj_id},
+              host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+              return_all=true, max_objects=query_controller_api_max_objects) %}
+{%         if _probe_hits | length > 0 and _probe_hits[0].name is defined %}
+{%           set _name_ns.value = _probe_hits[0].name %}
+{%           if 'organizations' in _probe_ep %}
+{%             set _name_ns.object_type = 'organizations' %}
+{%           elif 'teams' in _probe_ep %}
+{%             set _name_ns.object_type = 'teams' %}
+{%           endif %}
+{%         endif %}
+{%       endif %}
+{%     endfor %}
+{%     if _name_ns.value is not none %}
+{%       set _resource_name = _name_ns.value %}
+{%     endif %}
+{%     if _object_type is none and _name_ns.object_type is not none %}
+{%       set _object_type = _name_ns.object_type %}
+{%     endif %}
+{%   endif %}
   - role_definition: "{{ _override.role_definition
                      | default(template_overrides_global.gateway_role_team_assignment.role_definition)
                      | default(current_role_team_assignment.summary_fields.role_definition.name) }}"
@@ -51,7 +91,7 @@ gateway_role_team_assignments: {{ [] if current_gateway_role_team_assignments_as
 {%     elif _ao.object_id is defined %}object_id: {{ _ao.object_id }}
 {%     endif %}
 {%     endfor %}
-{%   elif _resource_name is not none and _resource_name not in __empty_values and _object_type is not none %}
+{%   elif _resource_name is not none and _resource_name != '' and not (_resource_name | string is match('^\d+$')) and _object_type is not none %}
     assignment_objects:
       - name: "{{ _resource_name }}"
         type: "{{ _object_type }}"
@@ -61,9 +101,6 @@ gateway_role_team_assignments: {{ [] if current_gateway_role_team_assignments_as
 {%   elif _is_uuid_id %}
     assignment_objects:
       - object_ansible_id: "{{ _obj_id_str }}"
-{%   elif _is_numeric_id %}
-    assignment_objects:
-      - object_id: {{ _obj_id }}
 {%   endif %}
 {% endfor %}
 ...
