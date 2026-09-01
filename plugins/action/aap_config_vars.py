@@ -29,8 +29,8 @@ except ImportError:
         import importlib.util
         from pathlib import Path
 
-        _utils = Path(__file__).resolve().parent.parent / 'module_utils' / 'aap_config_vars.py'
-        _spec = importlib.util.spec_from_file_location('aap_config_vars', _utils)
+        _utils = Path(__file__).resolve().parent.parent / "module_utils" / "aap_config_vars.py"
+        _spec = importlib.util.spec_from_file_location("aap_config_vars", _utils)
         _mod = importlib.util.module_from_spec(_spec)
         _spec.loader.exec_module(_mod)
         GitError = _mod.GitError
@@ -40,17 +40,19 @@ except ImportError:
 class ActionModule(ActionBase):
     TRANSFERS_FILES = False
     _requires_connection = False
-    _VALID_ARGS = frozenset((
-        'config_dir',
-        'playbook_dir',
-        'env',
-        'extensions',
-        'changed_only',
-        'git_base',
-        'git_repo',
-        'include_absent',
-        'always_load',
-    ))
+    _VALID_ARGS = frozenset(
+        (
+            "config_dir",
+            "playbook_dir",
+            "env",
+            "extensions",
+            "changed_only",
+            "git_base",
+            "git_repo",
+            "include_absent",
+            "always_load",
+        )
+    )
 
     def run(self, tmp=None, task_vars=None):
         if task_vars is None:
@@ -60,51 +62,48 @@ class ActionModule(ActionBase):
         self._supports_check_mode = True
         self._supports_async = False
 
-        playbook_dir = self._get_arg('playbook_dir') or task_vars.get('playbook_dir') or os.getcwd()
-        config_dir = self._get_arg('config_dir', os.path.join(playbook_dir, '..', 'config'))
+        playbook_dir = self._get_arg("playbook_dir") or task_vars.get("playbook_dir") or os.getcwd()
+        config_dir = self._get_arg("config_dir", os.path.join(playbook_dir, "..", "config"))
         if not os.path.isabs(config_dir):
             config_dir = os.path.abspath(os.path.join(playbook_dir, config_dir))
         else:
             config_dir = os.path.abspath(config_dir)
 
-        env = self._get_arg('env', required=True)
+        env = self._get_arg("env", required=True)
 
         try:
             payload = load_aap_config(
                 config_dir=config_dir,
                 env=env,
-                extensions=self._as_list(self._get_arg('extensions')),
-                changed_only=boolean(self._get_arg('changed_only', False)),
-                git_base=self._get_arg('git_base', 'HEAD'),
-                git_repo=self._get_arg('git_repo'),
-                include_absent=boolean(self._get_arg('include_absent', False)),
-                always_load=self._as_list(self._get_arg('always_load')),
+                extensions=self._as_list(self._get_arg("extensions")),
+                changed_only=boolean(self._get_arg("changed_only", False)),
+                git_base=self._get_arg("git_base", "HEAD"),
+                git_repo=self._get_arg("git_repo"),
+                include_absent=boolean(self._get_arg("include_absent", False)),
+                always_load=self._as_list(self._get_arg("always_load")),
                 load_file=self._load_file,
                 load_string=self._load_string,
             )
         except AnsibleActionFail:
             raise
         except GitError as exc:
-            raise AnsibleActionFail(
-                'changed_only requires git ({0}). '
-                'Set changed_only=false for a full load, or pass a valid git_base.'.format(exc)
-            )
+            raise AnsibleActionFail("changed_only requires git ({0}). " "Set changed_only=false for a full load, or pass a valid git_base.".format(exc))
         except (OSError, ValueError) as exc:
             raise AnsibleActionFail(str(exc))
 
         result.update(payload)
-        result['_ansible_facts_cacheable'] = False
+        result["_ansible_facts_cacheable"] = False
         return result
 
     def _get_arg(self, name, default=None, required=False):
         if name not in self._task.args:
             if required:
-                raise AnsibleActionFail('missing required argument: {0}'.format(name))
+                raise AnsibleActionFail("missing required argument: {0}".format(name))
             return default
         value = self._task.args.get(name)
         if value is None:
             if required:
-                raise AnsibleActionFail('missing required argument: {0}'.format(name))
+                raise AnsibleActionFail("missing required argument: {0}".format(name))
             return default
         if isinstance(value, (str, list, dict)):
             return self._templar.template(value)
@@ -114,27 +113,23 @@ class ActionModule(ActionBase):
         if value is None:
             return None
         if isinstance(value, str):
-            return [item.strip() for item in value.split(',') if item.strip()]
+            return [item.strip() for item in value.split(",") if item.strip()]
         if isinstance(value, list):
             return value
-        raise AnsibleActionFail('expected a list, got {0}'.format(type(value).__name__))
+        raise AnsibleActionFail("expected a list, got {0}".format(type(value).__name__))
 
     def _load_file(self, path):
         try:
             try:
-                data = self._loader.load_from_file(
-                    path, cache='none', trusted_as_template=True
-                )
+                data = self._loader.load_from_file(path, cache="none", trusted_as_template=True)
             except TypeError:
                 data = self._loader.load_from_file(path, cache=False)
         except Exception as exc:
-            raise AnsibleActionFail('failed to load {0}: {1}'.format(path, exc))
+            raise AnsibleActionFail("failed to load {0}: {1}".format(path, exc))
         if data is None:
             return {}
         if not isinstance(data, dict):
-            raise AnsibleActionFail(
-                '{0} must contain a YAML mapping at the top level'.format(path)
-            )
+            raise AnsibleActionFail("{0} must contain a YAML mapping at the top level".format(path))
         return data
 
     def _load_string(self, content, filename):
@@ -142,15 +137,11 @@ class ActionModule(ActionBase):
             content = self._trust_text(content)
             data = self._loader.load(content, file_name=filename)
         except Exception as exc:
-            raise AnsibleActionFail(
-                'failed to parse git version of {0}: {1}'.format(filename, exc)
-            )
+            raise AnsibleActionFail("failed to parse git version of {0}: {1}".format(filename, exc))
         if data is None:
             return {}
         if not isinstance(data, dict):
-            raise AnsibleActionFail(
-                'git version of {0} must contain a YAML mapping'.format(filename)
-            )
+            raise AnsibleActionFail("git version of {0} must contain a YAML mapping".format(filename))
         return data
 
     @staticmethod

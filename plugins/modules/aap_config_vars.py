@@ -8,7 +8,7 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-DOCUMENTATION = r'''
+DOCUMENTATION = r"""
 ---
 module: aap_config_vars
 short_description: Load AAP configuration-as-code vars (optionally only changed objects)
@@ -102,9 +102,9 @@ notes:
     C(role).
 seealso:
   - module: ansible.builtin.include_vars
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Load all AAP config vars (same as include_vars)
   infra.aap_configuration_extended.aap_config_vars:
     config_dir: "{{ playbook_dir }}/../config"
@@ -129,9 +129,10 @@ EXAMPLES = r'''
     name: infra.aap_configuration.dispatch
   vars:
     dispatch_include_wildcard_vars: true
-'''
+...
+"""
 
-RETURN = r'''
+RETURN = r"""
 ansible_facts:
   description: Variables loaded from config files (filtered when incremental).
   returned: always
@@ -159,7 +160,8 @@ aap_config_changed_vars:
     - Object labels use name/identity fields only (not secret inputs).
   returned: when incremental
   type: dict
-'''
+...
+"""
 
 import os
 import traceback
@@ -194,31 +196,26 @@ def _resolve_config_dir(config_dir, playbook_dir):
 def run_module(module):
     if load_aap_config is None:
         module.fail_json(
-            msg=missing_required_lib('aap_config_vars module_utils'),
+            msg=missing_required_lib("aap_config_vars module_utils"),
             exception=IMPORT_ERROR,
         )
 
     params = module.params
-    config_dir = _resolve_config_dir(params['config_dir'], params.get('playbook_dir'))
+    config_dir = _resolve_config_dir(params["config_dir"], params.get("playbook_dir"))
 
     try:
         result = load_aap_config(
             config_dir=config_dir,
-            env=params['env'],
-            extensions=params['extensions'],
-            changed_only=params['changed_only'],
-            git_base=params['git_base'],
-            git_repo=params.get('git_repo'),
-            include_absent=params['include_absent'],
-            always_load=params['always_load'],
+            env=params["env"],
+            extensions=params["extensions"],
+            changed_only=params["changed_only"],
+            git_base=params["git_base"],
+            git_repo=params.get("git_repo"),
+            include_absent=params["include_absent"],
+            always_load=params["always_load"],
         )
     except GitError as exc:
-        module.fail_json(
-            msg=(
-                'changed_only requires git ({0}). '
-                'Set changed_only=false for a full load, or pass a valid git_base.'
-            ).format(exc)
-        )
+        module.fail_json(msg=("changed_only requires git ({0}). " "Set changed_only=false for a full load, or pass a valid git_base.").format(exc))
     except (OSError, ValueError) as exc:
         module.fail_json(msg=str(exc))
 
@@ -228,18 +225,18 @@ def run_module(module):
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            config_dir=dict(type='path', default='../config'),
-            playbook_dir=dict(type='path'),
-            env=dict(type='str', required=True),
-            extensions=dict(type='list', elements='str', default=['yml', 'yaml']),
-            changed_only=dict(type='bool', default=False),
-            git_base=dict(type='str', default='HEAD'),
-            git_repo=dict(type='path'),
-            include_absent=dict(type='bool', default=False),
+            config_dir=dict(type="path", default="../config"),
+            playbook_dir=dict(type="path"),
+            env=dict(type="str", required=True),
+            extensions=dict(type="list", elements="str", default=["yml", "yaml"]),
+            changed_only=dict(type="bool", default=False),
+            git_base=dict(type="str", default="HEAD"),
+            git_repo=dict(type="path"),
+            include_absent=dict(type="bool", default=False),
             always_load=dict(
-                type='list',
-                elements='str',
-                default=['secrets.yml', 'aap_install.yml'],
+                type="list",
+                elements="str",
+                default=["secrets.yml", "aap_install.yml"],
             ),
         ),
         supports_check_mode=True,
@@ -247,5 +244,5 @@ def main():
     run_module(module)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

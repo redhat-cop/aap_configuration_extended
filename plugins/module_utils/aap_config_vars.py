@@ -15,38 +15,38 @@ from typing import Any
 # Fields used to identify a list item when it has no ``name``.
 # Order matters: the tuple of present keys is the identity.
 IDENTITY_KEYS = (
-    'name',
-    'organization',
-    'user',
-    'team',
-    'role',
-    'role_definition',
-    'inventory',
-    'job_template',
-    'workflow',
-    'workflow_job_template',
-    'credential',
-    'credential_type',
-    'source_credential',
-    'target_credential',
-    'input_field_name',
-    'hostname',
-    'host',
-    'username',
-    'group',
-    'groups',
-    'instance_group',
-    'execution_environment',
-    'project',
-    'application',
-    'label',
-    'notification_template',
-    'instance',
-    'ansible_id',
-    'object_id',
-    'object_ansible_id',
-    'content_type',
-    'target',
+    "name",
+    "organization",
+    "user",
+    "team",
+    "role",
+    "role_definition",
+    "inventory",
+    "job_template",
+    "workflow",
+    "workflow_job_template",
+    "credential",
+    "credential_type",
+    "source_credential",
+    "target_credential",
+    "input_field_name",
+    "hostname",
+    "host",
+    "username",
+    "group",
+    "groups",
+    "instance_group",
+    "execution_environment",
+    "project",
+    "application",
+    "label",
+    "notification_template",
+    "instance",
+    "ansible_id",
+    "object_id",
+    "object_ansible_id",
+    "content_type",
+    "target",
 )
 
 _MISSING = object()
@@ -66,11 +66,11 @@ def to_native(value: Any) -> Any:
         return value
     if isinstance(value, (int, float)):
         return value
-    data = getattr(value, 'data', None)
+    data = getattr(value, "data", None)
     if data is not None and not isinstance(value, (str, bytes)):
         return to_native(data)
     if isinstance(value, bytes):
-        return value.decode('utf-8', errors='replace')
+        return value.decode("utf-8", errors="replace")
     return str(value)
 
 
@@ -86,7 +86,7 @@ def _freeze(value: Any) -> Any:
 def object_identity(obj: Any) -> tuple:
     """Return a hashable identity for a YAML list item."""
     if not isinstance(obj, dict):
-        return ('__value__', _freeze(obj))
+        return ("__value__", _freeze(obj))
 
     parts = []
     for key in IDENTITY_KEYS:
@@ -95,26 +95,26 @@ def object_identity(obj: Any) -> tuple:
     if parts:
         return tuple(parts)
 
-    rest = {key: item for key, item in obj.items() if key != 'state'}
-    return ('__full__', _freeze(rest))
+    rest = {key: item for key, item in obj.items() if key != "state"}
+    return ("__full__", _freeze(rest))
 
 
 def identity_label(obj: Any) -> Any:
     """Short identity for task results / logs (no secrets)."""
     if not isinstance(obj, dict):
         return to_native(obj)
-    if obj.get('name') is not None:
-        label = {'name': obj['name']}
-        if obj.get('organization') is not None:
-            label['organization'] = obj['organization']
+    if obj.get("name") is not None:
+        label = {"name": obj["name"]}
+        if obj.get("organization") is not None:
+            label["organization"] = obj["organization"]
         return label
     label = {}
     for key in IDENTITY_KEYS:
-        if key in obj and key != 'groups':
+        if key in obj and key != "groups":
             value = obj[key]
             if not isinstance(value, (dict, list)):
                 label[key] = value
-    return label or {'identity': 'unnamed'}
+    return label or {"identity": "unnamed"}
 
 
 def is_list_of_dicts(value: Any) -> bool:
@@ -150,19 +150,19 @@ def diff_object_list(
         old_item = old_by_id.get(ident, _MISSING)
         if old_item is _MISSING:
             result.append(item)
-            summary.append({'action': 'added', 'object': identity_label(item)})
+            summary.append({"action": "added", "object": identity_label(item)})
         elif to_native(old_item) != to_native(item):
             result.append(item)
-            summary.append({'action': 'modified', 'object': identity_label(item)})
+            summary.append({"action": "modified", "object": identity_label(item)})
 
     if include_absent:
         for ident, old_item in old_by_id.items():
             if ident in seen:
                 continue
             absent = dict(old_item)
-            absent['state'] = 'absent'
+            absent["state"] = "absent"
             result.append(absent)
-            summary.append({'action': 'removed', 'object': identity_label(old_item)})
+            summary.append({"action": "removed", "object": identity_label(old_item)})
 
     return result, summary
 
@@ -181,7 +181,7 @@ def diff_var_dicts(
     for key in always_keys:
         if key in new_vars:
             result[key] = new_vars[key]
-            summary[key] = [{'action': 'always_loaded'}]
+            summary[key] = [{"action": "always_loaded"}]
 
     keys = set(old_vars) | set(new_vars)
     for key in sorted(keys):
@@ -196,9 +196,7 @@ def diff_var_dicts(
         if old_is_objects or new_is_objects:
             old_list = old_val if isinstance(old_val, list) else []
             new_list = new_val if isinstance(new_val, list) else []
-            changed_items, changes = diff_object_list(
-                old_list, new_list, include_absent=include_absent
-            )
+            changed_items, changes = diff_object_list(old_list, new_list, include_absent=include_absent)
             if changed_items:
                 result[key] = changed_items
                 summary[key] = changes
@@ -208,7 +206,7 @@ def diff_var_dicts(
             continue
         if old_val is _MISSING or to_native(old_val) != to_native(new_val):
             result[key] = new_val
-            summary[key] = [{'action': 'updated'}]
+            summary[key] = [{"action": "updated"}]
 
     return result, summary
 
@@ -225,10 +223,10 @@ def merge_loaded_files(
     merged = {}
     always_keys = set()
     for item in loaded:
-        data = item.get('data') or {}
+        data = item.get("data") or {}
         if not isinstance(data, dict):
             continue
-        path = item.get('path') or ''
+        path = item.get("path") or ""
         if os.path.basename(path) in always_load_names:
             always_keys.update(data.keys())
         merged.update(data)
@@ -249,7 +247,7 @@ def list_yaml_files(directory: str, extensions: list[str]) -> list[str]:
 
 
 def _git(repo: str, *args: str, check: bool = True) -> str:
-    command = ['git', '-c', 'safe.directory=*', '-C', repo, *args]
+    command = ["git", "-c", "safe.directory=*", "-C", repo, *args]
     try:
         completed = subprocess.run(
             command,
@@ -258,33 +256,33 @@ def _git(repo: str, *args: str, check: bool = True) -> str:
             text=True,
         )
     except FileNotFoundError as exc:
-        raise GitError('git is not installed or not on PATH') from exc
+        raise GitError("git is not installed or not on PATH") from exc
     if check and completed.returncode != 0:
-        error = (completed.stderr or completed.stdout or '').strip()
+        error = (completed.stderr or completed.stdout or "").strip()
         raise GitError(error or f'git {" ".join(args)} failed')
     if completed.returncode != 0:
-        return ''
+        return ""
     return completed.stdout
 
 
 def git_toplevel(path: str) -> str:
     path = os.path.abspath(path)
     start = path if os.path.isdir(path) else os.path.dirname(path)
-    output = _git(start, 'rev-parse', '--show-toplevel')
+    output = _git(start, "rev-parse", "--show-toplevel")
     return output.strip()
 
 
 def git_verify_ref(repo: str, ref: str) -> str:
-    output = _git(repo, 'rev-parse', '--verify', f'{ref}^{{commit}}')
+    output = _git(repo, "rev-parse", "--verify", f"{ref}^{{commit}}")
     sha = output.strip()
     if not sha:
-        raise GitError(f'git ref {ref!r} was not found')
+        raise GitError(f"git ref {ref!r} was not found")
     return sha
 
 
 def git_show_file(repo: str, ref: str, rel_path: str) -> str | None:
     completed = subprocess.run(
-        ['git', '-c', 'safe.directory=*', '-C', repo, 'show', f'{ref}:{rel_path}'],
+        ["git", "-c", "safe.directory=*", "-C", repo, "show", f"{ref}:{rel_path}"],
         check=False,
         capture_output=True,
         text=True,
@@ -295,17 +293,14 @@ def git_show_file(repo: str, ref: str, rel_path: str) -> str | None:
 
 
 def git_list_files(repo: str, ref: str, rel_dir: str, extensions: list[str]) -> list[str]:
-    output = _git(repo, 'ls-tree', '-r', '--name-only', ref, '--', rel_dir, check=False)
+    output = _git(repo, "ls-tree", "-r", "--name-only", ref, "--", rel_dir, check=False)
     ext_dot = tuple(f'.{ext.lstrip(".")}' for ext in extensions)
-    files = [
-        line for line in output.splitlines()
-        if line.endswith(ext_dot)
-    ]
+    files = [line for line in output.splitlines() if line.endswith(ext_dot)]
     return sorted(files)
 
 
-DEFAULT_EXTENSIONS = ['yml', 'yaml']
-DEFAULT_ALWAYS_LOAD = ['secrets.yml', 'aap_install.yml']
+DEFAULT_EXTENSIONS = ["yml", "yaml"]
+DEFAULT_ALWAYS_LOAD = ["secrets.yml", "aap_install.yml"]
 
 _YAML_LOADER = None
 
@@ -318,7 +313,7 @@ def _yaml_loader():
     try:
         import yaml
     except ImportError as exc:
-        raise ValueError('PyYAML is required to parse configuration files') from exc
+        raise ValueError("PyYAML is required to parse configuration files") from exc
 
     class CaCLoader(yaml.SafeLoader):
         pass
@@ -333,33 +328,33 @@ def _yaml_loader():
     def construct_vault(loader, node):
         return loader.construct_scalar(node)
 
-    CaCLoader.add_constructor('!unsafe', construct_unsafe)
-    CaCLoader.add_constructor('!vault', construct_vault)
+    CaCLoader.add_constructor("!unsafe", construct_unsafe)
+    CaCLoader.add_constructor("!vault", construct_vault)
     _YAML_LOADER = CaCLoader
     return CaCLoader
 
 
-def parse_yaml(content, filename='<string>'):
+def parse_yaml(content, filename="<string>"):
     """Parse a YAML mapping from a string. Empty content becomes {}."""
     if content is None or not str(content).strip():
         return {}
     try:
         import yaml
     except ImportError as exc:
-        raise ValueError('PyYAML is required to parse configuration files') from exc
+        raise ValueError("PyYAML is required to parse configuration files") from exc
     try:
         data = yaml.load(content, Loader=_yaml_loader())
     except yaml.YAMLError as exc:
-        raise ValueError('failed to parse {0}: {1}'.format(filename, exc)) from exc
+        raise ValueError("failed to parse {0}: {1}".format(filename, exc)) from exc
     if data is None:
         return {}
     if not isinstance(data, dict):
-        raise ValueError('{0} must contain a YAML mapping at the top level'.format(filename))
+        raise ValueError("{0} must contain a YAML mapping at the top level".format(filename))
     return data
 
 
 def parse_yaml_file(path):
-    with open(path, encoding='utf-8') as handle:
+    with open(path, encoding="utf-8") as handle:
         return parse_yaml(handle.read(), path)
 
 
@@ -368,7 +363,7 @@ def load_aap_config(
     env,
     extensions=None,
     changed_only=False,
-    git_base='HEAD',
+    git_base="HEAD",
     git_repo=None,
     include_absent=False,
     always_load=None,
@@ -389,19 +384,19 @@ def load_aap_config(
     load_string = load_string or (lambda content, filename: parse_yaml(content, filename))
 
     config_dir = os.path.abspath(config_dir)
-    all_dir = os.path.join(config_dir, 'all')
+    all_dir = os.path.join(config_dir, "all")
     env_dir = os.path.join(config_dir, str(env))
 
     if not os.path.isdir(config_dir):
-        raise ValueError('config_dir does not exist: {0}'.format(config_dir))
+        raise ValueError("config_dir does not exist: {0}".format(config_dir))
     if not os.path.isdir(all_dir):
-        raise ValueError('common config directory does not exist: {0}'.format(all_dir))
+        raise ValueError("common config directory does not exist: {0}".format(all_dir))
     if not os.path.isdir(env_dir):
-        raise ValueError('environment config directory does not exist: {0}'.format(env_dir))
+        raise ValueError("environment config directory does not exist: {0}".format(env_dir))
 
     current_files = list_yaml_files(all_dir, extensions) + list_yaml_files(env_dir, extensions)
     if not current_files:
-        raise ValueError('no YAML files found in {0} or {1}'.format(all_dir, env_dir))
+        raise ValueError("no YAML files found in {0} or {1}".format(all_dir, env_dir))
 
     loaded_new = []
     included_files = []
@@ -410,18 +405,18 @@ def load_aap_config(
         if data is None:
             data = {}
         if not isinstance(data, dict):
-            raise ValueError('{0} must contain a YAML mapping at the top level'.format(path))
-        loaded_new.append({'path': path, 'data': data})
+            raise ValueError("{0} must contain a YAML mapping at the top level".format(path))
+        loaded_new.append({"path": path, "data": data})
         included_files.append(path)
 
     new_vars, always_keys = merge_loaded_files(loaded_new, always_load)
 
     result = {
-        'changed': False,
-        'ansible_facts': new_vars,
-        'ansible_included_var_files': included_files,
-        'aap_config_mode': 'full',
-        'aap_config_changed_vars': {},
+        "changed": False,
+        "ansible_facts": new_vars,
+        "ansible_included_var_files": included_files,
+        "aap_config_mode": "full",
+        "aap_config_changed_vars": {},
     }
 
     if not changed_only:
@@ -430,9 +425,7 @@ def load_aap_config(
     repo = os.path.abspath(git_repo or git_toplevel(config_dir))
     resolved_base = git_verify_ref(repo, git_base)
 
-    old_rel_files = git_list_files(
-        repo, git_base, os.path.relpath(all_dir, repo), extensions
-    ) + git_list_files(
+    old_rel_files = git_list_files(repo, git_base, os.path.relpath(all_dir, repo), extensions) + git_list_files(
         repo, git_base, os.path.relpath(env_dir, repo), extensions
     )
 
@@ -445,10 +438,8 @@ def load_aap_config(
         if data is None:
             data = {}
         if not isinstance(data, dict):
-            raise ValueError(
-                'git version of {0} must contain a YAML mapping'.format(rel_path)
-            )
-        loaded_old.append({'path': rel_path, 'data': data})
+            raise ValueError("git version of {0} must contain a YAML mapping".format(rel_path))
+        loaded_old.append({"path": rel_path, "data": data})
 
     old_vars, _unused = merge_loaded_files(loaded_old, always_load)
     filtered, summary = diff_var_dicts(
@@ -458,11 +449,13 @@ def load_aap_config(
         include_absent=include_absent,
     )
 
-    result.update({
-        'ansible_facts': filtered,
-        'aap_config_mode': 'incremental',
-        'aap_config_git_base': git_base,
-        'aap_config_git_base_sha': resolved_base,
-        'aap_config_changed_vars': summary,
-    })
+    result.update(
+        {
+            "ansible_facts": filtered,
+            "aap_config_mode": "incremental",
+            "aap_config_git_base": git_base,
+            "aap_config_git_base_sha": resolved_base,
+            "aap_config_changed_vars": summary,
+        }
+    )
     return result
