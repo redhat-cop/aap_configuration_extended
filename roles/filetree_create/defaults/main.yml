@@ -56,6 +56,15 @@ export_related_objects: false
 # on inventories, projects, job templates, workflow job templates, credentials,
 # and instance groups. Default false keeps the separate controller_roles export.
 export_inline_object_roles: false
+# Controller API resource_type values omitted from controller_roles export when
+# export_inline_object_roles is true (roles are embedded on the object YAML).
+inline_object_role_resource_types:
+  - inventory
+  - project
+  - job_template
+  - workflow_job_template
+  - credential
+  - instance_group
 skip_inventory_sources: false
 skip_inventory_hosts: false
 skip_inventory_groups: false

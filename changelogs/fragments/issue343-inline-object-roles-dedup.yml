@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - 'filetree_create - Skip duplicate controller_roles export for inline-object types when ``export_inline_object_roles`` is enabled. Fixes #343.'
