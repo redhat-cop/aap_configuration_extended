@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Add attributes to the workflow jinja2 template (ask_tags_on_launch, ask_skip_tags_on_launch, job_tags, skip_tags, ask_labels_on_launch, ask_scm_branch_on_launch)
