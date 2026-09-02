@@ -1,9 +1,30 @@
 ---
 controller_instance_groups: {{ [] if current_instance_groups_asset_value | length == 0 }}
+{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
 {% for ig in current_instance_groups_asset_value %}
   - name: "{{ ig.name }}"
-    policy_instance_minimum: "{{ ig.policy_instance_minimum }}"
-    policy_instance_percentage: "{{ ig.policy_instance_percentage }}"
+    policy_instance_minimum: {{ ig.policy_instance_minimum | int }}
+    policy_instance_percentage: {{ ig.policy_instance_percentage | int }}
+{%   if ig.max_forks is defined and ig.max_forks not in __empty_values %}
+    max_forks: {{ ig.max_forks | int }}
+{%   endif %}
+{%   if ig.max_concurrent_jobs is defined and ig.max_concurrent_jobs not in __empty_values %}
+    max_concurrent_jobs: {{ ig.max_concurrent_jobs | int }}
+{%   endif %}
+{%   if ig.is_container_group is defined %}
+    is_container_group: {{ ig.is_container_group | bool | lower }}
+{%   endif %}
+{%   if ig.summary_fields.credential is defined and ig.summary_fields.credential.name is defined %}
+    credential: "{{ ig.summary_fields.credential.name }}"
+{%   endif %}
+{%   if ig.policy_instance_list is defined and ig.policy_instance_list | length > 0 %}
+    policy_instance_list:
+{{ ig.policy_instance_list | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=True) }}
+{%   endif %}
+{%   if ig.pod_spec_override is defined and ig.pod_spec_override not in __empty_values %}
+    pod_spec_override: |-
+{{ ig.pod_spec_override | indent(width=6, first=True) }}
+{%   endif %}
 {%   set __ig_instances = query('ansible.platform.gateway_api', ig.related.instances,
                               host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                               return_all=true, max_objects=query_controller_api_max_objects) %}
