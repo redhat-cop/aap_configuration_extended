@@ -11,7 +11,7 @@ controller_projects:
       {{ '{%- raw -%}' }}
       {{ template_overrides_resources.project[current_projects_asset_value.name].description
                      | default(template_overrides_global.project.description)
-                     | default(current_projects_asset_value.description) | regex_replace("'", "''") }}
+                     | default(current_projects_asset_value.description) | regex_replace("'", "''") | indent(6) }}
       {{ '{%- endraw -%}' }}
 {% endif %}
     organization: "{{ current_projects_asset_value.summary_fields.organization.name

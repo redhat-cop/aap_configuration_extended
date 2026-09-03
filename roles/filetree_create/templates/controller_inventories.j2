@@ -11,7 +11,7 @@ controller_inventories:
       {{ '{%- raw -%}' }}
       {{ template_overrides_resources.inventory[current_inventories_asset_value.name].description
                      | default(template_overrides_global.inventory.description)
-                     | default(current_inventories_asset_value.description) | regex_replace("'", "''") }}
+                     | default(current_inventories_asset_value.description) | regex_replace("'", "''") | indent(6) }}
       {{ '{%- endraw -%}' }}
 {% endif %}
     organization: "{{ inventory_organization }}"
