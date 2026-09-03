@@ -6,12 +6,12 @@ controller_projects:
   - name: "{{ current_projects_asset_value.name }}"
 {% if template_overrides_resources.project[current_projects_asset_value.name].description
                      | default(template_overrides_global.project.description)
-                     | default(current_projects_asset_value.description) | regex_replace("'", "''") not in __empty_values %}
+                     | default(current_projects_asset_value.description) not in __empty_values %}
     description: |-
       {{ '{%- raw -%}' }}
       {{ template_overrides_resources.project[current_projects_asset_value.name].description
                      | default(template_overrides_global.project.description)
-                     | default(current_projects_asset_value.description) | regex_replace("'", "''") }}
+                     | default(current_projects_asset_value.description) }}
       {{ '{%- endraw -%}' }}
 {% endif %}
     organization: "{{ current_projects_asset_value.summary_fields.organization.name

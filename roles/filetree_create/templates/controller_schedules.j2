@@ -10,7 +10,7 @@ controller_schedules:
       {{ '{%- raw -%}' }}
       {{ template_overrides_resources.schedule[current_schedules_asset_value.name].description
                      | default(template_overrides_global.schedule.description)
-                     | default(current_schedules_asset_value.description) | regex_replace("'", "''") }}
+                     | default(current_schedules_asset_value.description) }}
       {{ '{%- endraw -%}' }}
 {% endif %}
     enabled: {{ template_overrides_resources.schedule[current_schedules_asset_value.name].enabled
