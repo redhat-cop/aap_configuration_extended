@@ -8,7 +8,7 @@ controller_groups: {{ [] if current_groups_asset_value | length == 0 }}
       {{ '{%- raw -%}' }}
       {{ template_overrides_resources.group[group.name].description
                      | default(template_overrides_global.group.description)
-                     | default(group.description) | regex_replace("'", "''") }}
+                     | default(group.description) }}
       {{ '{%- endraw -%}' }}
     inventory: "{{ group.summary_fields.inventory.name }}"
 {%   if template_overrides_resources.group[group.name].variables is defined

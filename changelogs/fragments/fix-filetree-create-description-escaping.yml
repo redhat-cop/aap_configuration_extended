@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Remove single quotes escaping in description attributes when surrounded by a raw block

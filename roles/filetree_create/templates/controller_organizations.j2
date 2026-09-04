@@ -6,7 +6,7 @@ aap_organizations:
   - name: "{{ current_organization.name }}"
 {% set __org_description = template_overrides_resources.organization[current_organization.name].description
                      | default(template_overrides_global.organization.description)
-                     | default(current_organization.description) | regex_replace("'", "''") %}
+                     | default(current_organization.description) %}
 {% if __org_description not in __empty_values %}
     description: |-
       {{ '{%- raw -%}' }}

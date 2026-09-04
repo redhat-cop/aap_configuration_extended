@@ -6,12 +6,12 @@ controller_inventories:
   - name: "{{ current_inventories_asset_value.name }}"
 {% if template_overrides_resources.inventory[current_inventories_asset_value.name].description
                      | default(template_overrides_global.inventory.description)
-                     | default(current_inventories_asset_value.description) | regex_replace("'", "''") not in __empty_values %}
+                     | default(current_inventories_asset_value.description) not in __empty_values %}
     description: |-
       {{ '{%- raw -%}' }}
       {{ template_overrides_resources.inventory[current_inventories_asset_value.name].description
                      | default(template_overrides_global.inventory.description)
-                     | default(current_inventories_asset_value.description) | regex_replace("'", "''") }}
+                     | default(current_inventories_asset_value.description) }}
       {{ '{%- endraw -%}' }}
 {% endif %}
     organization: "{{ inventory_organization }}"
