@@ -8,7 +8,7 @@ gateway_routes: {{ [] if current_gateway_routes_asset_value | length == 0 }}
       {{ '{%- raw -%}' }}
       {{ template_overrides_resources.gateway_route[current_route.name].description
                      | default(template_overrides_global.gateway_route.description)
-                     | default(current_route.description) | regex_replace("'", "''") }}
+                     | default(current_route.description) | regex_replace("'", "''") | indent(6) }}
       {{ '{%- endraw -%}' }}
     http_port: "{{ template_overrides_resources.gateway_route[current_route.name].http_port
                      | default(template_overrides_global.gateway_route.http_port)

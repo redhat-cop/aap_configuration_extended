@@ -11,7 +11,7 @@ gateway_organizations: {{ [] if current_gateway_organizations_asset_value | leng
       {{ '{%- raw -%}' }}
       {{ template_overrides_resources.gateway_organization[current_organization.name].description
            | default(template_overrides_global.gateway_organization.description)
-           | default(current_organization.description) | regex_replace("'", "''") }}
+           | default(current_organization.description) | regex_replace("'", "''") | indent(6) }}
       {{ '{%- endraw -%}' }}
 {%   endif %}
 {% endfor %}

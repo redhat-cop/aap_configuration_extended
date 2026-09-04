@@ -12,7 +12,7 @@ controller_hosts: {{ [] if current_hosts_asset_value | length == 0 }}
       {{ '{%- raw -%}' }}
       {{ template_overrides_resources.host[host.name].description
                      | default(template_overrides_global.host.description)
-                     | default(host.description) | regex_replace("'", "''") }}
+                     | default(host.description) | regex_replace("'", "''") | indent(6) }}
       {{ '{%- endraw -%}' }}
 {%   endif %}
     inventory: "{{ host.summary_fields.inventory.name | default('ToDo: The host \'' + host.name + '\' must have an associated inventory') }}"

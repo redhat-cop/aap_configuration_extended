@@ -8,7 +8,7 @@ controller_inventory_sources: {{ [] if current_inventory_sources_asset_value | l
       {{ '{%- raw -%}' }}
       {{ template_overrides_resources.inventory_source[inventory_source.name].description
                      | default(template_overrides_global.inventory_source.description)
-                     | default(inventory_source.description) | regex_replace("'", "''") }}
+                     | default(inventory_source.description) | regex_replace("'", "''") | indent(6) }}
       {{ '{%- endraw -%}' }}
 {%   if inventory_source.summary_fields.organization is defined %}
     organization: "{{ inventory_source.summary_fields.organization.name }}"
