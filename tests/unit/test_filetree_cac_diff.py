@@ -67,6 +67,14 @@ class TestFiletreeCacDiff(unittest.TestCase):
             "controller_projects",
         )
 
+    def test_schedule_without_organization_passes_org_filter(self):
+        schedule = {
+            "name": "Object Diff Shared Schedule",
+            "unified_job_template": "Object Diff Shared Job Template",
+            "rrule": "DTSTART:20260101T000000Z RRULE:FREQ=DAILY;INTERVAL=1",
+        }
+        self.assertTrue(self.module.matches_organization_filter(schedule, "Object Diff Test"))
+
 
 if __name__ == "__main__":
     unittest.main()
