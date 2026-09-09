@@ -1,0 +1,135 @@
+---
+# migration_vars.yml.example
+# Example configuration file for AAP instance migration
+#
+# Usage:
+#   1. Copy this file: cp migration_vars.yml.example migration_vars.yml
+#   2. Edit migration_vars.yml with your AAP instance details
+#   3. Encrypt sensitive data: ansible-vault encrypt migration_vars.yml
+#   4. Run migration: ansible-playbook migrate_aap_instance.yml -e @migration_vars.yml --ask-vault-pass
+#
+# Or use Ansible Vault inline:
+#   ansible-vault encrypt_string 'your_password' --name 'source_aap_password'
+
+# ============================================================================
+# SOURCE AAP INSTANCE CONFIGURATION
+# ============================================================================
+# The AAP instance you want to export configuration FROM
+source_aap_hostname: "source-aap.example.com"
+source_aap_username: "admin"
+source_aap_password: "source_admin_password"  # Consider using Ansible Vault!
+
+# Optional: Limit export to specific organization
+# migration_export_organization: "Default"
+
+# ============================================================================
+# TARGET AAP INSTANCE CONFIGURATION
+# ============================================================================
+# The AAP instance you want to import configuration TO
+target_aap_hostname: "target-aap.example.com"
+target_aap_username: "admin"
+target_aap_password: "target_admin_password"  # Consider using Ansible Vault!
+
+# ============================================================================
+# MIGRATION SETTINGS
+# ============================================================================
+
+# Directory where exported configuration will be stored
+migration_export_dir: "/tmp/aap_migration"
+
+# SSL Certificate validation (set to true for production with valid certs)
+migration_validate_certs: false
+
+# Export format options
+# false = Structured (organized by organization and resource type)
+# true = Flattened (all resources in single directories)
+migration_export_flatten: false
+
+# Post-migration validation
+# false = Run validation and drift detection after import
+# true = Skip validation phase
+migration_skip_validation: false
+
+# Drift cleanup
+# false = Only report drift, don't delete anything (recommended for first run)
+# true = Delete resources on target that weren't in the export (use with caution!)
+migration_cleanup_drift: false
+
+# ============================================================================
+# ADVANCED OPTIONS (uncomment to use)
+# ============================================================================
+
+# Filter export by specific resources (optional)
+# migration_export_project_id: 10
+# migration_export_job_template_id: 25
+# migration_export_workflow_id: 5
+# migration_export_inventory_id: 3
+
+# Control what gets exported (uncomment to exclude)
+# filetree_create_skip_credentials: true
+# filetree_create_skip_users: true
+# filetree_create_skip_teams: true
+
+# Show sensitive credential data in export (not recommended for production)
+# filetree_create_show_encrypted: true
+
+# Omit resource IDs from export (useful for multi-environment deployments)
+# filetree_create_omit_ids: true
+
+# ============================================================================
+# ANSIBLE VAULT EXAMPLE
+# ============================================================================
+# To encrypt sensitive passwords:
+#
+# 1. Create vault file:
+#    ansible-vault create vault.yml
+#
+# 2. Add encrypted variables:
+#    source_aap_password: !vault |
+#      $ANSIBLE_VAULT;1.1;AES256
+#      ...encrypted data...
+#
+# 3. Reference in this file:
+#    source_aap_password: "{{ vault_source_password }}"
+#
+# 4. Run with vault:
+#    ansible-playbook migrate_aap_instance.yml -e @migration_vars.yml -e @vault.yml --ask-vault-pass
+
+# ============================================================================
+# ORGANIZATION-SPECIFIC EXAMPLES
+# ============================================================================
+
+# Example 1: Migrate single organization
+# ---
+# source_aap_hostname: "old-aap.company.com"
+# source_aap_username: "admin"
+# source_aap_password: "{{ vault_source_pass }}"
+# target_aap_hostname: "new-aap.company.com"
+# target_aap_username: "admin"
+# target_aap_password: "{{ vault_target_pass }}"
+# migration_export_organization: "Engineering"
+# migration_export_dir: "/tmp/engineering_migration"
+
+# Example 2: Full migration with validation and cleanup
+# ---
+# source_aap_hostname: "aap-prod-old.company.com"
+# source_aap_username: "migration_admin"
+# source_aap_password: "{{ vault_source_pass }}"
+# target_aap_hostname: "aap-prod-new.company.com"
+# target_aap_username: "migration_admin"
+# target_aap_password: "{{ vault_target_pass }}"
+# migration_export_dir: "/data/migrations/aap_prod_migration"
+# migration_validate_certs: true
+# migration_cleanup_drift: true  # Clean up after validation
+
+# Example 3: Development environment with flattened export
+# ---
+# source_aap_hostname: "aap-dev.local"
+# source_aap_username: "admin"
+# source_aap_password: "devpassword"
+# target_aap_hostname: "aap-dev2.local"
+# target_aap_username: "admin"
+# target_aap_password: "devpassword"
+# migration_export_dir: "/tmp/dev_migration"
+# migration_export_flatten: true
+# migration_skip_validation: true  # Skip for faster dev migrations

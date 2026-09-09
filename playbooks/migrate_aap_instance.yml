@@ -1,0 +1,262 @@
+---
+# migrate_aap_instance.yml
+# Comprehensive playbook to migrate all resources from one AAP instance to another
+#
+# This playbook performs a complete AAP migration in three phases:
+# 1. EXPORT: Downloads all resources from source AAP instance to local files
+# 2. IMPORT: Uploads and configures all resources on target AAP instance
+# 3. VALIDATE: (Optional) Verifies the migration and checks for drift
+#
+# Usage:
+#   ansible-playbook infra.aap_configuration_extended.migrate_aap_instance.yml \
+#     -e @migration_vars.yml
+#
+# Required variables (define in migration_vars.yml or pass via -e):
+#   - source_aap_hostname: Source AAP instance hostname/IP
+#   - source_aap_username: Source AAP admin username
+#   - source_aap_password: Source AAP admin password
+#   - target_aap_hostname: Target AAP instance hostname/IP
+#   - target_aap_username: Target AAP admin username
+#   - target_aap_password: Target AAP admin password
+#
+# Optional variables:
+#   - migration_export_dir: Directory to store exported config (default: /tmp/aap_migration)
+#   - migration_validate_certs: Validate SSL certificates (default: false)
+#   - migration_export_organization: Limit export to specific organization
+#   - migration_skip_validation: Skip post-migration validation (default: false)
+#   - migration_cleanup_drift: Remove objects not in exported config (default: false)
+#   - migration_export_flatten: Use flattened directory structure (default: false)
+#
+# Example migration_vars.yml:
+# ---
+# source_aap_hostname: "source-aap.example.com"
+# source_aap_username: "admin"
+# source_aap_password: "{{ vault_source_password }}"
+# target_aap_hostname: "target-aap.example.com"
+# target_aap_username: "admin"
+# target_aap_password: "{{ vault_target_password }}"
+# migration_export_dir: "/tmp/aap_migration"
+# migration_validate_certs: false
+
+- name: "AAP Migration Playbook - Export from Source Instance"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    # Default values
+    migration_export_dir: "/tmp/aap_migration"
+    migration_validate_certs: false
+    migration_export_flatten: false
+    migration_skip_validation: false
+    migration_cleanup_drift: false
+
+  pre_tasks:
+    - name: Validate required variables for source instance
+      ansible.builtin.assert:
+        that:
+          - source_aap_hostname is defined
+          - source_aap_username is defined
+          - source_aap_password is defined
+        fail_msg: "Missing required source AAP connection variables"
+
+    - name: Validate required variables for target instance
+      ansible.builtin.assert:
+        that:
+          - target_aap_hostname is defined
+          - target_aap_username is defined
+          - target_aap_password is defined
+        fail_msg: "Missing required target AAP connection variables"
+
+    - name: Create migration export directory
+      ansible.builtin.file:
+        path: "{{ migration_export_dir }}"
+        state: directory
+        mode: '0750'
+
+    - name: Display migration summary
+      ansible.builtin.debug:
+        msg:
+          - "======================================================================"
+          - "                    AAP MIGRATION SUMMARY"
+          - "======================================================================"
+          - "Source AAP: {{ source_aap_hostname }}"
+          - "Target AAP: {{ target_aap_hostname }}"
+          - "Export Directory: {{ migration_export_dir }}"
+          - "Validate Certs: {{ migration_validate_certs }}"
+          - "Organization Filter: {{ migration_export_organization | default('All organizations') }}"
+          - "Export Format: {{ 'Flattened' if migration_export_flatten else 'Structured' }}"
+          - "Post-Migration Validation: {{ 'Disabled' if migration_skip_validation else 'Enabled' }}"
+          - "Drift Cleanup: {{ 'Enabled' if migration_cleanup_drift else 'Disabled' }}"
+          - "======================================================================"
+
+  tasks:
+    - name: "PHASE 1: Export all resources from source AAP instance"
+      block:
+        - name: Display export phase message
+          ansible.builtin.debug:
+            msg:
+              - ""
+              - "======================================================================"
+              - "PHASE 1: Exporting configuration from {{ source_aap_hostname }}"
+              - "======================================================================"
+
+        - name: Export AAP configuration from source instance
+          ansible.builtin.include_role:
+            name: infra.aap_configuration_extended.filetree_create
+          vars:
+            aap_hostname: "{{ source_aap_hostname }}"
+            aap_username: "{{ source_aap_username }}"
+            aap_password: "{{ source_aap_password }}"
+            aap_validate_certs: "{{ migration_validate_certs }}"
+            filetree_create_output_dir: "{{ migration_export_dir }}"
+            filetree_create_flatten: "{{ migration_export_flatten }}"
+            # Optional filters
+            filetree_create_organization: "{{ migration_export_organization | default(omit) }}"
+
+        - name: Display export completion
+          ansible.builtin.debug:
+            msg:
+              - "Export completed successfully!"
+              - "Configuration saved to: {{ migration_export_dir }}"
+              - ""
+
+      rescue:
+        - name: Export failed
+          ansible.builtin.fail:
+            msg:
+              - "Failed to export configuration from source AAP instance"
+              - "Error: {{ ansible_failed_result.msg | default('Unknown error') }}"
+
+- name: "AAP Migration Playbook - Import to Target Instance"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    migration_export_dir: "/tmp/aap_migration"
+    migration_validate_certs: false
+    migration_skip_validation: false
+    migration_cleanup_drift: false
+
+  pre_tasks:
+    - name: Authenticate to target AAP instance and get OAuth token
+      ansible.builtin.uri:
+        url: "https://{{ target_aap_hostname }}/api/gateway/v1/tokens/"
+        method: POST
+        user: "{{ target_aap_username }}"
+        password: "{{ target_aap_password }}"
+        force_basic_auth: true
+        validate_certs: "{{ migration_validate_certs }}"
+        status_code: 201
+      register: target_auth_response
+      no_log: true
+
+    - name: Set target OAuth token fact
+      ansible.builtin.set_fact:
+        target_aap_token: "{{ target_auth_response.json.token }}"
+      no_log: true
+
+  tasks:
+    - name: "PHASE 2: Import configuration to target AAP instance"
+      block:
+        - name: Display import phase message
+          ansible.builtin.debug:
+            msg:
+              - ""
+              - "======================================================================"
+              - "PHASE 2: Importing configuration to {{ target_aap_hostname }}"
+              - "======================================================================"
+
+        - name: Read configuration from exported files
+          ansible.builtin.include_role:
+            name: infra.aap_configuration_extended.filetree_read
+          vars:
+            dir_orgs_vars: "{{ migration_export_dir }}"
+
+        - name: Apply configuration to target AAP instance
+          ansible.builtin.include_role:
+            name: infra.aap_configuration.dispatch
+          vars:
+            aap_hostname: "{{ target_aap_hostname }}"
+            aap_username: "{{ target_aap_username }}"
+            aap_oauthtoken: "{{ target_aap_token }}"
+            aap_validate_certs: "{{ migration_validate_certs }}"
+
+        - name: Display import completion
+          ansible.builtin.debug:
+            msg:
+              - "Import completed successfully!"
+              - "Configuration applied to: {{ target_aap_hostname }}"
+              - ""
+
+      rescue:
+        - name: Import failed
+          ansible.builtin.fail:
+            msg:
+              - "Failed to import configuration to target AAP instance"
+              - "Error: {{ ansible_failed_result.msg | default('Unknown error') }}"
+
+    - name: "PHASE 3: Validate migration (optional)"
+      when: not migration_skip_validation
+      block:
+        - name: Display validation phase message
+          ansible.builtin.debug:
+            msg:
+              - ""
+              - "======================================================================"
+              - "PHASE 3: Validating migration on {{ target_aap_hostname }}"
+              - "======================================================================"
+
+        - name: Check for configuration drift
+          ansible.builtin.include_role:
+            name: infra.aap_configuration_extended.object_diff
+          vars:
+            aap_hostname: "{{ target_aap_hostname }}"
+            aap_username: "{{ target_aap_username }}"
+            aap_oauthtoken: "{{ target_aap_token }}"
+            aap_validate_certs: "{{ migration_validate_certs }}"
+            controller_configuration_object_diff_tasks: "{{ migration_cleanup_drift }}"
+
+        - name: Display validation completion
+          ansible.builtin.debug:
+            msg:
+              - "Validation completed!"
+              - "Drift cleanup: {{ 'Performed' if migration_cleanup_drift else 'Skipped (dry-run only)' }}"
+              - ""
+
+      rescue:
+        - name: Validation warning
+          ansible.builtin.debug:
+            msg:
+              - "Warning: Validation encountered issues"
+              - "Error: {{ ansible_failed_result.msg | default('Unknown error') }}"
+              - "Migration may still have succeeded - please verify manually"
+
+  post_tasks:
+    - name: Revoke target OAuth token
+      ansible.builtin.uri:
+        url: "https://{{ target_aap_hostname }}/api/gateway/v1/tokens/{{ target_auth_response.json.id }}/"
+        method: DELETE
+        headers:
+          Authorization: "Bearer {{ target_aap_token }}"
+        validate_certs: "{{ migration_validate_certs }}"
+        status_code: [204, 404]
+      when: target_auth_response is defined and target_auth_response.json.id is defined
+      ignore_errors: true
+
+    - name: Display final migration summary
+      ansible.builtin.debug:
+        msg:
+          - ""
+          - "======================================================================"
+          - "               AAP MIGRATION COMPLETED SUCCESSFULLY"
+          - "======================================================================"
+          - "Source: {{ source_aap_hostname }}"
+          - "Target: {{ target_aap_hostname }}"
+          - "Export Location: {{ migration_export_dir }}"
+          - ""
+          - "Next Steps:"
+          - "  1. Verify all resources in target AAP web UI"
+          - "  2. Test job templates and workflows"
+          - "  3. Update any external integrations to point to new instance"
+          - "  4. Review and update credentials if needed"
+          - "======================================================================"
