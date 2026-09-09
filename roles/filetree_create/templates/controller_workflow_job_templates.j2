@@ -115,6 +115,24 @@ controller_workflows:
     ask_variables_on_launch: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].ask_variables_on_launch
                                  | default(template_overrides_global.workflow_template.ask_variables_on_launch)
                                  | default(current_workflow_job_templates_asset_value.ask_variables_on_launch) }}"
+    ask_tags_on_launch: {{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].ask_tags_on_launch
+                           | default(template_overrides_global.workflow_template.ask_tags_on_launch)
+                           | default(current_workflow_job_templates_asset_value.ask_tags_on_launch | bool | lower) }}
+    ask_skip_tags_on_launch: {{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].ask_skip_tags_on_launch
+                                | default(template_overrides_global.workflow_template.ask_skip_tags_on_launch)
+                                | default(current_workflow_job_templates_asset_value.ask_skip_tags_on_launch | bool | lower) }}
+    job_tags: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].job_tags
+                  | default(template_overrides_global.workflow_template.job_tags)
+                  | default(current_workflow_job_templates_asset_value.job_tags) }}"
+    skip_tags: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].skip_tags
+                   | default(template_overrides_global.workflow_template.skip_tags)
+                   | default(current_workflow_job_templates_asset_value.skip_tags) }}"
+    ask_labels_on_launch: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].ask_labels_on_launch
+                   | default(template_overrides_global.workflow_template.ask_labels_on_launch)
+                   | default(current_workflow_job_templates_asset_value.ask_labels_on_launch) }}"
+    ask_scm_branch_on_launch: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].ask_scm_branch_on_launch
+                   | default(template_overrides_global.workflow_template.ask_scm_branch_on_launch)
+                   | default(current_workflow_job_templates_asset_value.ask_scm_branch_on_launch) }}"
     allow_simultaneous: "{{ template_overrides_resources.workflow_job_template[current_workflow_job_templates_asset_value.name].allow_simultaneous
                             | default(template_overrides_global.workflow_template.allow_simultaneous)
                             | default(current_workflow_job_templates_asset_value.allow_simultaneous) }}"

@@ -71,7 +71,8 @@ secrets_as_variables_prefix: "vaulted"
 template_overrides_global:
   controller_setting:
     AWX_ANSIBLE_CALLBACK_PLUGINS: []
-    DEFAULT_EXECUTION_ENVIRONMENT: ""
+    AWX_TASK_ENV: {}
+    DEFAULT_EXECUTION_ENVIRONMENT: null
 
 # When true, selected non-secret but environment-specific fields are exported as
 # Ansible variable references (same naming scheme as secrets_as_variables).

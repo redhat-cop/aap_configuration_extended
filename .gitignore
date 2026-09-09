@@ -9,6 +9,7 @@ ansible_collections
 id_rsa*
 test
 tests/output
+tests/.cache
 .vscode
 ansible.cfg
 vault-aap-controller.yaml

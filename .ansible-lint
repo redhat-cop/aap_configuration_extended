@@ -11,6 +11,7 @@ exclude_paths:
   - 'tests/templated_role_example'
   - .ansible/
   - '.pre-commit-cache/'
+  - tests/.cache/
 # parseable: true
 use_default_rules: true
 strict: true

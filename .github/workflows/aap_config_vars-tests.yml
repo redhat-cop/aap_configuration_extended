@@ -1,0 +1,62 @@
+---
+# Integration and unit tests for the aap_config_vars module, action plugin, and helpers.
+# Runs only when those plugins or their test fixtures change (no AAP instance required).
+name: aap_config_vars tests
+
+on:
+  pull_request:
+    paths:
+      - 'plugins/module_utils/aap_config_vars.py'
+      - 'plugins/action/aap_config_vars.py'
+      - 'plugins/modules/aap_config_vars.py'
+      - 'tests/unit/plugins/module_utils/test_aap_config_vars.py'
+      - 'tests/test_aap_config_vars.yaml'
+      - 'tests/configs/aap_config_vars/**'
+      - 'tests/scripts/run_aap_config_vars_integration.sh'
+      - '.github/workflows/aap_config_vars-tests.yml'
+  push:
+    branches: [devel]
+    paths:
+      - 'plugins/module_utils/aap_config_vars.py'
+      - 'plugins/action/aap_config_vars.py'
+      - 'plugins/modules/aap_config_vars.py'
+      - 'tests/unit/plugins/module_utils/test_aap_config_vars.py'
+      - 'tests/test_aap_config_vars.yaml'
+      - 'tests/configs/aap_config_vars/**'
+      - 'tests/scripts/run_aap_config_vars_integration.sh'
+      - '.github/workflows/aap_config_vars-tests.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  aap-config-vars:
+    name: unit and integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ansible-core PyYAML
+
+      - name: Run unit tests
+        run: |
+          python -m unittest discover \
+            -s tests/unit/plugins/module_utils \
+            -p 'test_aap_config_vars.py' \
+            -v
+
+      - name: Run integration tests (fixture and template layout)
+        run: tests/scripts/run_aap_config_vars_integration.sh --template

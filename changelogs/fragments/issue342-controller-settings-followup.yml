@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - 'filetree_create - Export ``DEFAULT_EXECUTION_ENVIRONMENT`` as ``null`` and include ``AWX_TASK_ENV`` in controller_settings defaults. Fixes #342 follow-up.'

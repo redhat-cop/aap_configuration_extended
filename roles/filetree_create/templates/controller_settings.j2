@@ -24,6 +24,8 @@ controller_settings:
 {%     else %}
 {{ key | indent(width=4, first=True) }}: '{{ (value | string) | replace("'", "''") }}'
 {%     endif %}
+{%   elif value is none %}
+{{ key | indent(width=4, first=True) }}: null
 {%   else %}
 {{ key | indent(width=4, first=True) }}: {{ yamlval.render_scalar(value) }}
 {%   endif %}
