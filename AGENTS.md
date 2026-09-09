@@ -25,3 +25,7 @@ When asked to run a PR's test plan locally, follow [.cursor/skills/pr-test-plan/
 - **Names, never IDs.** CaC YAML, playbook extra vars, and docs must identify objects by name (`job_template_name`, `organization_filter`, `project_name`, …). Do not recommend or document numeric `*_id` selectors for new work.
 - Exported related-object references must be names (already the default in Jinja templates via `summary_fields.*.name`).
 - Prefer `omit_id: true` so generated filenames do not prefix numeric IDs.
+
+## Code quality (SonarQube)
+
+- Python changes must leave **SonarQube / SonarLint with zero reported issues** before merge.
