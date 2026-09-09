@@ -1,3 +1,0 @@
----
-bugfixes:
-  - 'filetree_create - Apply ``organization_filter`` to gateway teams, gateway authenticator maps, and controller schedules. Fixes #312.'

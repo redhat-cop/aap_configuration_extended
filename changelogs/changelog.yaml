@@ -297,6 +297,230 @@ releases:
     - filetree_create_fixes.yaml
     - filetree_create_issue206.yaml
     release_date: '2026-01-15'
+  4.10.0:
+    changes:
+      bugfixes:
+      - Bump pre-commit changelog hook to v26.8.1 so fragment YAML is linted as strictly
+        as release.
+      - CI - approval-gate accepts ci-approved label and waits for populate-collections-cache
+        before running tests
+      - CI - populate Ansible collections cache in the trusted pre-commit approval
+        workflow (with Automation Hub secrets); pre-commit-tests only restores the
+        cache
+      - CI - restore pull-requests write permission on approval labeling jobs so ci-approved
+        can be applied
+      - CI - run sanity against an ansible_collections tree that symlinks Automation
+        Hub deps from the trusted cache (no ade / no AH token in tests)
+      - Document max_retries and retry_backoff_factor on controller_export_diff so
+        validate-modules matches ansible.controller 4.8.3 AUTH_ARGSPEC.
+      - Inline auth lookup documentation in ``workflow_related_graph`` so automated
+        release changelog generation does not require ``ansible.platform`` at doc-build
+        time.
+      - aap-config-validate - Do not treat ``bool`` as ``int``; do not treat known
+        vars such as ``controller_settings_individuale`` as wildcard suffixes; ignore
+        empty ``[]`` overlays on dict-form settings.
+      - aap-config-validate - Keep organization names in the cross-reference index
+        when ``--component controller`` is used.
+      - auto-approve trusted collaborator PRs when .github workflows are unchanged;
+        require manual approval for external contributors or workflow edits
+      - compute the Ansible collections cache key in cache steps instead of job env,
+        because hashFiles is not available in jobs.<job_id>.env
+      - filetree_create - Add attributes to the workflow jinja2 template (ask_tags_on_launch,
+        ask_skip_tags_on_launch, job_tags, skip_tags, ask_labels_on_launch, ask_scm_branch_on_launch)
+      - 'filetree_create - Apply ``organization_filter`` to gateway teams, gateway
+        authenticator maps, and controller schedules. Fixes #312.'
+      - filetree_create - Avoid ansible-core task-name templating warnings by not
+        referencing the loop variable in the organizations output-directory task name
+        (path remains in the loop label).
+      - filetree_create - Document ``*_secure_logging`` role variables in the README
+        and align defaults with ``aap_configuration_secure_logging`` (with legacy
+        ``controller_configuration_secure_logging`` fallback) (fixes redhat-cop/aap_configuration_extended#304).
+      - filetree_create - Export YAML with native types (booleans, integers, floats,
+        dicts, lists) instead of quoted strings across settings, authenticators, workflow
+        extra_data, hub objects, and related templates via shared Jinja macros (fixes
+        redhat-cop/aap_configuration_extended#203).
+      - filetree_create - Export ``AUTOMATION_ANALYTICS_LAST_ENTRIES`` when the API
+        returns Python dict strings instead of JSON.
+      - 'filetree_create - Export ``AWX_ANSIBLE_CALLBACK_PLUGINS`` and ``DEFAULT_EXECUTION_ENVIRONMENT``
+        in controller_settings via ``template_overrides_global.controller_setting``
+        defaults. Fixes #342.'
+      - 'filetree_create - Export ``DEFAULT_EXECUTION_ENVIRONMENT`` as ``null`` and
+        include ``AWX_TASK_ENV`` in controller_settings defaults. Fixes #342 follow-up.'
+      - 'filetree_create - Export ``enabled`` on hosts, ``overwrite_vars`` and ``execution_environment``
+        on inventory sources, top-level ``inventory`` on workflows, node ``credentials``
+        on workflow nodes, and ``organization`` on schedules. Fixes #308.'
+      - 'filetree_create - Export gateway role team assignments with named ``assignment_objects``
+        instead of numeric ``object_id``. Follow-up to #298.'
+      - 'filetree_create - Export gateway role user assignments with ``object_ids``
+        (resource names) instead of deprecated numeric ``object_id``. Fixes #298.'
+      - filetree_create - Export job/workflow template ``extra_vars`` that contain
+        only YAML comments without failing on ``dict2items`` when ``from_yaml`` returns
+        ``None`` (fixes redhat-cop/aap_configuration_extended#321; regression from
+        redhat-cop/aap_configuration_extended#270 after redhat-cop/aap_configuration_extended#226).
+      - 'filetree_create - Export native integers and additional fields for ``controller_instance_groups``.
+        Fixes #339.'
+      - filetree_create - Export organization ``max_hosts``, ``custom_virtualenv``,
+        ``default_environment``, ``galaxy_credentials``, and ``instance_groups`` (by
+        name) into ``aap_organizations`` alongside existing notification templates
+        (fixes
+      - filetree_create - Export workflow node ``extra_data`` numeric and boolean
+        survey values with native YAML types instead of quoted raw strings (fixes
+        redhat-cop/aap_configuration_extended#250).
+      - 'filetree_create - Fix ``default_environment`` export for projects (was reading
+        the wrong asset variable). Fixes #308.'
+      - filetree_create - Fix notification template export (IRC/messages), gateway
+        role user assignments, hub EE image tag filtering, and collection repository
+        sync defaults.
+      - filetree_create - Fix stray Jinja trim markers that broke YAML export for
+        job templates, workflows, and inventories.
+      - filetree_create - Guard missing ``summary_fields.resource_name`` when exporting
+        gateway role user and team assignments.
+      - 'filetree_create - Honor ``secrets_as_variables`` when exporting ``gateway_settings``
+        password fields. Fixes #340.'
+      - filetree_create - Remove single quotes escaping in description attributes
+        when surrounded by a raw block
+      - 'filetree_create - Respect boolean ``omit_id`` value when building output
+        filenames (``omit_id: false`` keeps numeric id prefixes; ``omit_id: true``
+        omits them). Fixes #302.'
+      - filetree_create - Standardize Jinja control-tag indentation in export templates.
+      - filetree_create - Stop writing an empty mapping (``{}``) into ``env_variables.yml``
+        when no ``vaulted_*`` placeholders are found, and exclude that stub from ``yaml_format``
+        so comments are preserved.
+      - filetree_create hub_namespaces export normalizes API empty-string links to
+        an empty list before the shared export macros decide whether to omit the field
+      - filetree_read - Add ``controller_configuration_filetree_read_layout`` (``hierarchical``
+        / ``create`` / ``flatten``) so a ``filetree_create`` export tree can be loaded
+        by remapping ``filetree_*`` paths to ``dir_orgs_vars``. Deprecated alias ``filetree_create_layout``
+        (when true) still maps to ``create`` (fixes
+      - filetree_read - Default ``orgs`` to an empty string so argument_specs path
+        defaults resolve under create/flatten layouts, and apply layout remap with
+        ``apply.tags=always`` so CLI ``--tags`` runs still remap paths.
+      - filetree_read sanitizes hub_namespaces links and hub collection remotes or
+        repositories empty-string fields so previously exported files import correctly
+      - fix invalid actions/cache commit pin that prevented cache restore and save
+      - gate pull_request test execution on a successful pre-commit approval workflow
+        run for the current head SHA
+      - object_diff - Align ``controller_configuration_object_diff_tasks`` notification
+        entry ``var`` with ``controller_notifications``.
+      - object_diff - Document all supported object tags (including notification templates,
+        roles, schedules, applications, execution environments, and instance groups)
+        in the role README (fixes redhat-cop/aap_configuration_extended#13).
+      - object_diff - Fail clearly when ``aap_user_accounts`` is empty while the Controller
+        still has users, surface user-diff errors outside ``no_log``, and skip users
+        missing ``associated_authenticators`` (fixes
+      - remove ci-approved labels now that approval completion is the gate signal
+      - restore Ansible collections for external PRs from a default-branch cache populated
+        by trusted push and schedule runs
+      - skip sanity-py3.12-milestone because ansible-core milestone requires Python
+        >=3.13
+      - split pre-commit CI into trusted approval and untrusted test workflows to
+        avoid fork pull request checkout failures in pull_request_target
+      - tox-ansible - set skip_missing_interpreters so CI matrix jobs only run sanity
+        envs for the installed Python
+      - wait in the pull request approval-gate job until pre-commit approval completes
+        before running tests, instead of re-running workflows via workflow_run
+      minor_changes:
+      - Add collection filter ``infra.aap_configuration_extended.filetree_as_var``
+        and document JSON ``-e`` usage for object names that contain spaces.
+      - "Add playbooks ``export_job_template_related.yml``, ``export_workflow_job_template_related.yml``,
+        and ``import_filetree.yml`` for PRE\u2192PRO migration (name-based)."
+      - Added lookup plugin ``infra.aap_configuration_extended.workflow_related_graph``
+        (uses the ansible.platform Gateway client) so nested WFJT discovery is not
+        embedded Python in role tasks.
+      - 'aap-config-validate - Accept Ansible-quoted scalars (``"0"``, ``"false"``,
+        ``"{}"``), treat empty strings as unset, and skip extra required fields when
+        ``state: absent``.'
+      - "aap-config-validate - Recognise filetree and template aliases (``gateway_organizations``,
+        ``controller_user_accounts``, ``controller_templates_all``, \u2026) and merge
+        env-suffixed vars in ``auto`` mode when those suffixes are present."
+      - aap-config-validate - Report the source YAML file on each issue; deep-merge
+        dicts across files; match nested ``exclude_dirs`` paths such as ``tests/fixtures``.
+      - aap_config_vars - Add a module and action plugin that loads AAP configuration-as-code
+        vars from ``config/all`` and ``config/<env>``, optionally keeping only objects
+        that changed in git for use with ``infra.aap_configuration.dispatch``.
+      - docs - Clarify that ``filetree_create`` is the supported way to capture existing
+        AAP objects as Configuration as Code, including name filters and remaining
+        gaps (related to redhat-cop/aap_configuration_extended#110).
+      - "filetree_create - Add ``env_fields_as_variables`` to export curated environment-specific
+        fields as Ansible variable placeholders, and generate an ``env_variables.yml``
+        stub for PRE\u2192PRO workflows."
+      - filetree_create - Add ``job_template_name`` / ``workflow_job_template_name``
+        and other ``*_name`` filters; prefer names over numeric IDs for Configuration
+        as Code.
+      - filetree_create - Add optional ``export_inline_object_roles`` to embed ``infra.aap_configuration``
+        inline object ``roles`` (users/teams) on inventories, projects, job templates,
+        workflow job templates, credentials, and instance groups (fixes redhat-cop/aap_configuration_extended#311).
+      - filetree_create - Document ``ansible.platform.token`` and passing the returned
+        token dict as ``aap_token`` in README and test playbooks.
+      - filetree_create - Expand ``export_related_objects`` for Job Templates and
+        Workflow Job Templates to export related Controller objects by **object name**
+        (organization, inventory, credentials, credential types, execution environments,
+        labels, notification templates, schedules; WFJT also exports each node JT
+        with its related set).
+      - filetree_create - Export gateway role team assignments (``gateway_role_team_assignments``)
+        by name, mirroring user assignments export (fixes
+      - filetree_create - Export nested Workflow Job Template nodes by name; make
+        ``yaml_format`` non-fatal when PyYAML is missing for the configured interpreter.
+      - filetree_create - Use ``aap_token`` for API authentication (``aap_oauthtoken``
+        retained as deprecated string alias; fixes redhat-cop/aap_configuration_extended#266).
+      - filetree_create - When exporting a Workflow Job Template with ``export_related_objects``,
+        walk nested workflow nodes recursively until Job Template leaves, export every
+        nested WFJT on the path, and export each discovered Job Template with its
+        full related set (with cycle detection).
+      - filetree_read - Accept both short and prefixed Ansible tags (matching ``infra.aap_configuration.dispatch``)
+        and add ``filetree_gateway_*`` path aliases that also search legacy ``aap_*``
+        and ``filetree_create`` output directories (fixes redhat-cop/aap_configuration_extended#267).
+      - 'object_diff - Document that Workflow Job Template node removal is not handled
+        by object_diff and requires ``destroy_current_nodes: true`` on ``infra.aap_configuration.controller_workflow_job_templates``
+        (fixes documentation gap for redhat-cop/aap_configuration_extended#149).'
+      - object_diff - Use ``aap_token`` for API authentication (``aap_oauthtoken``
+        retained as deprecated alias).
+      - object_diff, filetree_read - Migrate test playbooks and README examples from
+        ``ansible.builtin.uri`` to ``ansible.platform.token``.
+    fragments:
+    - aap_config_validate_improvements.yml
+    - aap_config_vars.yaml
+    - ci-approve-label-github-script.yml
+    - ci-changelog-hook-strict-lint.yml
+    - ci-collections-cache-ownership.yml
+    - ci-split-pre-commit-workflows.yml
+    - controller_export_diff_retry_docs.yml
+    - filetree-org-name-and-env-stub.yml
+    - fix-filetree-create-add-workflow-attributes.yml
+    - fix-filetree-create-description-escaping.yml
+    - fix-hub-export-empty-values.yml
+    - issue110-filetree-create-capture-docs.yml
+    - issue13-object-diff-docs.yml
+    - issue149-workflow-nodes-docs.yml
+    - issue196-org-export-fields.yml
+    - issue203.yaml
+    - issue204-205-filetree-create-layout.yml
+    - issue250.yaml
+    - issue266.yaml
+    - issue267-filetree-read-tags-paths.yml
+    - issue298-role-team-assignments-object-ids.yml
+    - issue298-role-user-assignments-object-ids.yml
+    - issue302-omit-id.yml
+    - issue304-secure-logging-docs.yml
+    - issue308-missing-export-fields.yml
+    - issue310-gateway-role-team-assignments.yml
+    - issue311-export-inline-object-roles.yml
+    - issue312-organization-filter.yml
+    - issue321-comment-only-extra-vars.yml
+    - issue339-instance-groups-export.yml
+    - issue340-gateway-settings-secrets.yml
+    - issue342-controller-settings-export.yml
+    - issue342-controller-settings-followup.yml
+    - jt-related-export-pre-pro.yml
+    - tox-skip-missing-interpreters.yml
+    - wfjt-recursive-related-export.yml
+    - workflow-related-graph-inline-auth-docs.yml
+    modules:
+    - description: Load AAP configuration\-as\-code vars (optionally only changed
+        objects)
+      name: aap_config_vars
+      namespace: ''
+    release_date: '2026-09-09'
   4.2.0:
     changes:
       bugfixes:

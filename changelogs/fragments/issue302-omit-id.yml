@@ -1,3 +1,0 @@
----
-bugfixes:
-  - 'filetree_create - Respect boolean ``omit_id`` value when building output filenames (``omit_id: false`` keeps numeric id prefixes; ``omit_id: true`` omits them). Fixes #302.'

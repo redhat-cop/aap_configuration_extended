@@ -1,2 +1,0 @@
-bugfixes:
-  - Bump pre-commit changelog hook to v26.8.1 so fragment YAML is linted as strictly as release.
