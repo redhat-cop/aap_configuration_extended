@@ -99,3 +99,7 @@ Save logs under `/tmp/filetree_roundtrip_test/step{1,2,3}_*.log` for post-mortem
 ## Tags reference
 
 Do **not** use `--tags all` on the CLI: `all` is reserved in Ansible and runs every play (including `custom`). Use `configs/roundtrip/ansible_tags` for the full object-type tag set, plus `--skip-tags custom,fc,fcf,gv`.
+
+## PR validation
+
+When a PR test plan calls for a full roundtrip (or the PR touches `filetree_create` / `filetree_read` without a narrower plan), run this skill from a workspace prepared per [pr-test-plan/SKILL.md](../pr-test-plan/SKILL.md) (latest `devel` + PR merge, restore `devel` after).

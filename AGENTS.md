@@ -8,6 +8,10 @@ Collection conventions: [.cursor/rules/aap_configuration_extended-general.mdc](.
 
 Test and example playbooks: use `ansible.platform.token` for OAuth; see the **Test playbooks — authentication** section in the skill above (no `__aap_*` staging vars; single `when` for token creation).
 
+## PR manual testing
+
+When asked to run a PR's test plan locally, follow [.cursor/skills/pr-test-plan/SKILL.md](.cursor/skills/pr-test-plan/SKILL.md): base on latest `origin/devel`, merge the PR branch, run the PR's **How should this be tested?** steps plus scope-based additional checks, restore checkout to `devel`, and only post a `gh pr comment` after the user approves the draft summary.
+
 ## Commits and pre-commit
 
 - Ensure hooks are installed once per clone: `pre-commit install` (without this, `git commit` will not run the suite and CI/reviewers will catch failures later).

@@ -71,6 +71,8 @@ Mirror `controller_instance_groups.yml`:
 
 Use `tests/ansible.cfg` (`inject_facts_as_vars = false`) when running integration playbooks from `tests/`.
 
+For PR validation (latest `devel` base, restore `devel` after, optional `gh pr comment`), use [.cursor/skills/pr-test-plan/SKILL.md](../../.cursor/skills/pr-test-plan/SKILL.md).
+
 #### Test playbooks — authentication
 
 - Use `ansible.platform.token` (never `ansible.builtin.uri` against `/api/gateway/v1/tokens/`).
