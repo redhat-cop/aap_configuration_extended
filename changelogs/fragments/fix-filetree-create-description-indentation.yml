@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Fix description fields indentation for allowing newlines.

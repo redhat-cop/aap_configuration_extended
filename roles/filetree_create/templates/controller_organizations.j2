@@ -10,7 +10,7 @@ aap_organizations:
 {% if __org_description not in __empty_values %}
     description: |-
       {{ '{%- raw -%}' }}
-      {{ __org_description }}
+      {{ __org_description | indent(6) }}
       {{ '{%- endraw -%}' }}
 {% endif %}
 {% set __org_max_hosts = template_overrides_resources.organization[current_organization.name].max_hosts

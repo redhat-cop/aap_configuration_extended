@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Add field unified_job_type to exported schedules yaml.
