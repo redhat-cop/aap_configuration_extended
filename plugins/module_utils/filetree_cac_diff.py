@@ -406,6 +406,9 @@ def matches_organization_filter(item, organization_filter):
         return item_org == organization_filter
     if item.get("inventory") is not None:
         return True
+    # Schedules reference an org-scoped job template by name and omit organization.
+    if item.get("unified_job_template") is not None:
+        return True
     return False
 
 

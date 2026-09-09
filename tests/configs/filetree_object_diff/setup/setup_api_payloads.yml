@@ -87,9 +87,9 @@ object_diff_setup_shared:
   controller_templates:
     - name: Object Diff Shared Job Template
       organization: "{{ orgs }}"
-      project: Shared Project
+      project: Object Diff Shared Project
       inventory: "{{ object_diff_shared_inventory }}"
-      playbook: helloworld.yml
+      playbook: hello_world.yml
       job_type: run
   controller_workflows:
     - name: Object Diff Shared Workflow
@@ -183,9 +183,9 @@ object_diff_setup_orphans:
   controller_templates:
     - name: Object Diff Orphan Job Template
       organization: "{{ orgs }}"
-      project: Shared Project
+      project: Object Diff Shared Project
       inventory: "{{ object_diff_shared_inventory }}"
-      playbook: helloworld.yml
+      playbook: hello_world.yml
       job_type: run
   controller_workflows:
     - name: Object Diff Orphan Workflow
