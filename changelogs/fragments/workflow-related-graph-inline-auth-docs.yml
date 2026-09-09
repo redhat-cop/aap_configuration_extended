@@ -1,0 +1,2 @@
+bugfixes:
+  - Inline auth lookup documentation in ``workflow_related_graph`` so automated release changelog generation does not require ``ansible.platform`` at doc-build time.
