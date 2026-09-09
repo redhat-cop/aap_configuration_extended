@@ -202,8 +202,7 @@ object_diff_types:
     shared: Object Diff Shared Job Template
     cac_only: Object Diff New CaC Job Template
     orphan: Object Diff Orphan Job Template
-    skip_apply: true
-    skip_setup: true
+    skip_apply: false
 
   - label: workflow_job_templates
     var: controller_workflows
@@ -216,8 +215,7 @@ object_diff_types:
     shared: Object Diff Shared Workflow
     cac_only: Object Diff New CaC Workflow
     orphan: Object Diff Orphan Workflow
-    skip_apply: true
-    skip_setup: true
+    skip_apply: false
 
   - label: schedules
     var: controller_schedules
@@ -230,8 +228,7 @@ object_diff_types:
     shared: Object Diff Shared Schedule
     cac_only: Object Diff New CaC Schedule
     orphan: Object Diff Orphan Schedule
-    skip_apply: true
-    skip_setup: true
+    skip_apply: false
 
   - label: roles
     var: controller_roles
