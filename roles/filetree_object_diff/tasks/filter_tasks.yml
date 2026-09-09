@@ -1,0 +1,20 @@
+---
+- name: "Initialize effective filetree_object_diff task list"
+  ansible.builtin.set_fact:
+    __filetree_object_diff_effective_tasks: []
+
+- name: "Collect tasks allowed for the current API user"
+  ansible.builtin.set_fact:
+    __filetree_object_diff_effective_tasks: "{{ __filetree_object_diff_effective_tasks + [item] }}"
+  loop: "{{ controller_configuration_filetree_object_diff_tasks }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when:
+    - not (item.superuser_only | default(false) | bool) or (__filetree_object_diff_is_superuser | default(false) | bool)
+
+- name: "Apply effective task list to derived role variables"
+  ansible.builtin.set_fact:
+    filetree_object_diff_root_keys_filter: "{{ __filetree_object_diff_effective_tasks | map(attribute='var') | list }}"
+    filetree_object_diff_create_tags: "{{ __filetree_object_diff_effective_tasks | map(attribute='create_tag') | list }}"
+
+...

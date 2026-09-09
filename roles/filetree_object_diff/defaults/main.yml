@@ -84,8 +84,8 @@ controller_configuration_filetree_object_diff_tasks:
   - {name: controller_notification_templates, var: controller_notifications, tags: controller_notification_templates, create_tag: controller_notification_templates, object_type: notification_template}
   - {name: controller_credentials, var: controller_credentials, tags: controller_credentials, create_tag: controller_credentials, object_type: credential}
   - {name: controller_credential_types, var: controller_credential_types, tags: controller_credential_types, create_tag: controller_credential_types, object_type: credential_type}
-  - {name: controller_organizations, var: aap_organizations, tags: controller_organizations, create_tag: gateway_organizations, object_type: organization, superuser_only: true}
-  - {name: controller_instance_groups, var: controller_instance_groups, tags: controller_instance_groups, create_tag: controller_instance_groups, object_type: instance_group}
+  - {name: controller_organizations, var: aap_organizations, tags: controller_organizations, create_tag: controller_organizations, object_type: organization, superuser_only: true}
+  - {name: controller_instance_groups, var: controller_instance_groups, tags: controller_instance_groups, create_tag: controller_instance_groups, object_type: instance_group, superuser_only: true}
 
 controller_configuration_filetree_object_diff_secure_logging: "{{ controller_configuration_secure_logging | default(true) }}"
 controller_configuration_filetree_create_secure_logging: "{{ controller_configuration_secure_logging | default(false) }}"

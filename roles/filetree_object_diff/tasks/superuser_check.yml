@@ -1,0 +1,20 @@
+---
+- name: "Get the current platform user to determine super-admin status"
+  ansible.builtin.set_fact:
+    __filetree_object_diff_current_user: >-
+      {{
+        lookup(
+          'ansible.platform.gateway_api',
+          'api/gateway/' ~ gateway_api_version ~ '/me',
+          host=aap_hostname,
+          oauth_token=aap_oauthtoken,
+          verify_ssl=aap_validate_certs
+        )
+      }}
+  no_log: "{{ controller_configuration_filetree_object_diff_secure_logging }}"
+
+- name: "Store whether the API user is a super-admin"
+  ansible.builtin.set_fact:
+    __filetree_object_diff_is_superuser: "{{ __filetree_object_diff_current_user.is_superuser | default(false) | bool }}"
+
+...

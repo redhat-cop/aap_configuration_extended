@@ -19,6 +19,12 @@
         ).version
       }}
 
+- name: "Determine super-admin status for superuser_only object types"
+  ansible.builtin.include_tasks: superuser_check.yml
+
+- name: "Filter object types by superuser_only and current API user"
+  ansible.builtin.include_tasks: filter_tasks.yml
+
 - name: "Capture repository CaC paths before filetree_read can mutate filetree_* variables"
   when:
     - filetree_object_diff_config_dir is not defined

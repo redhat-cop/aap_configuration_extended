@@ -62,6 +62,12 @@ ROOT_KEY_OBJECT_TYPE = {
     "aap_teams": "team",
     "aap_applications": "application",
     "controller_roles": "role",
+    "gateway_organizations": "organization",
+}
+
+# Normalize live-export root keys to the CaC root keys used by filetree_read.
+ROOT_KEY_CANONICAL = {
+    "gateway_organizations": "aap_organizations",
 }
 
 OBJECT_ID_KEYS = {
@@ -106,9 +112,41 @@ EMPTY_COMPARE_VALUES = (None, "", [], {}, [{}])
 
 YAML_EXTENSIONS = (".yaml", ".yml")
 
+_ROLE_TARGET_DUP_KEYS = [
+    "target_team",
+    "target_teams",
+    "job_template",
+    "job_templates",
+    "workflow",
+    "workflows",
+    "inventory",
+    "inventories",
+    "project",
+    "projects",
+    "credential",
+    "credentials",
+]
+
+_ROLE_FIELD_EXPANSIONS = [
+    ("target_team", "team", False),
+    ("target_teams", "team", True),
+    ("job_template", "job_template", False),
+    ("job_templates", "job_template", True),
+    ("workflow", "workflow_job_template", False),
+    ("workflows", "workflow_job_template", True),
+    ("inventory", "inventory", False),
+    ("inventories", "inventory", True),
+    ("project", "project", False),
+    ("projects", "project", True),
+]
+
 
 def get_id_keys(object_type):
     return OBJECT_ID_KEYS.get(object_type, DEFAULT_ID_KEYS)
+
+
+def canonical_root_key(root_key):
+    return ROOT_KEY_CANONICAL.get(root_key, root_key)
 
 
 def object_identity(object_type, item):
@@ -159,81 +197,39 @@ def map_item(item, new_attribute_name, attribute_value, dupitems):
     return new_item
 
 
+def _expand_role_item(item, expansions, dupitems):
+    extensions = []
+    expanded = False
+    for source_key, target_key, is_list in expansions:
+        if source_key not in item:
+            continue
+        expanded = True
+        values = item[source_key] if is_list else [item[source_key]]
+        for value in values:
+            extensions.append(map_item(item, target_key, value, dupitems))
+    return expanded, extensions
+
+
+def _apply_role_expansions(items, expansions, dupitems):
+    result = list(items)
+    list_to_extend = []
+    list_to_remove = []
+    for item in result:
+        expanded, extensions = _expand_role_item(item, expansions, dupitems)
+        if not expanded:
+            continue
+        list_to_remove.append(item)
+        list_to_extend.extend(extensions)
+    for item in list_to_remove:
+        result.remove(item)
+    result.extend(list_to_extend)
+    return result
+
+
 def normalize_role_items(role_list):
     normalized = copy.deepcopy(role_list)
-    list_to_extend = []
-    list_to_remove = []
-    dupitems = [
-        "target_team",
-        "target_teams",
-        "job_template",
-        "job_templates",
-        "workflow",
-        "workflows",
-        "inventory",
-        "inventories",
-        "project",
-        "projects",
-        "credential",
-        "credentials",
-    ]
-    for item in normalized:
-        expanded = False
-        if "target_team" in item:
-            list_to_extend.append(map_item(item, "team", item["target_team"], dupitems))
-            expanded = True
-        if "target_teams" in item:
-            for team in item["target_teams"]:
-                list_to_extend.append(map_item(item, "team", team, dupitems))
-            expanded = True
-        if "job_template" in item:
-            list_to_extend.append(map_item(item, "job_template", item["job_template"], dupitems))
-            expanded = True
-        if "job_templates" in item:
-            for job_template in item["job_templates"]:
-                list_to_extend.append(map_item(item, "job_template", job_template, dupitems))
-            expanded = True
-        if "workflow" in item:
-            list_to_extend.append(map_item(item, "workflow_job_template", item["workflow"], dupitems))
-            expanded = True
-        if "workflows" in item:
-            for workflow in item["workflows"]:
-                list_to_extend.append(map_item(item, "workflow_job_template", workflow, dupitems))
-            expanded = True
-        if "inventory" in item:
-            list_to_extend.append(map_item(item, "inventory", item["inventory"], dupitems))
-            expanded = True
-        if "inventories" in item:
-            for inventory in item["inventories"]:
-                list_to_extend.append(map_item(item, "inventory", inventory, dupitems))
-            expanded = True
-        if "project" in item:
-            list_to_extend.append(map_item(item, "project", item["project"], dupitems))
-            expanded = True
-        if "projects" in item:
-            for project in item["projects"]:
-                list_to_extend.append(map_item(item, "project", project, dupitems))
-            expanded = True
-        if expanded:
-            list_to_remove.append(item)
-    for item in list_to_remove:
-        normalized.remove(item)
-    normalized.extend(list_to_extend)
-
-    list_to_extend = []
-    list_to_remove = []
-    for item in normalized:
-        expanded = False
-        role_dupitems = ["roles", "role"]
-        if "roles" in item:
-            for role in item["roles"]:
-                list_to_extend.append(map_item(item, "role", role, role_dupitems))
-            expanded = True
-        if expanded:
-            list_to_remove.append(item)
-    for item in list_to_remove:
-        normalized.remove(item)
-    normalized.extend(list_to_extend)
+    normalized = _apply_role_expansions(normalized, _ROLE_FIELD_EXPANSIONS, _ROLE_TARGET_DUP_KEYS)
+    normalized = _apply_role_expansions(normalized, [("roles", "role", True)], ["roles", "role"])
     return normalized
 
 
@@ -269,20 +265,42 @@ def load_yaml_documents(path, template_vars=None):
     return documents
 
 
+def _is_yaml_file(filename):
+    return filename.endswith(YAML_EXTENSIONS)
+
+
+def _track_yaml_file(full_path, seen):
+    if full_path in seen:
+        return None
+    seen.add(full_path)
+    return full_path
+
+
+def _iter_yaml_files_in_directory(path, seen):
+    for root, _dirs, files in os.walk(path):
+        for filename in files:
+            if not _is_yaml_file(filename):
+                continue
+            tracked = _track_yaml_file(os.path.join(root, filename), seen)
+            if tracked:
+                yield tracked
+
+
 def iter_yaml_files(paths):
     seen = set()
     for path in paths:
         if not path or not os.path.isdir(path):
             continue
-        for root, _dirs, files in os.walk(path):
-            for filename in files:
-                if not filename.endswith(YAML_EXTENSIONS):
-                    continue
-                full_path = os.path.join(root, filename)
-                if full_path in seen:
-                    continue
-                seen.add(full_path)
-                yield full_path
+        for tracked in _iter_yaml_files_in_directory(path, seen):
+            yield tracked
+
+
+def _value_to_object_entries(root_key, object_type, value):
+    if isinstance(value, list):
+        return [(root_key, object_type, item) for item in value if isinstance(item, dict)]
+    if isinstance(value, dict):
+        return [(root_key, object_type, value)]
+    return []
 
 
 def extract_root_objects(documents):
@@ -294,12 +312,7 @@ def extract_root_objects(documents):
             if root_key not in ROOT_KEY_OBJECT_TYPE:
                 continue
             object_type = ROOT_KEY_OBJECT_TYPE[root_key]
-            if isinstance(value, list):
-                for item in value:
-                    if isinstance(item, dict):
-                        entries.append((root_key, object_type, item))
-            elif isinstance(value, dict):
-                entries.append((root_key, object_type, value))
+            entries.extend(_value_to_object_entries(root_key, object_type, value))
     return entries
 
 
@@ -314,8 +327,9 @@ def index_filetree(paths, template_vars=None):
             identity = object_identity(object_type, item)
             if identity is None:
                 continue
-            index[(root_key, identity)] = {
-                "root_key": root_key,
+            canonical_key = canonical_root_key(root_key)
+            index[(canonical_key, identity)] = {
+                "root_key": canonical_key,
                 "object_type": object_type,
                 "item": copy.deepcopy(item),
                 "source_path": path,
@@ -408,6 +422,69 @@ def filter_live_index_scope(live_index, cac_index, organization_filter):
     return {key: entry for key, entry in live_index.items() if key in cac_keys or matches_organization_filter(entry["item"], organization_filter)}
 
 
+def _prepare_diff_directory(diff_path):
+    if os.path.exists(diff_path):
+        for root, _dirs, files in os.walk(diff_path):
+            for filename in files:
+                if filename.endswith(YAML_EXTENSIONS):
+                    os.remove(os.path.join(root, filename))
+    else:
+        os.makedirs(diff_path, exist_ok=True)
+
+
+def _resolve_compare_options(ignore_keys, root_keys_filter, template_vars, organization_filter):
+    return (
+        set(ignore_keys or []) | DEFAULT_IGNORE_KEYS,
+        set(root_keys_filter or ROOT_KEY_OBJECT_TYPE.keys()),
+        organization_filter or (template_vars or {}).get("orgs"),
+    )
+
+
+def _items_match(cac_item, live_item, object_type, ignore_keys):
+    if object_type == "role":
+        return role_items_match(
+            normalize_role_items([cac_item])[0],
+            normalize_role_items([live_item])[0],
+            ignore_keys,
+        )
+    return equal_dicts(cac_item, live_item, ignore_keys)
+
+
+def _process_cac_entry(key, cac_entry, live_index, diff_path, root_keys_filter, ignore_keys):
+    root_key, _identity = key
+    if root_key not in root_keys_filter:
+        return 0, 0, []
+
+    live_entry = live_index.get(key)
+    cac_item = cac_entry["item"]
+    object_type = cac_entry["object_type"]
+
+    if live_entry is None:
+        output_item = copy.deepcopy(cac_item)
+        output_item["state"] = "present"
+        return 1, 0, [write_diff_file(diff_path, root_key, output_item)]
+
+    if _items_match(cac_item, live_entry["item"], object_type, ignore_keys):
+        return 0, 1, []
+
+    output_item = copy.deepcopy(cac_item)
+    output_item["state"] = "present"
+    return 1, 0, [write_diff_file(diff_path, root_key, output_item)]
+
+
+def _process_absent_entries(live_index, cac_index, diff_path, root_keys_filter):
+    absent_files = []
+    absent_count = 0
+    for key, live_entry in live_index.items():
+        root_key, _identity = key
+        if root_key not in root_keys_filter or key in cac_index:
+            continue
+        output_item = minimal_absent_item(live_entry["object_type"], live_entry["item"])
+        absent_files.append(write_diff_file(diff_path, root_key, output_item))
+        absent_count += 1
+    return absent_count, absent_files
+
+
 def compare_filetrees(
     live_paths,
     cac_paths,
@@ -418,22 +495,18 @@ def compare_filetrees(
     root_keys_filter=None,
     organization_filter=None,
 ):
-    ignore_keys = set(ignore_keys or []) | DEFAULT_IGNORE_KEYS
-    root_keys_filter = set(root_keys_filter or ROOT_KEY_OBJECT_TYPE.keys())
-    organization_filter = organization_filter or (template_vars or {}).get("orgs")
+    ignore_keys, root_keys_filter, organization_filter = _resolve_compare_options(
+        ignore_keys,
+        root_keys_filter,
+        template_vars,
+        organization_filter,
+    )
 
     cac_index = filter_index_by_organization(
         index_filetree(cac_paths, template_vars=template_vars),
         organization_filter,
     )
-
-    if os.path.exists(diff_path):
-        for root, _dirs, files in os.walk(diff_path):
-            for filename in files:
-                if filename.endswith(YAML_EXTENSIONS):
-                    os.remove(os.path.join(root, filename))
-    else:
-        os.makedirs(diff_path, exist_ok=True)
+    _prepare_diff_directory(diff_path)
 
     live_index = filter_live_index_scope(
         filter_index_by_organization(
@@ -445,50 +518,26 @@ def compare_filetrees(
     )
 
     present_count = 0
-    absent_count = 0
     unchanged_count = 0
     diff_files = []
 
     for key, cac_entry in cac_index.items():
-        root_key, _identity = key
-        if root_key not in root_keys_filter:
-            continue
-        live_entry = live_index.get(key)
-        cac_item = cac_entry["item"]
-        object_type = cac_entry["object_type"]
-        if live_entry is None:
-            output_item = copy.deepcopy(cac_item)
-            output_item["state"] = "present"
-            diff_files.append(write_diff_file(diff_path, root_key, output_item))
-            present_count += 1
-            continue
-        live_item = live_entry["item"]
-        if object_type == "role":
-            matched = role_items_match(
-                normalize_role_items([cac_item])[0],
-                normalize_role_items([live_item])[0],
-                ignore_keys,
-            )
-        else:
-            matched = equal_dicts(cac_item, live_item, ignore_keys)
-        if matched:
-            unchanged_count += 1
-            continue
-        output_item = copy.deepcopy(cac_item)
-        output_item["state"] = "present"
-        diff_files.append(write_diff_file(diff_path, root_key, output_item))
-        present_count += 1
+        present_delta, unchanged_delta, files = _process_cac_entry(
+            key,
+            cac_entry,
+            live_index,
+            diff_path,
+            root_keys_filter,
+            ignore_keys,
+        )
+        present_count += present_delta
+        unchanged_count += unchanged_delta
+        diff_files.extend(files)
 
+    absent_count = 0
     if set_absent:
-        for key, live_entry in live_index.items():
-            root_key, _identity = key
-            if root_key not in root_keys_filter:
-                continue
-            if key in cac_index:
-                continue
-            output_item = minimal_absent_item(live_entry["object_type"], live_entry["item"])
-            diff_files.append(write_diff_file(diff_path, root_key, output_item))
-            absent_count += 1
+        absent_count, absent_files = _process_absent_entries(live_index, cac_index, diff_path, root_keys_filter)
+        diff_files.extend(absent_files)
 
     return {
         "diff_files": diff_files,

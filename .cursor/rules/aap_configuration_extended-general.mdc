@@ -24,6 +24,11 @@ alwaysApply: true
   `foo: "{{ foo | default([]) }}"` → recursive loop ([issue #430](https://github.com/redhat-cop/aap_configuration_extended/issues/430)).
 - Default in the template, `set_fact` first, or rename the RHS. Skill: [skills/ansible-jinja-no-self-ref/SKILL.md](../../skills/ansible-jinja-no-self-ref/SKILL.md).
 
+## Code quality (SonarQube)
+
+- New or changed Python code must pass **SonarQube / SonarLint** with **no issues** (complexity, literals, bugs, code smells).
+- Refactor helpers when cognitive complexity exceeds the SonarQube threshold instead of suppressing findings.
+
 ## Skills
 
 - New filetree entities: [skills/add-filetree-entity/SKILL.md](../../skills/add-filetree-entity/SKILL.md)
