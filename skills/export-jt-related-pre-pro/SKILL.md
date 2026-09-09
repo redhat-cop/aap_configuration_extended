@@ -64,6 +64,7 @@ ansible-playbook playbooks/import_filetree.yml \
 
 ## Implementation notes
 
+- Python changes must pass **SonarQube / SonarLint with zero reported issues** (see `skills/add-filetree-entity/SKILL.md`).
 - JT related cascade: `roles/filetree_create/tasks/controller_job_templates.yml`
 - WFJT related cascade: `roles/filetree_create/tasks/controller_workflow_job_templates.yml` (reuses JT related export per node)
 - Filters use `*_name` / `*_names` (and related URLs for schedules), not public `*_id` vars

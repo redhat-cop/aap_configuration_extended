@@ -121,16 +121,16 @@ from ansible_collections.infra.aap_configuration_extended.plugins.module_utils.f
 
 def main():
     module = AnsibleModule(
-        argument_spec=dict(
-            live_path=dict(type="str", required=True),
-            cac_paths=dict(type="list", elements="str", required=True),
-            diff_path=dict(type="str", required=True),
-            template_vars=dict(type="dict", default={}),
-            ignore_keys=dict(type="list", elements="str", default=None),
-            set_absent=dict(type="bool", default=True),
-            root_keys_filter=dict(type="list", elements="str", default=None),
-            organization_filter=dict(type="str", default=None),
-        ),
+        argument_spec={
+            "live_path": {"type": "str", "required": True},
+            "cac_paths": {"type": "list", "elements": "str", "required": True},
+            "diff_path": {"type": "str", "required": True},
+            "template_vars": {"type": "dict", "default": {}},
+            "ignore_keys": {"type": "list", "elements": "str", "default": None},
+            "set_absent": {"type": "bool", "default": True},
+            "root_keys_filter": {"type": "list", "elements": "str", "default": None},
+            "organization_filter": {"type": "str", "default": None},
+        },
         supports_check_mode=True,
     )
 
