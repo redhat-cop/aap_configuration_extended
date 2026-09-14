@@ -1,0 +1,51 @@
+DOCUMENTATION:
+  name: filetree_as_var
+  version_added: "4.10.0"
+  short_description: Emit a Jinja variable reference for an exported filetree field
+  description:
+    - When enabled, return the literal text C({{ var_name }}) so it survives rendering into YAML.
+    - When disabled, return the original value unchanged.
+    - Used by C(filetree_create) templates to defer resolution of secrets and environment-specific fields.
+  positional: value, object_type, name, field, enabled, prefix
+  options:
+    _input:
+      description: Field value from the API export.
+      type: raw
+      required: true
+    object_type:
+      description: Controller or gateway object type (for example C(controller_projects)).
+      type: str
+      required: true
+    name:
+      description: Object name whose field is being exported.
+      type: str
+      required: true
+    field:
+      description: Field name within the object (for example C(scm_url)).
+      type: str
+      required: true
+    enabled:
+      description: When C(true), return a Jinja variable reference instead of the value.
+      type: bool
+      default: false
+    prefix:
+      description: Variable name prefix for vaulted or environment-specific values.
+      type: str
+      default: vaulted
+
+EXAMPLES: |
+  - name: Export SCM URL as a variable reference in filetree_create templates
+    debug:
+      msg: "{{ 'https://example.com/repo.git' | infra.aap_configuration_extended.filetree_as_var('controller_projects', 'My Project', 'scm_url', true) }}"
+    # => {{ vaulted_controller_projects_my_project_scm_url }}
+
+  - name: Leave value unchanged when export-as-variable is disabled
+    debug:
+      msg: "{{ 'https://example.com/repo.git' | infra.aap_configuration_extended.filetree_as_var('controller_projects', 'My Project', 'scm_url', false) }}"
+    # => https://example.com/repo.git
+
+RETURN:
+  _value:
+    description: Original value or a literal Jinja variable reference when enabled.
+    type: raw
+...

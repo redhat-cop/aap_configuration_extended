@@ -1,0 +1,10 @@
+---
+bugfixes:
+  - aap_config_vars - Use a dedicated GitError fallback so OSError and ValueError are not masked when module_utils import fails.
+minor_changes:
+  - filetree_vars - Add ansible-doc documentation for filetree_as_var and filetree_var_name filter plugins.
+  - galaxy.yml - Exclude non-user-facing development files from the published collection tarball.
+  - requirements.yml - Add collection dependencies for execution environment builds.
+  - README - Convert relative links to full URLs and expand Automation Hub installation guidance.
+  - ansible-lint - Remove certification-blocked skip_list entries and enable no-log-password warnings.
+  - tests/sanity - Remove stale ignore files for unsupported ansible-core versions.

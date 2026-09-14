@@ -177,7 +177,11 @@ except ImportError:
     try:
         from ansible.module_utils.aap_config_vars import GitError, load_aap_config
     except ImportError:
-        GitError = Exception  # type: ignore[misc,assignment]
+
+        class _GitErrorFallback(Exception):
+            """Placeholder when aap_config_vars module_utils is unavailable."""
+
+        GitError = _GitErrorFallback
         load_aap_config = None  # type: ignore[assignment]
         IMPORT_ERROR = traceback.format_exc()
     else:
@@ -215,7 +219,7 @@ def run_module(module):
             always_load=params["always_load"],
         )
     except GitError as exc:
-        module.fail_json(msg=("changed_only requires git ({0}). " "Set changed_only=false for a full load, or pass a valid git_base.").format(exc))
+        module.fail_json(msg="changed_only requires git ({0}). Set changed_only=false for a full load, or pass a valid git_base.".format(exc))
     except (OSError, ValueError) as exc:
         module.fail_json(msg=str(exc))
 

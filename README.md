@@ -32,7 +32,7 @@ collections:
 
 The **format_yaml** module uses **PyYAML** (`import yaml`), which ships with **ansible-core** on the controller. Managed nodes need `python3-yaml` (or PyYAML in the execution environment) if the module runs there. The collection no longer requires ruamel.yaml. See `ansible-doc infra.aap_configuration_extended.format_yaml` for options (preserve vs round-trip, `!unsafe`, null handling, and regex scalar quoting).
 
-The **aap_config_vars** module (with a matching action plugin) loads the `config/all/` plus `config/<env>/` tree used by the [AAP Configuration Template](https://github.com/redhat-cop/aap_configuration_template) and sets those vars as facts for `infra.aap_configuration.dispatch`. With `changed_only: true` it keeps only objects that changed in git. See [aap_config_vars](docs/AAP_CONFIG_VARS.md) and `ansible-doc infra.aap_configuration_extended.aap_config_vars`.
+The **aap_config_vars** module (with a matching action plugin) loads the `config/all/` plus `config/<env>/` tree used by the [AAP Configuration Template](https://github.com/redhat-cop/aap_configuration_template) and sets those vars as facts for `infra.aap_configuration.dispatch`. With `changed_only: true` it keeps only objects that changed in git. See [aap_config_vars](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/docs/AAP_CONFIG_VARS.md) and `ansible-doc infra.aap_configuration_extended.aap_config_vars`.
 
 ## Links to Ansible Automation Platform Collections
 
@@ -61,13 +61,19 @@ Click the `Content` button to see the list of content included in this collectio
 
 ## Installing this collection
 
-You can install the infra.aap_configuration_extended.collection with the Ansible Galaxy CLI:
+Red Hat customers install certified collections from [Red Hat Ansible Automation Hub](https://console.redhat.com/ansible/automation-hub). Configure your Automation Hub server and credentials in `ansible.cfg`, then install with the Ansible Galaxy CLI:
 
 ```console
 ansible-galaxy collection install infra.aap_configuration_extended
 ```
 
-You can also include it in a `requirements.yml` file and install it with `ansible-galaxy collection install -r requirements.yml`, using the format:
+To install a specific version:
+
+```console
+ansible-galaxy collection install infra.aap_configuration_extended:==4.10.0
+```
+
+You can also include the collection in a `requirements.yml` file and install it with `ansible-galaxy collection install -r requirements.yml`:
 
 ```yaml
 ---
@@ -76,6 +82,14 @@ collections:
     # If you need a specific version of the collection, you can specify like this:
     # version: ...
 ```
+
+To upgrade to the latest available version:
+
+```console
+ansible-galaxy collection install infra.aap_configuration_extended --upgrade
+```
+
+See [using Ansible collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
 
 ## Using this collection
 
@@ -154,7 +168,7 @@ The input data can be organized in a very flexible way, letting the user use any
 
 ### Capturing existing objects (ClickOps → CaC)
 
-To export objects already present in AAP into YAML for `infra.aap_configuration.dispatch`, use the [`filetree_create`](roles/filetree_create/README.md) role (then [`filetree_read`](roles/filetree_read/README.md) to load the tree). See [docs/filetree_create_capture.md](docs/filetree_create_capture.md) for name filters, examples, and known gaps.
+To export objects already present in AAP into YAML for `infra.aap_configuration.dispatch`, use the [`filetree_create`](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/roles/filetree_create/README.md) role (then [`filetree_read`](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/roles/filetree_read/README.md) to load the tree). See [filetree_create_capture.md](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/docs/filetree_create_capture.md) for name filters, examples, and known gaps.
 
 ### Controller Export
 
@@ -164,7 +178,7 @@ See [the export guide](https://github.com/redhat-cop/aap_configuration_extended/
 
 ### Load configuration vars
 
-`infra.aap_configuration_extended.aap_config_vars` replaces `include_vars` for the template `config/` tree. Default is a full load; pass `changed_only: true` to dispatch only objects that differ from a git ref. See [aap_config_vars](docs/AAP_CONFIG_VARS.md).
+`infra.aap_configuration_extended.aap_config_vars` replaces `include_vars` for the template `config/` tree. Default is a full load; pass `changed_only: true` to dispatch only objects that differ from a git ref. See [aap_config_vars](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/docs/AAP_CONFIG_VARS.md).
 
 ### Template Example
 
@@ -178,7 +192,7 @@ See [our template](https://github.com/redhat-cop/aap_configuration_template) to 
 
 To export a single Job Template or Workflow Job Template with related objects from PRE and import them into PRO (object **names** only; secrets and environment-specific fields as variables), see the complete examples in:
 
-[roles/filetree_create/README.md — PRE → PRO: complete examples](roles/filetree_create/README.md#pre--pro-complete-examples-job-template-and-workflow)
+[roles/filetree_create/README.md — PRE → PRO: complete examples](https://github.com/redhat-cop/aap_configuration_extended/blob/devel/roles/filetree_create/README.md#pre--pro-complete-examples-job-template-and-workflow)
 
 Playbooks:
 

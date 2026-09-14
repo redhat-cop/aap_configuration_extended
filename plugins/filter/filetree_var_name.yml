@@ -1,0 +1,37 @@
+DOCUMENTATION:
+  name: filetree_var_name
+  version_added: "4.10.0"
+  short_description: Build a canonical variable name for an exported filetree field
+  description:
+    - Normalize object type, name, and field into a safe Ansible variable fragment.
+    - Used by C(filetree_create) templates when exporting environment-specific values as variable references.
+  positional: object_type, name, field, prefix
+  options:
+    object_type:
+      description: Controller or gateway object type (for example C(controller_projects)).
+      type: str
+      required: true
+    name:
+      description: Object name whose field is being exported.
+      type: str
+      required: true
+    field:
+      description: Field name within the object (for example C(scm_url)).
+      type: str
+      required: true
+    prefix:
+      description: Variable name prefix for vaulted or environment-specific values.
+      type: str
+      default: vaulted
+
+EXAMPLES: |
+  - name: Build a variable name for a project SCM URL
+    debug:
+      msg: "{{ 'controller_projects' | infra.aap_configuration_extended.filetree_var_name('My Project', 'scm_url', prefix='vaulted') }}"
+    # => vaulted_controller_projects_my_project_scm_url
+
+RETURN:
+  _value:
+    description: Canonical Ansible variable name for the exported field.
+    type: str
+...
