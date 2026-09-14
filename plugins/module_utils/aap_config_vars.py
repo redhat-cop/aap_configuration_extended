@@ -381,7 +381,7 @@ def load_aap_config(
     extensions = list(extensions or DEFAULT_EXTENSIONS)
     always_load = set(always_load if always_load is not None else DEFAULT_ALWAYS_LOAD)
     load_file = load_file or parse_yaml_file
-    load_string = load_string or (lambda content, filename: parse_yaml(content, filename))
+    load_string = load_string or parse_yaml
 
     config_dir = os.path.abspath(config_dir)
     all_dir = os.path.join(config_dir, "all")

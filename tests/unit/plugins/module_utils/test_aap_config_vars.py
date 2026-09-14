@@ -15,9 +15,9 @@ import unittest
 from pathlib import Path
 
 try:
-    import yaml  # noqa: F401
+    import importlib.util
 
-    HAS_YAML = True
+    HAS_YAML = importlib.util.find_spec("yaml") is not None
 except ImportError:
     HAS_YAML = False
 
@@ -195,7 +195,7 @@ class GitHelpersTest(unittest.TestCase):
             env_dir.mkdir(parents=True)
 
             (all_dir / "controller_job_templates.yml").write_text(
-                "controller_templates_all:\n" "  - name: keep\n" "    verbosity: 0\n" "  - name: edit\n" "    verbosity: 0\n",
+                "controller_templates_all:\n  - name: keep\n    verbosity: 0\n  - name: edit\n    verbosity: 0\n",
                 encoding="utf-8",
             )
             (env_dir / "secrets.yml").write_text("console_token: old\n", encoding="utf-8")
@@ -253,7 +253,7 @@ class GitHelpersTest(unittest.TestCase):
 @unittest.skipUnless(HAS_YAML, "PyYAML is required")
 class ParseYamlTest(unittest.TestCase):
     def test_unsafe_and_vault_tags(self):
-        data = diff.parse_yaml('name: !unsafe "{{ password }}"\n' "token: !vault |\n" "  $ANSIBLE_VAULT;1.1;AES256\n" "  616263\n")
+        data = diff.parse_yaml('name: !unsafe "{{ password }}"\ntoken: !vault |\n  $ANSIBLE_VAULT;1.1;AES256\n  616263\n')
         self.assertEqual(data["name"], "{{ password }}")
         self.assertIn("ANSIBLE_VAULT", data["token"])
 
@@ -276,7 +276,7 @@ class LoadAapConfigTest(unittest.TestCase):
             all_dir.mkdir(parents=True)
             env_dir.mkdir(parents=True)
             (all_dir / "controller_job_templates.yml").write_text(
-                "controller_templates_all:\n" "  - name: keep\n    verbosity: 0\n" "  - name: edit\n    verbosity: 0\n",
+                "controller_templates_all:\n  - name: keep\n    verbosity: 0\n  - name: edit\n    verbosity: 0\n",
                 encoding="utf-8",
             )
             (all_dir / "controller_projects.yml").write_text(
@@ -288,7 +288,7 @@ class LoadAapConfigTest(unittest.TestCase):
             _git(repo, "commit", "-m", "base")
 
             (all_dir / "controller_job_templates.yml").write_text(
-                "controller_templates_all:\n" "  - name: keep\n    verbosity: 0\n" "  - name: edit\n    verbosity: 1\n" "  - name: added\n    verbosity: 0\n",
+                "controller_templates_all:\n  - name: keep\n    verbosity: 0\n  - name: edit\n    verbosity: 1\n  - name: added\n    verbosity: 0\n",
                 encoding="utf-8",
             )
             (env_dir / "secrets.yml").write_text("console_token: new\n", encoding="utf-8")

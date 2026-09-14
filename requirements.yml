@@ -1,0 +1,11 @@
+---
+collections:
+  - name: ansible.controller
+    version: ">=4.6.0"
+  - name: ansible.hub
+    version: ">=1.0.0"
+  - name: ansible.platform
+    version: ">=2.5.0"
+  - name: infra.aap_configuration
+    version: ">=3.4.0"
+...

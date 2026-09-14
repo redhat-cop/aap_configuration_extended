@@ -45,7 +45,7 @@ The original enhancement request also asked for:
 
 1. **Stdout-only capture** — emit the YAML via `ansible.builtin.debug` (or similar) without writing files. Today the role always writes under `output_path`. Workarounds: `flatten_output: true` and read the generated file(s), or pipe/cat after the run.
 2. **Name filters for every object type** — several types already support `*_name` filters; others still export the full type (optionally limited by org / tags). Broader per-type name selectors can be added as follow-up enhancements.
-3. **Strip API defaults aggressively** — templates already omit many empty / unset fields; they are not a full “diff against factory defaults” for every attribute.
+3. **Strip API defaults aggressively** — templates already omit many empty / unset fields; they are not a full "diff against factory defaults" for every attribute.
 
 Those items can be separate issues/PRs if still needed; they are not blockers for using `filetree_create` as the capture tool.
 

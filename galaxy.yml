@@ -21,6 +21,12 @@ build_ignore:
   - release.yml
   - .github
   - '*.tar.gz'
+  - .cursor
+  - skills
+  - tools
+  - .pre-commit-config.yaml
+  - .flake8
+  - .black.cfg
 license:
   - GPL-3.0-or-later
 tags:
