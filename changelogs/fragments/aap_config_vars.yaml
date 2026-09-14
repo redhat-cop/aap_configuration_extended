@@ -1,4 +1,0 @@
----
-minor_changes:
-  - aap_config_vars - Add a module and action plugin that loads AAP configuration-as-code vars from ``config/all`` and ``config/<env>``, optionally keeping only objects that changed in git for use with ``infra.aap_configuration.dispatch``.
-...
