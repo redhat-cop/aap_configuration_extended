@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Add instance_groups attribute to the job jinja2 template

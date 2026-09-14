@@ -282,6 +282,9 @@
         query_notification_success: "{{ query('ansible.platform.gateway_api', current_job_templates_asset_value.related.notification_templates_success,
                          host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
+        query_instance_groups: "{{ query('ansible.platform.gateway_api', current_job_templates_asset_value.related.instance_groups,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                         return_all=true, max_objects=query_controller_api_max_objects) }}"
         last_job_template: "{{ current_job_template_index == ((job_templates_lookvar | length) - 1) }}"
       loop: "{{ job_templates_lookvar }}"
       loop_control:
@@ -337,6 +340,9 @@
                          host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
         query_notification_success: "{{ query('ansible.platform.gateway_api', current_job_templates_asset_value.related.notification_templates_success,
+                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                         return_all=true, max_objects=query_controller_api_max_objects) }}"
+        query_instance_groups: "{{ query('ansible.platform.gateway_api', current_job_templates_asset_value.related.instance_groups,
                          host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects) }}"
       loop: "{{ job_templates_lookvar }}"
