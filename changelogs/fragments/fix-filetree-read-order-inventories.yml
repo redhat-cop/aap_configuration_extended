@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_read - Change inventories order so that constructed inventories are imported last

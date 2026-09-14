@@ -24,6 +24,13 @@
   ansible.builtin.set_fact:
     controller_inventories: >-
       {{
+        (__all_inventories | rejectattr('kind', 'defined') +
+         __all_inventories | selectattr('kind', 'defined') | rejectattr('kind', 'equalto', 'constructed')) +
+        (__all_inventories | selectattr('kind', 'defined') | selectattr('kind', 'equalto', 'constructed'))
+      }}
+  vars:
+    __all_inventories: >-
+      {{
         __contents_filetree_controller_inventories.results |
         rejectattr('ansible_facts.controller_inventories', 'undefined') |
         map(attribute='ansible_facts.controller_inventories') |
