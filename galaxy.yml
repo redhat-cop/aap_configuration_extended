@@ -27,6 +27,13 @@ build_ignore:
   - .pre-commit-config.yaml
   - .flake8
   - .black.cfg
+  - AGENTS.md
+  - CODEOWNERS
+  - tox-ansible.ini
+  - .markdownlint-cli2.yaml
+  - .markdownlint.yml
+  - .mlc_config.json
+  - .yamllint.yml
 license:
   - GPL-3.0-or-later
 tags:
