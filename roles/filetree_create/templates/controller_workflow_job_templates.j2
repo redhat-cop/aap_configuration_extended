@@ -41,6 +41,24 @@ controller_workflows:
           timeout: {{ node.summary_fields.unified_job_template.timeout }}
 {%     else %}
         unified_job_template: "{{ node.summary_fields.unified_job_template.name | default('ToDo: The node is pointing to a deleted Job Template') }}"
+        unified_job_type : "{{ node.summary_fields.unified_job_template.unified_job_type | default('ToDo: The node is pointing to a deleted Job Template') }}"
+{%       if node.summary_fields.unified_job_template.unified_job_type is match('job') %}
+{%         set org_var = query('ansible.platform.gateway_api', 'api/controller/v2/job_templates', query_params={'id': node.summary_fields.unified_job_template.id},
+                             host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs, return_all=true, max_objects=query_controller_api_max_objects) %}
+        lookup_organization: "{{ org_var[0].summary_fields.organization.name }}"
+{%       elif node.summary_fields.unified_job_template.unified_job_type is match('workflow_job') %}
+{%         set org_var = query('ansible.platform.gateway_api', 'api/controller/v2/workflow_job_templates', query_params={'id': node.summary_fields.unified_job_template.id},
+                             host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs, return_all=true, max_objects=query_controller_api_max_objects) %}
+        lookup_organization: "{{ org_var[0].summary_fields.organization.name }}"
+{%       elif node.summary_fields.unified_job_template.unified_job_type is match('project_update') %}
+{%         set org_var = query('ansible.platform.gateway_api', 'api/controller/v2/projects', query_params={'id': node.summary_fields.unified_job_template.id},
+                             host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs, return_all=true, max_objects=query_controller_api_max_objects) %}
+        lookup_organization: "{{ org_var[0].summary_fields.organization.name }}"
+{%       elif node.summary_fields.unified_job_template.unified_job_type is match('inventory_update') %}
+{%         set org_var = query('ansible.platform.gateway_api', 'api/controller/v2/inventory_sources', query_params={'id': node.summary_fields.unified_job_template.id},
+                            host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs, return_all=true, max_objects=query_controller_api_max_objects) %}
+        lookup_organization: "{{ org_var[0].summary_fields.organization.name }}"
+{%       endif %}
 {%       if node.verbosity != None %}
         verbosity: "{{ node.verbosity }}"
 {%       else %}
