@@ -40,7 +40,7 @@ controller_inventories:
          | default(template_overrides_global.inventory.source_vars)
          | default(current_inventories_asset_value.source_vars) %}
       {{ (__inventory_source_vars if __inventory_source_vars is mapping or (__inventory_source_vars | type_debug) == 'list' else (__inventory_source_vars | from_yaml))
-         | to_nice_yaml(indent=2, sort_keys=false, width=4096) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*?){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true)}}
+         | to_nice_yaml(indent=2, sort_keys=false, width=4096) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*?){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true) | replace("'{{", "{{") | replace("}}'", "}}") }}
 {% endif %}
 {% if template_overrides_resources.inventory[current_inventories_asset_value.name].update_cache_timeout is defined
       or template_overrides_global.inventory.update_cache_timeout is defined
@@ -71,7 +71,7 @@ controller_inventories:
          | default(template_overrides_global.inventory.variables)
          | default(current_inventories_asset_value.variables) %}
       {{ (__inventory_variables if __inventory_variables is mapping or (__inventory_variables | type_debug) == 'list' else (__inventory_variables | from_yaml))
-         | to_nice_yaml(indent=2, sort_keys=false, width=4096) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*?){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true)}}
+         | to_nice_yaml(indent=2, sort_keys=false, width=4096) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*?){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true) | replace("'{{", "{{") | replace("}}'", "}}") }}
 {% endif %}
 {% if template_overrides_resources.inventory[current_inventories_asset_value.name].related.input_inventories is defined
       or template_overrides_global_global.inventory.related.input_inventories is defined
