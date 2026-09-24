@@ -1,0 +1,2 @@
+bugfixes:
+  - filetree_create - Remove single quotes around jinja expressions inside raw blocks because during import they are escaped as triple quotes.
