@@ -27,7 +27,7 @@
         __contents_filetree_controller_templates.results |
         rejectattr('ansible_facts.controller_templates', 'undefined') |
         map(attribute='ansible_facts.controller_templates') |
-        ansible.builtin.flatten
+        ansible.builtin.flatten | infra.aap_configuration_extended.filetree_surveys_cleanup
       }}
   no_log: "{{ controller_configuration_filetree_read_secure_logging }}"
   when:
