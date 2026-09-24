@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_read - Force "default" and "choices" fields to be string for surveys with type other than "integer" and "float".
