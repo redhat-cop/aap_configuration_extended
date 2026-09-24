@@ -159,7 +159,7 @@ controller_templates:
 
 {%     endif %}
 {%   endfor %}
-{% elif __job_template_extra_vars is string and (__job_template_extra_vars | length > 0) and __job_template_extra_vars != '---' %}
+{% elif __job_template_extra_vars is string and (__job_template_extra_vars | length > 0) and (__job_template_extra_vars | trim) != '---' %}
 {# Comment-only (or otherwise non-mapping) YAML: keep original text; from_yaml is None and must not hit dict2items #}
     extra_vars: {{ '"{%- raw -%}' }}{{ (__job_template_extra_vars | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
 {% else %}
