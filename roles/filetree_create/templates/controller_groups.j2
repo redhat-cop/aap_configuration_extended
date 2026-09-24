@@ -19,7 +19,7 @@ controller_groups: {{ [] if current_groups_asset_value | length == 0 }}
          | default(template_overrides_global.group.variables)
          | default(group.variables) %}
       {{ (__group_variables if __group_variables is mapping or (__group_variables | type_debug) == 'list' else (__group_variables | from_yaml))
-         | to_nice_yaml(indent=2, sort_keys=false, width=4096) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*?){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true)}}
+         | to_nice_yaml(indent=2, sort_keys=false, width=4096) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*?){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true) | replace("'{{", "{{") | replace("}}'", "}}") }}
 {%   endif %}
     hosts:
 {{ query('ansible.platform.gateway_api', group.related.hosts,
