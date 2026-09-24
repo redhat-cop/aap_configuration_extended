@@ -35,7 +35,15 @@ plugins:
   callback: {}
   cliconf: {}
   connection: {}
-  filter: {}
+  filter:
+    filetree_as_var:
+      description: Emit a Jinja variable reference for an exported filetree field
+      name: filetree_as_var
+      version_added: 4.10.0
+    filetree_var_name:
+      description: Build a canonical variable name for an exported filetree field
+      name: filetree_var_name
+      version_added: 4.10.0
   httpapi: {}
   inventory: {}
   lookup:
@@ -69,4 +77,4 @@ plugins:
   strategy: {}
   test: {}
   vars: {}
-version: 4.10.0
+version: 4.11.0

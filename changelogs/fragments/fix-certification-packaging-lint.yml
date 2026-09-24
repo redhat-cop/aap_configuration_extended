@@ -1,0 +1,5 @@
+---
+bugfixes:
+  - ansible-lint - Stop excluding shipped role content under roles/ from lint coverage.
+minor_changes:
+  - galaxy.yml - Exclude additional repository-tooling files from the published collection tarball.

@@ -4,6 +4,29 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v4.11.0
+=======
+
+Minor Changes
+-------------
+
+- README - Convert relative links to full URLs and expand Automation Hub installation guidance.
+- ansible-lint - Remove certification-blocked skip_list entries and enable no-log-password warnings.
+- filetree_vars - Add ansible-doc documentation for filetree_as_var and filetree_var_name filter plugins.
+- galaxy.yml - Exclude non-user-facing development files from the published collection tarball.
+- requirements.yml - Add collection dependencies for execution environment builds.
+- tests/sanity - Remove stale ignore files for unsupported ansible-core versions.
+
+Bugfixes
+--------
+
+- aap_config_vars - Use a dedicated GitError fallback so OSError and ValueError are not masked when module_utils import fails.
+- filetree_create - Add field unified_job_type to exported schedules yaml.
+- filetree_create - Add instance_groups attribute to the job jinja2 template
+- filetree_create - Fix description fields indentation for allowing newlines.
+- filetree_create - Skip duplicate controller_roles export for inline-object types when ``export_inline_object_roles`` is enabled. Fixes #343.
+- filetree_read - Change inventories order so that constructed inventories are imported last
+
 v4.10.0
 =======
 

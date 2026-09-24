@@ -1,0 +1,32 @@
+DOCUMENTATION:
+  name: filetree_surveys_cleanup
+  version_added: "4.12.0"
+  short_description: Returns the input templates list with surveys "choices" and "default" values forced to str where needed
+  description:
+    - The filetree_read generated list of controller_templates or controller_workflows contains surveys that are implicitly converted by Jinja.
+    - The survey's "choices" and "default" fields, for types other than "integer" and "float", may contain strings like "true", "false".
+    - Such strings are implicitly converted into boolean by Jinja and cause import failure because boolean values are not allowed.
+    - This filter forces string data type for such values.
+  positional: value
+  options:
+    _input:
+      description: A list of controller_templates or controller_workflows in the filetree_read format.
+      type: list
+      required: true
+
+EXAMPLES: |
+  - name: "Set Workflows Job Templates Data Structure"
+    ansible.builtin.set_fact:
+      controller_workflows: >-
+        {{
+          __contents_filetree_controller_workflow_job_templates.results |
+          rejectattr('ansible_facts.controller_workflows', 'undefined') |
+          map(attribute='ansible_facts.controller_workflows') |
+          ansible.builtin.flatten | infra.aap_configuration_extended.filetree_surveys_cleanup
+        }}
+
+RETURN:
+  _value:
+    description: The input controller_templates or controller_workflows list with boolean "choices" and "default" values converted into string.
+    type: list
+...
