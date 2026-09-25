@@ -309,21 +309,34 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      actions: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: release/${{ needs.calculate_version.outputs.collection_version }}
 
-      - name: Create and merge release PR
+      - name: Create release PR and enable auto-merge
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh pr create \
-            --base devel \
-            --head "release/${{ needs.calculate_version.outputs.collection_version }}" \
-            --title "[RELEASE] Update changelog ${{ needs.calculate_version.outputs.collection_version }}" \
-            --body "Updated with changelog for release ${{ needs.calculate_version.outputs.collection_version }}"
-          gh pr merge "release/${{ needs.calculate_version.outputs.collection_version }}" --rebase
+          BRANCH="release/${{ needs.calculate_version.outputs.collection_version }}"
+          TITLE="[RELEASE] Update changelog ${{ needs.calculate_version.outputs.collection_version }}"
+          BODY="Updated with changelog for release ${{ needs.calculate_version.outputs.collection_version }}"
+
+          if ! gh pr view "$BRANCH" --json number >/dev/null 2>&1; then
+            gh pr create --base devel --head "$BRANCH" --title "$TITLE" --body "$BODY"
+          fi
+
+          PR_NUM=$(gh pr view "$BRANCH" --json number -q .number)
+          gh pr edit "$PR_NUM" --add-label ci-approved 2>/dev/null || true
+          gh pr merge "$PR_NUM" --auto --rebase
+
+          # pull_request_target may not run for workflow-created PRs; kick tests if needed.
+          sleep 15
+          RUN_ID=$(gh run list --workflow=pre-commit-tests.yml --branch "$BRANCH" --limit 1 --json databaseId -q '.[0].databaseId')
+          if [ -n "$RUN_ID" ]; then
+            gh run rerun "$RUN_ID" || true
+          fi
 
   # deploy_ee:
   #   name: Build Execution Environment
