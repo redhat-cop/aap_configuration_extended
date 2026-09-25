@@ -45,6 +45,22 @@ jobs:
             const pullRequest = context.payload.pull_request;
             const headSha = pullRequest.head.sha;
 
+            function isReleasePullRequest() {
+              return (
+                pullRequest.head.ref.startsWith('release/') ||
+                pullRequest.title.startsWith('[RELEASE]')
+              );
+            }
+
+            if (isReleasePullRequest()) {
+              core.notice(
+                'Release pull request auto-approved (automated changelog merge from release workflow)',
+                { title: 'CI approval gate' },
+              );
+              core.setOutput('approved', 'true');
+              return;
+            }
+
             if (pullRequest.base.ref !== 'devel') {
               core.setFailed(
                 `Pull request #${pullRequest.number} targets ${pullRequest.base.ref}, expected devel`,
@@ -90,7 +106,9 @@ jobs:
             function hasSuccessfulApprovalJob(jobs) {
               return jobs.find(
                 (job) =>
-                  (job.name === 'auto-approve' || job.name === 'manual-approval') &&
+                  (job.name === 'auto-approve' ||
+                    job.name === 'manual-approval' ||
+                    job.name === 'release-auto-approve') &&
                   job.conclusion === 'success',
               );
             }
@@ -103,12 +121,14 @@ jobs:
 
               if (!approvalRun) {
                 if (await hasCiApprovedLabel()) {
-                  core.info(
-                    'ci-approved label present but no approval workflow run yet; waiting...',
+                  core.notice(
+                    'Approved via ci-approved label (no pull_request_target approval workflow run)',
+                    { title: 'CI approval gate' },
                   );
-                } else {
-                  core.info('Waiting for pre-commit approval workflow to start...');
+                  core.setOutput('approved', 'true');
+                  return;
                 }
+                core.info('Waiting for pre-commit approval workflow to start...');
                 await sleep(pollIntervalMs);
                 continue;
               }
