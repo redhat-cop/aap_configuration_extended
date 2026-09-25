@@ -3,12 +3,14 @@
 aap_user_accounts:
 {% endif %}
   - username: "{{ current_users_asset_value.username }}"
-{%   if show_encrypted is defined and show_encrypted %}
-    password: "{{ current_users_asset_value.password }}"
-{%   elif secrets_as_variables | bool %}
-    password: "{{ current_users_asset_value.password | replace("$encrypted$", "{{ " + secrets_as_variables_prefix + "controller_users_" + (current_users_asset_value.username | lower | regex_replace('[^a-z0-9]', '_')) + "_password }}") }}"
+{%   set __pw = current_users_asset_value.password | default('') %}
+{%   set __pw_var = "{{ " + secrets_as_variables_prefix + "_controller_users_" + (current_users_asset_value.username | lower | regex_replace('[^a-z0-9]', '_')) + "_password }}" %}
+{%   if show_encrypted | default(false) | bool %}
+    password: "{{ __pw }}"
+{%   elif secrets_as_variables | default(true) | bool %}
+    password: "{{ __pw_var }}"
 {%   else %}
-    password: "INITIAL"
+    password: ""
 {%   endif %}
     email: "{{ template_overrides_resources.user[current_users_asset_value.username].email
                | default(template_overrides_global.user.email)
