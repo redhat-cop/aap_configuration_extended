@@ -6,9 +6,8 @@ controller_workflows:
     state: "present"
     simplified_workflow_nodes:
       - identifier: "527904ba-27bf-4532-8624-8c8fdfb2a568"
-        workflow_job_template: "test_workflow"
         unified_job_template: "Demo Job Template"
-        organization: "tests/orgname"
+        lookup_organization: "tests/orgname"
         all_parents_must_converge: "false"
         extra_data:
           test_issue39: b
