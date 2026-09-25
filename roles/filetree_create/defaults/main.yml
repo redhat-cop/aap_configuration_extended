@@ -74,6 +74,8 @@ hub_configuration_filetree_create_secure_logging: "{{ aap_configuration_secure_l
 
 secrets_as_variables: true
 secrets_as_variables_prefix: "vaulted"
+show_encrypted: false
+flatten_output: false
 
 # Export defaults for controller settings omitted from settings/changed/ or filtered as
 # empty. Keys defined here are always exported (see controller_settings.j2).
