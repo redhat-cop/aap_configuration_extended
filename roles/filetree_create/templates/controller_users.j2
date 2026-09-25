@@ -4,11 +4,10 @@ aap_user_accounts:
 {% endif %}
   - username: "{{ current_users_asset_value.username }}"
 {%   set __pw = current_users_asset_value.password | default('') %}
-{%   set __pw_var = "{{ " + secrets_as_variables_prefix + "_controller_users_" + (current_users_asset_value.username | lower | regex_replace('[^a-z0-9]', '_')) + "_password }}" %}
 {%   if show_encrypted | default(false) | bool %}
     password: "{{ __pw }}"
 {%   elif secrets_as_variables | default(true) | bool %}
-    password: "{{ __pw_var }}"
+    password: "{{ '' | infra.aap_configuration_extended.filetree_as_var('controller_users', current_users_asset_value.username, 'password', true, secrets_as_variables_prefix) }}"
 {%   else %}
     password: ""
 {%   endif %}

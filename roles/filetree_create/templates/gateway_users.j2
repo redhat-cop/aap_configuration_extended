@@ -8,7 +8,6 @@ aap_user_accounts: {{ [] if current_gateway_users_asset_value | length == 0 }}
                      | default(template_overrides_global.gateway_user.password)
                      | default(current_user.password)
                      | default('') %}
-{%   set __pw_var = "{{ " + secrets_as_variables_prefix + "_gateway_users_" + (_username | lower | regex_replace('[^a-z0-9]', '_')) + "_password }}" %}
   - username: "{{ _username }}"
     email: "{{ template_overrides_resources.gateway_user[current_user.name].email
                      | default(template_overrides_global.gateway_user.email)
@@ -22,7 +21,7 @@ aap_user_accounts: {{ [] if current_gateway_users_asset_value | length == 0 }}
 {%   if show_encrypted | default(false) | bool %}
     password: "{{ __pw }}"
 {%   elif secrets_as_variables | default(true) | bool %}
-    password: "{{ __pw_var }}"
+    password: "{{ '' | infra.aap_configuration_extended.filetree_as_var('gateway_users', _username, 'password', true, secrets_as_variables_prefix) }}"
 {%   else %}
     password: ""
 {%   endif %}
