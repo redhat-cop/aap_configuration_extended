@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Omit redundant ``dtstart``, ``dtend``, and ``timezone`` from exported schedules (already present in ``rrule``); keep them only via template overrides (https://github.com/redhat-cop/aap_configuration_extended/issues/345).

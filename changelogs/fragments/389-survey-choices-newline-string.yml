@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Split newline-separated survey ``choices`` strings into list items instead of iterating characters (https://github.com/redhat-cop/aap_configuration_extended/issues/389).

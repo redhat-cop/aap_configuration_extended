@@ -60,26 +60,21 @@ controller_schedules:
       - "{{ instance_group.name }}"
 {%   endfor %}
 {% endif %}
+{# dtstart/dtend/timezone are already encoded in rrule; only emit via template_overrides #}
 {% if template_overrides_resources.schedule[current_schedules_asset_value.name].dtstart is defined
-      or template_overrides_global.schedule.dtstart is defined
-      or current_schedules_asset_value.dtstart is defined %}
+      or template_overrides_global.schedule.dtstart is defined %}
     dtstart: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].dtstart
-                 | default(template_overrides_global.schedule.dtstart)
-                 | default(current_schedules_asset_value.dtstart) }}"
+                 | default(template_overrides_global.schedule.dtstart) }}"
 {% endif %}
 {% if template_overrides_resources.schedule[current_schedules_asset_value.name].dtend is defined
-      or template_overrides_global.schedule.dtend is defined
-      or current_schedules_asset_value.dtend is defined %}
+      or template_overrides_global.schedule.dtend is defined %}
     dtend: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].dtend
-               | default(template_overrides_global.schedule.dtend)
-               | default(current_schedules_asset_value.dtend) }}"
+               | default(template_overrides_global.schedule.dtend) }}"
 {% endif %}
 {% if template_overrides_resources.schedule[current_schedules_asset_value.name].timezone is defined
-      or template_overrides_global.schedule.timezone is defined
-      or current_schedules_asset_value.timezone is defined %}
+      or template_overrides_global.schedule.timezone is defined %}
     timezone: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].timezone
-                  | default(template_overrides_global.schedule.timezone)
-                  | default(current_schedules_asset_value.timezone) }}"
+                  | default(template_overrides_global.schedule.timezone) }}"
 {% endif %}
 {% if template_overrides_resources.schedule[current_schedules_asset_value.name].rrule is defined
       or template_overrides_global.schedule.rrule is defined
@@ -103,7 +98,7 @@ controller_schedules:
          | default(template_overrides_global.schedule.extra_data)
          | default(current_schedules_asset_value.extra_data) %}
       {{ (__schedule_extra_data if __schedule_extra_data is mapping or (__schedule_extra_data | type_debug) == 'list' else (__schedule_extra_data | from_yaml))
-         | to_nice_yaml(indent=2, sort_keys=false, width=4096) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*?){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true) | replace("$encrypted$", "\'\'")}}
+         | to_nice_yaml(indent=2, sort_keys=false, width=4096) | indent(width=6, first=false) | regex_replace('(^[^:]*): (.*?){([{%])(.*)', '\\g<1>: "{%- raw -%} \\g<2>{\\g<3>\\g<4> {%- endraw -%}"', multiline=true) | replace("'{{", "{{") | replace("}}'", "}}") | replace("$encrypted$", "\'\'")}}
 {% endif %}
 {% if query_credentials | length > 0 %}
     credentials:

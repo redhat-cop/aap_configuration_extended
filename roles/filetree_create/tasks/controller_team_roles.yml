@@ -16,16 +16,17 @@
   block:
     - name: "Get role and object types and populate object_roles variable"
       ansible.builtin.set_fact:
-        role_types: "{{ team_roles_lookvar | map(attribute='name') | unique }}"
-        object_types: "{{ team_roles_lookvar | map(attribute='summary_fields.resource_type') | unique }}"
+        role_types: "{{ team_roles_lookvar | selectattr('name', 'defined') | map(attribute='name') | unique }}"
+        object_types: "{{ team_roles_lookvar | selectattr('summary_fields.resource_type', 'defined') | map(attribute='summary_fields.resource_type') | unique }}"
 
     - name: "Match objects with roles"
-      when: (team_roles_lookvar | selectattr('name','equalto', item.0) | selectattr('summary_fields.resource_type','equalto', item.1) | map(attribute='summary_fields.resource_name')) | length > 0
+      when: (team_roles_lookvar | selectattr('name','equalto', item.0) | selectattr('summary_fields.resource_type','equalto', item.1) | selectattr('summary_fields.resource_name', 'defined') | map(attribute='summary_fields.resource_name')) | length > 0
       ansible.builtin.set_fact:
         object_roles: "{{ object_roles + [{ item.0:
                                                     {
                                                       'resource_names': (team_roles_lookvar | selectattr('name','equalto', item.0) |
                                                                          selectattr('summary_fields.resource_type','equalto', item.1) |
+                                                                         selectattr('summary_fields.resource_name', 'defined') |
                                                                          map(attribute='summary_fields.resource_name')),
                                                       'resource_type': item.1
                                                     }
