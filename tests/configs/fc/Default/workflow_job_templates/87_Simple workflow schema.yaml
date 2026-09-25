@@ -6,16 +6,14 @@ controller_workflows:
     state: "present"
     simplified_workflow_nodes:
       - identifier: "node101"
-        workflow_job_template: "Simple workflow schema"
         unified_job_template: "RHVM-01"
-        organization: "Default"
+        lookup_organization: "Default"
         all_parents_must_converge: "false"
         success_nodes:
           - node201
       - identifier: "node201"
-        workflow_job_template: "Simple workflow schema"
         unified_job_template: "test-template-1"
-        organization: "Default"
+        lookup_organization: "Default"
         all_parents_must_converge: "false"
     ask_variables_on_launch: "false"
     allow_simultaneous: "false"
