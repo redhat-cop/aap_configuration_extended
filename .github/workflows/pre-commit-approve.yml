@@ -7,6 +7,9 @@ name: pre-commit approval
 on:
   pull_request_target:
     types: [opened, synchronize, reopened]
+  workflow_run:
+    workflows: ["Release - Automated"]
+    types: [completed]
   push:
     branches: [devel]
   schedule:
@@ -15,6 +18,7 @@ on:
 permissions:
   contents: read
   pull-requests: read
+  actions: read
 
 jobs:
   check-changes:
@@ -36,12 +40,37 @@ jobs:
             github:
               - '.github/**'
 
+  release-auto-approve:
+    if: >-
+      github.event_name == 'pull_request_target' &&
+      (startsWith(github.event.pull_request.head.ref, 'release/') ||
+       startsWith(github.event.pull_request.title, '[RELEASE]'))
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Release pull request approved automatically
+        run: echo "Release pull request approved automatically."
+      - name: Auto-apply approval label
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const label = 'ci-approved';
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const labels = context.payload.pull_request.labels.map(l => l.name);
+            if (!labels.includes(label)) {
+              await github.rest.issues.addLabels({ owner, repo, issue_number, labels: [label] });
+            }
+
   auto-approve:
     needs: check-changes
     if: >-
       github.event_name == 'pull_request_target' &&
       contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) &&
-      needs.check-changes.outputs.github_modified == 'false'
+      needs.check-changes.outputs.github_modified == 'false' &&
+      !startsWith(github.event.pull_request.head.ref, 'release/') &&
+      !startsWith(github.event.pull_request.title, '[RELEASE]')
     runs-on: ubuntu-latest
     # issues.addLabels requires write (tightened to read in #306 and broke labeling).
     permissions:
@@ -65,6 +94,8 @@ jobs:
     needs: check-changes
     if: >-
       github.event_name == 'pull_request_target' &&
+      !startsWith(github.event.pull_request.head.ref, 'release/') &&
+      !startsWith(github.event.pull_request.title, '[RELEASE]') &&
       (!contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) ||
        needs.check-changes.outputs.github_modified == 'true')
     runs-on: ubuntu-latest
@@ -86,6 +117,77 @@ jobs:
             const labels = context.payload.pull_request.labels.map(l => l.name);
             if (!labels.includes(label)) {
               await github.rest.issues.addLabels({ owner, repo, issue_number, labels: [label] });
+            }
+
+  # PRs opened by the release workflow use GITHUB_TOKEN and may not trigger
+  # pull_request_target; label the release PR and re-run tests after release completes.
+  bootstrap-release-pr-ci:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      actions: write
+    steps:
+      - name: Bootstrap CI for release merge pull request
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const { data: prs } = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open',
+              base: 'devel',
+              per_page: 100,
+            });
+            const releasePr = prs.find(
+              (pr) =>
+                pr.head.ref.startsWith('release/') &&
+                pr.title.startsWith('[RELEASE]'),
+            );
+            if (!releasePr) {
+              core.info('No open release pull request to bootstrap');
+              return;
+            }
+
+            const label = 'ci-approved';
+            const labels = releasePr.labels.map((l) => l.name);
+            if (!labels.includes(label)) {
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: releasePr.number,
+                labels: [label],
+              });
+            }
+
+            const { data: runs } = await github.rest.actions.listWorkflowRuns({
+              owner,
+              repo,
+              workflow_id: 'pre-commit-tests.yml',
+              head_sha: releasePr.head.sha,
+              event: 'pull_request',
+              per_page: 5,
+            });
+            const testRun = runs.workflow_runs.find(
+              (run) => run.conclusion === 'cancelled' || run.conclusion === 'failure',
+            );
+            if (testRun) {
+              await github.rest.actions.reRunWorkflow({
+                owner,
+                repo,
+                run_id: testRun.id,
+              });
+              core.notice(
+                `Re-ran pre-commit tests workflow ${testRun.id} for PR #${releasePr.number}`,
+                { title: 'Release PR CI bootstrap' },
+              );
+            } else {
+              core.info(
+                `No failed or cancelled pre-commit test run found for PR #${releasePr.number}`,
+              );
             }
 
   # Install certified collections with secrets and save the cache for untrusted test runs.

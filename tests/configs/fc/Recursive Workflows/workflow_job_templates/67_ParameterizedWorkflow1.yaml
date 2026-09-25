@@ -6,9 +6,8 @@ controller_workflows:
     state: "present"
     simplified_workflow_nodes:
       - identifier: "ParameterizedWorflow1Node1"
-        workflow_job_template: "ParameterizedWorkflow1"
         unified_job_template: "Parameterized Job Template"
-        organization: "Recursive Workflows"
+        lookup_organization: "Recursive Workflows"
         all_parents_must_converge: "false"
         extra_data:
           param2: World
