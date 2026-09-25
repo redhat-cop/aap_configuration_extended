@@ -31,7 +31,7 @@ controller_roles:
       - "{{ object_name }}"
 {%         endfor %}
 {%       endif %}
-    role: "{% if __role_entry.key | lower == 'approve' %}approval{% else %}{{ __role_entry.key | lower | regex_replace(' ', '_') }}{% endif %}"
+    role: "{% set __r = __role_entry.key | lower | regex_replace(' ', '_') %}{% if __r == 'approve' %}approval{% elif __r == 'ad_hoc' %}adhoc{% else %}{{ __r }}{% endif %}"
 {%     endif %}
 {%   endif %}
 {% endfor %}
