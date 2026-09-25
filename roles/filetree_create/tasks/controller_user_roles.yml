@@ -21,12 +21,13 @@
         object_roles: []
 
     - name: "Match objects with roles"
-      when: (user_roles_lookvar | selectattr('name','equalto', item.0) | selectattr('summary_fields.resource_type', 'defined') | selectattr('summary_fields.resource_type','equalto', item.1) | map(attribute='summary_fields.resource_name')) | length > 0
+      when: (user_roles_lookvar | selectattr('name','equalto', item.0) | selectattr('summary_fields.resource_type', 'defined') | selectattr('summary_fields.resource_type','equalto', item.1) | selectattr('summary_fields.resource_name', 'defined') | map(attribute='summary_fields.resource_name')) | length > 0
       ansible.builtin.set_fact:
         object_roles: "{{ object_roles + [{ item.0:
                                                     {
                                                       'resource_names': (user_roles_lookvar | selectattr('name','equalto', item.0) |
                                                                         selectattr('summary_fields.resource_type','equalto', item.1) |
+                                                                        selectattr('summary_fields.resource_name', 'defined') |
                                                                         map(attribute='summary_fields.resource_name')),
                                                       'resource_type': item.1
                                                     }

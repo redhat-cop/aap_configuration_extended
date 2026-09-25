@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Skip team/user role records missing ``summary_fields.resource_name`` so export does not fail (https://github.com/redhat-cop/aap_configuration_extended/issues/386).
