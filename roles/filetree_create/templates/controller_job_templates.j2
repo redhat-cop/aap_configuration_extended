@@ -159,7 +159,7 @@ controller_templates:
 
 {%     endif %}
 {%   endfor %}
-{% elif __job_template_extra_vars is string and (__job_template_extra_vars | length > 0) %}
+{% elif __job_template_extra_vars is string and (__job_template_extra_vars | length > 0) and (__job_template_extra_vars | trim) != '---' %}
 {# Comment-only (or otherwise non-mapping) YAML: keep original text; from_yaml is None and must not hit dict2items #}
     extra_vars: {{ '"{%- raw -%}' }}{{ (__job_template_extra_vars | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
 {% else %}
@@ -255,8 +255,9 @@ controller_templates:
           {{ current_content | replace("$encrypted$", "\'\'") }}
 {%           else %}
 {%             if survey_item_content.key is match('choices') and survey_item_content.value[0] is defined %}
+{%               set __choices = (survey_item_content.value.split('\n') if survey_item_content.value is string else survey_item_content.value) %}
           {{ survey_item_content.key }}:
-{%               for choice in survey_item_content.value if ((survey_item_content.value | string | length) > 0 and (survey_item_content.value | string) is not match('None')) %}
+{%               for choice in __choices if ((choice | string | length) > 0 and (choice | string) is not match('None')) %}
 {%                 if choice is number %}
             - {{ choice }}
 {%                 else %}

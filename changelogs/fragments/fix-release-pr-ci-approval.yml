@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - CI - Auto-approve release changelog pull requests and bootstrap CI when the release
+    workflow creates them with GITHUB_TOKEN (pull_request_target may not run).

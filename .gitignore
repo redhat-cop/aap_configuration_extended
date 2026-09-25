@@ -2,6 +2,9 @@
 *.pem
 *.key
 .pre-commit-cache/
+.tmp-*/
+.tox/
+**/.pytest_cache/
 .venv/
 ansible_collections
 *.tar.gz
