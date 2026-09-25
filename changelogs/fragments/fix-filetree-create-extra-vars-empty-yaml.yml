@@ -1,0 +1,2 @@
+bugfixes:
+  - filetree_create - Add support for empty yaml "---" in (workflow) job templates extra_vars attribute, converting them to empty string. Setting extra_vars to "---" cause import failure.
