@@ -37,13 +37,8 @@ gateway_role_user_assignments: {{ [] if current_gateway_role_user_assignments_as
 {%     elif 'inventory' in _ct_raw %}
 {%       set _probe_endpoints = ['api/controller/v2/inventories/'] %}
 {%     else %}
-{%       set _probe_endpoints = [
-            'api/gateway/v1/organizations/',
-            'api/gateway/v1/teams/',
-            'api/controller/v2/credentials/',
-            'api/controller/v2/projects/',
-            'api/controller/v2/inventories/'
-          ] %}
+{# Unknown content type: do not probe by numeric ID (avoids cross-resource ID collisions) #}
+{%       set _probe_endpoints = [] %}
 {%     endif %}
 {%     set _name_ns = namespace(value=none) %}
 {%     for _probe_ep in _probe_endpoints %}
