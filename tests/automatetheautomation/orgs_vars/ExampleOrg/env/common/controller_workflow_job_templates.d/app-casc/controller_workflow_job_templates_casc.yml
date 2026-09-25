@@ -11,16 +11,14 @@ controller_workflows:
     organization: "{{ orgs }}"
     simplified_workflow_nodes:
       - identifier: "LAUNCH_CI_{{ orgs }}"
-        workflow_job_template: "{{ orgs }} CasC_AAP_Workflow"
         unified_job_template: "{{ orgs }} CasC_JobTemplates_AAP_CI_Webhook"
         job_type: run
-        organization: "{{ orgs }}"
+        lookup_organization: "{{ orgs }}"
         workflow: "{{ orgs }} CasC_AAP_Workflow"
 
       - identifier: "PROJECT_SYNC_{{ orgs }}"
-        workflow_job_template: "{{ orgs }} CasC_AAP_Workflow"
         unified_job_template: "{{ orgs }} CasC_Data"
-        organization: "{{ orgs }}"
+        lookup_organization: "{{ orgs }}"
         workflow: "{{ orgs }} CasC_AAP_Workflow"
         success_nodes:
           - "LAUNCH_CI_{{ orgs }}"

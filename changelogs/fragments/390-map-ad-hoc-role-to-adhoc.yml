@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Map exported ``Ad Hoc`` team/user roles to canonical ``adhoc`` for ``infra.aap_configuration.controller_roles`` (https://github.com/redhat-cop/aap_configuration_extended/issues/390).

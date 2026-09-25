@@ -599,8 +599,7 @@ controller_workflows:
     simplified_workflow_nodes:
       - identifier: "build"
         unified_job_template: "Build"
-        workflow_job_template: "Release Pipeline"
-        organization: "AppTeam"
+        lookup_organization: "AppTeam"
         success_nodes:
           - "approve"
       - identifier: "approve"
@@ -608,15 +607,13 @@ controller_workflows:
           name: "Approve release"
           description: ""
           timeout: 0
-        workflow_job_template: "Release Pipeline"
-        organization: "AppTeam"
+        lookup_organization: "AppTeam"
         success_nodes:
           - "deploy"
       - identifier: "deploy"
         unified_job_template: "Deploy App"
         inventory: "App Inventory"
-        workflow_job_template: "Release Pipeline"
-        organization: "AppTeam"
+        lookup_organization: "AppTeam"
     notification_templates_approvals:
       - "Release Approvers Mail"
 ...

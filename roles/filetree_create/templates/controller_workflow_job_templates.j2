@@ -32,7 +32,6 @@ controller_workflows:
 {%   if node.summary_fields.inventory is defined %}
         inventory: "{{ node.summary_fields.inventory.name }}"
 {%   endif %}
-        workflow_job_template: "{{ node.summary_fields.workflow_job_template.name }}"
 {%   if node.summary_fields.unified_job_template is defined %}
 {%     if node.summary_fields.unified_job_template.unified_job_type == 'workflow_approval' %}
         approval_node:
@@ -64,7 +63,7 @@ controller_workflows:
 {%   if node.job_type %}
         job_type: "{{ node.job_type }}"
 {%   endif %}
-        organization: "{{ current_workflow_job_templates_asset_value.summary_fields.organization.name | default(organization if organization != 'ORGANIZATIONLESS' else 'ToDo: The WF \'' + current_workflow_job_templates_asset_value.name + '\' must belong to an organization') }}"
+        lookup_organization: "{{ current_workflow_job_templates_asset_value.summary_fields.organization.name | default(organization if organization != 'ORGANIZATIONLESS' else 'ToDo: The WF \'' + current_workflow_job_templates_asset_value.name + '\' must belong to an organization') }}"
         all_parents_must_converge: "{{ node.all_parents_must_converge }}"
 {%   if node.extra_data is defined and node.extra_data | length > 0 %}
         extra_data:
@@ -179,7 +178,7 @@ controller_workflows:
       {{ extra_vars_item.key }}: {{ '"{%- raw -%}' }}{{ (extra_vars_item.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
 {%     endif %}
 {%   endfor %}
-{% elif __workflow_extra_vars is string and (__workflow_extra_vars | length > 0) %}
+{% elif __workflow_extra_vars is string and (__workflow_extra_vars | length > 0) and (__workflow_extra_vars | trim) != '---' %}
 {# Comment-only (or otherwise non-mapping) YAML: keep original text; from_yaml is None and must not hit dict2items #}
     extra_vars: {{ '"{%- raw -%}' }}{{ (__workflow_extra_vars | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
 {% else %}
@@ -250,8 +249,9 @@ controller_workflows:
           {{ current_content | replace("$encrypted$", "\'\'") }}
 {%           else %}
 {%             if survey_item_content.key is match('choices') and survey_item_content.value[0] is defined %}
+{%               set __choices = (survey_item_content.value.split('\n') if survey_item_content.value is string else survey_item_content.value) %}
           {{ survey_item_content.key }}:
-{%               for choice in survey_item_content.value if ((survey_item_content.value | string | length) > 0 and (survey_item_content.value | string) is not match('None')) %}
+{%               for choice in __choices if ((choice | string | length) > 0 and (choice | string) is not match('None')) %}
 {%                 if choice is number %}
             - {{ choice }}
 {%                 else %}
