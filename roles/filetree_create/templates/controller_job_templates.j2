@@ -255,8 +255,9 @@ controller_templates:
           {{ current_content | replace("$encrypted$", "\'\'") }}
 {%           else %}
 {%             if survey_item_content.key is match('choices') and survey_item_content.value[0] is defined %}
+{%               set __choices = (survey_item_content.value.split('\n') if survey_item_content.value is string else survey_item_content.value) %}
           {{ survey_item_content.key }}:
-{%               for choice in survey_item_content.value if ((survey_item_content.value | string | length) > 0 and (survey_item_content.value | string) is not match('None')) %}
+{%               for choice in __choices if ((choice | string | length) > 0 and (choice | string) is not match('None')) %}
 {%                 if choice is number %}
             - {{ choice }}
 {%                 else %}
