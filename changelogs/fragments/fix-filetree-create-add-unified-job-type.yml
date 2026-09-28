@@ -1,3 +1,4 @@
 ---
 bugfixes:
-  - filetree_create - Add attributes to the workflow jinja2 template (unified_job_type and lookup_organization) required to identify the target job template in any circumstance
+  - filetree_create - Add attributes to the workflow jinja2 template (unified_job_type and lookup_organization) required to identify the target job template in any circumstance,
+    and remove existing lookup_organization which was actually the workflow organization.
