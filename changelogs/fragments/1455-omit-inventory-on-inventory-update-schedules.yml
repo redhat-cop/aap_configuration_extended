@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Omit ``inventory`` when exporting schedules with ``unified_job_type: inventory_update``, which AAP rejects as a launch override on import (https://github.com/redhat-cop/infra.aap_configuration/issues/1455).
