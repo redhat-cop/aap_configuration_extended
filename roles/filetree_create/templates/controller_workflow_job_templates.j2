@@ -187,10 +187,14 @@ controller_workflows:
 {%     if extra_vars_item.value == '' %}
       {{ extra_vars_item.key }}: {{ '"{%- raw -%}{%- endraw -%}"' }}
 {%     elif extra_vars_item.value | type_debug is match('list') %}
+{%       if (extra_vars_item.value | length) == 0 %}
+      {{ extra_vars_item.key }}: []
+{%       else %}
       {{ extra_vars_item.key }}:
-{%       for current_list_item in extra_vars_item.value if ((extra_vars_item.value | string | length) > 0 and (extra_vars_item.value | string) is not match('None')) %}
+{%         for current_list_item in extra_vars_item.value if ((extra_vars_item.value | string | length) > 0 and (extra_vars_item.value | string) is not match('None')) %}
         - {{ '"{%- raw -%}' }}{{ (current_list_item | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
-{%       endfor %}
+{%         endfor %}
+{%       endif %}
 {%     else %}
       {{ extra_vars_item.key }}: {{ '"{%- raw -%}' }}{{ (extra_vars_item.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
 {%     endif %}
