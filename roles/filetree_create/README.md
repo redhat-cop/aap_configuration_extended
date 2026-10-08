@@ -29,11 +29,11 @@ The following variables are required for that role to work properly:
 | `schedule_id` | N/A | no | int | Specifiying the schedule id to filter by. Prefer schedule **name** / related object links. |
 | `output_path` | `/tmp/filetree_output` | yes | str | The path to the output directory where all the generated `yaml` files with the corresponding Objects as code will be written to. |
 | `input_tag` | `['all']` | no | List of Strings | The tags which are applied to the 'sub-roles'. If 'all' is in the list (the default value) then all roles will be called.  Valid tags can be found under `vars/valid_tags`. |
-| `flatten_output` | N/A | no | bool | Whether to flatten the output in single files per each object type instead of the normal exportation structure. |
+| `flatten_output` | False | no | bool | Whether to flatten the output in single files per each object type instead of the normal exportation structure. |
 | `secrets_as_variables` | True | no | bool | Whether to export the secrets as variables that can be populated from existing variables/files. An example: `vaulted_eda_credentials_my_eda_credential_password`, that follows the syntax: `<secrets_as_variables_prefix>_<object_type>_<object_name>_<field_name>`. |
 | `secrets_as_variables_prefix` | vaulted | no | str | The prefix to use for the variables defined by `secrets_as_variables` feature. |
-| `show_encrypted` | N/A | no | bool | Whether to remove the string '\$encrypted\$' in credentials output (not the actual credential value). |
-| `omit_id` | N/A | no | bool | Whether to create output files without numeric object id prefixes. Recommended `true` for CaC. |
+| `show_encrypted` | False | no | bool | When true, keep the API `$encrypted$` literal (or empty password) in export. When false (default), secrets become vaulted variables (`secrets_as_variables`) or empty strings. |
+| `omit_id` | False | no | bool | Whether to create output files without numeric object id prefixes. Recommended `true` for CaC. |
 | `organization` | N/A | no | str | Default organization for all objects that have not been set in the source controller. |
 | `export_related_objects` | False | no | bool | Whether to export related objects when a single JT or WFJT is exported by name. JT: organization, project, inventory (+ sources/hosts/groups unless skipped), credentials (+ types), EEs, labels, notification templates, schedules. WFJT: organization, inventories, nested workflow nodes recursively until Job Template leaves, each discovered JT with its full related set, labels, notification templates (incl. approvals), schedules. |
 | `export_inline_object_roles` | False | no | bool | When true, embed `infra.aap_configuration` inline object `roles` (users/teams by role key) on inventories, projects, job templates, workflow job templates, credentials, and instance groups. Default keeps the separate `controller_roles` export only. |
