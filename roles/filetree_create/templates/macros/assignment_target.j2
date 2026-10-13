@@ -1,0 +1,161 @@
+{# Resolve gateway role assignment targets by authoritative content_type.
+   Import with context so connection vars and query limits are available:
+
+   {% from 'macros/assignment_target.j2' import resolve_target, check_inline_covered with context %}
+
+   resolve_target(assignment, target) mutates target namespace fields:
+     name, type, endpoint, content_type, organization, global_role,
+     related_object_roles, inline_resource_type, inline_input_tags
+
+   check_inline_covered(...) mutates result.covered when the same
+   resource/assignee/role was (or will be) emitted via inline object roles.
+#}
+{% macro resolve_target(assignment, target) %}
+{% set routes = {
+  'shared.organization': ('organizations', 'api/gateway/v1/organizations/', none, []),
+  'shared.team': ('teams', 'api/gateway/v1/teams/', none, []),
+  'awx.project': ('awx.project', 'api/controller/v2/projects/', 'project',
+                  ['controller_projects', 'controller', 'all']),
+  'awx.inventory': ('awx.inventory', 'api/controller/v2/inventories/', 'inventory',
+                    ['controller_inventories', 'controller', 'all']),
+  'awx.credential': ('awx.credential', 'api/controller/v2/credentials/', 'credential',
+                     ['controller_credentials', 'controller', 'all']),
+  'awx.jobtemplate': ('awx.jobtemplate', 'api/controller/v2/job_templates/', 'job_template',
+                      ['controller_job_templates', 'controller', 'all']),
+  'awx.workflowjobtemplate': ('awx.workflowjobtemplate', 'api/controller/v2/workflow_job_templates/',
+                              'workflow_job_template',
+                              ['controller_workflow_job_templates', 'controller', 'all']),
+  'awx.executionenvironment': ('awx.executionenvironment', 'api/controller/v2/execution_environments/',
+                               none, []),
+  'awx.instancegroup': ('awx.instancegroup', 'api/controller/v2/instance_groups/', 'instance_group',
+                        ['controller_instance_groups', 'controller', 'all']),
+  'awx.notificationtemplate': ('awx.notificationtemplate', 'api/controller/v2/notification_templates/',
+                               none, []),
+  'eda.project': ('eda.project', 'api/eda/v1/projects/', none, []),
+  'eda.activation': ('eda.activation', 'api/eda/v1/activations/', none, []),
+  'eda.edacredential': ('eda.edacredential', 'api/eda/v1/eda-credentials/', none, []),
+  'eda.eventstream': ('eda.eventstream', 'api/eda/v1/event-streams/', none, []),
+  'eda.decisionenvironment': ('eda.decisionenvironment', 'api/eda/v1/decision-environments/', none, [])
+} %}
+{% set sf = assignment.summary_fields | default({}, true) %}
+{% set rd = sf.role_definition | default({}, true) %}
+{% set ct = namespace(value=rd.content_type | default(none)) %}
+{# Obtain authoritative role metadata rather than infer service from a model. #}
+{% if ct.value in [none, ''] %}
+{%   set selector = {'id': assignment.role_definition}
+       if assignment.role_definition is defined and assignment.role_definition not in [none, '']
+       else {'name': rd.name | default(none)} %}
+{%   if selector.name is defined and selector.name in [none, ''] %}
+{{ undef(hint='Cannot resolve role definition for assignment ' ~ (assignment.id | default('unknown')) ~ ': missing role_definition id/name') | mandatory }}
+{%   endif %}
+{%   set definitions = query('ansible.platform.gateway_api',
+       'api/gateway/v1/role_definitions/', query_params=selector,
+       host=aap_hostname, oauth_token=__filetree_create_oauth_token,
+       verify_ssl=aap_validate_certs, return_all=true,
+       max_objects=query_gateway_api_max_objects) %}
+{%   if definitions | length != 1 %}
+{{ undef(hint='Cannot uniquely resolve role definition for assignment ' ~ (assignment.id | default('unknown'))) | mandatory }}
+{%   endif %}
+{%   set ct.value = definitions[0].content_type | default(none) %}
+{% endif %}
+{% if ct.value is mapping %}
+{%   set ct.value = (ct.value.app_label ~ '.' ~ ct.value.model)
+       if ct.value.app_label is defined and ct.value.model is defined else none %}
+{% endif %}
+{% set target.content_type = ct.value %}
+{% set object_id = assignment.object_id | default(none) %}
+{% set object_uuid = assignment.object_ansible_id | default(none) %}
+{# Platform-wide roles have no object; emit no target for those assignments. #}
+{% if ct.value is none and object_id in [none, ''] and object_uuid in [none, ''] %}
+{%   set target.global_role = true %}
+{% else %}
+{%   if ct.value not in routes %}
+{{ undef(hint='Unsupported role content_type for assignment ' ~ (assignment.id | default('unknown')) ~ ': ' ~ (ct.value | default('none'))) | mandatory }}
+{%   endif %}
+{%   set target.type = routes[ct.value][0] %}
+{%   set target.endpoint = routes[ct.value][1] %}
+{%   set target.inline_resource_type = routes[ct.value][2] %}
+{%   set target.inline_input_tags = routes[ct.value][3] %}
+{%   set resource = sf.resource | default({}, true) %}
+{%   set target.name = resource.name | default(none, true)
+         | default(sf.resource_name | default(none), true) %}
+{# Numeric names can be real names: do not reject them solely for being numeric.
+   When object_id is present, verify identity through the correct endpoint. #}
+{%   if object_id not in [none, ''] %}
+{%     set objects = query('ansible.platform.gateway_api', target.endpoint,
+         query_params={'id': object_id}, host=aap_hostname,
+         oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+         return_all=true, max_objects=query_controller_api_max_objects) %}
+{%     if objects | length != 1 or objects[0].name is not defined %}
+{{ undef(hint='Cannot resolve target for assignment ' ~ (assignment.id | default('unknown')) ~ ' at ' ~ target.endpoint) | mandatory }}
+{%     endif %}
+{%     set target.name = objects[0].name %}
+{%     set org = objects[0].summary_fields.organization | default({}, true) %}
+{%     set target.organization = org.name | default(none, true) %}
+{%     if target.organization in [none, ''] %}
+{%       set _org_id = objects[0].organization | default(none) %}
+{%       if _org_id not in [none, ''] %}
+{%         set _org_endpoint = 'api/gateway/v1/organizations/'
+             if (ct.value | string).startswith('shared.')
+             else ('api/eda/v1/organizations/' if (ct.value | string).startswith('eda.')
+                   else 'api/controller/v2/organizations/') %}
+{%         set _orgs = query('ansible.platform.gateway_api', _org_endpoint,
+             query_params={'id': _org_id}, host=aap_hostname,
+             oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+             return_all=true, max_objects=query_controller_api_max_objects) %}
+{%         if _orgs | length == 1 and _orgs[0].name is defined %}
+{%           set target.organization = _orgs[0].name %}
+{%         endif %}
+{%       endif %}
+{%     endif %}
+{%     set _related = objects[0].related | default({}, true) %}
+{%     set target.related_object_roles = _related.object_roles | default(none) %}
+{%   endif %}
+{%   if target.name in [none, ''] %}
+{{ undef(hint='No portable target name for assignment ' ~ (assignment.id | default('unknown')) ~ '; add an explicit name override') | mandatory }}
+{%   endif %}
+{% endif %}
+{% endmacro %}
+
+{% macro check_inline_covered(assignment, target, assignee_name, assignee_kind, result) %}
+{# assignee_kind: 'team' or 'user'. Sets result.covered true only with evidence. #}
+{% set result.covered = false %}
+{% set __inline_types = inline_object_role_resource_types | default([]) %}
+{% set __tags = input_tag | default([]) %}
+{% if (export_inline_object_roles | default(false) | bool)
+      and (assignee_name not in [none, ''])
+      and (target.inline_resource_type is not none)
+      and (target.inline_resource_type in __inline_types)
+      and ((target.inline_input_tags | default([])) | intersect(__tags) | length > 0)
+      and (target.related_object_roles not in [none, '', 'None']) %}
+{%   set __object_roles = query('ansible.platform.gateway_api', target.related_object_roles,
+        host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+        return_all=true, max_objects=query_controller_api_max_objects) %}
+{%   set __rd_name = assignment.summary_fields.role_definition.name | default('') %}
+{%   set __rd_norm = __rd_name | lower | regex_replace('[^a-z0-9]+', '') %}
+{%   for __role in __object_roles %}
+{%     if not result.covered %}
+{%       set __role_norm = __role.name | default('') | lower | regex_replace('[^a-z0-9]+', '') %}
+{%       if __role_norm != '' and (__rd_norm == __role_norm or __rd_norm.endswith(__role_norm)) %}
+{%         if assignee_kind == 'team' and __role.related.teams is defined %}
+{%           set __teams = query('ansible.platform.gateway_api', __role.related.teams,
+                host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                return_all=true, max_objects=query_controller_api_max_objects)
+                | map(attribute='name') | list %}
+{%           if assignee_name in __teams %}
+{%             set result.covered = true %}
+{%           endif %}
+{%         elif assignee_kind == 'user' and __role.related.users is defined %}
+{%           set __users = query('ansible.platform.gateway_api', __role.related.users,
+                host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                return_all=true, max_objects=query_controller_api_max_objects)
+                | map(attribute='username') | list %}
+{%           if assignee_name in __users %}
+{%             set result.covered = true %}
+{%           endif %}
+{%         endif %}
+{%       endif %}
+{%     endif %}
+{%   endfor %}
+{% endif %}
+{% endmacro %}
