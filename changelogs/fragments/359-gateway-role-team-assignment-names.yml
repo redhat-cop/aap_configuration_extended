@@ -1,3 +1,3 @@
 ---
 bugfixes:
-  - filetree_create - Resolve gateway role team assignment object names by content type only (no ambiguous org/team ID probe) and skip inline-covered assignments when ``export_inline_object_roles`` is true (https://github.com/redhat-cop/aap_configuration_extended/issues/359).
+  - filetree_create - Resolve gateway role team and user assignment targets by exact role-definition ``content_type`` (no substring or cross-resource ID probes), emit portable types for Controller/EDA resources, and skip standalone assignments only when inline object-role export evidence exists (https://github.com/redhat-cop/aap_configuration_extended/issues/359).
