@@ -1,3 +1,0 @@
----
-bugfixes:
-  - filetree_create - Fix in inventory sources output_path for constructed inventories.

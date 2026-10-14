@@ -4,6 +4,39 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v4.12.0
+=======
+
+Minor Changes
+-------------
+
+- galaxy.yml - Exclude additional repository-tooling files from the published collection tarball.
+
+Bugfixes
+--------
+
+- CI - Auto-approve release changelog pull requests and bootstrap CI when the release workflow creates them with GITHUB_TOKEN (pull_request_target may not run).
+- ansible-lint - Stop excluding shipped role content under roles/ from lint coverage.
+- filetree_create - Add attributes to the workflow jinja2 template (unified_job_type and lookup_organization) required to identify the target job template in any circumstance, and remove existing lookup_organization which was actually the workflow organization.
+- filetree_create - Add support for empty yaml "---" in (workflow) job templates extra_vars attribute, converting them to empty string. Setting extra_vars to "---" cause import failure.
+- filetree_create - Export workflow nodes with ``lookup_organization`` and without redundant per-node ``workflow_job_template`` (https://github.com/redhat-cop/aap_configuration_extended/issues/344).
+- filetree_create - Fix in inventory sources output_path for constructed inventories.
+- filetree_create - Map exported ``Ad Hoc`` team/user roles to canonical ``adhoc`` for ``infra.aap_configuration.controller_roles`` (https://github.com/redhat-cop/aap_configuration_extended/issues/390).
+- filetree_create - Omit redundant ``dtstart``, ``dtend``, and ``timezone`` from exported schedules (already present in ``rrule``); keep them only via template overrides (https://github.com/redhat-cop/aap_configuration_extended/issues/345).
+- filetree_create - Remove single quotes around jinja expressions inside raw blocks because during import they are escaped as triple quotes.
+- filetree_create - Skip team/user role records missing ``summary_fields.resource_name`` so export does not fail (https://github.com/redhat-cop/aap_configuration_extended/issues/386).
+- filetree_create - Split newline-separated survey ``choices`` strings into list items instead of iterating characters (https://github.com/redhat-cop/aap_configuration_extended/issues/389).
+- filetree_create - Unify secret export for users, credentials, and gateway settings with explicit ``show_encrypted`` / ``flatten_output`` defaults; build vaulted placeholders via ``filetree_as_var`` (https://github.com/redhat-cop/aap_configuration_extended/issues/358).
+- filetree_read - Force "default" and "choices" fields to be string for surveys with type other than "integer" and "float".
+
+New Plugins
+-----------
+
+Filter
+~~~~~~
+
+- infra.aap_configuration_extended.filetree_surveys_cleanup - Returns the input templates list with surveys "choices" and "default" values forced to str where needed
+
 v4.11.0
 =======
 

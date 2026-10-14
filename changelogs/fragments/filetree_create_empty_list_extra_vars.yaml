@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Export empty list ``extra_vars`` on job templates and workflow job templates as ``[]`` instead of a key with no value (https://redhat.atlassian.net/browse/AAP-95671).
