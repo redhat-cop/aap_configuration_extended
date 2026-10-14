@@ -47,9 +47,14 @@ controller_schedules:
     organization: "{{ _org.value }}"
 {%   endif %}
 {% endif %}
-{% if template_overrides_resources.schedule[current_schedules_asset_value.name].inventory is defined
+{# inventory is not an allowed launch override for inventory_update schedules #}
+{% set _schedule_ujt_type = template_overrides_resources.schedule[current_schedules_asset_value.name].unified_job_type
+                | default(template_overrides_global.schedule.unified_job_type)
+                | default(current_schedules_asset_value.summary_fields.unified_job_template.unified_job_type | default('')) %}
+{% if _schedule_ujt_type != 'inventory_update'
+      and (template_overrides_resources.schedule[current_schedules_asset_value.name].inventory is defined
       or template_overrides_global.schedule.inventory is defined
-      or current_schedules_asset_value.summary_fields.inventory is defined %}
+      or current_schedules_asset_value.summary_fields.inventory is defined) %}
     inventory: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].inventory
                    | default(template_overrides_global.schedule.inventory)
                    | default(current_schedules_asset_value.summary_fields.inventory.name) }}"
