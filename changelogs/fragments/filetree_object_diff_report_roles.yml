@@ -13,4 +13,7 @@ minor_changes:
   - >-
     filetree_object_diff - Synchronize Gateway RBAC assignments (live-only →
     ``state: absent``) so repository CaC can remove orphan role assignments.
+  - >-
+    filetree_object_diff integration test - Preserve pre-apply reports and force
+    shared-host field drift so create/update/delete report actions are covered.
 ...
