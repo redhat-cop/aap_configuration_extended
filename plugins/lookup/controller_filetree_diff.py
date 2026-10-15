@@ -112,6 +112,7 @@ OBJECT_ID_KEYS = {
     "schedule": ["name", "unified_job_template"],
     "execution_environment": ["name", "organization", "image"],
     "credential": ["name", "organization", "credential_type"],
+    "credential_input_source": ["target_credential", "source_credential", "input_field_name"],
     "inventory_source": ["name", "organization", "inventory"],
     "workflow_job_template_node": [
         "workflow_job_template",
