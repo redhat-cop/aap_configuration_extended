@@ -32,6 +32,15 @@ No full in-memory comparison of both sides: only diff files are loaded.
 | `filetree_object_diff_cleanup_live_path` | `true` | Remove live export after diff |
 | `controller_configuration_filetree_object_diff_tasks` | *(see defaults)* | Object types to export, compare, and load |
 
+### Comparison semantics
+
+For each object matched by identity keys, **every non-empty field defined in repository CaC** is compared against the live export (not only name/existence):
+
+- Same identity + different CaC field value → `state: present` with the full CaC object (dispatch updates it).
+- Same identity + CaC field missing/empty on live → `state: present`.
+- Live-only fields are ignored (CaC does not manage them).
+- Object only in CaC → `state: present`; only in live → `state: absent`.
+
 ### Secret / variable handling
 
 Repository CaC may use Jinja for secrets (`{{ vault_password }}`). Pass all required variables via `filetree_object_diff_template_vars` so the module can render CaC files before comparing. Sensitive keys (`password`, `inputs`, etc.) are ignored by default during comparison.
