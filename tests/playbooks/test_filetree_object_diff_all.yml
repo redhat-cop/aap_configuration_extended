@@ -31,7 +31,8 @@
     apply_changes: true
     controller_api_version: v2
 
-    filetree_object_diff_diff_path: "/tmp/filetree_object_diff_integration_delta"
+    filetree_object_diff_live_path_base: "/tmp/filetree_object_diff_integration_live"
+    filetree_object_diff_diff_path_base: "/tmp/filetree_object_diff_integration_delta"
     # Both filetree_create layouts must produce a correct, applicable delta.
     filetree_object_diff_output_formats:
       - false
