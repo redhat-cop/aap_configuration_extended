@@ -15,6 +15,7 @@
 - name: "Apply effective task list to derived role variables"
   ansible.builtin.set_fact:
     filetree_object_diff_root_keys_filter: "{{ __filetree_object_diff_effective_tasks | map(attribute='var') | list }}"
-    filetree_object_diff_create_tags: "{{ __filetree_object_diff_effective_tasks | map(attribute='create_tag') | list }}"
+    # Deduplicate create tags (credential_input_sources reuses controller_credentials).
+    filetree_object_diff_create_tags: "{{ __filetree_object_diff_effective_tasks | map(attribute='create_tag') | list | unique }}"
 
 ...
