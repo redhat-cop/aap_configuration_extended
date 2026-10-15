@@ -1,22 +1,32 @@
 ---
-- name: "Get changed Controller Settings from the API"
-  ansible.builtin.set_fact:
-    all_settings: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/settings/changed/',
-                            host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
-                            return_all=true, max_objects=query_controller_api_max_objects)
-                       }}"
-    settings_export_from_changed: true
-  no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+- name: "Export Controller Settings"
+  when: "'controller_settings' not in (__filetree_create_skipped_tags | default([]))"
+  block:
+    - name: "Get changed Controller Settings from the API"
+      ansible.builtin.set_fact:
+        all_settings: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/settings/changed/',
+                                host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                                return_all=true, max_objects=query_controller_api_max_objects)
+                           }}"
+        settings_export_from_changed: true
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
-- name: "Create the output directory for controller_settings in {{ output_path }}"
-  ansible.builtin.file:
-    path: "{{ output_path }}"
-    state: directory
-    mode: '0755'
+    - name: "Create the output directory for controller_settings in {{ output_path }}"
+      ansible.builtin.file:
+        path: "{{ output_path }}"
+        state: directory
+        mode: '0755'
 
-- name: "Add current settings to the controller_settings.yaml output file in {{ output_path }}"
-  ansible.builtin.template:
-    src: "templates/controller_settings.j2"
-    dest: "{{ output_path }}/controller_settings.yaml"
-    mode: '0644'
+    - name: "Add current settings to the controller_settings.yaml output file in {{ output_path }}"
+      ansible.builtin.template:
+        src: "templates/controller_settings.j2"
+        dest: "{{ output_path }}/controller_settings.yaml"
+        mode: '0644'
+  rescue:
+    - name: "Skip Controller Settings export when the API denies access"
+      ansible.builtin.debug:
+        msg: >-
+          Skipping controller_settings export: the current user cannot read
+          api/controller/v2/settings/changed/ ({{ ansible_failed_result.msg | default('permission or API error') }}).
+          Organization Admins cannot export platform settings; use a superuser or omit settings from input_tag.
 ...
