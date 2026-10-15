@@ -130,6 +130,41 @@ omit_instance_specific_keys:
   - LICENSE
   - INSTALL_UUID
 
+# Platform-wide object tags skipped automatically when organization_filter is set.
+filetree_create_platform_global_tags:
+  - controller_settings
+  - controller_instances
+  - gateway_settings
+  - gateway_authenticators
+  - gateway_http_ports
+  - gateway_routes
+  - gateway_service_clusters
+  - gateway_service_keys
+  - gateway_service_nodes
+  - gateway_services
+  - gateway_users
+  - hub
+  - hub_namespaces
+  - hub_collections
+  - hub_collection_remotes
+  - hub_collection_repositories
+  - hub_ee_registries
+  - hub_ee_repositories
+  - hub_ee_images
+
+# Tags that require a Gateway/Controller superuser; skipped for org-admins with a warning.
+filetree_create_superadmin_only_tags:
+  - controller_settings
+  - controller_instances
+  - gateway_settings
+  - gateway_authenticators
+  - gateway_http_ports
+  - gateway_routes
+  - gateway_service_clusters
+  - gateway_service_keys
+  - gateway_service_nodes
+  - gateway_services
+
 input_tag:
   - all
 valid_tags:
