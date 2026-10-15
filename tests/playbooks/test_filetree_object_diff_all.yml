@@ -124,7 +124,8 @@
       ansible.builtin.import_role:
         name: infra.aap_configuration.dispatch
       vars:
-        controller_configuration_dispatcher_roles: "{{ __filetree_object_diff_dispatch_roles }}"
+        # Override the combined Gateway/Hub/Controller/EDA list so only delta roles run.
+        aap_configuration_dispatcher_roles: "{{ __filetree_object_diff_dispatch_roles }}"
       when:
         - apply_changes | bool
         - __filetree_object_diff_dispatch_roles | default([]) | length > 0

@@ -85,6 +85,75 @@ class TestFiletreeCacDiff(unittest.TestCase):
             "credential_input_source",
         )
 
+    def test_gateway_hub_eda_root_keys_registered(self):
+        for root_key in (
+            "gateway_authenticators",
+            "gateway_role_user_assignments",
+            "gateway_settings",
+            "controller_instances",
+            "controller_labels",
+            "controller_settings",
+            "eda_credentials",
+            "eda_rulebook_activations",
+            "hub_namespaces",
+            "hub_ee_images",
+        ):
+            self.assertIn(root_key, self.module.ROOT_KEY_OBJECT_TYPE)
+
+    def test_list_valued_identity_keys_are_hashable(self):
+        identity = self.module.object_identity(
+            "role_user_assignment",
+            {
+                "role_definition": "Organization Admin",
+                "user": "admin",
+                "object_ids": ["Default"],
+            },
+        )
+        self.assertIsInstance(identity, tuple)
+        # Must be usable as a dict key.
+        self.assertEqual({identity: True}[identity], True)
+
+    def test_settings_written_as_mapping_not_list(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            live_path = os.path.join(tmpdir, "live")
+            cac_path = os.path.join(tmpdir, "cac")
+            diff_path = os.path.join(tmpdir, "diff")
+            os.makedirs(live_path)
+            os.makedirs(cac_path)
+
+            with open(os.path.join(live_path, "settings.yaml"), "w", encoding="utf-8") as handle:
+                handle.write("---\ngateway_settings:\n  gateway_basic_auth_enabled: 'true'\n")
+
+            with open(os.path.join(cac_path, "settings.yaml"), "w", encoding="utf-8") as handle:
+                handle.write("---\ngateway_settings:\n  gateway_basic_auth_enabled: 'false'\n")
+
+            result = self.module.compare_filetrees(
+                live_paths=[live_path],
+                cac_paths=[cac_path],
+                diff_path=diff_path,
+                root_keys_filter=["gateway_settings"],
+            )
+
+            self.assertEqual(result["present_count"], 1)
+            self.assertEqual(result["absent_count"], 0)
+            self.assertEqual(len(result["diff_files"]), 1)
+            with open(result["diff_files"][0], encoding="utf-8") as handle:
+                content = handle.read()
+            self.assertIn("gateway_settings:", content)
+            self.assertNotIn("gateway_settings:\n- ", content)
+            self.assertIn("gateway_basic_auth_enabled: 'false'", content)
+            self.assertNotIn("state:", content)
+
+    def test_instance_identity_uses_hostname(self):
+        self.assertEqual(self.module.get_id_keys("instance"), ["hostname"])
+        self.assertEqual(
+            self.module.object_identity(
+                "instance",
+                {"hostname": "exec1.example.com", "node_type": "execution"},
+            ),
+            ("exec1.example.com",),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
