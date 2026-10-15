@@ -81,6 +81,13 @@ drop_user_external_accounts: false
 # Additional keys ignored during content comparison (merged with lookup defaults).
 filetree_object_diff_ignore_keys: []
 
+# Write detailed from/to report (_filetree_object_diff_report.yaml) and expose
+# filetree_object_diff_report after compare.
+filetree_object_diff_write_report: true
+
+# Skip managed gateway role definitions and galaxy.* role assignments in compare.
+filetree_object_diff_skip_system_roles: true
+
 # Object lists (populated by filetree_read before this role / after reading the delta).
 gateway_authenticators: []
 gateway_authenticator_maps: []

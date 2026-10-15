@@ -79,7 +79,8 @@
       when:
         - od_type_item.api_path is defined
         - not (od_type_item.skip_object_diff | default(false))
-        - od_type_item.label == 'execution_environments'
+        - not (od_type_item.assignments_mode | default(false))
+        - od_type_item.label in ['execution_environments', 'inventories']
 
     - name: Remove legacy execution environment names from test organization
       ansible.builtin.set_fact:
@@ -109,7 +110,13 @@
       loop_control:
         loop_var: od_type_item
         label: "{{ od_type_item.label }}"
-      when: not (od_type_item.skip_apply | default(false)) and not (od_type_item.skip_object_diff | default(false))
+      when: >-
+        (
+          not (od_type_item.skip_apply | default(false))
+          and not (od_type_item.skip_object_diff | default(false))
+        )
+        or (od_type_item.force_setup | default(false))
+        or (od_type_item.assignments_mode | default(false))
 
   post_tasks:
     - name: Revoke authentication token

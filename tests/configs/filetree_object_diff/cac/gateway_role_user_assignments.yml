@@ -1,0 +1,12 @@
+---
+# CaC for Gateway RBAC sync (#9). Orphan Organization Inventory Admin is live-only.
+gateway_role_user_assignments:
+  - role_definition: Organization Project Admin
+    user: object-diff-shared-user
+    object_ids:
+      - Object Diff Test
+  - role_definition: Organization Member
+    user: object-diff-shared-user
+    object_ids:
+      - Object Diff Test
+...

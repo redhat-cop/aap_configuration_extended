@@ -65,6 +65,18 @@ options:
       Limit comparison to objects assigned to this organization name.
       Defaults to C(template_vars.orgs) when set.
     type: str
+  write_report:
+    description: >-
+      Write a detailed from/to report to C(diff_path)/_filetree_object_diff_report.yaml
+      and return it as C(report).
+    default: true
+    type: bool
+  skip_system_roles:
+    description: >-
+      Exclude managed gateway role definitions and galaxy.* role assignments from
+      comparison (matches filetree_create export filters).
+    default: true
+    type: bool
 author:
   - Ivan Aragonés (@ivarmu)
 ...
@@ -109,6 +121,16 @@ changed:
   description: Whether any difference files were written.
   type: bool
   returned: always
+report:
+  description: >-
+    Detailed difference report with create/update/delete/unchanged actions and
+    per-field from/to changes for updates.
+  type: dict
+  returned: always
+report_path:
+  description: Path to the written report YAML file when C(write_report) is true.
+  type: str
+  returned: when write_report is true
 """
 
 from ansible.module_utils.basic import AnsibleModule
@@ -130,6 +152,8 @@ def main():
             "set_absent": {"type": "bool", "default": True},
             "root_keys_filter": {"type": "list", "elements": "str", "default": None},
             "organization_filter": {"type": "str", "default": None},
+            "write_report": {"type": "bool", "default": True},
+            "skip_system_roles": {"type": "bool", "default": True},
         },
         supports_check_mode=True,
     )
@@ -146,6 +170,8 @@ def main():
         set_absent=module.params["set_absent"],
         root_keys_filter=module.params["root_keys_filter"],
         organization_filter=module.params["organization_filter"],
+        write_report=module.params["write_report"],
+        skip_system_roles=module.params["skip_system_roles"],
     )
 
     module.exit_json(**result)

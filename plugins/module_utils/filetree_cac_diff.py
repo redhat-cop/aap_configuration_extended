@@ -115,7 +115,11 @@ OBJECT_ID_KEYS = {
     "schedule": ["name", "unified_job_template"],
     "execution_environment": ["name", "organization", "image"],
     "credential": ["name", "organization", "credential_type"],
-    "credential_input_source": ["target_credential", "source_credential", "input_field_name"],
+    "credential_input_source": [
+        "target_credential",
+        "source_credential",
+        "input_field_name",
+    ],
     "inventory_source": ["name", "organization", "inventory"],
     "workflow_job_template_node": [
         "workflow_job_template",
@@ -131,8 +135,18 @@ OBJECT_ID_KEYS = {
     "service_node": ["name"],
     "gateway_service": ["name"],
     "role_definition": ["name"],
-    "role_team_assignment": ["role_definition", "team", "team_ansible_id", "assignment_objects"],
-    "role_user_assignment": ["role_definition", "user", "user_ansible_id", "object_ids"],
+    "role_team_assignment": [
+        "role_definition",
+        "team",
+        "team_ansible_id",
+        "assignment_objects",
+    ],
+    "role_user_assignment": [
+        "role_definition",
+        "user",
+        "user_ansible_id",
+        "object_ids",
+    ],
     "route": ["name"],
     "eda_credential_type": ["name"],
     "eda_credential": ["name", "organization"],
@@ -171,6 +185,17 @@ DEFAULT_IGNORE_KEYS = {
 EMPTY_COMPARE_VALUES = (None, "", [], {}, [{}])
 
 YAML_EXTENSIONS = (".yaml", ".yml")
+
+REPORT_FILENAME = "_filetree_object_diff_report.yaml"
+
+# Root keys filtered when skip_system_roles is enabled.
+SYSTEM_ROLE_ASSIGNMENT_ROOT_KEYS = frozenset(
+    {
+        "gateway_role_user_assignments",
+        "gateway_role_team_assignments",
+    }
+)
+GALAXY_ROLE_DEFINITION_PREFIX = "galaxy."
 
 _ROLE_TARGET_DUP_KEYS = [
     "target_team",
@@ -265,14 +290,90 @@ def equal_dicts(cac_item, live_item, ignore_keys):
     Comparison is CaC-driven: live-only keys are ignored. A CaC field missing or
     empty on the live side is a mismatch so dispatch can apply the desired state.
     """
+    return not field_changes(cac_item, live_item, ignore_keys)
+
+
+def _append_nested_field_changes(prefix, cac_value, live_value, changes):
+    if isinstance(cac_value, dict) and isinstance(live_value, dict):
+        for key, value in cac_value.items():
+            if value in EMPTY_COMPARE_VALUES:
+                continue
+            field_path = "{0}.{1}".format(prefix, key) if prefix else key
+            if key not in live_value or live_value[key] in EMPTY_COMPARE_VALUES:
+                changes.append({"field": field_path, "from": None, "to": copy.deepcopy(value)})
+                continue
+            if isinstance(value, dict) and isinstance(live_value[key], dict):
+                _append_nested_field_changes(field_path, value, live_value[key], changes)
+            elif not values_equal(value, live_value[key]):
+                changes.append(
+                    {
+                        "field": field_path,
+                        "from": copy.deepcopy(live_value[key]),
+                        "to": copy.deepcopy(value),
+                    }
+                )
+        return
+    if not values_equal(cac_value, live_value):
+        changes.append(
+            {
+                "field": prefix,
+                "from": copy.deepcopy(live_value),
+                "to": copy.deepcopy(cac_value),
+            }
+        )
+
+
+def field_changes(cac_item, live_item, ignore_keys):
+    """Return per-field from/to changes for non-empty CaC fields vs live."""
+    changes = []
     cac_filtered = filter_compare_item(cac_item, ignore_keys)
     live_filtered = filter_compare_item(live_item, ignore_keys)
     for key, value in cac_filtered.items():
         if key not in live_filtered:
-            return False
-        if not values_equal(value, live_filtered[key]):
-            return False
-    return True
+            changes.append({"field": key, "from": None, "to": copy.deepcopy(value)})
+            continue
+        live_value = live_filtered[key]
+        if isinstance(value, dict) and isinstance(live_value, dict):
+            _append_nested_field_changes(key, value, live_value, changes)
+        elif not values_equal(value, live_value):
+            changes.append(
+                {
+                    "field": key,
+                    "from": copy.deepcopy(live_value),
+                    "to": copy.deepcopy(value),
+                }
+            )
+    return changes
+
+
+def report_identity(object_type, item):
+    """Stable identity dict for report entries (id keys or full role item)."""
+    if object_type == "role":
+        identity = {}
+        for key in sorted(item.keys()):
+            if key in ("state", "roles"):
+                continue
+            identity[key] = copy.deepcopy(item.get(key))
+        return identity
+    id_keys = get_id_keys(object_type) or []
+    return {key: copy.deepcopy(item.get(key)) for key in id_keys if key in item}
+
+
+def is_system_role_item(root_key, item):
+    """Return True for managed gateway role definitions or galaxy.* assignments."""
+    if root_key == "gateway_role_definitions" and item.get("managed") is True:
+        return True
+    if root_key in SYSTEM_ROLE_ASSIGNMENT_ROOT_KEYS:
+        role_definition = item.get("role_definition") or ""
+        if isinstance(role_definition, str) and role_definition.startswith(GALAXY_ROLE_DEFINITION_PREFIX):
+            return True
+    return False
+
+
+def filter_system_roles_from_index(index, skip_system_roles=True):
+    if not skip_system_roles:
+        return index
+    return {key: entry for key, entry in index.items() if not is_system_role_item(entry["root_key"], entry["item"])}
 
 
 def map_item(item, new_attribute_name, attribute_value, dupitems):
@@ -512,17 +613,58 @@ def matches_organization_filter(item, organization_filter):
     return False
 
 
+def _cac_scope_names(cac_index, organization_filter):
+    """Names from CaC used to scope live-only Gateway RBAC assignment absents."""
+    names = set()
+    if organization_filter:
+        names.add(organization_filter)
+    for entry in cac_index.values():
+        item = entry["item"]
+        for key in ("name", "username"):
+            value = item.get(key)
+            if isinstance(value, str) and value:
+                names.add(value)
+        for object_id in item.get("object_ids") or []:
+            if isinstance(object_id, str) and object_id:
+                names.add(object_id)
+    return names
+
+
+def _assignment_in_cac_scope(item, cac_scope_names):
+    object_ids = item.get("object_ids") or []
+    return any(object_id in cac_scope_names for object_id in object_ids)
+
+
 def filter_index_by_organization(index, organization_filter):
     if not organization_filter:
         return index
-    return {key: entry for key, entry in index.items() if matches_organization_filter(entry["item"], organization_filter)}
+    filtered = {}
+    for key, entry in index.items():
+        if matches_organization_filter(entry["item"], organization_filter):
+            filtered[key] = entry
+            continue
+        # Gateway RBAC assignments are scoped by object_ids, not organization.
+        if entry["object_type"] in ("role_user_assignment", "role_team_assignment"):
+            if entry["item"].get("object_ids"):
+                filtered[key] = entry
+    return filtered
 
 
 def filter_live_index_scope(live_index, cac_index, organization_filter):
     if not organization_filter:
         return live_index
     cac_keys = set(cac_index.keys())
-    return {key: entry for key, entry in live_index.items() if key in cac_keys or matches_organization_filter(entry["item"], organization_filter)}
+    cac_scope_names = _cac_scope_names(cac_index, organization_filter)
+    scoped = {}
+    for key, entry in live_index.items():
+        if key in cac_keys or matches_organization_filter(entry["item"], organization_filter):
+            scoped[key] = entry
+            continue
+        # Live-only Gateway assignments omit organization; keep those targeting CaC names.
+        if entry["object_type"] in ("role_user_assignment", "role_team_assignment"):
+            if _assignment_in_cac_scope(entry["item"], cac_scope_names):
+                scoped[key] = entry
+    return scoped
 
 
 def _prepare_diff_directory(diff_path):
@@ -553,7 +695,43 @@ def _items_match(cac_item, live_item, object_type, ignore_keys):
     return equal_dicts(cac_item, live_item, ignore_keys)
 
 
-def _process_cac_entry(key, cac_entry, live_index, diff_path, root_keys_filter, ignore_keys):
+def _empty_report():
+    return {
+        "summary": {"create": 0, "update": 0, "delete": 0, "unchanged": 0},
+        "objects": [],
+    }
+
+
+def _append_report_object(report, root_key, object_type, item, action, changes=None):
+    entry = {
+        "root_key": root_key,
+        "object_type": object_type,
+        "identity": report_identity(object_type, item),
+        "action": action,
+    }
+    if changes:
+        entry["changes"] = changes
+    report["objects"].append(entry)
+    report["summary"][action] = report["summary"].get(action, 0) + 1
+
+
+def write_report_file(diff_path, report):
+    os.makedirs(diff_path, exist_ok=True)
+    destination = os.path.join(diff_path, REPORT_FILENAME)
+    with open(destination, "w", encoding="utf-8") as handle:
+        handle.write("---\n")
+        yaml_dump(
+            report,
+            handle,
+            default_flow_style=False,
+            sort_keys=False,
+            allow_unicode=True,
+        )
+        handle.write("...\n")
+    return destination
+
+
+def _process_cac_entry(key, cac_entry, live_index, diff_path, root_keys_filter, ignore_keys, report):
     root_key, _identity = key
     if root_key not in root_keys_filter:
         return 0, 0, []
@@ -566,18 +744,33 @@ def _process_cac_entry(key, cac_entry, live_index, diff_path, root_keys_filter, 
         output_item = copy.deepcopy(cac_item)
         output_item["state"] = "present"
         written = write_diff_file(diff_path, root_key, output_item)
-        return (1, 0, [written]) if written else (0, 0, [])
+        if written:
+            _append_report_object(report, root_key, object_type, cac_item, "create")
+            return 1, 0, [written]
+        return 0, 0, []
 
     if _items_match(cac_item, live_entry["item"], object_type, ignore_keys):
+        _append_report_object(report, root_key, object_type, cac_item, "unchanged")
         return 0, 1, []
+
+    if object_type == "role":
+        cac_compare = normalize_role_items([copy.deepcopy(cac_item)])[0]
+        live_compare = normalize_role_items([copy.deepcopy(live_entry["item"])])[0]
+    else:
+        cac_compare = cac_item
+        live_compare = live_entry["item"]
+    changes = field_changes(cac_compare, live_compare, ignore_keys)
 
     output_item = copy.deepcopy(cac_item)
     output_item["state"] = "present"
     written = write_diff_file(diff_path, root_key, output_item)
-    return (1, 0, [written]) if written else (0, 0, [])
+    if written:
+        _append_report_object(report, root_key, object_type, cac_item, "update", changes)
+        return 1, 0, [written]
+    return 0, 0, []
 
 
-def _process_absent_entries(live_index, cac_index, diff_path, root_keys_filter):
+def _process_absent_entries(live_index, cac_index, diff_path, root_keys_filter, report):
     absent_files = []
     absent_count = 0
     for key, live_entry in live_index.items():
@@ -591,6 +784,13 @@ def _process_absent_entries(live_index, cac_index, diff_path, root_keys_filter):
         if written:
             absent_files.append(written)
             absent_count += 1
+            _append_report_object(
+                report,
+                root_key,
+                live_entry["object_type"],
+                live_entry["item"],
+                "delete",
+            )
     return absent_count, absent_files
 
 
@@ -603,6 +803,8 @@ def compare_filetrees(
     set_absent=True,
     root_keys_filter=None,
     organization_filter=None,
+    write_report=True,
+    skip_system_roles=True,
 ):
     ignore_keys, root_keys_filter, organization_filter = _resolve_compare_options(
         ignore_keys,
@@ -611,21 +813,28 @@ def compare_filetrees(
         organization_filter,
     )
 
-    cac_index = filter_index_by_organization(
-        index_filetree(cac_paths, template_vars=template_vars),
-        organization_filter,
+    cac_index = filter_system_roles_from_index(
+        filter_index_by_organization(
+            index_filetree(cac_paths, template_vars=template_vars),
+            organization_filter,
+        ),
+        skip_system_roles=skip_system_roles,
     )
     _prepare_diff_directory(diff_path)
 
-    live_index = filter_live_index_scope(
-        filter_index_by_organization(
-            index_filetree(live_paths, template_vars=None),
+    live_index = filter_system_roles_from_index(
+        filter_live_index_scope(
+            filter_index_by_organization(
+                index_filetree(live_paths, template_vars=None),
+                organization_filter,
+            ),
+            cac_index,
             organization_filter,
         ),
-        cac_index,
-        organization_filter,
+        skip_system_roles=skip_system_roles,
     )
 
+    report = _empty_report()
     present_count = 0
     unchanged_count = 0
     diff_files = []
@@ -638,6 +847,7 @@ def compare_filetrees(
             diff_path,
             root_keys_filter,
             ignore_keys,
+            report,
         )
         present_count += present_delta
         unchanged_count += unchanged_delta
@@ -645,8 +855,19 @@ def compare_filetrees(
 
     absent_count = 0
     if set_absent:
-        absent_count, absent_files = _process_absent_entries(live_index, cac_index, diff_path, root_keys_filter)
+        absent_count, absent_files = _process_absent_entries(
+            live_index,
+            cac_index,
+            diff_path,
+            root_keys_filter,
+            report,
+        )
         diff_files.extend(absent_files)
+
+    report["summary"]["unchanged"] = unchanged_count
+    report_path = None
+    if write_report:
+        report_path = write_report_file(diff_path, report)
 
     return {
         "diff_files": diff_files,
@@ -654,4 +875,6 @@ def compare_filetrees(
         "absent_count": absent_count,
         "unchanged_count": unchanged_count,
         "changed": bool(diff_files),
+        "report": report,
+        "report_path": report_path,
     }
