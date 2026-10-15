@@ -14,7 +14,7 @@ The following variables are required for that role to work properly:
 
 | Variable Name | Default Value | Required | Type | Description |
 | :------------ | :-----------: | :------: | :------: | :---------- |
-| `organization_filter` | N/A | no | str | Exports only the objects belonging to the specified organization **name** (preferred CaC selector). |
+| `organization_filter` | N/A | no | str | Exports only the objects belonging to the specified organization **name** (preferred CaC selector). When set, platform-global exports (controller/gateway settings, gateway infra, hub, all users, instances) are skipped. Organization Admins also cannot export superuser-only resources. |
 | `organization_id` | N/A | no | int | Legacy alternative to `organization_filter` using a numeric ID. Prefer organization **names**. |
 | `organization_name` | N/A | no | str | Filter a single organization by **name** (used by related export). |
 | `project_name` | N/A | no | str | Filter projects by **name**. Prefer this over `project_id`. |
