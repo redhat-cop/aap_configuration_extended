@@ -15,6 +15,66 @@
       order_by: 'organization,id'
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
+- name: "Block to include global EEs referenced by Job Templates in the filtered organization"
+  when:
+    - organization_id is defined
+    - execution_environment_name is not defined
+    - execution_environment_names is not defined
+    - execution_environment_id is not defined
+    - execution_environment_ids is not defined
+  block:
+    - name: "Get Job Templates for the organization to discover referenced EEs"
+      ansible.builtin.set_fact:
+        __ee_ref_job_templates: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/job_templates/',
+                                          query_params={'organization': organization_id, 'order_by': 'id'},
+                                          host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                                          return_all=true, max_objects=query_controller_api_max_objects)
+                                 }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Collect EE names referenced by those Job Templates"
+      ansible.builtin.set_fact:
+        referenced_global_ee_names: "{{ __ee_ref_job_templates
+          | selectattr('summary_fields.execution_environment', 'defined')
+          | map(attribute='summary_fields.execution_environment.name')
+          | list
+          | unique }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Determine referenced EE names missing from the organization-scoped export"
+      ansible.builtin.set_fact:
+        __missing_referenced_ee_names: "{{ referenced_global_ee_names
+          | difference(execution_environments_lookvar | map(attribute='name') | list) }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Fetch missing referenced Execution Environments (typically global)"
+      when: (__missing_referenced_ee_names | length) > 0
+      ansible.builtin.set_fact:
+        __extra_referenced_ees: "{{ query('ansible.platform.gateway_api', 'api/controller/v2/execution_environments/',
+                                          query_params={'name__in': (__missing_referenced_ee_names | join(',')), 'order_by': 'id'},
+                                          host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                                          return_all=true, max_objects=query_controller_api_max_objects)
+                                 }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Keep only organization-less (global) EEs among the missing referenced names"
+      when: (__extra_referenced_ees | default([]) | length) > 0
+      ansible.builtin.set_fact:
+        __extra_global_referenced_ees: "{{ __extra_referenced_ees
+          | rejectattr('summary_fields.organization', 'defined')
+          | list }}"
+        referenced_global_ee_names: "{{ __extra_referenced_ees
+          | rejectattr('summary_fields.organization', 'defined')
+          | map(attribute='name')
+          | list }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Merge organization EEs with referenced global EEs"
+      when: (__extra_global_referenced_ees | default([]) | length) > 0
+      ansible.builtin.set_fact:
+        execution_environments_lookvar: "{{ execution_environments_lookvar + __extra_global_referenced_ees }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
 - name: "Create the output directory for execution environments: {{ output_path }}"
   ansible.builtin.file:
     path: "{{ output_path }}"
@@ -28,4 +88,7 @@
     mode: '0644'
   vars:
     current_execution_environments_asset_value: "{{ execution_environments_lookvar }}"
+    # Task already scoped/merged the lookvar; always render those rows.
+    include_all_lookvar_ees: true
+    referenced_global_ee_names: "{{ referenced_global_ee_names | default([]) }}"
 ...
