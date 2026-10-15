@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Export Hub collection repository ``remote`` as the linked Pulp remote name by following the distribution repository relation (https://github.com/redhat-cop/aap_configuration_extended/issues/409).
