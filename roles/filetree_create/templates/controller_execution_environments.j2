@@ -1,8 +1,13 @@
 ---
 controller_execution_environments: {{ [] if current_execution_environments_asset_value | length == 0 }}
 {% set __empty_values = [None, '', "None", [], {}, [{}]] %}
+{% set __org_filter_active = organization_filter is defined and (organization_filter | length) > 0 %}
 {% for ee in current_execution_environments_asset_value %}
-{%   if organization_filter is not defined or (ee.summary_fields.organization is defined and ee.summary_fields.organization.name is match(organization_filter)) %}
+{%   set __ee_has_org = ee.summary_fields.organization is defined and ee.summary_fields.organization.name is defined %}
+{%   set __ee_org_matches = __ee_has_org and (ee.summary_fields.organization.name is match(organization_filter)) %}
+{%   set __ee_is_global = not __ee_has_org %}
+{%   set __ee_global_referenced = __ee_is_global and (ee.name in (referenced_global_ee_names | default([]))) %}
+{%   if (not __org_filter_active) or __ee_org_matches or __ee_global_referenced or (include_all_lookvar_ees | default(false) | bool) %}
   - name: "{{ ee.name }}"
 {%     if template_overrides_resources.ee[ee.name].description
                      | default(template_overrides_global.ee.description)
@@ -14,7 +19,7 @@ controller_execution_environments: {{ [] if current_execution_environments_asset
                      | default(ee.description) | regex_replace("'", "''") | indent(6) }}
       {{ '{%- endraw -%}' }}
 {%     endif %}
-{%     if ee.summary_fields.organization.name is defined %}
+{%     if __ee_has_org %}
     organization: "{{ ee.summary_fields.organization.name }}"
 {%     else %}
     organization:  # Leave this empty organization to let the object_diff role to work properly

@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - When ``organization_filter`` is set, still export global execution environments referenced by Job Templates in that organization; treat an empty filter as unset (https://github.com/redhat-cop/aap_configuration_extended/issues/399).
