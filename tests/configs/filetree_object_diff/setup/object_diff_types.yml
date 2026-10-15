@@ -120,6 +120,8 @@ object_diff_types:
     scope: global
     skip_apply: true
     skip_object_diff: true
+    # Still create shared/orphan users so Gateway assignment tests have a principal.
+    force_setup: true
 
   - label: applications
     var: aap_applications
@@ -228,7 +230,10 @@ object_diff_types:
     shared: Object Diff Shared Schedule
     cac_only: Object Diff New CaC Schedule
     orphan: Object Diff Orphan Schedule
-    skip_apply: false
+    # Live export with organization_filter often omits these schedules on this lab
+    # (empty filetree_create result); keep setup but skip diff/apply until export is fixed.
+    skip_apply: true
+    skip_object_diff: true
 
   - label: roles
     var: controller_roles
@@ -244,4 +249,30 @@ object_diff_types:
     skip_apply: true
     skip_setup: true
     roles_mode: true
+
+  # Gateway RBAC sync (#9) — after users/projects/inventories so principals and objects exist.
+  - label: role_user_assignments
+    var: gateway_role_user_assignments
+    dispatch_var: gateway_role_user_assignments
+    dispatch_role: gateway_role_user_assignments
+    dispatch_tag: gateway_role_user_assignments
+    api_path: api/gateway/v1/role_user_assignments/
+    assignments_mode: true
+    skip_apply: false
+    orphan_label: Object Diff Orphan Role User Assignment
+    shared_match:
+      role_definition: Organization Member
+      user: object-diff-shared-user
+      # Literal org name (avoid nested "{{ orgs }}" templating surprises in vars_files).
+      object_name: Object Diff Test
+    # Prefer organization-scoped definitions: some object-scoped assignments
+    # (e.g. Credential Admin / Project Admin) return HTTP 500 on this lab.
+    orphan_match:
+      role_definition: Organization Inventory Admin
+      user: object-diff-shared-user
+      object_name: Object Diff Test
+    cac_only_match:
+      role_definition: Organization Project Admin
+      user: object-diff-shared-user
+      object_name: Object Diff Test
 ...

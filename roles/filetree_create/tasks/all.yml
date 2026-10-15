@@ -81,7 +81,9 @@
     # Exported through gateway users   when: "'users' in input_tag or 'roles' in input_tag or 'controller' in input_tag or 'all' in input_tag"
     - name: "Export Controller Teams"
       ansible.builtin.include_tasks: "controller_teams.yml"
-      when: "'controller_teams' in input_tag or 'roles' in input_tag or 'controller' in input_tag or 'all' in input_tag"
+      when: >-
+        'controller_teams' in input_tag or 'controller_roles' in input_tag
+        or 'roles' in input_tag or 'controller' in input_tag or 'all' in input_tag
     - name: "Export Controller Organizations"
       ansible.builtin.include_tasks: "controller_organizations.yml"
       when: "'controller_organizations' in input_tag or 'controller' in input_tag or 'all' in input_tag"
@@ -162,7 +164,9 @@
       when: "'gateway_teams' in input_tag or 'gateway' in input_tag or 'all' in input_tag"
     - name: "Export Gateway Users"
       ansible.builtin.include_tasks: "gateway_users.yml"
-      when: "'gateway_users' in input_tag or 'gateway' in input_tag or 'all' in input_tag"
+      when: >-
+        'gateway_users' in input_tag or 'controller_roles' in input_tag
+        or 'roles' in input_tag or 'gateway' in input_tag or 'all' in input_tag
     - name: "Export EDA Credential Types"
       ansible.builtin.include_tasks: "eda_credential_types.yml"
       when: "'eda_credential_types' in input_tag or 'eda' in input_tag or 'all' in input_tag"

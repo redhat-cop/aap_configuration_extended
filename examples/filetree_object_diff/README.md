@@ -70,6 +70,20 @@ ansible-playbook playbooks/filetree_object_diff.yml \
   --tags controller_projects,controller_inventories
 ```
 
+1. Synchronize Gateway RBAC (remove live-only role assignments):
+
+```bash
+ansible-playbook playbooks/filetree_object_diff.yml \
+  -e @examples/filetree_object_diff/vars/filetree_object_diff.yml \
+  -e @examples/filetree_object_diff/vars/vault.yml \
+  --tags gateway_role_user_assignments,gateway_role_team_assignments
+```
+
+Ensure those task entries are present in
+`controller_configuration_filetree_object_diff_tasks` (see role defaults). The
+diff writes `_filetree_object_diff_report.yaml` with from/to field changes for
+updates; apply YAML remains `state: present|absent` only.
+
 ## What happens
 
 ```mermaid

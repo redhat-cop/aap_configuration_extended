@@ -72,6 +72,18 @@
       ansible.builtin.import_role:
         name: infra.aap_configuration_extended.filetree_object_diff
 
+    - name: Show detailed from/to report summary
+      ansible.builtin.debug:
+        msg: >-
+          report {{ filetree_object_diff_report_path | default('(none)') }}:
+          create={{ filetree_object_diff_report.summary['create'] | default(0) }}
+          update={{ filetree_object_diff_report.summary['update'] | default(0) }}
+          delete={{ filetree_object_diff_report.summary['delete'] | default(0) }}
+          unchanged={{ filetree_object_diff_report.summary['unchanged'] | default(0) }}
+      when:
+        - not (controller_configuration_filetree_object_diff_secure_logging | default(true) | bool)
+        - filetree_object_diff_report is defined
+
     - name: Show objects marked present in the delta
       ansible.builtin.debug:
         msg: >-

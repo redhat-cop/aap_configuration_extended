@@ -24,4 +24,24 @@
     mode: '0644'
   vars:
     current_gateway_users_asset_value: "{{ gateway_users_lookvar }}"
+
+# Controller RBAC roles attached to users (legacy controller_roles CaC).
+- name: "Export Controller user roles for Gateway users"
+  when:
+    - >-
+      'controller_roles' in (input_tag | default([]))
+      or 'roles' in (input_tag | default([]))
+      or 'controller' in (input_tag | default([]))
+      or 'all' in (input_tag | default([]))
+      or 'gateway_users' in (input_tag | default([]))
+    - not (__gateway_user_for_roles.is_superuser | default(false) | bool)
+  ansible.builtin.include_tasks: "controller_user_roles.yml"
+  vars:
+    username: "{{ __gateway_user_for_roles.username }}"
+    last_user_role: "{{ __gateway_user_roles_index == ((gateway_users_lookvar | length) - 1) }}"
+  loop: "{{ gateway_users_lookvar }}"
+  loop_control:
+    index_var: __gateway_user_roles_index
+    loop_var: __gateway_user_for_roles
+    label: "{{ __gateway_user_for_roles.username | default('user') }}"
 ...

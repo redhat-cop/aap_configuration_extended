@@ -227,8 +227,16 @@ class TestFiletreeCacDiff(unittest.TestCase):
 
     def test_nested_cac_dict_subset_comparison(self):
         ignore = set()
-        cac = {"name": "JT", "organization": "Default", "extra_vars": {"env": "pro", "region": "eu"}}
-        live_missing_nested = {"name": "JT", "organization": "Default", "extra_vars": {"env": "pro"}}
+        cac = {
+            "name": "JT",
+            "organization": "Default",
+            "extra_vars": {"env": "pro", "region": "eu"},
+        }
+        live_missing_nested = {
+            "name": "JT",
+            "organization": "Default",
+            "extra_vars": {"env": "pro"},
+        }
         live_with_extra_nested = {
             "name": "JT",
             "organization": "Default",
@@ -236,6 +244,231 @@ class TestFiletreeCacDiff(unittest.TestCase):
         }
         self.assertFalse(self.module.equal_dicts(cac, live_missing_nested, ignore))
         self.assertTrue(self.module.equal_dicts(cac, live_with_extra_nested, ignore))
+
+    def test_field_changes_nested_paths(self):
+        ignore = set()
+        cac = {
+            "name": "JT",
+            "organization": "Default",
+            "extra_vars": {"env": "pro", "region": "eu"},
+        }
+        live = {"name": "JT", "organization": "Default", "extra_vars": {"env": "pre"}}
+        changes = self.module.field_changes(cac, live, ignore)
+        by_field = {entry["field"]: entry for entry in changes}
+        self.assertEqual(by_field["extra_vars.env"]["from"], "pre")
+        self.assertEqual(by_field["extra_vars.env"]["to"], "pro")
+        self.assertIsNone(by_field["extra_vars.region"]["from"])
+        self.assertEqual(by_field["extra_vars.region"]["to"], "eu")
+
+    def test_report_update_create_delete(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            live_path = os.path.join(tmpdir, "live")
+            cac_path = os.path.join(tmpdir, "cac")
+            diff_path = os.path.join(tmpdir, "diff")
+            os.makedirs(live_path)
+            os.makedirs(cac_path)
+
+            with open(os.path.join(live_path, "projects.yaml"), "w", encoding="utf-8") as handle:
+                handle.write(
+                    "---\n"
+                    "controller_projects:\n"
+                    "  - name: Demo\n"
+                    "    organization: Default\n"
+                    "    scm_url: https://example.com/live.git\n"
+                    "  - name: Orphan\n"
+                    "    organization: Default\n"
+                    "    scm_url: https://example.com/orphan.git\n"
+                )
+            with open(os.path.join(cac_path, "projects.yaml"), "w", encoding="utf-8") as handle:
+                handle.write(
+                    "---\n"
+                    "controller_projects:\n"
+                    "  - name: Demo\n"
+                    "    organization: Default\n"
+                    "    scm_url: https://example.com/desired.git\n"
+                    "  - name: New\n"
+                    "    organization: Default\n"
+                    "    scm_url: https://example.com/new.git\n"
+                )
+
+            result = self.module.compare_filetrees(
+                live_paths=[live_path],
+                cac_paths=[cac_path],
+                diff_path=diff_path,
+                root_keys_filter=["controller_projects"],
+            )
+
+            report = result["report"]
+            self.assertEqual(report["summary"]["create"], 1)
+            self.assertEqual(report["summary"]["update"], 1)
+            self.assertEqual(report["summary"]["delete"], 1)
+            actions = {entry["action"]: entry for entry in report["objects"]}
+            self.assertEqual(actions["update"]["changes"][0]["field"], "scm_url")
+            self.assertEqual(actions["update"]["changes"][0]["from"], "https://example.com/live.git")
+            self.assertEqual(actions["update"]["changes"][0]["to"], "https://example.com/desired.git")
+            self.assertNotIn("changes", actions["create"])
+            self.assertNotIn("changes", actions["delete"])
+            self.assertTrue(os.path.isfile(result["report_path"]))
+            self.assertTrue(result["report_path"].endswith("_filetree_object_diff_report.yaml"))
+
+    def test_skip_system_roles_filters_managed_and_galaxy(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            live_path = os.path.join(tmpdir, "live")
+            cac_path = os.path.join(tmpdir, "cac")
+            diff_path = os.path.join(tmpdir, "diff")
+            os.makedirs(live_path)
+            os.makedirs(cac_path)
+
+            with open(os.path.join(live_path, "roles.yaml"), "w", encoding="utf-8") as handle:
+                handle.write(
+                    "---\n"
+                    "gateway_role_definitions:\n"
+                    "  - name: Platform Auditor\n"
+                    "    managed: true\n"
+                    "gateway_role_user_assignments:\n"
+                    "  - role_definition: galaxy.ansible_repository_owner\n"
+                    "    user: admin\n"
+                    "    object_ids: [published]\n"
+                    "  - role_definition: Project Admin\n"
+                    "    user: alice\n"
+                    "    object_ids: [Demo]\n"
+                )
+            with open(os.path.join(cac_path, "roles.yaml"), "w", encoding="utf-8") as handle:
+                handle.write("---\n" "gateway_role_definitions: []\n" "gateway_role_user_assignments: []\n")
+
+            result = self.module.compare_filetrees(
+                live_paths=[live_path],
+                cac_paths=[cac_path],
+                diff_path=diff_path,
+                root_keys_filter=[
+                    "gateway_role_definitions",
+                    "gateway_role_user_assignments",
+                ],
+                organization_filter=None,
+                skip_system_roles=True,
+            )
+
+            self.assertEqual(result["absent_count"], 1)
+            with open(result["diff_files"][0], encoding="utf-8") as handle:
+                content = handle.read()
+            self.assertIn("Project Admin", content)
+            self.assertIn("state: absent", content)
+            self.assertNotIn("galaxy.", content)
+            self.assertNotIn("Platform Auditor", content)
+
+    def test_gateway_role_user_assignment_orphan_absent(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            live_path = os.path.join(tmpdir, "live")
+            cac_path = os.path.join(tmpdir, "cac")
+            diff_path = os.path.join(tmpdir, "diff")
+            os.makedirs(live_path)
+            os.makedirs(cac_path)
+
+            with open(os.path.join(live_path, "assignments.yaml"), "w", encoding="utf-8") as handle:
+                handle.write(
+                    "---\n"
+                    "controller_projects:\n"
+                    "  - name: Object Diff Shared Project\n"
+                    "    organization: Object Diff Test\n"
+                    "controller_inventories:\n"
+                    "  - name: Object Diff Shared Inventory\n"
+                    "    organization: Object Diff Test\n"
+                    "controller_credentials:\n"
+                    "  - name: Object Diff Shared Credential\n"
+                    "    organization: Object Diff Test\n"
+                    "gateway_role_user_assignments:\n"
+                    "  - role_definition: Organization Inventory Admin\n"
+                    "    user: object-diff-shared-user\n"
+                    "    object_ids:\n"
+                    "      - Object Diff Test\n"
+                    "  - role_definition: Organization Member\n"
+                    "    user: object-diff-shared-user\n"
+                    "    object_ids:\n"
+                    "      - Object Diff Test\n"
+                )
+            with open(os.path.join(cac_path, "assignments.yaml"), "w", encoding="utf-8") as handle:
+                handle.write(
+                    "---\n"
+                    "controller_projects:\n"
+                    "  - name: Object Diff Shared Project\n"
+                    "    organization: Object Diff Test\n"
+                    "controller_inventories:\n"
+                    "  - name: Object Diff Shared Inventory\n"
+                    "    organization: Object Diff Test\n"
+                    "controller_credentials:\n"
+                    "  - name: Object Diff Shared Credential\n"
+                    "    organization: Object Diff Test\n"
+                    "gateway_role_user_assignments:\n"
+                    "  - role_definition: Organization Member\n"
+                    "    user: object-diff-shared-user\n"
+                    "    object_ids:\n"
+                    "      - Object Diff Test\n"
+                    "  - role_definition: Organization Project Admin\n"
+                    "    user: object-diff-shared-user\n"
+                    "    object_ids:\n"
+                    "      - Object Diff Test\n"
+                )
+
+            result = self.module.compare_filetrees(
+                live_paths=[live_path],
+                cac_paths=[cac_path],
+                diff_path=diff_path,
+                root_keys_filter=["gateway_role_user_assignments"],
+                organization_filter="Object Diff Test",
+            )
+
+            self.assertEqual(result["absent_count"], 1)
+            self.assertEqual(result["present_count"], 1)
+            self.assertEqual(result["unchanged_count"], 1)
+            absent_content = "\n".join(open(path, encoding="utf-8").read() for path in result["diff_files"])
+            self.assertIn("Organization Inventory Admin", absent_content)
+            self.assertIn("state: absent", absent_content)
+            self.assertIn("Organization Project Admin", absent_content)
+            self.assertIn("state: present", absent_content)
+
+    def test_live_assignment_scoped_by_cac_object_names(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            live_path = os.path.join(tmpdir, "live")
+            cac_path = os.path.join(tmpdir, "cac")
+            diff_path = os.path.join(tmpdir, "diff")
+            os.makedirs(live_path)
+            os.makedirs(cac_path)
+
+            with open(os.path.join(live_path, "all.yaml"), "w", encoding="utf-8") as handle:
+                handle.write(
+                    "---\n"
+                    "controller_projects:\n"
+                    "  - name: Object Diff Shared Project\n"
+                    "    organization: Object Diff Test\n"
+                    "gateway_role_user_assignments:\n"
+                    "  - role_definition: Project Admin\n"
+                    "    user: object-diff-shared-user\n"
+                    "    object_ids: [Object Diff Shared Project]\n"
+                    "  - role_definition: Project Admin\n"
+                    "    user: other\n"
+                    "    object_ids: [Unrelated Project]\n"
+                )
+            with open(os.path.join(cac_path, "all.yaml"), "w", encoding="utf-8") as handle:
+                handle.write(
+                    "---\n"
+                    "controller_projects:\n"
+                    "  - name: Object Diff Shared Project\n"
+                    "    organization: Object Diff Test\n"
+                    "gateway_role_user_assignments: []\n"
+                )
+
+            result = self.module.compare_filetrees(
+                live_paths=[live_path],
+                cac_paths=[cac_path],
+                diff_path=diff_path,
+                root_keys_filter=["gateway_role_user_assignments"],
+                organization_filter="Object Diff Test",
+            )
+
+            self.assertEqual(result["absent_count"], 1)
+            content = open(result["diff_files"][0], encoding="utf-8").read()
+            self.assertIn("Object Diff Shared Project", content)
+            self.assertNotIn("Unrelated Project", content)
 
 
 if __name__ == "__main__":
