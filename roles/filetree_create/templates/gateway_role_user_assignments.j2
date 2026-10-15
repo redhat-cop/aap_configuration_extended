@@ -8,13 +8,13 @@
 {%   set _username = _override.username
         | default(template_overrides_global.gateway_role_user_assignment.username)
         | default(_sf.user.username | default(none)) %}
-{%   set _user_ansible_id = _override.user_ansible_id
-        | default(template_overrides_global.gateway_role_user_assignment.user_ansible_id)
-        | default(current_role_user_assignment.user_ansible_id | default(none)) %}
 {%   set _role_definition = _override.role_definition
         | default(template_overrides_global.gateway_role_user_assignment.role_definition)
         | default(current_role_user_assignment.summary_fields.role_definition.name) %}
-{%   set _entry = namespace(value={'role_definition': _role_definition}, skip=false) %}
+{%   if _username is none or _username in __empty_values %}
+{{ undef(hint='Gateway role user assignment ' ~ (current_role_user_assignment.id | default('unknown')) ~ ' has no portable username (CaC requires names, not IDs)') | mandatory }}
+{%   endif %}
+{%   set _entry = namespace(value={'role_definition': _role_definition, 'user': _username}, skip=false) %}
 {%   if _override.object_ids is defined %}
 {%     set _entry.value = _entry.value | combine({'object_ids': _override.object_ids}) %}
 {%   else %}
@@ -23,9 +23,7 @@
          related_object_roles=none, inline_resource_type=none, inline_input_tags=[]) %}
 {%     set _ = resolve_target(current_role_user_assignment, target) %}
 {%     set _inline = namespace(covered=false) %}
-{%     if _username is not none and _username not in __empty_values %}
-{%       set _ = check_inline_covered(current_role_user_assignment, target, _username, 'user', _inline) %}
-{%     endif %}
+{%     set _ = check_inline_covered(current_role_user_assignment, target, _username, 'user', _inline) %}
 {%     if _inline.covered %}
 {%       set _entry.skip = true %}
 {%     elif not target.global_role %}
@@ -33,11 +31,6 @@
 {%     endif %}
 {%   endif %}
 {%   if not _entry.skip %}
-{%     if _username is not none and _username not in __empty_values %}
-{%       set _entry.value = _entry.value | combine({'user': _username}) %}
-{%     elif _user_ansible_id is not none and _user_ansible_id not in __empty_values %}
-{%       set _entry.value = _entry.value | combine({'user_ansible_id': _user_ansible_id}) %}
-{%     endif %}
 {%     set __emitted.entries = __emitted.entries + [_entry.value] %}
 {%   endif %}
 {% endfor %}
@@ -52,11 +45,7 @@ gateway_role_user_assignments:
     object_ids:
 {{ _item.object_ids | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=true) }}
 {%     endif %}
-{%     if _item.user is defined %}
     user: "{{ _item.user }}"
-{%     elif _item.user_ansible_id is defined %}
-    user_ansible_id: "{{ _item.user_ansible_id }}"
-{%     endif %}
 {%   endfor %}
 {% endif %}
 ...
