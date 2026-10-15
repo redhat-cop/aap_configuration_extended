@@ -19,6 +19,18 @@ argument_specs:
         default: true
         type: bool
         description: Remove the live export directory when the role finishes.
+      filetree_object_diff_flatten_output:
+        default: false
+        type: bool
+        description: >-
+          Passed to filetree_create as flatten_output. When false (default), live
+          export uses the normal organization/type directory tree. When true, live
+          export uses one flat YAML file per object type. Both layouts must be
+          comparable against repository CaC.
+      filetree_object_diff_omit_id:
+        default: true
+        type: bool
+        description: Passed to filetree_create as omit_id for live export filenames.
       include_present_state:
         default: false
         type: bool

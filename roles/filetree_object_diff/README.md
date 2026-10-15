@@ -25,6 +25,8 @@ No full in-memory comparison of both sides: only diff files are loaded.
 | `filetree_object_diff_live_path` | `/tmp/filetree_object_diff_live` | Live export directory |
 | `filetree_object_diff_diff_path` | `/tmp/filetree_object_diff_delta` | Generated diff files |
 | `filetree_object_diff_config_dir` | *(unset)* | Org-root or flat directory for on-disk CaC comparison. When unset, paths are captured from `filetree_*` variables before `filetree_read` runs |
+| `filetree_object_diff_flatten_output` | `false` | Passed to `filetree_create` as `flatten_output`. Supports both normal tree and flat per-type layouts |
+| `filetree_object_diff_omit_id` | `true` | Passed to `filetree_create` as `omit_id` for live export filenames |
 | `filetree_object_diff_template_vars` | `{orgs, env}` | Render Jinja in repo CaC before compare |
 | `filetree_object_diff_ignore_keys` | `[]` | Extra keys ignored in comparison |
 | `filetree_object_diff_cleanup_live_path` | `true` | Remove live export after diff |
