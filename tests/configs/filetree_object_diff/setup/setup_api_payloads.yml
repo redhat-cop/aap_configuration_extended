@@ -280,4 +280,13 @@ object_diff_setup_cac_only_absent:
       object_ids:
         - Object Diff Test
       state: absent
+
+# Force field drift on shared objects that already exist (setup skips recreate).
+# CaC expects enabled: true on the shared host; live is set false so the first
+# filetree_object_diff report includes a real update (from/to) entry.
+object_diff_setup_shared_drift:
+  controller_hosts:
+    - name: object-diff-shared-host
+      inventory: "{{ object_diff_shared_inventory }}"
+      enabled: false
 ...
