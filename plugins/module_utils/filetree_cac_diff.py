@@ -44,6 +44,9 @@ ROOT_KEY_OBJECT_TYPE = {
     "aap_organizations": "organization",
     "controller_credential_types": "credential_type",
     "controller_instance_groups": "instance_group",
+    "controller_instances": "instance",
+    "controller_labels": "label",
+    "controller_settings": "settings",
     "aap_user_accounts": "user",
     "controller_groups": "group",
     "controller_hosts": "host",
@@ -64,6 +67,31 @@ ROOT_KEY_OBJECT_TYPE = {
     "aap_applications": "application",
     "controller_roles": "role",
     "gateway_organizations": "organization",
+    "gateway_authenticators": "authenticator",
+    "gateway_authenticator_maps": "authenticator_map",
+    "gateway_settings": "settings",
+    "gateway_http_ports": "http_port",
+    "gateway_service_clusters": "service_cluster",
+    "gateway_service_keys": "service_key",
+    "gateway_service_nodes": "service_node",
+    "gateway_services": "gateway_service",
+    "gateway_role_definitions": "role_definition",
+    "gateway_role_team_assignments": "role_team_assignment",
+    "gateway_role_user_assignments": "role_user_assignment",
+    "gateway_routes": "route",
+    "eda_credential_types": "eda_credential_type",
+    "eda_credentials": "eda_credential",
+    "eda_decision_environments": "eda_decision_environment",
+    "eda_event_streams": "eda_event_stream",
+    "eda_projects": "eda_project",
+    "eda_rulebook_activations": "eda_rulebook_activation",
+    "hub_namespaces": "hub_namespace",
+    "hub_collections": "hub_collection",
+    "hub_collection_remotes": "hub_collection_remote",
+    "hub_collection_repositories": "hub_collection_repository",
+    "hub_ee_registries": "hub_ee_registry",
+    "hub_ee_repositories": "hub_ee_repository",
+    "hub_ee_images": "hub_ee_image",
 }
 
 # Normalize live-export root keys to the CaC root keys used by filetree_read.
@@ -71,10 +99,16 @@ ROOT_KEY_CANONICAL = {
     "gateway_organizations": "aap_organizations",
 }
 
+# Settings are a single mapping per root key (not a list of objects).
+DICT_ROOT_OBJECT_TYPES = frozenset({"settings"})
+
 OBJECT_ID_KEYS = {
     "organization": ["name"],
     "credential_type": ["name"],
     "instance_group": ["name"],
+    "instance": ["hostname"],
+    "label": ["name", "organization"],
+    "settings": [],
     "user": ["username"],
     "group": ["name", "inventory"],
     "host": ["name", "inventory"],
@@ -89,6 +123,30 @@ OBJECT_ID_KEYS = {
         "identifier",
     ],
     "role": None,
+    "authenticator": ["name"],
+    "authenticator_map": ["name", "authenticator"],
+    "http_port": ["name"],
+    "service_cluster": ["name"],
+    "service_key": ["name"],
+    "service_node": ["name"],
+    "gateway_service": ["name"],
+    "role_definition": ["name"],
+    "role_team_assignment": ["role_definition", "team", "team_ansible_id", "assignment_objects"],
+    "role_user_assignment": ["role_definition", "user", "user_ansible_id", "object_ids"],
+    "route": ["name"],
+    "eda_credential_type": ["name"],
+    "eda_credential": ["name", "organization"],
+    "eda_decision_environment": ["name", "organization"],
+    "eda_event_stream": ["name", "organization"],
+    "eda_project": ["name", "organization"],
+    "eda_rulebook_activation": ["name", "organization_name"],
+    "hub_namespace": ["name"],
+    "hub_collection": ["namespace", "name"],
+    "hub_collection_remote": ["name"],
+    "hub_collection_repository": ["name"],
+    "hub_ee_registry": ["name"],
+    "hub_ee_repository": ["name"],
+    "hub_ee_image": ["name"],
 }
 
 DEFAULT_ID_KEYS = ["name", "organization"]
@@ -159,7 +217,10 @@ def object_identity(object_type, item):
         item = normalized[0]
         return tuple(sorted((key, _identity_value(item.get(key))) for key in sorted(item.keys())))
     id_keys = get_id_keys(object_type)
-    return tuple(item.get(key) for key in id_keys)
+    if id_keys is None:
+        return None
+    # Empty id_keys = singleton mapping (e.g. settings).
+    return tuple(_identity_value(item.get(key)) for key in id_keys)
 
 
 def _identity_value(value):
@@ -354,6 +415,8 @@ def diff_filename(root_key, object_type, item, state):
                 continue
             parts.append(sanitize_filename(item.get(key)))
         suffix = "_".join(parts) or "role"
+    elif not id_keys:
+        suffix = "singleton"
     else:
         suffix = "_".join(sanitize_filename(item.get(key)) for key in id_keys)
     return "{0}_{1}_{2}.yaml".format(root_key, suffix, state)
@@ -369,7 +432,8 @@ def minimal_absent_item(object_type, item):
         if absent_item.get("role") == "member" and "team" in absent_item:
             absent_item["target_team"] = absent_item["team"]
         return absent_item
-    for key in get_id_keys(object_type):
+    id_keys = get_id_keys(object_type) or []
+    for key in id_keys:
         if key in item:
             absent_item[key] = copy.deepcopy(item[key])
     return absent_item
@@ -377,9 +441,19 @@ def minimal_absent_item(object_type, item):
 
 def write_diff_file(diff_path, root_key, item):
     os.makedirs(diff_path, exist_ok=True)
-    filename = diff_filename(root_key, ROOT_KEY_OBJECT_TYPE[root_key], item, item.get("state", "present"))
+    object_type = ROOT_KEY_OBJECT_TYPE[root_key]
+    state = item.get("state", "present")
+    # Settings are a mapping applied as a whole; absent is not meaningful.
+    if object_type in DICT_ROOT_OBJECT_TYPES:
+        if state == "absent":
+            return None
+        payload_item = copy.deepcopy(item)
+        payload_item.pop("state", None)
+        payload = {root_key: payload_item}
+    else:
+        payload = {root_key: [item]}
+    filename = diff_filename(root_key, object_type, item, state)
     destination = os.path.join(diff_path, filename)
-    payload = {root_key: [item]}
     with open(destination, "w", encoding="utf-8") as handle:
         handle.write("---\n")
         yaml_dump(
@@ -394,9 +468,10 @@ def write_diff_file(diff_path, root_key, item):
 
 
 def item_organization_name(item):
-    organization = item.get("organization")
-    if isinstance(organization, str) and organization:
-        return organization
+    for key in ("organization", "organization_name"):
+        organization = item.get(key)
+        if isinstance(organization, str) and organization:
+            return organization
     return None
 
 
@@ -467,14 +542,16 @@ def _process_cac_entry(key, cac_entry, live_index, diff_path, root_keys_filter, 
     if live_entry is None:
         output_item = copy.deepcopy(cac_item)
         output_item["state"] = "present"
-        return 1, 0, [write_diff_file(diff_path, root_key, output_item)]
+        written = write_diff_file(diff_path, root_key, output_item)
+        return (1, 0, [written]) if written else (0, 0, [])
 
     if _items_match(cac_item, live_entry["item"], object_type, ignore_keys):
         return 0, 1, []
 
     output_item = copy.deepcopy(cac_item)
     output_item["state"] = "present"
-    return 1, 0, [write_diff_file(diff_path, root_key, output_item)]
+    written = write_diff_file(diff_path, root_key, output_item)
+    return (1, 0, [written]) if written else (0, 0, [])
 
 
 def _process_absent_entries(live_index, cac_index, diff_path, root_keys_filter):
@@ -484,9 +561,13 @@ def _process_absent_entries(live_index, cac_index, diff_path, root_keys_filter):
         root_key, _identity = key
         if root_key not in root_keys_filter or key in cac_index:
             continue
+        if live_entry["object_type"] in DICT_ROOT_OBJECT_TYPES:
+            continue
         output_item = minimal_absent_item(live_entry["object_type"], live_entry["item"])
-        absent_files.append(write_diff_file(diff_path, root_key, output_item))
-        absent_count += 1
+        written = write_diff_file(diff_path, root_key, output_item)
+        if written:
+            absent_files.append(written)
+            absent_count += 1
     return absent_count, absent_files
 
 
