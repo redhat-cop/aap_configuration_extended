@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Resolve separate Gateway and Controller organization IDs for ``organization_filter`` so Controller queries do not use Gateway numeric IDs (https://github.com/redhat-cop/aap_configuration_extended/issues/382).
