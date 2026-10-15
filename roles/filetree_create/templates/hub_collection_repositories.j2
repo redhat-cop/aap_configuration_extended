@@ -2,8 +2,8 @@
 {% import 'macros/export_value.j2' as exportval %}
 ---
 hub_collection_repositories: {{ [] if current_hub_collection_repositories_asset_value | length == 0 }}
-{% set __excluded_fields = ['pulp_href', 'pulp_created', 'pulp_last_updated', 'versions_href', 'latest_version_href'] %}
-{% set __field_defaults = {'description': '', 'remote': '', 'pulp_labels': ''} %}
+{% set __excluded_fields = ['pulp_href', 'pulp_created', 'pulp_last_updated', 'versions_href', 'latest_version_href', 'repository'] %}
+{% set __field_defaults = {'description': '', 'pulp_labels': ''} %}
 {% for current_collection_repository in current_hub_collection_repositories_asset_value %}
 {%   set ns = namespace(first=true) %}
 {%   for __map_item in (current_collection_repository | dict2items) if __map_item.key not in __excluded_fields %}

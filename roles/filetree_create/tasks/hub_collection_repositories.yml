@@ -9,6 +9,54 @@
                                      }}"
   no_log: "{{ hub_configuration_filetree_create_secure_logging }}"
 
+- name: "Resolve Pulp repository remotes for Hub collection repositories"
+  when: (hub_collection_repositories_lookvar | length) > 0
+  block:
+    - name: "Initialize enriched Hub collection repository list"
+      ansible.builtin.set_fact:
+        __enriched_hub_collection_repositories: []
+      no_log: "{{ hub_configuration_filetree_create_secure_logging }}"
+
+    - name: "Build collection repository list with portable remote names"
+      ansible.builtin.set_fact:
+        __enriched_hub_collection_repositories: "{{ __enriched_hub_collection_repositories + [__enriched_item] }}"
+      vars:
+        __distribution: "{{ __distribution_item }}"
+        __repository_href: "{{ __distribution.repository | default('') }}"
+        __repository: >-
+          {{
+            (query('ansible.platform.gateway_api', __repository_href,
+                   host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                   return_all=true, max_objects=1) | first)
+            if (__repository_href | length) > 0 else {}
+          }}
+        __remote_href: "{{ __repository.remote | default('') }}"
+        __remote_name: >-
+          {{
+            (query('ansible.platform.gateway_api', __remote_href,
+                   host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                   return_all=true, max_objects=1) | first).name | default('')
+            if (__remote_href | length) > 0 else ''
+          }}
+        __enriched_item: >-
+          {{
+            __distribution
+            | combine({'remote': __remote_name} if (__remote_name | length) > 0 else {})
+            | dict2items
+            | rejectattr('key', 'equalto', 'repository')
+            | items2dict
+          }}
+      loop: "{{ hub_collection_repositories_lookvar }}"
+      loop_control:
+        loop_var: __distribution_item
+        label: "{{ __distribution_item.name | default(__distribution_item.base_path | default('collection_repository')) }}"
+      no_log: "{{ hub_configuration_filetree_create_secure_logging }}"
+
+    - name: "Replace distribution lookvar with remote-enriched records"
+      ansible.builtin.set_fact:
+        hub_collection_repositories_lookvar: "{{ __enriched_hub_collection_repositories }}"
+      no_log: "{{ hub_configuration_filetree_create_secure_logging }}"
+
 - name: "Create the output directory for hub collection_repositories: {{ output_path }}"
   ansible.builtin.file:
     path: "{{ output_path }}"
