@@ -1,0 +1,92 @@
+---
+argument_specs:
+  main:
+    short_description: Compare live filetree export against repository CaC and produce a delta
+    options:
+      filetree_object_diff_live_path:
+        default: /tmp/filetree_object_diff_live
+        type: str
+        description: Temporary directory for the live C(filetree_create) export.
+      filetree_object_diff_diff_path:
+        default: /tmp/filetree_object_diff_delta
+        type: str
+        description: Directory where difference YAML files are written by C(filetree_cac_diff).
+      filetree_object_diff_template_vars:
+        default: {}
+        type: dict
+        description: Variables to render Jinja in repository CaC files before on-disk comparison.
+      filetree_object_diff_cleanup_live_path:
+        default: true
+        type: bool
+        description: Remove the live export directory when the role finishes.
+      filetree_object_diff_flatten_output:
+        default: false
+        type: bool
+        description: >-
+          Passed to filetree_create as flatten_output. When false (default), live
+          export uses the normal organization/type directory tree. When true, live
+          export uses one flat YAML file per object type. Both layouts must be
+          comparable against repository CaC.
+      filetree_object_diff_omit_id:
+        default: true
+        type: bool
+        description: Passed to filetree_create as omit_id for live export filenames.
+      include_present_state:
+        default: false
+        type: bool
+        description: >-
+          Lookup option with_present. When false, return only the delta.
+          When true, return the full CaC list plus live-only objects as absent.
+      drop_user_external_accounts:
+        default: false
+        type: bool
+        description: When true, include external authentication users from the live export.
+      filetree_object_diff_ignore_keys:
+        default: []
+        type: list
+        elements: str
+        description: >-
+          Additional top-level keys ignored when comparing object content.
+          Merged with the lookup defaults (password, token, inputs, and similar).
+      filetree_object_diff_write_report:
+        default: true
+        type: bool
+        description: >-
+          Write a detailed from/to report to
+          C(filetree_object_diff_diff_path)/_filetree_object_diff_report.yaml
+          and expose C(filetree_object_diff_report) after compare.
+      filetree_object_diff_skip_system_roles:
+        default: true
+        type: bool
+        description: >-
+          Ignore managed Gateway role definitions and C(galaxy.*) role assignments
+          during compare so system RBAC does not appear as drift.
+      query_controller_api_max_objects:
+        default: 10000
+        type: int
+        description: Maximum objects returned by C(filetree_create) API queries.
+      controller_configuration_filetree_object_diff_secure_logging:
+        default: "{{ controller_configuration_secure_logging | default(true) }}"
+        type: bool
+        description: Whether to suppress logging of sensitive diff tasks.
+      aap_hostname:
+        default: None
+        type: str
+        description: URL to the Ansible Automation Platform.
+      aap_validate_certs:
+        default: true
+        type: bool
+        description: Validate the platform SSL certificate.
+      aap_username:
+        default: None
+        type: str
+        description: Platform admin username.
+      aap_password:
+        default: None
+        type: str
+        description: Platform admin password.
+      aap_oauthtoken:
+        default: None
+        type: str
+        description: Platform OAuth token.
+...

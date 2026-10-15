@@ -1,0 +1,8 @@
+---
+controller_groups:
+  - name: object-diff-shared-group
+    inventory: Object Diff Shared Inventory
+  - name: object-diff-new-cac-group
+    inventory: Object Diff Shared Inventory
+    description: Only in CaC
+...

@@ -1,0 +1,8 @@
+---
+aap_teams:
+  - name: Object Diff Shared Team
+    organization: "{{ orgs }}"
+  - name: Object Diff New CaC Team
+    organization: "{{ orgs }}"
+    description: Only in CaC
+...

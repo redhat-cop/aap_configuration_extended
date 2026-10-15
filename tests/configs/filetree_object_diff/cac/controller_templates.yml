@@ -1,0 +1,16 @@
+---
+controller_templates:
+  - name: Object Diff Shared Job Template
+    organization: "{{ orgs }}"
+    project: Object Diff Shared Project
+    inventory: Object Diff Shared Inventory
+    playbook: hello_world.yml
+    job_type: run
+  - name: Object Diff New CaC Job Template
+    organization: "{{ orgs }}"
+    project: Object Diff Shared Project
+    inventory: Object Diff Shared Inventory
+    playbook: hello_world.yml
+    job_type: run
+    description: Only in CaC
+...

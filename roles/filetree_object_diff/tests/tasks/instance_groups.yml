@@ -1,0 +1,23 @@
+---
+- name: Compute instance group filetree delta
+  ansible.builtin.set_fact:
+    __diff: "{{ query('infra.aap_configuration_extended.controller_filetree_diff',
+      live_list=__live_list, cac_list=__cac_list,
+      object_type='instance_group', with_present=false, set_absent=true) | flatten }}"
+  vars:
+    __live_list:
+      - name: Shared Instance Group
+      - name: Orphan Instance Group
+    __cac_list:
+      - name: Shared Instance Group
+      - name: New CaC Instance Group
+
+- name: Validate instance group delta
+  ansible.builtin.include_tasks: assert_delta.yml
+  vars:
+    __object_label: instance_groups
+    __id_field: name
+    __cac_only_name: New CaC Instance Group
+    __orphan_name: Orphan Instance Group
+    __shared_name: Shared Instance Group
+...

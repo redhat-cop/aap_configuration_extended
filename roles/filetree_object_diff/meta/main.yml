@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  author: Automation Iberia
+  description: Compare live filetree export against repository CaC and produce a delta for dispatch
+  company: Automation Iberia
+  license: GPL-3.0-or-later
+  min_ansible_version: 2.16.0
+  platforms:
+    - name: EL
+      versions:
+        - all
+  galaxy_tags: []
+
+dependencies:
+  - role: infra.aap_configuration.meta_dependency_check
+...

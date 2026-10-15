@@ -1,0 +1,23 @@
+---
+- name: Compute user filetree delta
+  ansible.builtin.set_fact:
+    __diff: "{{ query('infra.aap_configuration_extended.controller_filetree_diff',
+      live_list=__live_list, cac_list=__cac_list,
+      object_type='user', with_present=false, set_absent=true) | flatten }}"
+  vars:
+    __live_list:
+      - username: shared_user
+      - username: orphan_user
+    __cac_list:
+      - username: shared_user
+      - username: new_cac_user
+
+- name: Validate user delta
+  ansible.builtin.include_tasks: assert_delta.yml
+  vars:
+    __object_label: users
+    __id_field: username
+    __cac_only_name: new_cac_user
+    __orphan_name: orphan_user
+    __shared_name: shared_user
+...
