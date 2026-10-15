@@ -1,0 +1,45 @@
+---
+# Run filetree_object_diff for one filetree_create output layout and validate.
+# Expects:
+#   od_flatten_output: bool
+#   od_validate: bool (default true) — assert present/absent orphans vs CaC-only
+#   od_assert_empty: bool (default false) — after apply, all deltas must be empty
+- name: "Announce filetree_object_diff layout under test"
+  ansible.builtin.debug:
+    msg: >-
+      Running filetree_object_diff with flatten_output={{ od_flatten_output | bool }}
+      (live_path={{ filetree_object_diff_live_path }}_{{ 'flat' if (od_flatten_output | bool) else 'tree' }})
+
+- name: "Run filetree_object_diff role for flatten_output={{ od_flatten_output | bool }}"
+  ansible.builtin.import_role:
+    name: infra.aap_configuration_extended.filetree_object_diff
+  vars:
+    filetree_object_diff_flatten_output: "{{ od_flatten_output | bool }}"
+    filetree_object_diff_live_path: "{{ filetree_object_diff_live_path }}_{{ 'flat' if (od_flatten_output | bool) else 'tree' }}"
+    filetree_object_diff_diff_path: "{{ filetree_object_diff_diff_path }}_{{ 'flat' if (od_flatten_output | bool) else 'tree' }}"
+
+- name: "Validate delta per object type (flatten_output={{ od_flatten_output | bool }})"
+  when:
+    - od_validate | default(true) | bool
+    - not (od_type_item.skip_object_diff | default(false))
+  ansible.builtin.include_tasks: filetree_object_diff_validate_type.yml
+  vars:
+    od_type: "{{ od_type_item }}"
+  loop: "{{ object_diff_types }}"
+  loop_control:
+    loop_var: od_type_item
+    label: "{{ od_type_item.label }} flatten={{ od_flatten_output | bool }}"
+
+- name: "Assert roundtrip converged for applicable types (flatten_output={{ od_flatten_output | bool }})"
+  when:
+    - od_assert_empty | default(false) | bool
+    - not (item.skip_object_diff | default(false))
+    - not (item.skip_apply | default(false))
+  ansible.builtin.assert:
+    that:
+      - lookup('vars', item.var, default=[]) | length == 0
+    fail_msg: >-
+      Expected empty diff for {{ item.label }} with flatten_output={{ od_flatten_output | bool }}, got:
+      {{ lookup('vars', item.var, default=[]) }}
+  loop: "{{ object_diff_types }}"
+...

@@ -1,7 +1,12 @@
 ---
 # Complete filetree_object_diff integration test.
 #
-# Workflow: filetree_create → filetree_cac_diff (files) → filetree_read (diff only) → dispatch → re-diff empty
+# Covers both filetree_create output layouts:
+#   - flatten_output: false (normal org/type directory tree)
+#   - flatten_output: true  (flat per-type YAML files)
+#
+# Workflow per layout: filetree_create → filetree_cac_diff → filetree_read → validate
+# Then apply once from the last delta and re-diff both layouts (must be empty).
 #
 # Diff only:
 #   ansible-playbook tests/playbooks/test_filetree_object_diff_all.yml \
@@ -27,6 +32,10 @@
     controller_api_version: v2
 
     filetree_object_diff_diff_path: "/tmp/filetree_object_diff_integration_delta"
+    # Both filetree_create layouts must produce a correct, applicable delta.
+    filetree_object_diff_output_formats:
+      - false
+      - true
 
   pre_tasks:
     - name: Validate AAP connection variables are defined
@@ -80,19 +89,16 @@
         - not (od_type_item.roles_mode | default(false))
         - od_type_item.api_path is defined
 
-    - name: Run filetree_object_diff role for configured types
-      ansible.builtin.import_role:
-        name: infra.aap_configuration_extended.filetree_object_diff
-
-    - name: Validate delta per object type
-      ansible.builtin.include_tasks: tasks/filetree_object_diff_validate_type.yml
+    - name: "Diff and validate for each filetree_create output layout"
+      ansible.builtin.include_tasks: tasks/filetree_object_diff_run_format.yml
       vars:
-        od_type: "{{ od_type_item }}"
-      loop: "{{ object_diff_types }}"
+        od_flatten_output: "{{ od_format_item }}"
+        od_validate: true
+        od_assert_empty: false
+      loop: "{{ filetree_object_diff_output_formats }}"
       loop_control:
-        loop_var: od_type_item
-        label: "{{ od_type_item.label }}"
-      when: not (od_type_item.skip_object_diff | default(false))
+        loop_var: od_format_item
+        label: "flatten_output={{ od_format_item }}"
 
     - name: Collect types that require dispatch
       ansible.builtin.set_fact:
@@ -122,28 +128,22 @@
         - apply_changes | bool
         - __filetree_object_diff_dispatch_roles | default([]) | length > 0
 
-    - name: Re-run filetree_object_diff after apply — all deltas must be empty
+    - name: "Re-diff both layouts after apply — all deltas must be empty"
       when: apply_changes | bool
-      block:
-        - name: Run filetree_object_diff again
-          ansible.builtin.import_role:
-            name: infra.aap_configuration_extended.filetree_object_diff
-
-        - name: Assert roundtrip converged for applicable types
-          ansible.builtin.assert:
-            that:
-              - lookup('vars', item.var, default=[]) | length == 0
-            fail_msg: >-
-              Expected empty diff for {{ item.label }}, got:
-              {{ lookup('vars', item.var, default=[]) }}
-          loop: "{{ object_diff_types }}"
-          when:
-            - not (item.skip_object_diff | default(false))
-            - not (item.skip_apply | default(false))
+      ansible.builtin.include_tasks: tasks/filetree_object_diff_run_format.yml
+      vars:
+        od_flatten_output: "{{ od_format_item }}"
+        od_validate: false
+        od_assert_empty: true
+      loop: "{{ filetree_object_diff_output_formats }}"
+      loop_control:
+        loop_var: od_format_item
+        label: "post-apply flatten_output={{ od_format_item }}"
 
   post_tasks:
     - name: Revoke authentication token
       ansible.builtin.include_tasks: tasks/aap_oauth.yml
       vars:
         aap_oauth_action: revoke
+      tags: [always]
 ...
