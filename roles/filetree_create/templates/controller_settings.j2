@@ -10,7 +10,14 @@ controller_settings:
 {% set __resource_settings = template_overrides_resources.controller_setting | default({}) %}
 {% set __api_settings = all_settings[0] | default({}) %}
 {% set __all_keys = (__api_settings.keys() | list + __global_settings.keys() | list + __resource_settings.keys() | list) | unique %}
+{% set __omit_instance = omit_instance_specific | default(true) | bool %}
+{% set __instance_keys = omit_instance_specific_keys | default(['LICENSE', 'INSTALL_UUID']) %}
 {% for key in __all_keys %}
+{%   set __skip_instance_key = __omit_instance and (
+        (key in __instance_keys)
+        or ((key | string) is match('.*_LAST_TS$'))
+     ) %}
+{%   if not __skip_instance_key %}
 {%   set value = __resource_settings[key] | default(__global_settings[key]) | default(__api_settings[key]) %}
 {%   if (value not in __empty_values)
         or __global_settings[key] is defined
@@ -28,6 +35,7 @@ controller_settings:
 {{ key | indent(width=4, first=True) }}: null
 {%   else %}
 {{ key | indent(width=4, first=True) }}: {{ yamlval.render_scalar(value) }}
+{%   endif %}
 {%   endif %}
 {%   endif %}
 {% endfor %}
