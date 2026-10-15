@@ -154,6 +154,89 @@ class TestFiletreeCacDiff(unittest.TestCase):
             ("exec1.example.com",),
         )
 
+    def test_equal_dicts_compares_cac_fields_not_only_identity(self):
+        ignore = set()
+        cac = {
+            "name": "Demo Project",
+            "organization": "Default",
+            "scm_type": "git",
+            "scm_url": "https://example.com/desired.git",
+        }
+        live_same_identity_different_url = {
+            "name": "Demo Project",
+            "organization": "Default",
+            "scm_type": "git",
+            "scm_url": "https://example.com/live.git",
+        }
+        live_missing_cac_field = {
+            "name": "Demo Project",
+            "organization": "Default",
+            "scm_type": "git",
+        }
+        live_extra_field_ok = dict(cac, scm_branch="devel")
+
+        self.assertFalse(self.module.equal_dicts(cac, live_same_identity_different_url, ignore))
+        self.assertFalse(self.module.equal_dicts(cac, live_missing_cac_field, ignore))
+        self.assertTrue(self.module.equal_dicts(cac, live_extra_field_ok, ignore))
+        self.assertTrue(self.module.equal_dicts(cac, dict(cac), ignore))
+
+    def test_field_drift_emits_present_with_full_cac_item(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            live_path = os.path.join(tmpdir, "live")
+            cac_path = os.path.join(tmpdir, "cac")
+            diff_path = os.path.join(tmpdir, "diff")
+            os.makedirs(live_path)
+            os.makedirs(cac_path)
+
+            with open(os.path.join(live_path, "projects.yaml"), "w", encoding="utf-8") as handle:
+                handle.write(
+                    "---\n"
+                    "controller_projects:\n"
+                    "  - name: Demo\n"
+                    "    organization: Default\n"
+                    "    scm_type: git\n"
+                    "    scm_url: https://example.com/live.git\n"
+                )
+
+            with open(os.path.join(cac_path, "projects.yaml"), "w", encoding="utf-8") as handle:
+                handle.write(
+                    "---\n"
+                    "controller_projects:\n"
+                    "  - name: Demo\n"
+                    "    organization: Default\n"
+                    "    scm_type: git\n"
+                    "    scm_url: https://example.com/desired.git\n"
+                    "    scm_branch: main\n"
+                )
+
+            result = self.module.compare_filetrees(
+                live_paths=[live_path],
+                cac_paths=[cac_path],
+                diff_path=diff_path,
+                root_keys_filter=["controller_projects"],
+            )
+
+            self.assertEqual(result["present_count"], 1)
+            self.assertEqual(result["unchanged_count"], 0)
+            self.assertEqual(result["absent_count"], 0)
+            with open(result["diff_files"][0], encoding="utf-8") as handle:
+                content = handle.read()
+            self.assertIn("scm_url: https://example.com/desired.git", content)
+            self.assertIn("scm_branch: main", content)
+            self.assertIn("state: present", content)
+
+    def test_nested_cac_dict_subset_comparison(self):
+        ignore = set()
+        cac = {"name": "JT", "organization": "Default", "extra_vars": {"env": "pro", "region": "eu"}}
+        live_missing_nested = {"name": "JT", "organization": "Default", "extra_vars": {"env": "pro"}}
+        live_with_extra_nested = {
+            "name": "JT",
+            "organization": "Default",
+            "extra_vars": {"env": "pro", "region": "eu", "debug": True},
+        }
+        self.assertFalse(self.module.equal_dicts(cac, live_missing_nested, ignore))
+        self.assertTrue(self.module.equal_dicts(cac, live_with_extra_nested, ignore))
+
 
 if __name__ == "__main__":
     unittest.main()

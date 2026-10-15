@@ -241,13 +241,36 @@ def normalize_scalar(value):
     return value
 
 
+def values_equal(cac_value, live_value):
+    """Compare a CaC-desired value against live; nested dicts are CaC-subset."""
+    if isinstance(cac_value, dict) and isinstance(live_value, dict):
+        for key, value in cac_value.items():
+            if value in EMPTY_COMPARE_VALUES:
+                continue
+            if key not in live_value or live_value[key] in EMPTY_COMPARE_VALUES:
+                return False
+            if not values_equal(value, live_value[key]):
+                return False
+        return True
+    if isinstance(cac_value, list) and isinstance(live_value, list):
+        if len(cac_value) != len(live_value):
+            return False
+        return all(values_equal(left, right) for left, right in zip(cac_value, live_value))
+    return normalize_scalar(cac_value) == normalize_scalar(live_value)
+
+
 def equal_dicts(cac_item, live_item, ignore_keys):
+    """Return True when every non-empty CaC field matches live (ignore_keys excluded).
+
+    Comparison is CaC-driven: live-only keys are ignored. A CaC field missing or
+    empty on the live side is a mismatch so dispatch can apply the desired state.
+    """
     cac_filtered = filter_compare_item(cac_item, ignore_keys)
     live_filtered = filter_compare_item(live_item, ignore_keys)
     for key, value in cac_filtered.items():
         if key not in live_filtered:
-            continue
-        if normalize_scalar(live_filtered[key]) != normalize_scalar(value):
+            return False
+        if not values_equal(value, live_filtered[key]):
             return False
     return True
 
