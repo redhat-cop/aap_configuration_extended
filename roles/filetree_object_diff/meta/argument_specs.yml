@@ -48,6 +48,19 @@ argument_specs:
         description: >-
           Additional top-level keys ignored when comparing object content.
           Merged with the lookup defaults (password, token, inputs, and similar).
+      filetree_object_diff_write_report:
+        default: true
+        type: bool
+        description: >-
+          Write a detailed from/to report to
+          C(filetree_object_diff_diff_path)/_filetree_object_diff_report.yaml
+          and expose C(filetree_object_diff_report) after compare.
+      filetree_object_diff_skip_system_roles:
+        default: true
+        type: bool
+        description: >-
+          Ignore managed Gateway role definitions and C(galaxy.*) role assignments
+          during compare so system RBAC does not appear as drift.
       query_controller_api_max_objects:
         default: 10000
         type: int

@@ -98,6 +98,11 @@ object_diff_setup_shared:
     - name: Object Diff Shared Schedule
       unified_job_template: Object Diff Shared Job Template
       rrule: "DTSTART:20260101T000000Z RRULE:FREQ=DAILY;INTERVAL=1"
+  gateway_role_user_assignments:
+    - role_definition: Organization Member
+      user: object-diff-shared-user
+      object_ids:
+        - Object Diff Test
 
 object_diff_setup_orphans:
   aap_organizations:
@@ -194,6 +199,11 @@ object_diff_setup_orphans:
     - name: Object Diff Orphan Schedule
       unified_job_template: Object Diff Shared Job Template
       rrule: "DTSTART:20260101T000000Z RRULE:FREQ=DAILY;INTERVAL=1"
+  gateway_role_user_assignments:
+    - role_definition: Organization Inventory Admin
+      user: object-diff-shared-user
+      object_ids:
+        - Object Diff Test
 
 object_diff_setup_cac_only_absent:
   aap_organizations:
@@ -263,5 +273,11 @@ object_diff_setup_cac_only_absent:
   controller_schedules:
     - name: Object Diff New CaC Schedule
       unified_job_template: Object Diff Shared Job Template
+      state: absent
+  gateway_role_user_assignments:
+    - role_definition: Organization Project Admin
+      user: object-diff-shared-user
+      object_ids:
+        - Object Diff Test
       state: absent
 ...

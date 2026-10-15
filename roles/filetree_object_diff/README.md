@@ -29,6 +29,8 @@ No full in-memory comparison of both sides: only diff files are loaded.
 | `filetree_object_diff_omit_id` | `true` | Passed to `filetree_create` as `omit_id` for live export filenames |
 | `filetree_object_diff_template_vars` | `{orgs, env}` | Render Jinja in repo CaC before compare |
 | `filetree_object_diff_ignore_keys` | `[]` | Extra keys ignored in comparison |
+| `filetree_object_diff_write_report` | `true` | Write `_filetree_object_diff_report.yaml` and set `filetree_object_diff_report` |
+| `filetree_object_diff_skip_system_roles` | `true` | Skip managed Gateway role definitions and `galaxy.*` assignments |
 | `filetree_object_diff_cleanup_live_path` | `true` | Remove live export after diff |
 | `controller_configuration_filetree_object_diff_tasks` | *(see defaults)* | Object types to export, compare, and load |
 
@@ -40,6 +42,31 @@ For each object matched by identity keys, **every non-empty field defined in rep
 - Same identity + CaC field missing/empty on live → `state: present`.
 - Live-only fields are ignored (CaC does not manage them).
 - Object only in CaC → `state: present`; only in live → `state: absent`.
+
+### Detailed field report (#369)
+
+Apply YAML stays dispatch-ready (`state: present|absent` only). A separate report file
+`_filetree_object_diff_report.yaml` (underscore prefix so `filetree_read` ignores it) lists
+per-object `create` / `update` / `delete` / `unchanged` actions. Updates include
+`changes: [{field, from, to}]` with dotted paths for nested dicts (for example
+`extra_vars.env`). After the role runs, inspect `filetree_object_diff_report` /
+`filetree_object_diff_report_path`.
+
+### Roles synchronisation (#9)
+
+Preferred path on AAP 2.5+ is **Gateway RBAC**:
+
+1. Export `gateway_role_user_assignments` / `gateway_role_team_assignments` with `filetree_create`
+   (managed definitions and `galaxy.*` assignments are omitted).
+2. Compare with repository CaC; live-only assignments become `state: absent`.
+3. Apply the delta via `infra.aap_configuration.dispatch` (do **not** mark these tasks
+   `skip_apply` when you want RBAC to converge).
+
+Include the Gateway assignment entries in `controller_configuration_filetree_object_diff_tasks`
+(see role defaults). Legacy `controller_roles` remains supported: when that create tag is
+selected, `filetree_create` also exports team and user roles (`roles`, `gateway_users`,
+`gateway_teams` / `controller_teams`). The legacy Controller `/api/controller/v2/roles` N+1
+walk used by `object_diff` is **not** used here.
 
 ### Secret / variable handling
 

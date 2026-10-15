@@ -1,8 +1,59 @@
 ---
 - name: Query current API state | {{ od_type.label }}
-  ansible.builtin.include_tasks: object_diff_query_api_type.yml
+  ansible.builtin.include_tasks: >-
+    {{
+      'filetree_object_diff_query_assignment_type.yml'
+      if (od_type.assignments_mode | default(false))
+      else 'object_diff_query_api_type.yml'
+    }}
+
+- name: Build setup actions for Gateway assignments | {{ od_type.label }}
+  when: od_type.assignments_mode | default(false)
+  block:
+    - name: Compute assignment composite ids from specs | {{ od_type.label }}
+      ansible.builtin.set_fact:
+        __od_shared_id: "{{ __shared_role }}|{{ __shared_user }}|{{ __shared_object }}"
+        __od_orphan_id: "{{ __orphan_role }}|{{ __orphan_user }}|{{ __orphan_object }}"
+        __od_cac_only_id: "{{ __cac_role }}|{{ __cac_user }}|{{ __cac_object }}"
+      vars:
+        __shared_role: "{{ od_type.shared_match.role_definition }}"
+        __shared_user: "{{ od_type.shared_match.user }}"
+        __shared_object: "{{ od_type.shared_match.object_name }}"
+        __orphan_role: "{{ od_type.orphan_match.role_definition }}"
+        __orphan_user: "{{ od_type.orphan_match.user }}"
+        __orphan_object: "{{ od_type.orphan_match.object_name }}"
+        __cac_role: "{{ od_type.cac_only_match.role_definition }}"
+        __cac_user: "{{ od_type.cac_only_match.user }}"
+        __cac_object: "{{ od_type.cac_only_match.object_name }}"
+
+    - name: Build assignment setup actions | {{ od_type.label }}
+      ansible.builtin.set_fact:
+        __od_setup_actions: "{{ __od_absent + __od_present_shared + __od_present_orphan }}"
+      vars:
+        __cac_absent_spec: "{{ object_diff_setup_cac_only_absent[od_type.dispatch_var] | default([]) }}"
+        __shared_spec: "{{ object_diff_setup_shared[od_type.dispatch_var] | default([]) }}"
+        __orphan_spec: "{{ object_diff_setup_orphans[od_type.dispatch_var] | default([]) }}"
+        __od_absent: >-
+          {{
+            __cac_absent_spec
+            if __od_cac_only_id in __od_api_ids
+            else []
+          }}
+        __od_present_shared: >-
+          {{
+            __shared_spec
+            if __od_shared_id not in __od_api_ids
+            else []
+          }}
+        __od_present_orphan: >-
+          {{
+            __orphan_spec
+            if __od_orphan_id not in __od_api_ids
+            else []
+          }}
 
 - name: Build setup actions | {{ od_type.label }}
+  when: not (od_type.assignments_mode | default(false))
   ansible.builtin.set_fact:
     __od_setup_actions: "{{ __od_absent + __od_present_shared + __od_present_orphan }}"
   vars:
@@ -30,14 +81,7 @@
 
 - name: Show planned setup actions | {{ od_type.label }}
   ansible.builtin.debug:
-    msg: >-
-      {{
-        __od_setup_actions
-        | map('combine', {})
-        | list
-        | json_query('[].' + od_type.id_field)
-        | default(__od_setup_actions)
-      }}
+    var: __od_setup_actions
   when: __od_setup_actions | length > 0
 
 - name: Set dispatch payload | {{ od_type.label }}
@@ -54,9 +98,28 @@
   when: __od_setup_actions | length > 0
 
 - name: Re-query API after setup | {{ od_type.label }}
-  ansible.builtin.include_tasks: object_diff_query_api_type.yml
+  ansible.builtin.include_tasks: >-
+    {{
+      'filetree_object_diff_query_assignment_type.yml'
+      if (od_type.assignments_mode | default(false))
+      else 'object_diff_query_api_type.yml'
+    }}
+
+- name: Verify pre-test API state for assignments | {{ od_type.label }}
+  when: od_type.assignments_mode | default(false)
+  ansible.builtin.assert:
+    that:
+      - __od_shared_id in __od_api_ids
+      - __od_cac_only_id not in __od_api_ids
+      - __od_orphan_id in __od_api_ids
+    success_msg: "{{ od_type.label }} ready (shared + orphan present, CaC-only absent)"
+    fail_msg: >-
+      {{ od_type.label }} pre-test API mismatch.
+      shared={{ __od_shared_id }} orphan={{ __od_orphan_id }} cac_only={{ __od_cac_only_id }}
+      api_ids={{ __od_api_ids }}
 
 - name: Verify pre-test API state | {{ od_type.label }}
+  when: not (od_type.assignments_mode | default(false))
   ansible.builtin.assert:
     that:
       - od_type.shared in __od_api_ids

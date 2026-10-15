@@ -19,6 +19,7 @@ When asked to run a PR's test plan locally, follow [.cursor/skills/pr-test-plan/
 - That includes ansible-lint, changelog validation, galaxy-importer, and the other hooks in `.pre-commit-config.yaml`.
 - If ansible-lint cannot reach Galaxy (proxy/tunnel errors), re-run with `--offline` and a local `ANSIBLE_COLLECTIONS_PATH` that already has the required collections — do not skip the hook or use `--no-verify`.
 - Fix lint/hook failures in a new commit attempt; do not amend around a failed hook unless the user explicitly requests amend and the amend rules in the user git protocol are met.
+- **YAML document end:** every new/edited `.yml`/`.yaml` must end with `...` on its own last line (see [.cursor/skills/yaml-document-end/SKILL.md](.cursor/skills/yaml-document-end/SKILL.md)).
 
 ## Configuration as Code baseline
 

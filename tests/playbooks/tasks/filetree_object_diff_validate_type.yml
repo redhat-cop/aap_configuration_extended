@@ -32,6 +32,7 @@
       when:
         - not (od_type.skip_setup | default(false))
         - not (od_type.skip_apply | default(false))
+        - not (od_type.assignments_mode | default(false))
         - __od_api_before is defined
         - od_type.label in __od_api_before
 
@@ -42,51 +43,56 @@
           - __od_diff is iterable
       when: od_type.skip_setup | default(false) or od_type.skip_object_diff | default(false)
 
-- name: Validate filetree delta | {{ od_type.label }}
-  when: __od_validate_delta | bool
+- name: Validate Gateway assignment delta | {{ od_type.label }}
+  when:
+    - __od_validate_delta | bool
+    - od_type.assignments_mode | default(false)
   block:
-    - name: Store CaC identifiers | {{ od_type.label }}
+    - name: Resolve expected assignment ids | {{ od_type.label }}
       ansible.builtin.set_fact:
-        __od_cac_ids: "{{ __cac_snapshots[od_type.var] | map(attribute=od_type.id_field) | list }}"
+        __od_shared_id: "{{ od_type.shared_match.role_definition }}|{{ od_type.shared_match.user }}|{{ od_type.shared_match.object_name }}"
+        __od_orphan_id: "{{ od_type.orphan_match.role_definition }}|{{ od_type.orphan_match.user }}|{{ od_type.orphan_match.object_name }}"
+        __od_cac_only_id: "{{ od_type.cac_only_match.role_definition }}|{{ od_type.cac_only_match.user }}|{{ od_type.cac_only_match.object_name }}"
 
-    - name: Show diff | {{ od_type.label }}
+    - name: Show assignment diff | {{ od_type.label }}
       ansible.builtin.debug:
-        msg: >-
-          {{
-            __od_diff
-            | json_query('[].{' + od_type.id_field + ': ' + od_type.id_field + ', state: state}')
-          }}
-
-    - name: Validate all present items exist in CaC | {{ od_type.label }}
-      ansible.builtin.assert:
-        that:
-          - od_diff_entry[od_type.id_field] in __od_cac_ids
-        fail_msg: >-
-          Present item '{{ od_diff_entry[od_type.id_field] }}' must exist in repository CaC
-      loop: "{{ __od_diff | selectattr('state', 'defined') | selectattr('state', 'equalto', 'present') | list }}"
-      loop_control:
-        loop_var: od_diff_entry
-        label: "{{ od_type.label }}: {{ od_diff_entry[od_type.id_field] }}"
-
-    - name: Validate CaC-only present items are not in API | {{ od_type.label }}
-      ansible.builtin.assert:
-        that:
-          - od_type.cac_only not in __od_api_before[od_type.label]
-        fail_msg: CaC-only item must not exist in API before apply
-
-    - name: Validate orphan absent item is API-only | {{ od_type.label }}
-      ansible.builtin.assert:
-        that:
-          - od_type.orphan in __od_api_before[od_type.label]
-          - od_type.orphan not in __od_cac_ids
-        fail_msg: >-
-          Orphan item '{{ od_type.orphan }}' must be in API and not in CaC
-      when:
-        - (__od_diff | selectattr('state', 'defined') | selectattr('state', 'equalto', 'absent') | selectattr(od_type.id_field, 'equalto', od_type.orphan) | list | length) == 1
+        msg: "{{ __od_diff }}"
 
     - name: Expect CaC-only present and orphan absent | {{ od_type.label }}
       ansible.builtin.assert:
         that:
-          - (__od_diff | selectattr('state', 'defined') | selectattr('state', 'equalto', 'present') | selectattr(od_type.id_field, 'equalto', od_type.cac_only) | list | length) == 1
-          - (__od_diff | selectattr('state', 'defined') | selectattr('state', 'equalto', 'absent') | selectattr(od_type.id_field, 'equalto', od_type.orphan) | list | length) == 1
+          - __od_orphan_id in __od_api_before[od_type.label]
+          - __od_cac_only_id not in __od_api_before[od_type.label]
+          - (__od_absent_matches | length) == 1
+          - (__od_present_matches | length) == 1
+        fail_msg: >-
+          Assignment delta mismatch for {{ od_type.label }}.
+          orphan_id={{ __od_orphan_id }} cac_only_id={{ __od_cac_only_id }}
+          api_before={{ __od_api_before[od_type.label] | default([]) }}
+          diff={{ __od_diff }}
+      vars:
+        __od_absent_matches: >-
+          {{
+            __od_diff
+            | selectattr('state', 'defined')
+            | selectattr('state', 'equalto', 'absent')
+            | selectattr('role_definition', 'equalto', od_type.orphan_match.role_definition)
+            | selectattr('user', 'equalto', od_type.orphan_match.user)
+            | list
+          }}
+        __od_present_matches: >-
+          {{
+            __od_diff
+            | selectattr('state', 'defined')
+            | selectattr('state', 'equalto', 'present')
+            | selectattr('role_definition', 'equalto', od_type.cac_only_match.role_definition)
+            | selectattr('user', 'equalto', od_type.cac_only_match.user)
+            | list
+          }}
+
+- name: Validate filetree delta | {{ od_type.label }}
+  when:
+    - __od_validate_delta | bool
+    - not (od_type.assignments_mode | default(false))
+  ansible.builtin.include_tasks: filetree_object_diff_validate_named_type.yml
 ...
