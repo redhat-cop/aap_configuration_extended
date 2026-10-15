@@ -4,6 +4,16 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v4.12.1
+=======
+
+Bugfixes
+--------
+
+- filetree_create - Export empty list ``extra_vars`` on job templates and workflow job templates as ``[]`` instead of a key with no value (https://redhat.atlassian.net/browse/AAP-95671).
+- filetree_create - Omit ``inventory`` when exporting schedules with ``unified_job_type: inventory_update``, which AAP rejects as a launch override on import (https://github.com/redhat-cop/infra.aap_configuration/issues/1455).
+- filetree_create - Resolve gateway role team and user assignment targets by exact role-definition ``content_type`` (no substring or cross-resource ID probes), emit portable types for Controller/EDA resources, and skip standalone assignments only when inline object-role export evidence exists (https://github.com/redhat-cop/aap_configuration_extended/issues/359).
+
 v4.12.0
 =======
 
