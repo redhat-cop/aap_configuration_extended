@@ -118,6 +118,23 @@
         or (od_type_item.force_setup | default(false))
         or (od_type_item.assignments_mode | default(false))
 
+    # Shared objects are not recreated when they already exist; force a non-ignored
+    # field mismatch so the integration test exercises report action=update.
+    - name: Apply shared-object field drift for update coverage
+      ansible.builtin.set_fact:
+        controller_hosts: "{{ object_diff_setup_shared_drift.controller_hosts }}"
+
+    - name: Dispatch shared-object field drift
+      ansible.builtin.import_role:
+        name: infra.aap_configuration.dispatch
+      vars:
+        controller_configuration_dispatcher_roles:
+          - {role: controller_hosts, var: controller_hosts, tags: controller_hosts}
+
+    - name: Clear shared-object field drift payload
+      ansible.builtin.set_fact:
+        controller_hosts: []
+
   post_tasks:
     - name: Revoke authentication token
       ansible.builtin.include_tasks: tasks/aap_oauth.yml

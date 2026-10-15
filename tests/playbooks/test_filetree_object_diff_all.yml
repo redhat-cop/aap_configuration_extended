@@ -9,8 +9,9 @@
 #   1. include_role: infra.aap_configuration_extended.filetree_object_diff
 #        (filetree_create → filetree_cac_diff → filetree_read)
 #   2. validate delta (present CaC-only / absent orphan)
-#   3. dispatch apply (once)
-#   4. re-run filetree_object_diff; deltas must be empty
+#   3. copy pre-apply report aside (*_pre_apply/) and assert create/update/delete
+#   4. dispatch apply (once)
+#   5. re-run filetree_object_diff; deltas must be empty (report → all unchanged)
 #
 # Diff only:
 #   ansible-playbook tests/playbooks/test_filetree_object_diff_all.yml \
@@ -126,6 +127,13 @@
         label: "{{ od_type_item.label }} flatten=false"
       when: not (od_type_item.skip_object_diff | default(false))
 
+    - name: Preserve and assert pre-apply report (tree layout)
+      ansible.builtin.include_tasks: tasks/filetree_object_diff_assert_pre_apply_report.yml
+      vars:
+        od_report_layout: tree
+        od_report_src: "{{ filetree_object_diff_diff_path_base }}_tree/_filetree_object_diff_report.yaml"
+        od_report_dst: "{{ filetree_object_diff_diff_path_base }}_tree_pre_apply/_filetree_object_diff_report.yaml"
+
     # ------------------------------------------------------------------
     # Layout 2 — flat (flatten_output: true)
     # ------------------------------------------------------------------
@@ -146,6 +154,13 @@
         loop_var: od_type_item
         label: "{{ od_type_item.label }} flatten=true"
       when: not (od_type_item.skip_object_diff | default(false))
+
+    - name: Preserve and assert pre-apply report (flat layout)
+      ansible.builtin.include_tasks: tasks/filetree_object_diff_assert_pre_apply_report.yml
+      vars:
+        od_report_layout: flat
+        od_report_src: "{{ filetree_object_diff_diff_path_base }}_flat/_filetree_object_diff_report.yaml"
+        od_report_dst: "{{ filetree_object_diff_diff_path_base }}_flat_pre_apply/_filetree_object_diff_report.yaml"
 
     - name: Collect types that require dispatch
       ansible.builtin.set_fact:
