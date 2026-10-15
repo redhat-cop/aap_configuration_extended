@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Resolve Gateway role team/user assignment Controller targets via portable names (including ``content_object``), fail loudly when a name cannot be resolved, and omit ansible/UUID identifiers from CaC YAML (https://github.com/redhat-cop/aap_configuration_extended/issues/408).

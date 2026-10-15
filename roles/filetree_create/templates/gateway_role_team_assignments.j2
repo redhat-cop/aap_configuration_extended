@@ -8,18 +8,13 @@
 {%   set _team_name = _override.team
         | default(template_overrides_global.gateway_role_team_assignment.team)
         | default(_sf.team.name | default(none)) %}
-{%   set _team_ansible_id = _override.team_ansible_id
-        | default(template_overrides_global.gateway_role_team_assignment.team_ansible_id)
-        | default(current_role_team_assignment.team_ansible_id | default(none)) %}
 {%   set _role_definition = _override.role_definition
         | default(template_overrides_global.gateway_role_team_assignment.role_definition)
         | default(current_role_team_assignment.summary_fields.role_definition.name) %}
-{%   set _entry = namespace(value={'role_definition': _role_definition}, skip=false) %}
-{%   if _team_name is not none and _team_name not in __empty_values %}
-{%     set _entry.value = _entry.value | combine({'team': _team_name}) %}
-{%   elif _team_ansible_id is not none and _team_ansible_id not in __empty_values %}
-{%     set _entry.value = _entry.value | combine({'team_ansible_id': _team_ansible_id}) %}
+{%   if _team_name is none or _team_name in __empty_values %}
+{{ undef(hint='Gateway role team assignment ' ~ (current_role_team_assignment.id | default('unknown')) ~ ' has no portable team name (CaC requires names, not IDs)') | mandatory }}
 {%   endif %}
+{%   set _entry = namespace(value={'role_definition': _role_definition, 'team': _team_name}, skip=false) %}
 {%   if _override.assignment_objects is defined %}
 {%     set _entry.value = _entry.value | combine({'assignment_objects': _override.assignment_objects}) %}
 {%   else %}
@@ -28,9 +23,7 @@
          related_object_roles=none, inline_resource_type=none, inline_input_tags=[]) %}
 {%     set _ = resolve_target(current_role_team_assignment, target) %}
 {%     set _inline = namespace(covered=false) %}
-{%     if _team_name is not none and _team_name not in __empty_values %}
-{%       set _ = check_inline_covered(current_role_team_assignment, target, _team_name, 'team', _inline) %}
-{%     endif %}
+{%     set _ = check_inline_covered(current_role_team_assignment, target, _team_name, 'team', _inline) %}
 {%     if _inline.covered %}
 {%       set _entry.skip = true %}
 {%     elif not target.global_role %}
@@ -56,11 +49,7 @@ gateway_role_team_assignments: []
 gateway_role_team_assignments:
 {%   for _item in __emitted.entries %}
   - role_definition: "{{ _item.role_definition }}"
-{%     if _item.team is defined %}
     team: "{{ _item.team }}"
-{%     elif _item.team_ansible_id is defined %}
-    team_ansible_id: "{{ _item.team_ansible_id }}"
-{%     endif %}
 {%     if _item.assignment_objects is defined %}
     assignment_objects:
 {{ _item.assignment_objects | to_nice_yaml(indent=2, sort_keys=false) | indent(width=6, first=true) }}
