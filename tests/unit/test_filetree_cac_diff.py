@@ -75,6 +75,16 @@ class TestFiletreeCacDiff(unittest.TestCase):
         }
         self.assertTrue(self.module.matches_organization_filter(schedule, "Object Diff Test"))
 
+    def test_credential_input_source_identity_keys(self):
+        self.assertEqual(
+            self.module.get_id_keys("credential_input_source"),
+            ["target_credential", "source_credential", "input_field_name"],
+        )
+        self.assertEqual(
+            self.module.ROOT_KEY_OBJECT_TYPE["controller_credential_input_sources"],
+            "credential_input_source",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

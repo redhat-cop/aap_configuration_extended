@@ -50,6 +50,7 @@ ROOT_KEY_OBJECT_TYPE = {
     "controller_schedules": "schedule",
     "controller_execution_environments": "execution_environment",
     "controller_credentials": "credential",
+    "controller_credential_input_sources": "credential_input_source",
     "controller_inventory_sources": "inventory_source",
     "controller_workflows": "workflow_job_template",
     "controller_workflow_job_templates": "workflow_job_template",
@@ -80,6 +81,7 @@ OBJECT_ID_KEYS = {
     "schedule": ["name", "unified_job_template"],
     "execution_environment": ["name", "organization", "image"],
     "credential": ["name", "organization", "credential_type"],
+    "credential_input_source": ["target_credential", "source_credential", "input_field_name"],
     "inventory_source": ["name", "organization", "inventory"],
     "workflow_job_template_node": [
         "workflow_job_template",
