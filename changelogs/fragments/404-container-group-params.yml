@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Omit non-applicable ``policy_instance_*`` / ``instances`` fields for container instance groups and export ``pod_spec_override`` as structured YAML (https://github.com/redhat-cop/aap_configuration_extended/issues/404).
