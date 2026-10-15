@@ -5,6 +5,9 @@ filetree_object_diff_live_path: "/tmp/filetree_object_diff_live"
 filetree_object_diff_diff_path: "/tmp/filetree_object_diff_delta"
 filetree_object_diff_cleanup_live_path: true
 filetree_object_diff_cleanup_diff_path: false
+# Match filetree_create output layouts: false = org/type directories, true = flat per-type files.
+filetree_object_diff_flatten_output: false
+filetree_object_diff_omit_id: true
 query_controller_api_max_objects: 10000
 
 # Variables used to render Jinja in repository CaC files before file comparison.
