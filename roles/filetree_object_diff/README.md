@@ -36,10 +36,14 @@ No full in-memory comparison of both sides: only diff files are loaded.
 
 Repository CaC may use Jinja for secrets (`{{ vault_password }}`). Pass all required variables via `filetree_object_diff_template_vars` so the module can render CaC files before comparing. Sensitive keys (`password`, `inputs`, etc.) are ignored by default during comparison.
 
+### Coverage
+
+Default `controller_configuration_filetree_object_diff_tasks` covers the full intersection of `filetree_create` and `infra.aap_configuration.dispatch`: Gateway, Controller, Hub, and EDA. Runtime-only dispatch roles (job launch, sync, publish, bulk hosts) are excluded.
+
 ### Organizations and super-admin object types
 
 - Organizations are exported with `controller_organizations` so live YAML uses the `aap_organizations` root key expected by `filetree_read`. Legacy live exports that still use `gateway_organizations` are normalized to `aap_organizations` during comparison.
-- Tasks marked `superuser_only: true` (organizations, roles, and instance groups by default) are skipped automatically when the OAuth user is not a platform super-admin. Teams and users remain org-scoped.
+- Tasks marked `superuser_only: true` (platform Gateway infrastructure, organizations, roles, instance groups, instances, settings, …) are skipped automatically when the OAuth user is not a platform super-admin. Org-scoped objects remain available.
 
 ## Full example
 
