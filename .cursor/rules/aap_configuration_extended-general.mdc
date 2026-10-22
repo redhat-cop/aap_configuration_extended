@@ -18,7 +18,19 @@ alwaysApply: true
 - Pair **filetree_create** (API → YAML) with **filetree_read** (YAML → vars → `infra.aap_configuration.dispatch`).
 - Use FQCN `infra.aap_configuration_extended.*` and prefixes `controller_*`, `gateway_*`, `hub_*`, `eda_*`.
 
+## Code quality (SonarQube)
+
+- New or changed Python code must pass **SonarQube / SonarLint** with **no issues** (complexity, literals, bugs, code smells).
+- Refactor helpers when cognitive complexity exceeds the SonarQube threshold instead of suppressing findings.
+
+## YAML documents
+
+- Every new or edited `.yml` / `.yaml` file must end with a document end marker
+  on its own last line: `...` (ansible-lint `yaml[document-end]`).
+- See [.cursor/skills/yaml-document-end/SKILL.md](../skills/yaml-document-end/SKILL.md).
+
 ## Skills
 
 - New filetree entities: [skills/add-filetree-entity/SKILL.md](../../skills/add-filetree-entity/SKILL.md)
 - Full roundtrip tests: [.cursor/skills/filetree-roundtrip-test/SKILL.md](../skills/filetree-roundtrip-test/SKILL.md)
+- YAML `...` trailer: [.cursor/skills/yaml-document-end/SKILL.md](../skills/yaml-document-end/SKILL.md)

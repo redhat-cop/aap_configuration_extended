@@ -1,0 +1,8 @@
+---
+# Shared AAP connection variables for collection integration tests.
+# Override via -e @tests/vault-aap-controller.yaml
+aap_username: "{{ vault_aap_username | default(vault_controller_username | default(lookup('env', 'CONTROLLER_USERNAME'), true), true) }}"
+aap_password: "{{ vault_aap_password | default(vault_controller_password | default(lookup('env', 'CONTROLLER_PASSWORD'), true), true) }}"
+aap_hostname: "{{ vault_aap_hostname | default(vault_controller_hostname | default(lookup('env', 'CONTROLLER_HOST'), true), true) }}"
+aap_validate_certs: "{{ vault_aap_validate_certs | default(vault_controller_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL') | default(false, true) | bool, true), true) }}"
+...

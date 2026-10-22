@@ -1,0 +1,23 @@
+---
+- name: Compute organization filetree delta
+  ansible.builtin.set_fact:
+    __diff: "{{ query('infra.aap_configuration_extended.controller_filetree_diff',
+      live_list=__live_list, cac_list=__cac_list,
+      object_type='organization', with_present=false, set_absent=true) | flatten }}"
+  vars:
+    __live_list:
+      - name: Shared Organization
+      - name: Orphan Organization
+    __cac_list:
+      - name: Shared Organization
+      - name: New CaC Organization
+
+- name: Validate organization delta
+  ansible.builtin.include_tasks: assert_delta.yml
+  vars:
+    __object_label: organizations
+    __id_field: name
+    __cac_only_name: New CaC Organization
+    __orphan_name: Orphan Organization
+    __shared_name: Shared Organization
+...

@@ -1,0 +1,11 @@
+---
+aap_user_accounts:
+  - username: object-diff-shared-user
+    password: "{{ object_diff_test_user_password }}"
+    first_name: Shared
+    last_name: User
+  - username: object-diff-new-cac-user
+    password: "{{ object_diff_test_user_password }}"
+    first_name: Only
+    last_name: CaC
+...

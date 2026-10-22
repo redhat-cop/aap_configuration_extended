@@ -1,0 +1,20 @@
+---
+controller_inventory_sources:
+  - name: Object Diff Shared Source
+    organization: "{{ orgs }}"
+    inventory: Object Diff Shared Inventory
+    source: scm
+    source_project: Object Diff Shared Project
+    source_path: ""
+    overwrite: true
+    update_on_launch: false
+  - name: Object Diff New CaC Source
+    organization: "{{ orgs }}"
+    inventory: Object Diff Shared Inventory
+    source: scm
+    source_project: Object Diff Shared Project
+    source_path: ""
+    description: Only in CaC
+    overwrite: true
+    update_on_launch: false
+...

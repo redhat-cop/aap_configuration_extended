@@ -1,0 +1,6 @@
+---
+controller_inventories:
+  - name: Shared Inventory
+    organization: Default
+    description: Live description
+...

@@ -1,0 +1,71 @@
+---
+- name: Build test object names | {{ od_type.label }}
+  ansible.builtin.set_fact:
+    __od_test_names: >-
+      {{
+        [od_type.shared, od_type.cac_only, od_type.orphan]
+        + (['Object Diff Shared EE'] if od_type.label == 'execution_environments' else [])
+        | unique
+      }}
+
+- name: Query API objects without organization filter | {{ od_type.label }}
+  ansible.builtin.set_fact:
+    __od_all_api_objects: >-
+      {{
+        query(
+          'ansible.platform.gateway_api',
+          od_type.api_path,
+          host=aap_hostname,
+          oauth_token=aap_oauthtoken,
+          verify_ssl=aap_validate_certs,
+          return_all=true,
+          max_objects=10000
+        )
+      }}
+
+- name: Reset stray cleanup list | {{ od_type.label }}
+  ansible.builtin.set_fact:
+    __od_stray_absent: []
+
+- name: Collect stray objects in other organizations | {{ od_type.label }}
+  ansible.builtin.set_fact:
+    __od_stray_absent: "{{ __od_stray_absent + [__od_stray_item] }}"
+  vars:
+    __od_object_org_id: "{{ stray_candidate.summary_fields.organization.id | default(none) }}"
+    __od_stray_item:
+      state: absent
+      name: "{{ stray_candidate[od_type.id_field] }}"
+      organization: "{{ stray_candidate.summary_fields.organization.name }}"
+      image: "{{ stray_candidate.image | default('quay.io/ansible/ansible-runner:stable-2.4-latest', true) }}"
+  loop: "{{ __od_all_api_objects }}"
+  loop_control:
+    loop_var: stray_candidate
+    label: "{{ stray_candidate[od_type.id_field] | default('unknown') }}"
+  when:
+    - stray_candidate[od_type.id_field] in __od_test_names
+    - stray_candidate.summary_fields.organization is defined
+    - __od_object_org_id != __controller_organization_id.id
+
+- name: Show stray cleanup actions | {{ od_type.label }}
+  ansible.builtin.debug:
+    var: __od_stray_absent
+  when: __od_stray_absent | length > 0
+
+- name: Set stray cleanup dispatch payload | {{ od_type.label }}
+  ansible.builtin.set_fact:
+    "{{ od_type.dispatch_var }}": "{{ __od_stray_absent }}"
+  when: __od_stray_absent | length > 0
+
+- name: Remove stray test objects via dispatch | {{ od_type.label }}
+  ansible.builtin.import_role:
+    name: infra.aap_configuration.dispatch
+  vars:
+    controller_configuration_dispatcher_roles:
+      - {role: "{{ od_type.dispatch_role }}", var: "{{ od_type.dispatch_var }}", tags: "{{ od_type.dispatch_tag }}"}
+  when: __od_stray_absent | length > 0
+
+- name: Clear stray cleanup dispatch payload | {{ od_type.label }}
+  ansible.builtin.set_fact:
+    "{{ od_type.dispatch_var }}": []
+  when: __od_stray_absent | length > 0
+...
