@@ -39,7 +39,12 @@
 } %}
 {% set sf = assignment.summary_fields | default({}, true) %}
 {% set rd = sf.role_definition | default({}, true) %}
-{% set ct = namespace(value=rd.content_type | default(none)) %}
+{% set co = sf.content_object | default({}, true) %}
+{% set ct = namespace(value=rd.content_type | default(assignment.content_type | default(none), true)) %}
+{# Prefer content_object service/model when role_definition omits content_type. #}
+{% if ct.value in [none, ''] and co.service is defined and co.model_name is defined %}
+{%   set ct.value = (co.service | string) ~ '.' ~ (co.model_name | string) %}
+{% endif %}
 {# Obtain authoritative role metadata rather than infer service from a model. #}
 {% if ct.value in [none, ''] %}
 {%   set selector = {'id': assignment.role_definition}
@@ -62,11 +67,28 @@
 {%   set ct.value = (ct.value.app_label ~ '.' ~ ct.value.model)
        if ct.value.app_label is defined and ct.value.model is defined else none %}
 {% endif %}
+{# Normalize aliases seen on older Gateway payloads (service.model_name). #}
+{% if ct.value == 'awx.job_template' %}
+{%   set ct.value = 'awx.jobtemplate' %}
+{% elif ct.value == 'awx.workflow_job_template' %}
+{%   set ct.value = 'awx.workflowjobtemplate' %}
+{% elif ct.value == 'awx.execution_environment' %}
+{%   set ct.value = 'awx.executionenvironment' %}
+{% elif ct.value == 'awx.instance_group' %}
+{%   set ct.value = 'awx.instancegroup' %}
+{% elif ct.value == 'awx.notification_template' %}
+{%   set ct.value = 'awx.notificationtemplate' %}
+{% elif ct.value == 'eda.eda_credential' %}
+{%   set ct.value = 'eda.edacredential' %}
+{% elif ct.value == 'eda.event_stream' %}
+{%   set ct.value = 'eda.eventstream' %}
+{% elif ct.value == 'eda.decision_environment' %}
+{%   set ct.value = 'eda.decisionenvironment' %}
+{% endif %}
 {% set target.content_type = ct.value %}
-{% set object_id = assignment.object_id | default(none) %}
-{% set object_uuid = assignment.object_ansible_id | default(none) %}
+{% set object_id = assignment.object_id | default(co.pk | default(none), true) %}
 {# Platform-wide roles have no object; emit no target for those assignments. #}
-{% if ct.value is none and object_id in [none, ''] and object_uuid in [none, ''] %}
+{% if ct.value is none and object_id in [none, ''] %}
 {%   set target.global_role = true %}
 {% else %}
 {%   if ct.value not in routes %}
@@ -78,7 +100,8 @@
 {%   set target.inline_input_tags = routes[ct.value][3] %}
 {%   set resource = sf.resource | default({}, true) %}
 {%   set target.name = resource.name | default(none, true)
-         | default(sf.resource_name | default(none), true) %}
+         | default(sf.resource_name | default(none), true)
+         | default(co.name | default(none), true) %}
 {# Numeric names can be real names: do not reject them solely for being numeric.
    When object_id is present, verify identity through the correct endpoint. #}
 {%   if object_id not in [none, ''] %}
