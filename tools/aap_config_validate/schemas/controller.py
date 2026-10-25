@@ -112,7 +112,7 @@ CONTROLLER_SCHEMAS = [
             "policy_instance_list": Field(type="list"),
             "max_concurrent_jobs": Field(type="int"),
             "max_forks": Field(type="int"),
-            "pod_spec_override": Field(type="str"),
+            "pod_spec_override": Field(type="str|dict"),
             "instances": Field(type="list"),
             "state": Field(type="str", choices=["present", "absent", "exists"]),
             "roles": Field(type="list"),
