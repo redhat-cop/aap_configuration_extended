@@ -1,5 +1,56 @@
 ---
-- name: "Get current Users from the Gateway API"
+- name: "Get current Users from the Gateway API (organization members)"
+  when: gateway_organization_id is defined and user_id is not defined
+  block:
+    - name: "Query organization users endpoint"
+      ansible.builtin.set_fact:
+        gateway_users_lookvar: "{{ query('ansible.platform.gateway_api',
+                                         'api/gateway/v1/organizations/' ~ gateway_organization_id ~ '/users/',
+                                         query_params=query_params,
+                                         host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                                         return_all=true, max_objects=query_controller_api_max_objects)
+                                }}"
+      vars:
+        query_params:
+          order_by: 'id'
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+  rescue:
+    - name: "Fallback: list all visible users then filter by organization membership"
+      ansible.builtin.set_fact:
+        gateway_users_lookvar: []
+        __gateway_users_all: "{{ query('ansible.platform.gateway_api', 'api/gateway/v1/users/',
+                                       query_params=query_params,
+                                       host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                                       return_all=true, max_objects=query_controller_api_max_objects)
+                              }}"
+      vars:
+        query_params:
+          order_by: 'id'
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+    - name: "Resolve organizations for each user (fallback filter)"
+      ansible.builtin.set_fact:
+        gateway_users_lookvar: >-
+          {{ gateway_users_lookvar
+             + ([__gateway_user_item]
+                if (organization_filter in (__gateway_user_orgs | selectattr('name', 'defined') | map(attribute='name') | list))
+                else [])
+          }}
+      vars:
+        __gateway_user_orgs: "{{ query('ansible.platform.gateway_api',
+                                       __gateway_user_item.related.organizations
+                                       | default('api/gateway/v1/users/' ~ __gateway_user_item.id ~ '/organizations/'),
+                                       host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                                       return_all=true, max_objects=query_controller_api_max_objects)
+                              }}"
+      loop: "{{ __gateway_users_all }}"
+      loop_control:
+        loop_var: __gateway_user_item
+        label: "{{ __gateway_user_item.username | default(__gateway_user_item.id) }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+- name: "Get current Users from the Gateway API (full catalog)"
+  when: gateway_organization_id is not defined or user_id is defined
   ansible.builtin.set_fact:
     gateway_users_lookvar: "{{ query('ansible.platform.gateway_api', 'api/gateway/v1/users/',
                                      query_params=(query_params | combine({'id': user_id})) if user_id is defined else query_params,
@@ -9,6 +60,12 @@
   vars:
     query_params:
       order_by: 'id'
+  no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
+- name: "Drop platform superusers from organization-scoped user export"
+  when: gateway_organization_id is defined and user_id is not defined
+  ansible.builtin.set_fact:
+    gateway_users_lookvar: "{{ gateway_users_lookvar | default([]) | rejectattr('is_superuser', 'truthy') | list }}"
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
 - name: "Create the output directory for gateway users: {{ output_path }}"
@@ -23,5 +80,5 @@
     dest: "{{ output_path }}/gateway_users.yaml"
     mode: '0644'
   vars:
-    current_gateway_users_asset_value: "{{ gateway_users_lookvar }}"
+    current_gateway_users_asset_value: "{{ gateway_users_lookvar | default([]) }}"
 ...

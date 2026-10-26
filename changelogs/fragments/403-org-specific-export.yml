@@ -1,3 +1,3 @@
 ---
 bugfixes:
-  - filetree_create - When ``organization_filter`` is set, skip platform-global exports (settings, gateway infra, hub, all users, instances); Organization Admins cannot export superuser-only resources, and settings API denials are skipped with a warning instead of failing the run (https://github.com/redhat-cop/aap_configuration_extended/issues/403).
+  - filetree_create - When ``organization_filter`` is set, skip platform-global exports (settings, credential types, gateway infra/auth maps, hub, instances), export organization member users only, omit platform-global role assignments (for example Platform Auditor), and soft-skip applications/settings API denials for Organization Admins (https://github.com/redhat-cop/aap_configuration_extended/issues/403).

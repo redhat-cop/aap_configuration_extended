@@ -1,15 +1,28 @@
 ---
 - name: "Get current Applications from the API"
-  ansible.builtin.set_fact:
-    applications_lookvar: "{{ query('ansible.platform.gateway_api', 'api/gateway/v1/applications/',
-                                    query_params=(query_params | combine({'organization': gateway_organization_id})) if gateway_organization_id is defined else query_params,
-                                    host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
-                                    return_all=true, max_objects=query_gateway_api_max_objects)
-                           }}"
-  vars:
-    query_params:
-      order_by: 'organization,id'
-  # no_log: "{{ gateway_configuration_filetree_create_secure_logging }}"
+  block:
+    - name: "Query Gateway Applications"
+      ansible.builtin.set_fact:
+        applications_lookvar: "{{ query('ansible.platform.gateway_api', 'api/gateway/v1/applications/',
+                                        query_params=(query_params | combine({'organization': gateway_organization_id})) if gateway_organization_id is defined else query_params,
+                                        host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                                        return_all=true, max_objects=query_gateway_api_max_objects)
+                               }}"
+      vars:
+        query_params:
+          order_by: 'organization,id'
+      # no_log: "{{ gateway_configuration_filetree_create_secure_logging }}"
+  rescue:
+    - name: "Skip Gateway Applications export when the API denies access"
+      ansible.builtin.debug:
+        msg: >-
+          Skipping gateway_applications export: the current user cannot read
+          api/gateway/v1/applications/ ({{ ansible_failed_result.msg | default('permission or API error') }}).
+          Organization Admins may lack applications API access; continue without applications.
+
+    - name: "Set empty applications list after API denial"
+      ansible.builtin.set_fact:
+        applications_lookvar: []
 
 - name: "Block for to generate flatten output"
   when:
@@ -38,6 +51,7 @@
         label: "{{ __dest }}"
 
     - name: "Remove all the blank lines introduced by the last task"
+      when: (applications_lookvar | default([]) | length) > 0
       ansible.builtin.lineinfile:
         path: "{{ __dest }}"
         line: ''

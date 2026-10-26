@@ -95,7 +95,9 @@
       when: "'controller_credentials' in input_tag or 'controller' in input_tag or 'all' in input_tag"
     - name: "Export Controller Credential Types"
       ansible.builtin.include_tasks: "controller_credential_types.yml"
-      when: "'controller_credential_types' in input_tag or 'controller' in input_tag or 'all' in input_tag"
+      when:
+        - "'controller_credential_types' in input_tag or 'controller' in input_tag or 'all' in input_tag"
+        - "'controller_credential_types' not in (__filetree_create_skipped_tags | default([]))"
     - name: "Export Controller Notification Templates"
       ansible.builtin.include_tasks: "controller_notification_templates.yml"
       when: "'controller_notification_templates' in input_tag or 'controller' in input_tag or 'all' in input_tag"
@@ -150,7 +152,9 @@
       when: "'gateway_applications' in input_tag or 'gateway' in input_tag or 'all' in input_tag"
     - name: "Export Gateway Authentication Maps"
       ansible.builtin.include_tasks: "gateway_authenticator_maps.yml"
-      when: "'gateway_authenticator_maps' in input_tag or 'gateway' in input_tag or 'all' in input_tag"
+      when:
+        - "'gateway_authenticator_maps' in input_tag or 'gateway' in input_tag or 'all' in input_tag"
+        - "'gateway_authenticator_maps' not in (__filetree_create_skipped_tags | default([]))"
     - name: "Export Gateway Authentication"
       ansible.builtin.include_tasks: "gateway_authenticators.yml"
       when:
@@ -205,9 +209,7 @@
       when: "'gateway_teams' in input_tag or 'gateway' in input_tag or 'all' in input_tag"
     - name: "Export Gateway Users"
       ansible.builtin.include_tasks: "gateway_users.yml"
-      when:
-        - "'gateway_users' in input_tag or 'gateway' in input_tag or 'all' in input_tag"
-        - "'gateway_users' not in (__filetree_create_skipped_tags | default([]))"
+      when: "'gateway_users' in input_tag or 'gateway' in input_tag or 'all' in input_tag"
     - name: "Export EDA Credential Types"
       ansible.builtin.include_tasks: "eda_credential_types.yml"
       when: "'eda_credential_types' in input_tag or 'eda' in input_tag or 'all' in input_tag"

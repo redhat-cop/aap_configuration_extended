@@ -131,18 +131,20 @@ omit_instance_specific_keys:
   - INSTALL_UUID
 
 # Platform-wide object tags skipped automatically when organization_filter is set.
+# gateway_users is intentionally omitted: org-scoped export still writes org members.
 filetree_create_platform_global_tags:
   - controller_settings
   - controller_instances
+  - controller_credential_types
   - gateway_settings
   - gateway_authenticators
+  - gateway_authenticator_maps
   - gateway_http_ports
   - gateway_routes
   - gateway_service_clusters
   - gateway_service_keys
   - gateway_service_nodes
   - gateway_services
-  - gateway_users
   - hub
   - hub_namespaces
   - hub_collections
