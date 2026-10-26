@@ -180,6 +180,43 @@ class TestFiletreeCacDiff(unittest.TestCase):
         self.assertTrue(self.module.equal_dicts(cac, live_extra_field_ok, ignore))
         self.assertTrue(self.module.equal_dicts(cac, dict(cac), ignore))
 
+    def test_credential_reference_compared_inputs_ignored(self):
+        """Credential name references must drift; secret inputs stay ignored."""
+        ignore = self.module.DEFAULT_IGNORE_KEYS
+        cac = {
+            "name": "Demo Inventory Source",
+            "organization": "Default",
+            "inventory": "Demo Inventory",
+            "credential": "Desired SCM Cred",
+            "inputs": {"password": "cac-secret"},
+        }
+        live_different_credential = {
+            "name": "Demo Inventory Source",
+            "organization": "Default",
+            "inventory": "Demo Inventory",
+            "credential": "Live SCM Cred",
+            "inputs": {"password": "live-secret"},
+        }
+        live_same_credential_different_inputs = {
+            "name": "Demo Inventory Source",
+            "organization": "Default",
+            "inventory": "Demo Inventory",
+            "credential": "Desired SCM Cred",
+            "inputs": {"password": "other-secret"},
+        }
+
+        self.assertNotIn("credential", ignore)
+        self.assertIn("inputs", ignore)
+        self.assertFalse(self.module.equal_dicts(cac, live_different_credential, ignore))
+        self.assertTrue(self.module.equal_dicts(cac, live_same_credential_different_inputs, ignore))
+
+        changes = self.module.field_changes(cac, live_different_credential, ignore)
+        by_field = {entry["field"]: entry for entry in changes}
+        self.assertEqual(by_field["credential"]["from"], "Live SCM Cred")
+        self.assertEqual(by_field["credential"]["to"], "Desired SCM Cred")
+        self.assertNotIn("inputs", by_field)
+        self.assertNotIn("inputs.password", by_field)
+
     def test_field_drift_emits_present_with_full_cac_item(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             live_path = os.path.join(tmpdir, "live")

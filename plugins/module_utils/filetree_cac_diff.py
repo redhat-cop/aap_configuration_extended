@@ -179,7 +179,6 @@ DEFAULT_IGNORE_KEYS = {
     "passphrase",
     "inputs",
     "pull",
-    "credential",
 }
 
 EMPTY_COMPARE_VALUES = (None, "", [], {}, [{}])
