@@ -15,6 +15,8 @@ The following variables are required for that role to work properly:
 | Variable Name | Default Value | Required | Type | Description |
 | :------------ | :-----------: | :------: | :------: | :---------- |
 | `organization_filter` | N/A | no | str | Exports only the objects belonging to the specified organization **name** (preferred CaC selector). Resolves separate Gateway and Controller organization IDs (they can differ on AAP 2.5+). |
+| `omit_instance_specific` | True | no | bool | When true, omit install/instance-specific controller settings (`LICENSE`, `INSTALL_UUID`, and `*_LAST_TS` keys). |
+| `omit_instance_specific_keys` | `LICENSE`, `INSTALL_UUID` | no | list | Exact settings keys omitted when `omit_instance_specific` is true (plus any key matching `*_LAST_TS`). |
 | `organization_id` | N/A | no | int | Legacy alternative to `organization_filter` using a numeric ID applied to both Gateway and Controller. Prefer organization **names** via `organization_filter`. |
 | `organization_name` | N/A | no | str | Filter a single organization by **name** (used by related export). |
 | `project_name` | N/A | no | str | Filter projects by **name**. Prefer this over `project_id`. |
