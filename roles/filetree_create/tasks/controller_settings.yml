@@ -23,10 +23,13 @@
         dest: "{{ output_path }}/controller_settings.yaml"
         mode: '0644'
   rescue:
-    - name: "Skip Controller Settings export when the API denies access"
-      ansible.builtin.debug:
-        msg: >-
-          Skipping controller_settings export: the current user cannot read
-          api/controller/v2/settings/changed/ ({{ ansible_failed_result.msg | default('permission or API error') }}).
-          Organization Admins cannot export platform settings; use a superuser or omit settings from input_tag.
+    - name: "Handle Controller Settings API failure"
+      ansible.builtin.include_tasks: rescue_api_permission_denied.yml
+      vars:
+        __ftc_soft_skip_name: controller_settings
+        __ftc_soft_skip_endpoint: api/controller/v2/settings/changed/
+        __ftc_soft_skip_hint: >-
+          Organization Admins cannot export platform settings; use a superuser or
+          omit settings from input_tag. Other query failures (auth, connectivity,
+          server errors) are not skipped.
 ...

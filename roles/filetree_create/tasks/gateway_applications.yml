@@ -13,12 +13,15 @@
           order_by: 'organization,id'
       # no_log: "{{ gateway_configuration_filetree_create_secure_logging }}"
   rescue:
-    - name: "Skip Gateway Applications export when the API denies access"
-      ansible.builtin.debug:
-        msg: >-
-          Skipping gateway_applications export: the current user cannot read
-          api/gateway/v1/applications/ ({{ ansible_failed_result.msg | default('permission or API error') }}).
-          Organization Admins may lack applications API access; continue without applications.
+    - name: "Handle Gateway Applications API failure"
+      ansible.builtin.include_tasks: rescue_api_permission_denied.yml
+      vars:
+        __ftc_soft_skip_name: gateway_applications
+        __ftc_soft_skip_endpoint: api/gateway/v1/applications/
+        __ftc_soft_skip_hint: >-
+          Organization Admins may lack applications API access; continue without
+          applications. Other query failures (auth, connectivity, server errors)
+          are not skipped.
 
     - name: "Set empty applications list after API denial"
       ansible.builtin.set_fact:

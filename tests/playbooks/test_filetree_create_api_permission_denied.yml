@@ -1,0 +1,71 @@
+---
+# Coverage for rescue_api_permission_denied.yml:
+# - HTTP 403 / Forbidden is soft-skipped
+# - unrelated query failures are re-raised
+- name: Test filetree_create API permission-denied soft-skip
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - "{{ playbook_dir }}/../../roles/filetree_create/defaults/main.yml"
+  vars:
+    __rescue_tasks: "{{ playbook_dir }}/../../roles/filetree_create/tasks/rescue_api_permission_denied.yml"
+  tasks:
+    - name: "HTTP 403 soft-skip path"
+      block:
+        - name: "Simulate applications API permission denial"
+          ansible.builtin.fail:
+            msg: >-
+              gateway_api lookup: API request failed for 'api/gateway/v1/applications/':
+              403 Client Error: Forbidden for url:
+              https://aap.example/api/gateway/v1/applications/
+      rescue:
+        - name: "Handle simulated Applications API failure"
+          ansible.builtin.include_tasks: "{{ __rescue_tasks }}"
+          vars:
+            __ftc_soft_skip_name: gateway_applications
+            __ftc_soft_skip_endpoint: api/gateway/v1/applications/
+            __ftc_soft_skip_hint: Organization Admin permission denial coverage.
+
+        - name: "Record successful 403 soft-skip"
+          ansible.builtin.set_fact:
+            applications_lookvar: []
+            __ftc_case_403_skipped: true
+
+    - name: "Assert HTTP 403 was soft-skipped"
+      ansible.builtin.assert:
+        that:
+          - __ftc_case_403_skipped | default(false)
+          - applications_lookvar | default(['not-empty']) | length == 0
+
+    - name: "Unrelated query failure is re-raised"
+      block:
+        - name: "Inner block that must fail the export"
+          block:
+            - name: "Simulate connectivity failure"
+              ansible.builtin.fail:
+                msg: >-
+                  gateway_api lookup: failed to connect to platform manager:
+                  Connection refused
+          rescue:
+            - name: "Handle simulated Applications API failure"
+              ansible.builtin.include_tasks: "{{ __rescue_tasks }}"
+              vars:
+                __ftc_soft_skip_name: gateway_applications
+                __ftc_soft_skip_endpoint: api/gateway/v1/applications/
+                __ftc_soft_skip_hint: Must not soft-skip connectivity errors.
+
+            - name: "Must not reach empty-list soft-skip for connectivity errors"
+              ansible.builtin.set_fact:
+                __ftc_case_wrongly_skipped: true
+      rescue:
+        - name: "Record that connectivity failure was re-raised"
+          ansible.builtin.set_fact:
+            __ftc_case_connection_reraised: true
+
+    - name: "Assert unrelated failure still fails the export"
+      ansible.builtin.assert:
+        that:
+          - __ftc_case_connection_reraised | default(false)
+          - not (__ftc_case_wrongly_skipped | default(false))
+...
