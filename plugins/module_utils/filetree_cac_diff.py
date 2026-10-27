@@ -165,6 +165,10 @@ OBJECT_ID_KEYS = {
 
 DEFAULT_ID_KEYS = ["name", "organization"]
 
+# Secrets / non-config noise only. Do not ignore "credential" or "credentials":
+# those are name references (inventory sources, instance groups, JTs, …) and must
+# produce deltas when they change. Role helper lists such as _ROLE_TARGET_DUP_KEYS
+# may still mention "credential" for field expansion; that is unrelated to ignore.
 DEFAULT_IGNORE_KEYS = {
     "state",
     "type",
