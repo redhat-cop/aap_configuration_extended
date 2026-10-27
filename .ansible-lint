@@ -33,4 +33,5 @@ kinds:
   - vars: "**/examples/configs_export_model/*.yml"
   - vars: "**/examples/vars/*.yml"
   - vars: "**/roles/**/tests/configs/*.yml"
+  - vars: "**/tests/configs/**/setup/*.yml"
 ...

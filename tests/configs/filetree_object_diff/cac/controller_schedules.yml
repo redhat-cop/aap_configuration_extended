@@ -1,0 +1,10 @@
+---
+controller_schedules:
+  - name: Object Diff Shared Schedule
+    unified_job_template: Object Diff Shared Job Template
+    rrule: "DTSTART:20260101T000000Z RRULE:FREQ=DAILY;INTERVAL=1"
+  - name: Object Diff New CaC Schedule
+    unified_job_template: Object Diff Shared Job Template
+    rrule: "DTSTART:20260101T000000Z RRULE:FREQ=DAILY;INTERVAL=1"
+    description: Only in CaC
+...

@@ -73,6 +73,11 @@ Use `tests/ansible.cfg` (`inject_facts_as_vars = false`) when running integratio
 
 For PR validation (latest `devel` base, restore `devel` after, optional `gh pr comment`), use [.cursor/skills/pr-test-plan/SKILL.md](../../.cursor/skills/pr-test-plan/SKILL.md).
 
+#### SonarQube (required)
+
+- All new or modified Python (modules, module_utils, lookup plugins, unit tests) must pass **SonarQube / SonarLint with zero reported issues** before the change is complete.
+- Prefer small helpers over high cognitive complexity; use dict literals in `argument_spec` (not `dict(...)` constructors).
+
 #### Test playbooks — authentication
 
 - Use `ansible.platform.token` (never `ansible.builtin.uri` against `/api/gateway/v1/tokens/`).
