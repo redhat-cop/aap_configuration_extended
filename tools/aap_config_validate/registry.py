@@ -391,6 +391,10 @@ KNOWN_GLOBAL_VARS: Set[str] = {
     # Hub publish / extra hub roles (ansible.hub, not aap_configuration dispatch)
     "hub_collection_list",
     "hub_custom_collections",
+    "hub_auto_approve",
+    "hub_overwrite_existing",
+    "hub_skip_existing_collections",
+    "hub_repository",
     "hub_configuration_dispatcher_roles_include_publish",
     "hub_group_roles",
     "hub_roles",

@@ -237,6 +237,28 @@ def merge_wildcard_vars(
         if base is not None:
             wildcard_keys.setdefault(base, []).append(key)
 
+    # Warn when the same wildcard key is defined in multiple files (#427).
+    if sources is not None:
+        for _base_var, suffixed_keys in wildcard_keys.items():
+            for skey in suffixed_keys:
+                src = sources.get(skey)
+                files: Set[str] = set()
+                if isinstance(src, list):
+                    files = {f for f in src if isinstance(f, str) and f}
+                elif isinstance(src, str) and src:
+                    files = {p.strip() for p in src.split(",") if p.strip()}
+                if len(files) > 1:
+                    shown = ", ".join(sorted(files))
+                    issues.append(
+                        _issue(
+                            Severity.WARNING,
+                            skey,
+                            f"wildcard var is defined in multiple files: {shown}",
+                            sources=sources,
+                            var_name=skey,
+                        )
+                    )
+
     for base_var, suffixed_keys in wildcard_keys.items():
         for skey in sorted(suffixed_keys):
             suffix_val = config[skey]
@@ -249,6 +271,23 @@ def merge_wildcard_vars(
                 if sources is not None:
                     sources.pop(skey, None)
                 continue
+
+            # Jinja / lookup deferred until runtime — do not type-warn (#425).
+            if is_jinja(suffix_val):
+                issues.append(
+                    _issue(
+                        Severity.INFO,
+                        skey,
+                        "wildcard var is a Jinja expression; skipped merge/type check",
+                        sources=sources,
+                        var_name=skey,
+                    )
+                )
+                del merged[skey]
+                if sources is not None:
+                    sources.pop(skey, None)
+                continue
+
             if base_val in ([], {}):
                 merged[base_var] = suffix_val
                 if sources is not None:

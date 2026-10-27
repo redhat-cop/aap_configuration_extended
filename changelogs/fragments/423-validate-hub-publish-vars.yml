@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - aap-config-validate - Accept the ``hub_publish`` role variables (``hub_auto_approve``, ``hub_overwrite_existing``, ``hub_skip_existing_collections``, ``hub_repository``) and a structured ``pod_spec_override`` on instance groups (https://github.com/redhat-cop/aap_configuration_extended/issues/423).

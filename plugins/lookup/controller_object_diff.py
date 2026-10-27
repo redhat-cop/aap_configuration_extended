@@ -158,8 +158,9 @@ class LookupModule(LookupBase):
             keys_to_keep = ["name", "unified_job_template"]
             api_keys_to_keep = ["name", "summary_fields"]
         elif api_list[0]["type"] == "execution_environment":
-            keys_to_keep = ["name", "organization", "image"]
-            api_keys_to_keep = ["name", "summary_fields", "image"]
+            # Identity is name + organization only; image is mutable desired state.
+            keys_to_keep = ["name", "organization"]
+            api_keys_to_keep = ["name", "summary_fields"]
         elif api_list[0]["type"] == "role":
             pass
         else:

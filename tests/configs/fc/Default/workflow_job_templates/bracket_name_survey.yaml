@@ -1,0 +1,26 @@
+---
+# Fixture for #420: survey/variable values with [ ] must be quoted YAML scalars.
+controller_workflows:
+  - name: "[BUILD] Customer Collaboration"
+    organization: "Default"
+    simplified_workflow_nodes:
+      - identifier: "node1"
+        unified_job_template: "[BUILD] Child JT"
+        unified_job_type: "job"
+        all_parents_must_converge: "false"
+        extra_data:
+          "[BUILD]_flag": "yes"
+    survey_enabled: true
+    survey_spec:
+      name: ""
+      spec:
+        - question_name: "Build name"
+          question_description: ""
+          required: false
+          type: "text"
+          variable: "[BUILD]_customer"
+          min: 0
+          max: 1024
+          default: ""
+      description: ""
+...

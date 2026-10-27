@@ -81,7 +81,7 @@ CONTROLLER_SCHEMAS = [
             "team": Field(type="str|dict"),
             "update_secrets": Field(type="bool"),
             "state": Field(type="str", choices=["present", "absent", "exists"]),
-            "roles": Field(type="list"),
+            "roles": Field(type="list|dict"),
         },
     ),
     ResourceSchema(
@@ -112,10 +112,10 @@ CONTROLLER_SCHEMAS = [
             "policy_instance_list": Field(type="list"),
             "max_concurrent_jobs": Field(type="int"),
             "max_forks": Field(type="int"),
-            "pod_spec_override": Field(type="str"),
+            "pod_spec_override": Field(type="str|dict"),
             "instances": Field(type="list"),
             "state": Field(type="str", choices=["present", "absent", "exists"]),
-            "roles": Field(type="list"),
+            "roles": Field(type="list|dict"),
         },
     ),
     ResourceSchema(
@@ -186,7 +186,7 @@ CONTROLLER_SCHEMAS = [
             "notification_templates_started": Field(type="list"),
             "notification_templates_success": Field(type="list"),
             "notification_templates_error": Field(type="list"),
-            "roles": Field(type="list"),
+            "roles": Field(type="list|dict"),
         },
     ),
     ResourceSchema(
@@ -211,7 +211,7 @@ CONTROLLER_SCHEMAS = [
             "limit": Field(type="str"),
             "verbosity": Field(type="int"),
             "state": Field(type="str", choices=["present", "absent", "exists"]),
-            "roles": Field(type="list"),
+            "roles": Field(type="list|dict"),
         },
     ),
     ResourceSchema(
@@ -359,7 +359,7 @@ CONTROLLER_SCHEMAS = [
             "notification_templates_started": Field(type="list"),
             "notification_templates_success": Field(type="list"),
             "notification_templates_error": Field(type="list"),
-            "roles": Field(type="list"),
+            "roles": Field(type="list|dict"),
         },
     ),
     ResourceSchema(
@@ -403,7 +403,7 @@ CONTROLLER_SCHEMAS = [
             "notification_templates_success": Field(type="list"),
             "notification_templates_error": Field(type="list"),
             "notification_templates_approvals": Field(type="list"),
-            "roles": Field(type="list"),
+            "roles": Field(type="list|dict"),
             "simplified_workflow_nodes": Field(type="list"),
             "schedules": Field(type="list"),
         },

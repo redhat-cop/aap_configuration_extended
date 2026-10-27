@@ -25,6 +25,10 @@ DEFAULT_EXCLUDE_DIRS = [".git", ".github", ".svn", "__pycache__", ".tox"]
 class _SafeLoaderIgnoreJinja(yaml.SafeLoader):
     """YAML loader that tolerates unresolved Jinja and Ansible YAML tags."""
 
+    def __init__(self, stream):
+        super().__init__(stream)
+        self.duplicate_keys: List[str] = []
+
 
 def _jinja_constructor(loader, node):
     """Return the raw string for any value containing Jinja markup."""
@@ -46,9 +50,23 @@ def _vault_constructor(loader, node):
     return loader.construct_scalar(node)
 
 
+def _construct_mapping(loader, node, deep=False):
+    """Like SafeConstructor.construct_mapping, but records duplicate keys."""
+    loader.flatten_mapping(node)
+    mapping: Dict[str, Any] = {}
+    for key_node, value_node in node.value:
+        key = loader.construct_object(key_node, deep=deep)
+        if key in mapping and isinstance(key, str):
+            if hasattr(loader, "duplicate_keys"):
+                loader.duplicate_keys.append(key)
+        mapping[key] = loader.construct_object(value_node, deep=deep)
+    return mapping
+
+
 _SafeLoaderIgnoreJinja.add_constructor("!unsafe", _unsafe_constructor)
 _SafeLoaderIgnoreJinja.add_constructor("!vault", _vault_constructor)
 _SafeLoaderIgnoreJinja.add_constructor("!vault-encrypted", _vault_constructor)
+_SafeLoaderIgnoreJinja.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _construct_mapping)
 
 
 _SafeLoaderIgnoreJinja.add_implicit_resolver(
@@ -110,17 +128,26 @@ def merge_loaded_data(
             _record_source(sources, key, value, file_path)
 
 
-def load_yaml_file(path: Path) -> Dict[str, Any]:
+def load_yaml_file(path: Path) -> Tuple[Dict[str, Any], List[str]]:
+    """Load a YAML mapping from *path*.
+
+    Returns ``(data, duplicate_keys)`` where *duplicate_keys* lists mapping
+    keys that appeared more than once in the file (PyYAML keeps the last).
+    """
     with open(path, "r", encoding="utf-8") as fh:
+        loader = _SafeLoaderIgnoreJinja(fh)
         try:
-            data = yaml.load(fh, Loader=_SafeLoaderIgnoreJinja)
+            data = loader.get_single_data()
         except yaml.YAMLError as exc:
             raise ValueError(f"Failed to parse {path}: {exc}") from exc
+        finally:
+            loader.dispose()
+    duplicate_keys = list(getattr(loader, "duplicate_keys", []) or [])
     if data is None:
-        return {}
+        return {}, duplicate_keys
     if not isinstance(data, dict):
         raise ValueError(f"{path}: expected a YAML mapping at top level, got {type(data).__name__}")
-    return data
+    return data, duplicate_keys
 
 
 def _skip_dir_scan_path(path: Path, rel: Path, cfg: Optional[ValidatorConfig]) -> bool:
@@ -149,33 +176,37 @@ def _skip_dir_scan_path(path: Path, rel: Path, cfg: Optional[ValidatorConfig]) -
     return False
 
 
-def load_config_dir(config_dir: str | Path, cfg: Optional[ValidatorConfig] = None) -> Tuple[Dict[str, Any], List[str], Dict[str, Any]]:
+def load_config_dir(config_dir: str | Path, cfg: Optional[ValidatorConfig] = None) -> Tuple[Dict[str, Any], List[str], Dict[str, Any], List[Tuple[str, str]]]:
     """Load all .yml/.yaml files from *config_dir* into a merged namespace.
 
-    Returns ``(merged_vars, parse_errors, sources)``.
+    Returns ``(merged_vars, parse_errors, sources, same_file_dupes)`` where
+    *same_file_dupes* is a list of ``(key, file_path)`` for duplicate keys.
     """
     config_dir = Path(config_dir)
     merged: Dict[str, Any] = {}
     sources: Dict[str, Any] = {}
     errors: List[str] = []
+    same_file_dupes: List[Tuple[str, str]] = []
 
     yml_files = sorted(chain(config_dir.rglob("*.yml"), config_dir.rglob("*.yaml")))
     if not yml_files:
         errors.append(f"No .yml/.yaml files found in {config_dir}")
-        return merged, errors, sources
+        return merged, errors, sources, same_file_dupes
 
     for path in yml_files:
         rel = path.relative_to(config_dir)
         if _skip_dir_scan_path(path, rel, cfg):
             continue
         try:
-            data = load_yaml_file(path)
+            data, dup_keys = load_yaml_file(path)
         except ValueError as exc:
             errors.append(str(exc))
             continue
+        for key in dup_keys:
+            same_file_dupes.append((key, str(path)))
         merge_loaded_data(merged, sources, data, str(path))
 
-    return merged, errors, sources
+    return merged, errors, sources, same_file_dupes
 
 
 def _merge_namespace(
@@ -212,16 +243,19 @@ def _merge_namespace(
                 _record_source(sources, key, value, fallback_path)
 
 
-def load_paths(paths: List[str], cfg: Optional[ValidatorConfig] = None) -> Tuple[Dict[str, Any], List[str], Dict[str, Any]]:
+def load_paths(paths: List[str], cfg: Optional[ValidatorConfig] = None) -> Tuple[Dict[str, Any], List[str], Dict[str, Any], List[Tuple[str, str]]]:
     """Load config from one or more file/directory paths.
 
     Explicit file arguments are always loaded (directory default excludes
     such as ``secrets.yml`` do not apply). Directory scans apply default
     plus config-file exclusions.
+
+    Returns ``(merged, errors, sources, same_file_dupes)``.
     """
     merged: Dict[str, Any] = {}
     sources: Dict[str, Any] = {}
     errors: List[str] = []
+    same_file_dupes: List[Tuple[str, str]] = []
     for p in paths:
         pp = Path(p)
         if pp.is_dir():
@@ -233,21 +267,24 @@ def load_paths(paths: List[str], cfg: Optional[ValidatorConfig] = None) -> Tuple
             dir_cfg = ValidatorConfig(exclude_dirs=exclude_dirs)
             if dir_cfg.should_exclude_dir(pp) or dir_cfg.should_exclude_dir(pp.name):
                 continue
-            data, errs, src = load_config_dir(pp, cfg)
+            data, errs, src, dupes = load_config_dir(pp, cfg)
             errors.extend(errs)
+            same_file_dupes.extend(dupes)
             _merge_namespace(merged, sources, data, src, str(pp))
         elif pp.is_file():
             if cfg and cfg.should_exclude_file(pp):
                 continue
             try:
-                data = load_yaml_file(pp)
+                data, dup_keys = load_yaml_file(pp)
             except ValueError as exc:
                 errors.append(str(exc))
                 continue
+            for key in dup_keys:
+                same_file_dupes.append((key, str(pp)))
             src: Dict[str, Any] = {}
             merge_loaded_data({}, src, data, str(pp))
             _merge_namespace(merged, sources, data, src, str(pp))
         else:
             errors.append(f"Path not found: {p}")
 
-    return merged, errors, sources
+    return merged, errors, sources, same_file_dupes

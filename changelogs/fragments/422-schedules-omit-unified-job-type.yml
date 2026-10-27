@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Stop exporting ``unified_job_type`` on controller schedules; keep it only for internal inventory-omit logic (https://github.com/redhat-cop/aap_configuration_extended/issues/422).

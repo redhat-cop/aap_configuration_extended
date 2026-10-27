@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - controller_object_diff - Identify execution environments by name and organization only so an image change is reported as present, not present+absent (https://github.com/redhat-cop/aap_configuration_extended/issues/421).
