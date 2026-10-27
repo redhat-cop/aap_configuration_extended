@@ -38,6 +38,15 @@ class TestVariableNameCheck:
         issues = validate(config)
         assert not issues
 
+    def test_hub_publish_vars_accepted(self):
+        config = {
+            "hub_repository": "published",
+            "hub_auto_approve": True,
+            "hub_skip_existing_collections": True,
+        }
+        issues = validate(config)
+        assert not issues
+
 
 class TestStructuralCheck:
     def test_list_expected_but_got_string(self):
@@ -94,7 +103,10 @@ class TestTypeCheck:
         assert len(info) == 1
 
     def test_str_or_dict_accepted(self):
-        config = {"controller_templates": [{"name": "JT1", "organization": {"name": "Org1"}}]}
+        config = {
+            "controller_templates": [{"name": "JT1", "organization": {"name": "Org1"}}],
+            "controller_instance_groups": [{"name": "IG1", "pod_spec_override": {"kind": "Pod"}}],
+        }
         issues = validate(config)
         assert not any(i.severity is Severity.WARNING and "expected type" in i.message for i in issues)
 
