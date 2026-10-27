@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Quote survey and extra_data scalars/keys in job and workflow template exports so values with ``[``/``]`` remain valid YAML (https://github.com/redhat-cop/aap_configuration_extended/issues/420).
