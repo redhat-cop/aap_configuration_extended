@@ -52,7 +52,7 @@ class TestLoadYamlFile:
             ...
         """,
         )
-        data = load_yaml_file(p)
+        data, _dups = load_yaml_file(p)
         assert "controller_projects" in data
         assert data["controller_projects"][0]["name"] == "My Project"
 
@@ -68,7 +68,7 @@ class TestLoadYamlFile:
             ...
         """,
         )
-        data = load_yaml_file(p)
+        data, _dups = load_yaml_file(p)
         assert data["controller_credentials"][0]["inputs"]["password"] == "{{ vault_password }}"
 
     def test_unsafe_tag(self, tmp_yaml):
@@ -83,12 +83,12 @@ class TestLoadYamlFile:
             ...
         """,
         )
-        data = load_yaml_file(p)
+        data, _dups = load_yaml_file(p)
         assert data["controller_credentials"][0]["inputs"]["password"] == "s3cret{{"
 
     def test_empty_file(self, tmp_yaml):
         p = tmp_yaml("empty.yml", "---\n...\n")
-        data = load_yaml_file(p)
+        data, _dups = load_yaml_file(p)
         assert data == {}
 
     def test_bad_yaml(self, tmp_yaml):
@@ -110,7 +110,7 @@ class TestLoadYamlFile:
             ...
         """,
         )
-        data = load_yaml_file(p)
+        data, _dups = load_yaml_file(p)
         assert "ANSIBLE_VAULT" in data["controller_credentials"][0]["inputs"]["password"]
 
     def test_list_sources_tracked(self, tmp_yaml):
@@ -128,7 +128,7 @@ class TestLoadYamlFile:
               - name: P2
         """,
         )
-        config, errors, sources = load_paths([str(tmp_yaml.dir)])
+        config, errors, sources, _dupes = load_paths([str(tmp_yaml.dir)])
         assert not errors
         assert sources["controller_projects"][0].endswith("a.yml")
         assert sources["controller_projects"][1].endswith("b.yml")
@@ -154,7 +154,7 @@ class TestLoadYamlFile:
                   Y: 2
         """,
         )
-        config, errors, _sources = load_paths([str(tmp_yaml.dir)])
+        config, errors, _sources, _dupes = load_paths([str(tmp_yaml.dir)])
         assert not errors
         settings = config["controller_settings"]["settings"]
         assert settings["KEY_A"] == 1
@@ -178,7 +178,7 @@ class TestLoadYamlFile:
               abc
         """,
         )
-        config, errors, _sources = load_paths([str(tmp_yaml.dir)])
+        config, errors, _sources, _dupes = load_paths([str(tmp_yaml.dir)])
         assert not errors
         assert "controller_projects" in config
         assert "super_secret" not in config
@@ -197,7 +197,7 @@ class TestLoadYamlFile:
         """,
         )
         cfg = ValidatorConfig(exclude_dirs=["tests/fixtures"])
-        config, errors, _sources = load_paths([str(tmp_yaml.dir)], cfg=cfg)
+        config, errors, _sources, _dupes = load_paths([str(tmp_yaml.dir)], cfg=cfg)
         assert not errors
         assert len(config["controller_projects"]) == 1
 
@@ -217,7 +217,7 @@ class TestLoadYamlFile:
                 organization: Default
         """,
         )
-        config, errors, _sources = load_paths([str(tmp_yaml.dir)])
+        config, errors, _sources, _dupes = load_paths([str(tmp_yaml.dir)])
         assert not errors
         assert "controller_projects" in config
         assert "controller_inventories" in config
@@ -237,12 +237,45 @@ class TestLoadYamlFile:
               - name: P2
         """,
         )
-        config, errors, _sources = load_paths([str(tmp_yaml.dir)])
+        config, errors, _sources, _dupes = load_paths([str(tmp_yaml.dir)])
         assert not errors
         assert len(config["controller_projects"]) == 2
 
     def test_nonexistent_path(self):
-        config, errors, _sources = load_paths(["/nonexistent/path"])
+        config, errors, _sources, _dupes = load_paths(["/nonexistent/path"])
         assert config == {}
         assert len(errors) == 1
         assert "not found" in errors[0]
+
+    def test_same_file_duplicate_keys_detected(self, tmp_yaml):
+        p = tmp_yaml(
+            "dups.yml",
+            """\
+            controller_inventories_test:
+              - name: A
+                organization: Default
+            controller_inventories_test:
+              - name: B
+                organization: Default
+        """,
+        )
+        _data, dups = load_yaml_file(p)
+        assert "controller_inventories_test" in dups
+
+    def test_bracket_survey_yaml_parses(self, tmp_yaml):
+        """Quoted survey variable with [ ] must remain valid YAML (#420)."""
+        import yaml
+
+        content = textwrap.dedent("""\
+            controller_workflows:
+              - name: "[BUILD] Customer Collaboration"
+                survey_spec:
+                  name: ""
+                  spec:
+                    - question_name: "Build"
+                      variable: "[BUILD]_customer"
+                      type: "text"
+                  description: ""
+            """)
+        data = yaml.safe_load(content)
+        assert data["controller_workflows"][0]["survey_spec"]["spec"][0]["variable"] == "[BUILD]_customer"

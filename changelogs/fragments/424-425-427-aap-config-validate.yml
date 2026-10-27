@@ -1,0 +1,5 @@
+---
+bugfixes:
+  - aap-config-validate - Accept inline object ``roles`` as list or dict (https://github.com/redhat-cop/aap_configuration_extended/issues/424).
+  - aap-config-validate - Treat Jinja/lookup wildcard variable values as deferred instead of unexpected type warnings (https://github.com/redhat-cop/aap_configuration_extended/issues/425).
+  - aap-config-validate - Warn when the same wildcard variable key is defined in multiple files or duplicated in one file (https://github.com/redhat-cop/aap_configuration_extended/issues/427).
