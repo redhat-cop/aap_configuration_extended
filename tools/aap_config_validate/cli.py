@@ -12,7 +12,12 @@ from aap_config_validate.config import load_config
 from aap_config_validate.loader import load_paths
 from aap_config_validate.models import Issue, Severity
 from aap_config_validate.reporter import report_json, report_text
-from aap_config_validate.validators import config_has_wildcard_vars, merge_wildcard_vars, validate
+from aap_config_validate.validators import (
+    config_has_wildcard_vars,
+    is_wildcard_var,
+    merge_wildcard_vars,
+    validate,
+)
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -124,11 +129,23 @@ def main(argv: list[str] | None = None) -> None:
     wildcard_vars = _resolve_option(args.wildcard_vars, cfg.wildcard_vars, "auto")
     components = args.components or cfg.components or None
 
-    config, load_errors, sources = load_paths(args.paths, cfg=cfg)
+    config, load_errors, sources, same_file_dupes = load_paths(args.paths, cfg=cfg)
     issues: List[Issue] = []
 
     for err in load_errors:
         issues.append(Issue(severity=Severity.ERROR, path="<loader>", message=err))
+
+    # Same-file duplicate keys: only report for wildcard-suffixed vars (#427).
+    for dup_key, dup_path in same_file_dupes:
+        if is_wildcard_var(dup_key) is not None:
+            issues.append(
+                Issue(
+                    severity=Severity.WARNING,
+                    path=dup_path,
+                    message=f"wildcard var '{dup_key}' is defined more than once in the same file",
+                    source=dup_path,
+                )
+            )
 
     if config:
         do_wildcard = wildcard_vars == "always" or (

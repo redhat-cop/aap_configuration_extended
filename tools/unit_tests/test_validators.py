@@ -345,7 +345,7 @@ class TestRepoConfigs:
         roundtrip = repo_root / "tests" / "configs" / "roundtrip"
         if not roundtrip.is_dir():
             pytest.skip("roundtrip configs not present")
-        config, load_errors, sources = load_paths([str(roundtrip)])
+        config, load_errors, sources, _dupes = load_paths([str(roundtrip)])
         assert not load_errors
         merged, merge_issues = merge_wildcard_vars(config, sources=sources)
         issues = list(merge_issues) + validate(merged, sources=sources)
@@ -447,6 +447,46 @@ class TestWildcardAuto:
         assert merged["controller_templates"][0]["name"] == "JT1"
         assert "controller_templates_all" not in merged
 
+    def test_jinja_wildcard_value_skipped(self):
+        """Jinja string wildcard values must not warn as unexpected type (#425)."""
+        config = {
+            "aap_user_accounts_test": "{{ some_lookup_or_variable }}",
+        }
+        merged, issues = merge_wildcard_vars(config)
+        assert not any("unexpected type" in i.message for i in issues)
+        assert any("Jinja" in i.message for i in issues)
+        assert "aap_user_accounts_test" not in merged
+
+    def test_inline_roles_dict_accepted(self):
+        """Inline object roles dict form must not warn expected list (#424)."""
+        config = {
+            "controller_templates": [
+                {
+                    "name": "Example Job Template",
+                    "roles": {"execute": {"teams": ["example_test"]}},
+                }
+            ],
+        }
+        issues = validate(config)
+        assert not any("roles" in i.path and "expected type list" in i.message for i in issues)
+
+    def test_wildcard_multi_file_redefinition_warns(self):
+        """Same wildcard key in multiple files should warn (#427)."""
+        config = {
+            "controller_inventories_test": [{"name": "Inv1", "organization": "Default"}],
+        }
+        sources = {
+            "controller_inventories_test": ["a.yml", "a.yml", "b.yml", "b.yml"],
+        }
+        # Simulate concatenated list from two files (2 items each file → 4 paths).
+        config["controller_inventories_test"] = [
+            {"name": "Inv1", "organization": "Default"},
+            {"name": "Inv2", "organization": "Default"},
+        ]
+        sources["controller_inventories_test"] = ["a.yml", "b.yml"]
+        _merged, issues = merge_wildcard_vars(config, sources=sources)
+        assert any(i.severity is Severity.WARNING and "multiple files" in i.message for i in issues)
+
 
 class TestRealConfigs:
     """Smoke test: run validator against the repo's own test configs."""
@@ -463,7 +503,7 @@ class TestRealConfigs:
     def test_controller_configs_no_errors(self, repo_root):
         from aap_config_validate.loader import load_paths
 
-        config, load_errors, _sources = load_paths([str(repo_root / "tests" / "configs" / "controller")])
+        config, load_errors, _sources, _dupes = load_paths([str(repo_root / "tests" / "configs" / "controller")])
         assert not load_errors
         issues = validate(config)
         errors = [i for i in issues if i.severity is Severity.ERROR]
@@ -472,7 +512,7 @@ class TestRealConfigs:
     def test_gateway_configs_no_errors(self, repo_root):
         from aap_config_validate.loader import load_paths
 
-        config, load_errors, _sources = load_paths([str(repo_root / "tests" / "configs" / "gateway")])
+        config, load_errors, _sources, _dupes = load_paths([str(repo_root / "tests" / "configs" / "gateway")])
         assert not load_errors
         issues = validate(config)
         errors = [i for i in issues if i.severity is Severity.ERROR]
@@ -481,7 +521,7 @@ class TestRealConfigs:
     def test_eda_configs_no_errors(self, repo_root):
         from aap_config_validate.loader import load_paths
 
-        config, load_errors, _sources = load_paths([str(repo_root / "tests" / "configs" / "eda")])
+        config, load_errors, _sources, _dupes = load_paths([str(repo_root / "tests" / "configs" / "eda")])
         assert not load_errors
         issues = validate(config)
         errors = [i for i in issues if i.severity is Severity.ERROR]
@@ -490,7 +530,7 @@ class TestRealConfigs:
     def test_hub_configs_no_errors(self, repo_root):
         from aap_config_validate.loader import load_paths
 
-        config, load_errors, _sources = load_paths([str(repo_root / "tests" / "configs" / "hub")])
+        config, load_errors, _sources, _dupes = load_paths([str(repo_root / "tests" / "configs" / "hub")])
         issues = validate(config)
         errors = [i for i in issues if i.severity is Severity.ERROR]
         assert not errors, [f"{e.path}: {e.message}" for e in errors]
