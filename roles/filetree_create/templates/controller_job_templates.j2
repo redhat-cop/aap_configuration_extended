@@ -249,7 +249,12 @@ controller_templates:
 {%             set current_content = survey_item_content.key + ': "{%- raw -%}' + (survey_item_content.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') + '{%- endraw -%}"' %}
 {%           endif %}
 {%         elif survey_item_content.key is not match('choices') %}
-{%           set current_content = survey_item_content.key + ': ' + survey_item_content.value | string %}
+{%           if survey_item_content.value is number or survey_item_content.value is boolean %}
+{%             set current_content = survey_item_content.key + ': ' + survey_item_content.value | string | lower %}
+{%           else %}
+{# Quote scalars so values with [ ] or leading - remain valid YAML (#420) #}
+{%             set current_content = survey_item_content.key + ': "' + (survey_item_content.value | string | replace('\\', '\\\\') | replace('"', '\\"')) + '"' %}
+{%           endif %}
 {%         endif %}
 {%         if _var.first_survey_item %}
 {%           set _var.first_survey_item = false %}

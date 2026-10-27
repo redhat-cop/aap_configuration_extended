@@ -89,12 +89,12 @@ controller_workflows:
                                | default(node.extra_data) %}
 {%     for extra_data_item in (extra_data_contents | dict2items) if ((extra_data_item.value | string | length) > 0 and (extra_data_item.value | string) is not match('None')) %}
 {%       if extra_data_item.value | type_debug is match('list') %}
-          {{ extra_data_item.key }}:
+          {{ yamlval.render_scalar(extra_data_item.key) }}:
 {%         for current_list_item in extra_data_item.value if ((extra_data_item.value | string | length) > 0 and (extra_data_item.value | string) is not match('None')) %}
             - {{ yamlval.render_scalar(current_list_item) }}
 {%         endfor %}
 {%       else %}
-          {{ extra_data_item.key }}: {{ yamlval.render_scalar(extra_data_item.value) }}
+          {{ yamlval.render_scalar(extra_data_item.key) }}: {{ yamlval.render_scalar(extra_data_item.value) }}
 {%       endif %}
 {%     endfor %}
 {%   endif %}
@@ -260,7 +260,12 @@ controller_workflows:
 {%             set current_content = survey_item_content.key + ': "{%- raw -%}' + (survey_item_content.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') + '{%- endraw -%}"' %}
 {%           endif %}
 {%         elif survey_item_content.key is not match('choices') %}
-{%           set current_content = survey_item_content.key + ': ' + survey_item_content.value | string %}
+{%           if survey_item_content.value is number or survey_item_content.value is boolean %}
+{%             set current_content = survey_item_content.key + ': ' + survey_item_content.value | string | lower %}
+{%           else %}
+{# Quote scalars so values with [ ] or leading - remain valid YAML (#420) #}
+{%             set current_content = survey_item_content.key + ': "' + (survey_item_content.value | string | replace('\\', '\\\\') | replace('"', '\\"')) + '"' %}
+{%           endif %}
 {%         endif %}
 {%         if _var.first_survey_item %}
 {%           set _var.first_survey_item = false %}
