@@ -30,6 +30,19 @@ argument_specs:
         required: false
         type: bool
         description: Whether to create output files without objects id.
+      omit_instance_specific:
+        default: true
+        required: false
+        type: bool
+        description: When true, omit install/instance-specific controller settings such as LICENSE, INSTALL_UUID, and *_LAST_TS keys from CaC exports.
+      omit_instance_specific_keys:
+        default:
+          - LICENSE
+          - INSTALL_UUID
+        required: false
+        type: list
+        elements: str
+        description: Exact controller settings keys omitted when omit_instance_specific is true (in addition to keys matching *_LAST_TS).
       flatten_output:
         default: false
         required: false

@@ -124,6 +124,12 @@ env_fields_as_variables_map:
 
 organization: 'ORGANIZATIONLESS'
 
+# Omit install/instance-specific controller settings from CaC exports (LICENSE, UUIDs, *_LAST_TS).
+omit_instance_specific: true
+omit_instance_specific_keys:
+  - LICENSE
+  - INSTALL_UUID
+
 input_tag:
   - all
 valid_tags:
