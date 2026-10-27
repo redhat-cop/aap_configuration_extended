@@ -19,9 +19,7 @@ controller_schedules:
     unified_job_template: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].unified_job_template
                 | default(template_overrides_global.schedule.unified_job_template)
                 | default(current_schedules_asset_value.summary_fields.unified_job_template.name) }}"
-    unified_job_type: "{{ template_overrides_resources.schedule[current_schedules_asset_value.name].unified_job_type
-                | default(template_overrides_global.schedule.unified_job_type)
-                | default(current_schedules_asset_value.summary_fields.unified_job_template.unified_job_type) }}"
+{# unified_job_type is API-only (template kind); do not emit — consumers use job_type for launch override #}
 {% if template_overrides_resources.schedule[current_schedules_asset_value.name].organization is defined
       or template_overrides_global.schedule.organization is defined
       or current_schedules_asset_value.summary_fields.organization is defined
