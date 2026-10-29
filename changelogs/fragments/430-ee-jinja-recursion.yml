@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Remove self-referential task var for ``referenced_global_ee_names`` that caused ``Recursive loop detected in template`` when exporting execution environments (https://github.com/redhat-cop/aap_configuration_extended/issues/430).

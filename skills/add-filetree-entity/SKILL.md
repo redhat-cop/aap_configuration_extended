@@ -49,6 +49,7 @@ Confirm the **CaC variable** in `infra.aap_configuration` (e.g. `controller_inst
 
 #### API / CaC pitfalls
 
+- **No self-referential task vars (mandatory):** Never write `vars: { foo: "{{ foo | default([]) }}" }` on a task. That triggers `Recursive loop detected in template` ([issue #430](https://github.com/redhat-cop/aap_configuration_extended/issues/430)). Default in the Jinja template, or `set_fact` earlier, or use a **different** RHS name. See [ansible-jinja-no-self-ref/SKILL.md](../ansible-jinja-no-self-ref/SKILL.md); guard test: `tests/unit/test_no_jinja_self_ref_task_vars.py`.
 - **Names, never IDs (mandatory):** CaC identifies objects by **name**. In templates, related objects must use `summary_fields.*.name` (or equivalent name fields). Do **not** emit `id`, `*_id`, or `*_ids` into generated YAML. User-facing filters and examples must use `*_name` / `organization_filter` / `label_filter`, not numeric IDs. Prefer `omit_id: true` for output filenames.
 - **Peers** on instances: API returns `receptor_addresses` IDs. Query `api/controller/v2/receptor_addresses/`, map `id` → `summary_fields.instance.hostname` or `address`; export hostnames for `ansible.controller.instance`.
 - **Instances CaC fields**: at the top of `controller_instances.j2` define `__exportable_node_types` (`execution`, `hop`) and `__exportable_node_states` (`installed`, `deprovisioning`). Loop only over instances whose `node_type` is importable; do not export control/hybrid/controller nodes. Use `__empty_values` on optional scalars.

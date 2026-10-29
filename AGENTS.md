@@ -4,6 +4,8 @@ When adding or changing **filetree_create** / **filetree_read** object support, 
 
 For Job Template or Workflow Job Template PRE→PRO migration (related export + env variables stub), follow [skills/export-jt-related-pre-pro/SKILL.md](skills/export-jt-related-pre-pro/SKILL.md).
 
+**Never** write self-referential Jinja under task `vars:` (`key: "{{ key | default([]) }}"`) — it causes recursive template loops ([issue #430](https://github.com/redhat-cop/aap_configuration_extended/issues/430)). Follow [skills/ansible-jinja-no-self-ref/SKILL.md](skills/ansible-jinja-no-self-ref/SKILL.md) and run `python -m unittest tests.unit.test_no_jinja_self_ref_task_vars -v`.
+
 Collection conventions: [.cursor/rules/aap_configuration_extended-general.mdc](.cursor/rules/aap_configuration_extended-general.mdc).
 
 Test and example playbooks: use `ansible.platform.token` for OAuth; see the **Test playbooks — authentication** section in the skill above (no `__aap_*` staging vars; single `when` for token creation).
