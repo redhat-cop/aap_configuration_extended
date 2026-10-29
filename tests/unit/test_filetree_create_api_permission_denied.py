@@ -26,10 +26,12 @@ _DEFAULTS = os.path.abspath(
 
 _PERMISSION_DENIED_SAMPLES = [
     "You don't have permission to GET (HTTP 403).",
+    "You do not have permission to perform this action.",
     "403 Client Error: Forbidden for url: https://aap.example/apps/",
     "Status code was not [200]: HTTP Error 403: Forbidden",
     "Authentication failed: HTTP 403",
     "Forbidden",
+    "Permission denied",
 ]
 
 _OTHER_FAILURE_SAMPLES = [

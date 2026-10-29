@@ -13,6 +13,11 @@
           order_by: 'organization,id'
       # no_log: "{{ gateway_configuration_filetree_create_secure_logging }}"
   rescue:
+    - name: "Capture Gateway Applications API failure context"
+      ansible.builtin.set_fact:
+        __ftc_failed_msg: "{{ ansible_failed_result.msg | default(ansible_failed_result | string) }}"
+        __ftc_failed_status: "{{ ansible_failed_result.status | default(0) }}"
+
     - name: "Handle Gateway Applications API failure"
       ansible.builtin.include_tasks: rescue_api_permission_denied.yml
       vars:

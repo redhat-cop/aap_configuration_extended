@@ -79,7 +79,7 @@ flatten_output: false
 
 # Detect API permission denials (HTTP 403) in lookup/module failure messages so
 # soft-skip rescues do not swallow auth, connectivity, or server errors.
-filetree_create_api_permission_denied_regex: '(?i)HTTP\s*403|403\s+Client\s+Error|\bForbidden\b|don.?t have permission'
+filetree_create_api_permission_denied_regex: '(?i)HTTP\s*403|403\s+Client\s+Error|\bForbidden\b|don.?t have permission|do not have permission|permission denied|permission to perform'
 
 # Export defaults for controller settings omitted from settings/changed/ or filtered as
 # empty. Keys defined here are always exported (see controller_settings.j2).

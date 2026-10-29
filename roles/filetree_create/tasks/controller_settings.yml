@@ -23,6 +23,11 @@
         dest: "{{ output_path }}/controller_settings.yaml"
         mode: '0644'
   rescue:
+    - name: "Capture Controller Settings API failure context"
+      ansible.builtin.set_fact:
+        __ftc_failed_msg: "{{ ansible_failed_result.msg | default(ansible_failed_result | string) }}"
+        __ftc_failed_status: "{{ ansible_failed_result.status | default(0) }}"
+
     - name: "Handle Controller Settings API failure"
       ansible.builtin.include_tasks: rescue_api_permission_denied.yml
       vars:
