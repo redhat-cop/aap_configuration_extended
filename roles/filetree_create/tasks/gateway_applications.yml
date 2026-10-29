@@ -1,15 +1,36 @@
 ---
 - name: "Get current Applications from the API"
-  ansible.builtin.set_fact:
-    applications_lookvar: "{{ query('ansible.platform.gateway_api', 'api/gateway/v1/applications/',
-                                    query_params=(query_params | combine({'organization': gateway_organization_id})) if gateway_organization_id is defined else query_params,
-                                    host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
-                                    return_all=true, max_objects=query_gateway_api_max_objects)
-                           }}"
-  vars:
-    query_params:
-      order_by: 'organization,id'
-  # no_log: "{{ gateway_configuration_filetree_create_secure_logging }}"
+  block:
+    - name: "Query Gateway Applications"
+      ansible.builtin.set_fact:
+        applications_lookvar: "{{ query('ansible.platform.gateway_api', 'api/gateway/v1/applications/',
+                                        query_params=(query_params | combine({'organization': gateway_organization_id})) if gateway_organization_id is defined else query_params,
+                                        host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+                                        return_all=true, max_objects=query_gateway_api_max_objects)
+                               }}"
+      vars:
+        query_params:
+          order_by: 'organization,id'
+      # no_log: "{{ gateway_configuration_filetree_create_secure_logging }}"
+  rescue:
+    - name: "Capture Gateway Applications API failure context"
+      ansible.builtin.set_fact:
+        __ftc_failed_msg: "{{ ansible_failed_result.msg | default(ansible_failed_result | string) }}"
+        __ftc_failed_status: "{{ ansible_failed_result.status | default(0) }}"
+
+    - name: "Handle Gateway Applications API failure"
+      ansible.builtin.include_tasks: rescue_api_permission_denied.yml
+      vars:
+        __ftc_soft_skip_name: gateway_applications
+        __ftc_soft_skip_endpoint: api/gateway/v1/applications/
+        __ftc_soft_skip_hint: >-
+          Organization Admins may lack applications API access; continue without
+          applications. Other query failures (auth, connectivity, server errors)
+          are not skipped.
+
+    - name: "Set empty applications list after API denial"
+      ansible.builtin.set_fact:
+        applications_lookvar: []
 
 - name: "Block for to generate flatten output"
   when:
@@ -38,6 +59,7 @@
         label: "{{ __dest }}"
 
     - name: "Remove all the blank lines introduced by the last task"
+      when: (applications_lookvar | default([]) | length) > 0
       ansible.builtin.lineinfile:
         path: "{{ __dest }}"
         line: ''

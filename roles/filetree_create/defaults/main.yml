@@ -77,6 +77,10 @@ secrets_as_variables_prefix: "vaulted"
 show_encrypted: false
 flatten_output: false
 
+# Detect API permission denials (HTTP 403) in lookup/module failure messages so
+# soft-skip rescues do not swallow auth, connectivity, or server errors.
+filetree_create_api_permission_denied_regex: '(?i)HTTP\s*403|403\s+Client\s+Error|\bForbidden\b|don.?t have permission|do not have permission|permission denied|permission to perform'
+
 # Export defaults for controller settings omitted from settings/changed/ or filtered as
 # empty. Keys defined here are always exported (see controller_settings.j2).
 template_overrides_global:
@@ -129,6 +133,43 @@ omit_instance_specific: true
 omit_instance_specific_keys:
   - LICENSE
   - INSTALL_UUID
+
+# Platform-wide object tags skipped automatically when organization_filter is set.
+# gateway_users is intentionally omitted: org-scoped export still writes org members.
+filetree_create_platform_global_tags:
+  - controller_settings
+  - controller_instances
+  - controller_credential_types
+  - gateway_settings
+  - gateway_authenticators
+  - gateway_authenticator_maps
+  - gateway_http_ports
+  - gateway_routes
+  - gateway_service_clusters
+  - gateway_service_keys
+  - gateway_service_nodes
+  - gateway_services
+  - hub
+  - hub_namespaces
+  - hub_collections
+  - hub_collection_remotes
+  - hub_collection_repositories
+  - hub_ee_registries
+  - hub_ee_repositories
+  - hub_ee_images
+
+# Tags that require a Gateway/Controller superuser; skipped for org-admins with a warning.
+filetree_create_superadmin_only_tags:
+  - controller_settings
+  - controller_instances
+  - gateway_settings
+  - gateway_authenticators
+  - gateway_http_ports
+  - gateway_routes
+  - gateway_service_clusters
+  - gateway_service_keys
+  - gateway_service_nodes
+  - gateway_services
 
 input_tag:
   - all

@@ -43,6 +43,10 @@ argument_specs:
         type: list
         elements: str
         description: Exact controller settings keys omitted when omit_instance_specific is true (in addition to keys matching *_LAST_TS).
+      organization_filter:
+        required: false
+        type: str
+        description: Export only objects belonging to this organization name. When set, platform-global object types (settings, credential types, gateway infra/auth maps, hub, instances) are skipped while organization member users are still exported. Organization Admins cannot export superuser-only resources; applications/settings API denials soft-skip only on HTTP 403 / permission denied (other failures still fail the export).
       flatten_output:
         default: false
         required: false

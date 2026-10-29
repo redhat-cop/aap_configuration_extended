@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - filetree_create - When ``organization_filter`` is set, skip platform-global exports (settings, credential types, gateway infra/auth maps, hub, instances), export organization member users only, omit platform-global role assignments (for example Platform Auditor), and soft-skip applications/settings API denials only on HTTP 403 / permission denied (other query failures still fail the export) for Organization Admins (https://github.com/redhat-cop/aap_configuration_extended/issues/403).
+  - filetree_create - Gateway user export tolerates API user objects missing ``authenticators`` / ``authenticator_uid`` (Organization Admin org-member listings) and uses ``username`` consistently for overrides (https://github.com/redhat-cop/aap_configuration_extended/issues/403).
