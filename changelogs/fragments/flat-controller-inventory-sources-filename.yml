@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Name flattened Controller inventory source exports ``controller_inventory_sources.yaml``.
