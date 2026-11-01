@@ -1,3 +1,0 @@
----
-bugfixes:
-  - filetree_create - Export Hub collection remote requirements as a CaC ``requirements`` list instead of a sibling ``collections`` field.
