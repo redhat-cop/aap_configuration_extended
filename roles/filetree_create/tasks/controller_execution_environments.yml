@@ -90,5 +90,8 @@
     current_execution_environments_asset_value: "{{ execution_environments_lookvar }}"
     # Task already scoped/merged the lookvar; always render those rows.
     include_all_lookvar_ees: true
-    referenced_global_ee_names: "{{ referenced_global_ee_names | default([]) }}"
+    # Do not pass referenced_global_ee_names via task vars as
+    # "{{ referenced_global_ee_names | default([]) }}" — that self-reference
+    # causes "Recursive loop detected in template". The Jinja template already
+    # defaults the fact with | default([]) when the org-filter block did not run.
 ...

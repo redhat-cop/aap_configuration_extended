@@ -14,16 +14,21 @@ hub_collection_remotes: {{ [] if current_hub_collection_remotes_asset_value | le
 {% for current_collection_remote in current_hub_collection_remotes_asset_value %}
 {%   set ns = namespace(first=true) %}
 {%   for __map_item in (current_collection_remote | dict2items) if __map_item.key not in __excluded_fields %}
+{%     set __field_key = __map_item.key %}
 {%     set __field_value = __map_item.value %}
-{%     if __map_item.key == 'requirements_file' and __field_value is string and __field_value | length > 0 %}
+{%     if __field_key == 'requirements_file' and __field_value is string and __field_value | length > 0 %}
 {%       set __field_value = __field_value | from_yaml %}
 {%     endif %}
-{%     if exportval.should_export_field(__map_item.key, __field_value, __field_defaults) | trim == 'true' %}
+{%     if __field_key == 'requirements_file' and __field_value is mapping and __field_value | length == 1 and 'collections' in __field_value %}
+{%       set __field_key = 'requirements' %}
+{%       set __field_value = __field_value.collections %}
+{%     endif %}
+{%     if exportval.should_export_field(__field_key, __field_value, __field_defaults) | trim == 'true' %}
 {%       if ns.first %}
-  - {{ export.render(__map_item.key, __field_value, indent=0, first=true, field_defaults=__field_defaults) }}
+  - {{ export.render(__field_key, __field_value, indent=0, first=true, field_defaults=__field_defaults) | indent(width=4, first=false) }}
 {%         set ns.first = false %}
 {%       else %}
-    {{ export.render(__map_item.key, __field_value, indent=0, first=true, field_defaults=__field_defaults) }}
+    {{ export.render(__field_key, __field_value, indent=0, first=true, field_defaults=__field_defaults) | indent(width=4, first=false) }}
 {%       endif %}
 {%     endif %}
 {%   endfor %}

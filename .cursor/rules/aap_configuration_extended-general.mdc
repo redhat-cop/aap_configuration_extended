@@ -18,7 +18,14 @@ alwaysApply: true
 - Pair **filetree_create** (API → YAML) with **filetree_read** (YAML → vars → `infra.aap_configuration.dispatch`).
 - Use FQCN `infra.aap_configuration_extended.*` and prefixes `controller_*`, `gateway_*`, `hub_*`, `eda_*`.
 
+## Jinja / Ansible task vars
+
+- **Never** self-referential defaults under task `vars:`:
+  `foo: "{{ foo | default([]) }}"` → recursive loop ([issue #430](https://github.com/redhat-cop/aap_configuration_extended/issues/430)).
+- Default in the template, `set_fact` first, or rename the RHS. Skill: [skills/ansible-jinja-no-self-ref/SKILL.md](../../skills/ansible-jinja-no-self-ref/SKILL.md).
+
 ## Skills
 
 - New filetree entities: [skills/add-filetree-entity/SKILL.md](../../skills/add-filetree-entity/SKILL.md)
+- No Jinja self-ref in task vars: [skills/ansible-jinja-no-self-ref/SKILL.md](../../skills/ansible-jinja-no-self-ref/SKILL.md)
 - Full roundtrip tests: [.cursor/skills/filetree-roundtrip-test/SKILL.md](../skills/filetree-roundtrip-test/SKILL.md)
