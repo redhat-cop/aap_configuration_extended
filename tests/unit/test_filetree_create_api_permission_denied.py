@@ -32,6 +32,7 @@ _PERMISSION_DENIED_SAMPLES = [
     "Authentication failed: HTTP 403",
     "Forbidden",
     "Permission denied",
+    "gateway_api lookup: API request failed for 'api/gateway/v1/applications/': " "'PlatformError' object has no attribute 'retryable'",
 ]
 
 _OTHER_FAILURE_SAMPLES = [

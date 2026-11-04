@@ -149,7 +149,9 @@
       when: "'gateway_role_definitions' in input_tag or 'gateway' in input_tag or 'all' in input_tag"
     - name: "Export Gateway Applications"
       ansible.builtin.include_tasks: "gateway_applications.yml"
-      when: "'gateway_applications' in input_tag or 'gateway' in input_tag or 'all' in input_tag"
+      when:
+        - "'gateway_applications' in input_tag or 'gateway' in input_tag or 'all' in input_tag"
+        - "'gateway_applications' not in (__filetree_create_skipped_tags | default([]))"
     - name: "Export Gateway Authentication Maps"
       ansible.builtin.include_tasks: "gateway_authenticator_maps.yml"
       when:

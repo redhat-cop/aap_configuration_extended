@@ -79,7 +79,7 @@ flatten_output: false
 
 # Detect API permission denials (HTTP 403) in lookup/module failure messages so
 # soft-skip rescues do not swallow auth, connectivity, or server errors.
-filetree_create_api_permission_denied_regex: '(?i)HTTP\s*403|403\s+Client\s+Error|\bForbidden\b|don.?t have permission|do not have permission|permission denied|permission to perform'
+filetree_create_api_permission_denied_regex: '(?i)HTTP\s*403|403\s+Client\s+Error|\bForbidden\b|don.?t have permission|do not have permission|permission denied|permission to perform|PlatformError.+retryable|has no attribute .retryable.'
 
 # Export defaults for controller settings omitted from settings/changed/ or filtered as
 # empty. Keys defined here are always exported (see controller_settings.j2).
@@ -159,10 +159,15 @@ filetree_create_platform_global_tags:
   - hub_ee_images
 
 # Tags that require a Gateway/Controller superuser; skipped for org-admins with a warning.
+# gateway_applications: AAP 2.5+ platform gateway OAuth application access rules list
+# only Platform administrators (manipulate) and Platform auditors (view). Organization
+# Admins are not included (unlike Controller 2.4). See:
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html/access_management_and_authentication/gw-token-based-authentication
 filetree_create_superadmin_only_tags:
   - controller_settings
   - controller_instances
   - gateway_settings
+  - gateway_applications
   - gateway_authenticators
   - gateway_http_ports
   - gateway_routes
