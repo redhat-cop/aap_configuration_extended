@@ -92,7 +92,8 @@
 {%   set target.global_role = true %}
 {% else %}
 {%   if ct.value not in routes %}
-{{ undef(hint='Unsupported role content_type for assignment ' ~ (assignment.id | default('unknown')) ~ ': ' ~ (ct.value | default('none'))) | mandatory }}
+{# {{ undef(hint='Unsupported role content_type for assignment ' ~ (assignment.id | default('unknown')) ~ ': ' ~ (ct.value | default('none'))) | mandatory }} #}
+{{ undef() | mandatory(msg='Unsupported role content_type for assignment ' ~ (assignment.id | default('unknown')) ~ ': ' ~ (ct.value | default('none'))) }}
 {%   endif %}
 {%   set target.type = routes[ct.value][0] %}
 {%   set target.endpoint = routes[ct.value][1] %}
@@ -105,13 +106,33 @@
 {# Numeric names can be real names: do not reject them solely for being numeric.
    When object_id is present, verify identity through the correct endpoint. #}
 {%   if object_id not in [none, ''] %}
+
+{#
+{%     set objects = query('ansible.platform.gateway_api', target.endpoint,
+         query_params={'id': object_id}, host=aap_hostname,
+         oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
+         return_all=true, max_objects=query_controller_api_max_objects) %}
+{%     if objects | length != 1 or objects[0].name is not defined %} #}
+
+
 {%     set objects = query('ansible.platform.gateway_api', target.endpoint,
          query_params={'id': object_id}, host=aap_hostname,
          oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
          return_all=true, max_objects=query_controller_api_max_objects) %}
 {%     if objects | length != 1 or objects[0].name is not defined %}
-{{ undef(hint='Cannot resolve target for assignment ' ~ (assignment.id | default('unknown')) ~ ' at ' ~ target.endpoint) | mandatory }}
+{%       set objects = query('ansible.platform.gateway_api', target.endpoint ~ (object_id | string) ~ '/',
+           host=aap_hostname, oauth_token=__filetree_create_oauth_token,
+           verify_ssl=aap_validate_certs, return_all=true,
+           max_objects=query_controller_api_max_objects) %}
 {%     endif %}
+{%     if objects | length != 1 or objects[0].name is not defined %}
+{{ undef() | mandatory(msg='Cannot resolve target for assignment ' ~ (assignment.id | default('unknown')) ~ ' at ' ~ target.endpoint) }}
+{%     endif %}
+
+{# {{ undef(hint='Cannot resolve target for assignment ' ~ (assignment.id | default('unknown')) ~ ' at ' ~ target.endpoint) | mandatory }} #}
+{# {{ undef() | mandatory(msg='Cannot resolve target for assignment ' ~ (assignment.id | default('unknown')) ~ ' at ' ~ target.endpoint) }} #}
+{# {%     endif %} #}
+
 {%     set target.name = objects[0].name %}
 {%     set org = objects[0].summary_fields.organization | default({}, true) %}
 {%     set target.organization = org.name | default(none, true) %}
