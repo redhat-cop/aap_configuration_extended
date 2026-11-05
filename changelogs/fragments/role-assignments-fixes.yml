@@ -1,6 +1,6 @@
 ---
 bugfixes:
-  - roles/filetree_create/templates/gateway_role_user_assignments.j2 lines 4–8. The loop now also skips assignments whose content_type matches ^galaxy\..(container.containernamespace_collaborator and container.containernamespace_consumer).
-  - roles/filetree_create/templates/gateway_role_team_assignments.j2 lines 4–8. The same content-type skip.
-  - roles/filetree_create/templates/macros/assignment_target.j2 lines 108–120. The existing ?id= list query stays. If that result is not exactly one object with a name, the macro queries target.endpoint plus the object id (api/eda/v1/activations/2/) before failing.
+  - roles/filetree_create/templates/gateway_role_user_assignments.j2 only skipped role names that start with 'galaxy.'. Hub also creates roles named container.* on content type galaxy.containernamespace, and those were still exported. The loop now skips any assignment whose content type starts with galaxy., so those Hub roles are left out instead of stopping the export.
+  - roles/filetree_create/templates/gateway_role_team_assignments.j2 had the same narrow skip for team assignments. A team role on galaxy.containernamespace reached the resolver and failed. The loop now skips those assignments by content type, the same way the user-assignment template does.
+  - roles/filetree_create/templates/macros/assignment_target.j2 looked up each target with a list call such as /api/eda/v1/activations/?id=2 and continued only when that call returned exactly one object with a name. If the list result is not one named object, the macro now requests the object directly by id and uses that name.
 ...
