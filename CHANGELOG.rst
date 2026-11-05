@@ -4,6 +4,34 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v4.13.0
+=======
+
+Minor Changes
+-------------
+
+- filetree_create - Add ``omit_instance_specific`` (default ``true``) to drop ``LICENSE``, ``INSTALL_UUID``, and ``*_LAST_TS`` keys from exported controller settings (https://github.com/redhat-cop/aap_configuration_extended/issues/341).
+
+Bugfixes
+--------
+
+- aap-config-validate - Accept inline object ``roles`` as list or dict (https://github.com/redhat-cop/aap_configuration_extended/issues/424).
+- aap-config-validate - Accept the ``hub_publish`` role variables (``hub_auto_approve``, ``hub_overwrite_existing``, ``hub_skip_existing_collections``, ``hub_repository``) and a structured ``pod_spec_override`` on instance groups (https://github.com/redhat-cop/aap_configuration_extended/issues/423).
+- aap-config-validate - Treat Jinja/lookup wildcard variable values as deferred instead of unexpected type warnings (https://github.com/redhat-cop/aap_configuration_extended/issues/425).
+- aap-config-validate - Warn when the same wildcard variable key is defined in multiple files or duplicated in one file (https://github.com/redhat-cop/aap_configuration_extended/issues/427).
+- controller_object_diff - Identify execution environments by name and organization only so an image change is reported as present, not present+absent (https://github.com/redhat-cop/aap_configuration_extended/issues/421).
+- filetree_create - Export Hub collection remote requirements as a CaC ``requirements`` list instead of a sibling ``collections`` field.
+- filetree_create - Export Hub collection repository ``remote`` as the linked Pulp remote name by following the distribution repository relation (https://github.com/redhat-cop/aap_configuration_extended/issues/409).
+- filetree_create - Name flattened Controller inventory source exports ``controller_inventory_sources.yaml``.
+- filetree_create - Omit non-applicable ``policy_instance_*`` / ``instances`` fields for container instance groups and export ``pod_spec_override`` as structured YAML (https://github.com/redhat-cop/aap_configuration_extended/issues/404).
+- filetree_create - Omit the ``organization`` field for organization-less credentials instead of writing ``ORGANIZATIONLESS`` (https://github.com/redhat-cop/aap_configuration_extended/issues/405).
+- filetree_create - Quote survey and extra_data scalars/keys in job and workflow template exports so values with ``[``/``]`` remain valid YAML (https://github.com/redhat-cop/aap_configuration_extended/issues/420).
+- filetree_create - Remove self-referential task var for ``referenced_global_ee_names`` that caused ``Recursive loop detected in template`` when exporting execution environments (https://github.com/redhat-cop/aap_configuration_extended/issues/430).
+- filetree_create - Resolve Gateway role team/user assignment Controller targets via portable names (including ``content_object``), fail loudly when a name cannot be resolved, and omit ansible/UUID identifiers from CaC YAML (https://github.com/redhat-cop/aap_configuration_extended/issues/408).
+- filetree_create - Resolve separate Gateway and Controller organization IDs for ``organization_filter`` so Controller queries do not use Gateway numeric IDs (https://github.com/redhat-cop/aap_configuration_extended/issues/382).
+- filetree_create - Stop exporting ``unified_job_type`` on controller schedules; keep it only for internal inventory-omit logic (https://github.com/redhat-cop/aap_configuration_extended/issues/422).
+- filetree_create - When ``organization_filter`` is set, still export global execution environments referenced by Job Templates in that organization; treat an empty filter as unset (https://github.com/redhat-cop/aap_configuration_extended/issues/399).
+
 v4.12.1
 =======
 
