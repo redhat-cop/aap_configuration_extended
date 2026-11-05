@@ -1,0 +1,6 @@
+---
+bugfixes:
+  - roles/filetree_create/templates/gateway_role_user_assignments.j2 lines 4–8. The loop now also skips assignments whose content_type matches ^galaxy\..(container.containernamespace_collaborator and container.containernamespace_consumer).
+  - roles/filetree_create/templates/gateway_role_team_assignments.j2 lines 4–8. The same content-type skip.
+  - roles/filetree_create/templates/macros/assignment_target.j2 lines 108–120. The existing ?id= list query stays. If that result is not exactly one object with a name, the macro queries target.endpoint plus the object id (api/eda/v1/activations/2/) before failing.
+...
