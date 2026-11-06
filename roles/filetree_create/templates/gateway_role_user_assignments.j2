@@ -4,7 +4,7 @@
 {% for current_role_user_assignment in current_gateway_role_user_assignments_asset_value
        if not (
          (current_role_user_assignment.summary_fields.role_definition.name | default('')) is match('^galaxy\\.')
-         or (current_role_user_assignment.content_type | default('')) is match('^galaxy\\.')
+         or (current_role_user_assignment.summary_fields.role_definition.content_type | default(current_role_user_assignment.content_type, true) | default('')) is match('^galaxy\\.')
        ) %}
 {%   set _override = template_overrides_resources.gateway_role_user_assignment[current_role_user_assignment.object_id] | default({}) %}
 {%   set _sf = current_role_user_assignment.summary_fields | default({}) %}
