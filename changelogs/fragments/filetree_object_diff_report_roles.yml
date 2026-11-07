@@ -1,0 +1,19 @@
+---
+minor_changes:
+  - >-
+    filetree_object_diff / filetree_cac_diff - Emit a detailed from/to field report
+    (``_filetree_object_diff_report.yaml`` and ``filetree_object_diff_report``) while
+    keeping apply YAML dispatch-ready with ``state: present|absent`` only.
+  - >-
+    filetree_object_diff - Skip managed Gateway role definitions and ``galaxy.*``
+    assignments during compare (``filetree_object_diff_skip_system_roles``, default true).
+  - >-
+    filetree_create - Export Controller user roles from the Gateway users path when
+    roles tags are selected; ``controller_roles`` create tags also pull teams/users.
+  - >-
+    filetree_object_diff - Synchronize Gateway RBAC assignments (live-only →
+    ``state: absent``) so repository CaC can remove orphan role assignments.
+  - >-
+    filetree_object_diff integration test - Preserve pre-apply reports and force
+    shared-host field drift so create/update/delete report actions are covered.
+...

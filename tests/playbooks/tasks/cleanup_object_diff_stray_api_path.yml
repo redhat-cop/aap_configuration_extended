@@ -1,0 +1,34 @@
+---
+- name: Query objects for stray cleanup | {{ od_cleanup_api_path }}
+  ansible.builtin.set_fact:
+    __od_cleanup_objects: >-
+      {{
+        query(
+          'ansible.platform.gateway_api',
+          od_cleanup_api_path,
+          host=aap_hostname,
+          oauth_token=aap_oauthtoken,
+          verify_ssl=aap_validate_certs,
+          return_all=true,
+          max_objects=10000
+        )
+      }}
+
+- name: Delete Object Diff objects outside test org | {{ od_cleanup_api_path }}
+  ansible.builtin.uri:
+    url: "https://{{ aap_hostname }}/{{ od_cleanup_api_path | regex_replace('/$', '') }}/{{ stray.id }}/"
+    method: DELETE
+    headers:
+      Authorization: "Bearer {{ aap_oauthtoken }}"
+    validate_certs: "{{ aap_validate_certs }}"
+    status_code: [202, 204, 404]
+  loop: "{{ __od_cleanup_objects }}"
+  loop_control:
+    loop_var: stray
+    label: "{{ stray[od_cleanup_name_attr] | default(stray.id) }}"
+  when:
+    - stray[od_cleanup_name_attr] is defined
+    - stray[od_cleanup_name_attr] is match('^' + object_diff_name_prefix)
+    - stray.summary_fields.organization is defined
+    - stray.summary_fields.organization.name != object_diff_test_org
+...

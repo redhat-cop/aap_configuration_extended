@@ -148,6 +148,7 @@ valid_tags:
   - controller_organizations
   - controller_projects
   - controller_roles
+  - roles
   - controller_teams
   - controller_users
   - controller_workflow_job_templates

@@ -1,0 +1,19 @@
+---
+- name: CaC-only present | {{ __object_label }}
+  ansible.builtin.assert:
+    that:
+      - (__diff | selectattr(__id_field, 'equalto', __cac_only_name) | list | length) == 1
+      - (__diff | selectattr(__id_field, 'equalto', __cac_only_name) | first).state == 'present'
+      - __cac_extra_field is not defined or (__diff | selectattr(__id_field, 'equalto', __cac_only_name) | first)[__cac_extra_field] == __cac_extra_value
+
+- name: Live-only absent | {{ __object_label }}
+  ansible.builtin.assert:
+    that:
+      - (__diff | selectattr(__id_field, 'equalto', __orphan_name) | list | length) == 1
+      - (__diff | selectattr(__id_field, 'equalto', __orphan_name) | first).state == 'absent'
+
+- name: Shared omitted from delta | {{ __object_label }}
+  ansible.builtin.assert:
+    that:
+      - __diff | selectattr(__id_field, 'equalto', __shared_name) | list | length == 0
+...

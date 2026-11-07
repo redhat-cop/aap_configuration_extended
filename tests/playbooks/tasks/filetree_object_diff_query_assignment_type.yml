@@ -1,0 +1,57 @@
+---
+# Query Gateway role_*_assignments and derive composite IDs:
+#   role_definition|user_or_team|object_name
+- name: Query Gateway assignment API | {{ od_type.label }}
+  ansible.builtin.set_fact:
+    __od_api_objects: >-
+      {{
+        query(
+          'ansible.platform.gateway_api',
+          od_type.api_path,
+          host=aap_hostname,
+          oauth_token=aap_oauthtoken,
+          verify_ssl=aap_validate_certs,
+          return_all=true,
+          max_objects=10000
+        )
+      }}
+
+- name: Reset assignment identifier list | {{ od_type.label }}
+  ansible.builtin.set_fact:
+    __od_api_ids: []
+
+- name: Build composite assignment identifiers | {{ od_type.label }}
+  ansible.builtin.set_fact:
+    __od_api_ids: "{{ __od_api_ids + [__od_composite_id] }}"
+  vars:
+    __od_role: "{{ assignment_candidate.summary_fields.role_definition.name | default('') }}"
+    __od_principal: >-
+      {{
+        assignment_candidate.summary_fields.user.username
+        | default(assignment_candidate.summary_fields.team.name | default(''))
+      }}
+    __od_object_name: >-
+      {{
+        assignment_candidate.summary_fields.resource.name
+        | default(
+          assignment_candidate.summary_fields.object.name
+          | default(
+            assignment_candidate.summary_fields.content_object.name
+            | default('')
+          )
+        )
+      }}
+    __od_composite_id: "{{ __od_role }}|{{ __od_principal }}|{{ __od_object_name }}"
+  loop: "{{ __od_api_objects }}"
+  loop_control:
+    loop_var: assignment_candidate
+    label: "{{ __od_composite_id }}"
+  when:
+    - __od_role | length > 0
+    - __od_principal | length > 0
+
+- name: Store captured API identifiers | {{ od_type.label }}
+  ansible.builtin.set_fact:
+    __od_api_before: "{{ __od_api_before | default({}) | combine({od_type.label: __od_api_ids}) }}"
+  when: od_capture | default(false)
+...

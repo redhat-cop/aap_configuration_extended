@@ -1,0 +1,46 @@
+---
+- name: List Gateway role definitions for object_diff RBAC tests
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../vars/aap_connection.yml
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  pre_tasks:
+    - name: Setup authentication
+      ansible.builtin.include_tasks: tasks/aap_oauth.yml
+      vars:
+        aap_oauth_action: setup
+  tasks:
+    - name: Query role definitions
+      ansible.builtin.set_fact:
+        __role_defs: >-
+          {{
+            query(
+              'ansible.platform.gateway_api',
+              'api/gateway/v1/role_definitions/',
+              host=aap_hostname,
+              oauth_token=aap_oauthtoken,
+              verify_ssl=aap_validate_certs,
+              return_all=true,
+              max_objects=10000
+            )
+          }}
+
+    - name: Show Project/Inventory/Organization role definitions
+      ansible.builtin.debug:
+        msg: "{{ item.name }} managed={{ item.managed | default(false) }} content_type={{ item.content_type }}"
+      loop: "{{ __role_defs }}"
+      when: >-
+        (item.name | lower) is search('project|inventory|organization member|credential admin')
+      loop_control:
+        label: "{{ item.name }}"
+
+  post_tasks:
+    - name: Revoke authentication token
+      ansible.builtin.include_tasks: tasks/aap_oauth.yml
+      vars:
+        aap_oauth_action: revoke
+      tags: [always]
+...

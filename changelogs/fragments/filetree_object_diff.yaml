@@ -1,0 +1,5 @@
+---
+minor_changes:
+  - filetree_object_diff - New role that exports live state via filetree_create, compares repository CaC files on disk, writes diff YAML files, and loads them with filetree_read for dispatch.
+  - filetree_cac_diff - New module for on-disk YAML filetree comparison with Jinja rendering support for repository CaC secrets/variables.
+  - controller_filetree_diff - Lookup plugin for in-memory comparison (alternative API to filetree_cac_diff).
