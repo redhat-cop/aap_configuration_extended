@@ -1,0 +1,35 @@
+---
+# Shared rescue helper: soft-skip only HTTP 403 / permission-denied API errors.
+# Required vars:
+#   __ftc_soft_skip_name: short resource label (e.g. gateway_applications)
+#   __ftc_soft_skip_endpoint: API path shown in the warning
+#   __ftc_soft_skip_hint: extra guidance appended to the warning
+# Optional (preferred when called via include_tasks from rescue):
+#   __ftc_failed_msg / __ftc_failed_status — capture ansible_failed_result first
+#   so include_tasks cannot lose the original failure context.
+# Falls back to ansible_failed_result when those are unset.
+- name: "Re-raise query unless API permission denied (HTTP 403) - {{ __ftc_soft_skip_name }}"
+  when: >-
+    (__ftc_failed_status | default(ansible_failed_result.status | default(0)) | int != 403)
+    and not (
+      __ftc_failed_msg | default(ansible_failed_result.msg | default(''))
+      is search(filetree_create_api_permission_denied_regex)
+    )
+  ansible.builtin.fail:
+    msg: >-
+      {{ __ftc_soft_skip_name }} query failed:
+      {{ __ftc_failed_msg | default(ansible_failed_result.msg | default(ansible_failed_result)) }}
+
+- name: "Skip export when the API denies access - {{ __ftc_soft_skip_name }}"
+  ansible.builtin.debug:
+    msg: >-
+      Skipping {{ __ftc_soft_skip_name }} export: the current user cannot read
+      {{ __ftc_soft_skip_endpoint }}
+      ({{ __ftc_failed_msg | default(ansible_failed_result.msg | default('HTTP 403')) }}).
+      {{ __ftc_soft_skip_hint }}
+
+- name: "Clear captured API failure context after soft-skip - {{ __ftc_soft_skip_name }}"
+  ansible.builtin.set_fact:
+    __ftc_failed_msg: ""
+    __ftc_failed_status: 0
+...

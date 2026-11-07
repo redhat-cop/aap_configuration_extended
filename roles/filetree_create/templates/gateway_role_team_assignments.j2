@@ -26,6 +26,14 @@
 {%     set _ = check_inline_covered(current_role_team_assignment, target, _team_name, 'team', _inline) %}
 {%     if _inline.covered %}
 {%       set _entry.skip = true %}
+{%     elif organization_filter is defined and (organization_filter | length) > 0 and (
+            target.global_role
+            or (target.type == 'organizations' and target.name != organization_filter)
+            or (target.organization not in [none, ''] and target.organization != organization_filter)
+            or (target.organization in [none, ''] and target.type != 'organizations' and not target.global_role)
+         ) %}
+{# Org-specific export: drop platform-global roles and out-of-org targets. #}
+{%       set _entry.skip = true %}
 {%     elif not target.global_role %}
 {%       set exported_object = {'name': target.name, 'type': target.type} %}
 {%       if target.organization is not none
