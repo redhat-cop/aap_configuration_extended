@@ -41,8 +41,10 @@ jobs:
               - '.github/**'
 
   release-auto-approve:
+    # Same-repo only: title/branch shape must not auto-approve fork PRs.
     if: >-
       github.event_name == 'pull_request_target' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
       (startsWith(github.event.pull_request.head.ref, 'release/') ||
        startsWith(github.event.pull_request.title, '[RELEASE]'))
     runs-on: ubuntu-latest
@@ -69,8 +71,11 @@ jobs:
       github.event_name == 'pull_request_target' &&
       contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) &&
       needs.check-changes.outputs.github_modified == 'false' &&
-      !startsWith(github.event.pull_request.head.ref, 'release/') &&
-      !startsWith(github.event.pull_request.title, '[RELEASE]')
+      !(
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        (startsWith(github.event.pull_request.head.ref, 'release/') ||
+         startsWith(github.event.pull_request.title, '[RELEASE]'))
+      )
     runs-on: ubuntu-latest
     # issues.addLabels requires write (tightened to read in #306 and broke labeling).
     permissions:
@@ -92,10 +97,15 @@ jobs:
 
   manual-approval:
     needs: check-changes
+    # Exclude only same-repo release-shaped PRs (handled by release-auto-approve).
+    # Fork PRs that spoof [RELEASE]/release/ still require manual approval.
     if: >-
       github.event_name == 'pull_request_target' &&
-      !startsWith(github.event.pull_request.head.ref, 'release/') &&
-      !startsWith(github.event.pull_request.title, '[RELEASE]') &&
+      !(
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        (startsWith(github.event.pull_request.head.ref, 'release/') ||
+         startsWith(github.event.pull_request.title, '[RELEASE]'))
+      ) &&
       (!contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) ||
        needs.check-changes.outputs.github_modified == 'true')
     runs-on: ubuntu-latest
@@ -135,6 +145,7 @@ jobs:
         with:
           script: |
             const { owner, repo } = context.repo;
+            const repoFullName = `${owner}/${repo}`;
             const { data: prs } = await github.rest.pulls.list({
               owner,
               repo,
@@ -144,11 +155,13 @@ jobs:
             });
             const releasePr = prs.find(
               (pr) =>
+                pr.head.repo &&
+                pr.head.repo.full_name === repoFullName &&
                 pr.head.ref.startsWith('release/') &&
                 pr.title.startsWith('[RELEASE]'),
             );
             if (!releasePr) {
-              core.info('No open release pull request to bootstrap');
+              core.info('No open same-repo release pull request to bootstrap');
               return;
             }
 
