@@ -1,0 +1,3 @@
+---
+security_fixes:
+  - filetree_create - Default export ``secure_logging`` / ``no_log`` cascade to ``true`` (aligned with ``filetree_read`` / ``object_diff``), restore ``no_log`` on gateway applications fetch, and add ``no_log`` to gateway settings export tasks.
