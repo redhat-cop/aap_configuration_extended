@@ -69,7 +69,7 @@
 - name: "Add current roles to the output yaml file"
   ansible.builtin.template:
     src: "templates/controller_user_access_list.j2"
-    dest: "{{ output_path }}/controller_user_roles/{{ user_role.resource_name | default('current') }}_roles_{{ user_role.role | regex_replace('/', '_') }}.yaml"
+    dest: "{{ output_path }}/controller_user_roles/{{ user_role.resource_name | default('current') | infra.aap_configuration_extended.filetree_safe_path_component }}_roles_{{ user_role.role | infra.aap_configuration_extended.filetree_safe_path_component }}.yaml"
     mode: '0644'
   loop: "{{ user_roles_matrix }}"
   loop_control:

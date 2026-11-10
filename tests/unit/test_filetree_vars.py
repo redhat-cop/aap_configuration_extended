@@ -75,6 +75,23 @@ class TestFiletreeVarsFilters(unittest.TestCase):
         filters = self.mod.FilterModule().filters()
         self.assertIn("filetree_as_var", filters)
         self.assertIn("filetree_var_name", filters)
+        self.assertIn("filetree_safe_path_component", filters)
+
+    def test_safe_path_component_neutralizes_dotdot(self):
+        self.assertEqual(self.mod.filetree_safe_path_component(".."), "_")
+        self.assertEqual(self.mod.filetree_safe_path_component("."), "_")
+        self.assertEqual(self.mod.filetree_safe_path_component("../x"), "x")
+        self.assertEqual(self.mod.filetree_safe_path_component("org/../evil"), "org_evil")
+
+    def test_safe_path_component_collapses_separators(self):
+        self.assertEqual(self.mod.filetree_safe_path_component("a/b"), "a_b")
+        self.assertEqual(self.mod.filetree_safe_path_component(r"a\b"), "a_b")
+        self.assertEqual(self.mod.filetree_safe_path_component(""), "_")
+        self.assertEqual(self.mod.filetree_safe_path_component(None), "_")
+
+    def test_safe_path_component_preserves_normal_names(self):
+        self.assertEqual(self.mod.filetree_safe_path_component("My Org"), "My Org")
+        self.assertEqual(self.mod.filetree_safe_path_component("project-name"), "project-name")
 
 
 if __name__ == "__main__":
