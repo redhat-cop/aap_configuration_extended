@@ -4,20 +4,20 @@ aap_user_accounts: {{ [] if current_gateway_users_asset_value | length == 0 }}
 {%   set _username = template_overrides_resources.gateway_user[current_user.username].username
                      | default(template_overrides_global.gateway_user.username)
                      | default(current_user.username) %}
-{%   set __pw = template_overrides_resources.gateway_user[current_user.name].password
+{%   set _override = (template_overrides_resources['gateway_user'] | default({}))[_username] | default({}) %}
+{%   set __pw = _override['password']
                      | default(template_overrides_global.gateway_user.password)
-                     | default(current_user.password)
-                     | default('') %}
+                     | default(current_user['password'] | default('')) %}
   - username: "{{ _username }}"
-    email: "{{ template_overrides_resources.gateway_user[current_user.name].email
+    email: "{{ _override['email']
                      | default(template_overrides_global.gateway_user.email)
-                     | default(current_user.email) }}"
-    first_name: "{{ template_overrides_resources.gateway_user[current_user.name].first_name
+                     | default(current_user['email'] | default('')) }}"
+    first_name: "{{ _override['first_name']
                      | default(template_overrides_global.gateway_user.first_name)
-                     | default(current_user.first_name) }}"
-    last_name: "{{ template_overrides_resources.gateway_user[current_user.name].last_name
+                     | default(current_user['first_name'] | default('')) }}"
+    last_name: "{{ _override['last_name']
                      | default(template_overrides_global.gateway_user.last_name)
-                     | default(current_user.last_name) }}"
+                     | default(current_user['last_name'] | default('')) }}"
 {%   if show_encrypted | default(false) | bool %}
     password: "{{ __pw }}"
 {%   elif secrets_as_variables | default(true) | bool %}
@@ -25,14 +25,12 @@ aap_user_accounts: {{ [] if current_gateway_users_asset_value | length == 0 }}
 {%   else %}
     password: ""
 {%   endif %}
-    is_superuser: "{{ template_overrides_resources.gateway_user[current_user.name].is_superuser
+    is_superuser: "{{ _override['is_superuser']
                      | default(template_overrides_global.gateway_user.is_superuser)
-                     | default(current_user.is_superuser) }}"
-    authenticators: {{ template_overrides_resources.gateway_user[current_user.name].authenticators
-                     | default(template_overrides_global.gateway_user.authenticators)
-                     | default(current_user.authenticators) }}
-    authenticator_uid: "{{ template_overrides_resources.gateway_user[current_user.name].authenticator_uid
-                     | default(template_overrides_global.gateway_user.authenticator_uid)
-                     | default(current_user.authenticator_uid) }}"
+                     | default(current_user['is_superuser'] | default(false)) }}"
+    authenticators: {{ _override['authenticators']
+                     | default(current_user['authenticators'] | default([])) }}
+    authenticator_uid: "{{ _override['authenticator_uid']
+                     | default(current_user['authenticator_uid'] | default('')) }}"
 {% endfor %}
 ...
