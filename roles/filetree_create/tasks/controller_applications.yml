@@ -29,7 +29,7 @@
       vars:
         application_organization: "{{ current_applications_asset_value.summary_fields.organization.name | default(organization, true) }}"
         application_id: "{{ current_applications_asset_value.id }}"
-        application_name: "{{ current_applications_asset_value.name | regex_replace('/', '_') }}"
+        application_name: "{{ current_applications_asset_value.name | infra.aap_configuration_extended.filetree_safe_path_component }}"
         last_application: "{{ current_application_index == ((applications_lookvar | length) - 1) }}"
       loop: "{{ applications_lookvar }}"
       loop_control:
@@ -53,7 +53,7 @@
         mode: '0755'
       vars:
         __task_name_append: "{{ filetree_create_controller_applications }} output directory for applications in {{ output_path }}"
-        __path: "{{ output_path }}/{{ needed_path | regex_replace('/', '_') }}/{{ filetree_create_controller_applications }}"
+        __path: "{{ output_path }}/{{ needed_path | infra.aap_configuration_extended.filetree_safe_path_component }}/{{ filetree_create_controller_applications }}"
       loop: "{{ (applications_lookvar | map(attribute='summary_fields') | selectattr('organization', 'defined') |
                 map(attribute='organization') | map(attribute='name') | list | flatten | unique)
                 + ([organization] if ((applications_lookvar | map(attribute='summary_fields')
@@ -72,8 +72,8 @@
         __task_name_append: "{{ filetree_create_controller_applications }} output file in {{ output_path }}"
         application_organization: "{{ current_applications_asset_value.summary_fields.organization.name | default(organization, true) }}"
         application_id: "{{ current_applications_asset_value.id }}"
-        application_name: "{{ current_applications_asset_value.name | regex_replace('/', '_') }}"
-        __dest: "{{ output_path }}/{{ application_organization | regex_replace('/', '_') }}/{{ filetree_create_controller_applications }}/{{ (application_id ~ '_') if not (omit_id | default(false) | bool) else '' }}{{ application_name | regex_replace('/', '_') }}.yaml"
+        application_name: "{{ current_applications_asset_value.name | infra.aap_configuration_extended.filetree_safe_path_component }}"
+        __dest: "{{ output_path }}/{{ application_organization | infra.aap_configuration_extended.filetree_safe_path_component }}/{{ filetree_create_controller_applications }}/{{ (application_id ~ '_') if not (omit_id | default(false) | bool) else '' }}{{ application_name | infra.aap_configuration_extended.filetree_safe_path_component }}.yaml"
       loop: "{{ applications_lookvar }}"
       loop_control:
         loop_var: current_applications_asset_value

@@ -1,0 +1,31 @@
+DOCUMENTATION:
+  name: filetree_safe_path_component
+  version_added: "4.13.0"
+  short_description: Sanitize a name for use as a single path component under output_path
+  description:
+    - Convert an AAP object name into a single filesystem path component for C(filetree_create).
+    - Replaces path separators and drops C(.) / C(..) segments so export paths cannot escape C(output_path).
+    - Returns C(_) when the sanitized value would otherwise be empty.
+  positional: _input
+  options:
+    _input:
+      description: Object name or path fragment from the API export.
+      type: raw
+      required: true
+
+EXAMPLES: |
+  - name: Build a safe organization directory name
+    debug:
+      msg: "{{ '..' | infra.aap_configuration_extended.filetree_safe_path_component }}"
+    # => _
+
+  - name: Collapse nested separators into one component
+    debug:
+      msg: "{{ 'org/../evil' | infra.aap_configuration_extended.filetree_safe_path_component }}"
+    # => org_evil
+
+RETURN:
+  _value:
+    description: Single path component safe to join under C(output_path).
+    type: str
+...

@@ -33,7 +33,7 @@
       vars:
         label_organization: "{{ current_labels_asset_value.summary_fields.organization.name | default('ORGANIZATIONLESS', true) }}"
         label_id: "{{ current_labels_asset_value.id }}"
-        label_name: "{{ current_labels_asset_value.name | regex_replace('/', '_') }}"
+        label_name: "{{ current_labels_asset_value.name | infra.aap_configuration_extended.filetree_safe_path_component }}"
         last_label: "{{ current_label_index == ((labels_lookvar | length) - 1) }}"
       loop: "{{ labels_lookvar }}"
       loop_control:
@@ -57,7 +57,7 @@
         mode: '0755'
       vars:
         __task_name_append: "{{ filetree_create_controller_labels }} output directory for labels in {{ output_path }}"
-        __path: "{{ output_path }}/{{ needed_path | regex_replace('/', '_') }}/{{ filetree_create_controller_labels }}"
+        __path: "{{ output_path }}/{{ needed_path | infra.aap_configuration_extended.filetree_safe_path_component }}/{{ filetree_create_controller_labels }}"
       loop: "{{ (labels_lookvar | map(attribute='summary_fields') | selectattr('organization', 'defined') | map(attribute='organization') | map(attribute='name') | list | flatten | unique)
                 + ([organization] if ((labels_lookvar | map(attribute='summary_fields') | selectattr('organization', 'undefined') | list | flatten) | length > 0) else [])
              }}"
@@ -74,8 +74,8 @@
         __task_name_append: "{{ filetree_create_controller_labels }} output file in {{ output_path }}"
         label_organization: "{{ current_labels_asset_value.summary_fields.organization.name | default(organization, true) }}"
         label_id: "{{ current_labels_asset_value.id }}"
-        label_name: "{{ current_labels_asset_value.name | regex_replace('/', '_') }}"
-        __dest: "{{ output_path }}/{{ label_organization | regex_replace('/', '_') }}/{{ filetree_create_controller_labels }}/{{ (label_id ~ '_') if not (omit_id | default(false) | bool) else '' }}{{ label_name | regex_replace('/', '_') }}.yaml"
+        label_name: "{{ current_labels_asset_value.name | infra.aap_configuration_extended.filetree_safe_path_component }}"
+        __dest: "{{ output_path }}/{{ label_organization | infra.aap_configuration_extended.filetree_safe_path_component }}/{{ filetree_create_controller_labels }}/{{ (label_id ~ '_') if not (omit_id | default(false) | bool) else '' }}{{ label_name | infra.aap_configuration_extended.filetree_safe_path_component }}.yaml"
       loop: "{{ labels_lookvar }}"
       loop_control:
         loop_var: current_labels_asset_value
