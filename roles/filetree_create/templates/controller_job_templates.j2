@@ -2,6 +2,7 @@
 ---
 controller_templates:
 {% endif %}
+{% import 'macros/yaml_value.j2' as yamlval %}
 {% set __empty_values = [None, '', "None", [], {}, [{}]] %}
   - name: "{{ current_job_templates_asset_value.name }}"
 {% if template_overrides_resources.job_template[current_job_templates_asset_value.name].description
@@ -147,20 +148,20 @@ controller_templates:
         extra_vars_item.value == ''
         or ((extra_vars_item.value | string | length) > 0 and (extra_vars_item.value | string) is not match('None'))
       ) %}
-{%     if extra_vars_item.value == '' %}
-      {{ extra_vars_item.key }}: {{ '"{%- raw -%}{%- endraw -%}"' }}
-{%     elif extra_vars_item.value | type_debug is match('list') %}
+{%     if extra_vars_item.value | type_debug is match('list') %}
 {%       if (extra_vars_item.value | length) == 0 %}
       {{ extra_vars_item.key }}: []
 {%       else %}
       {{ extra_vars_item.key }}:
 {%         for current_list_item in extra_vars_item.value if ((extra_vars_item.value | string | length) > 0 and (extra_vars_item.value | string) is not match('None')) %}
-        - {{ '"{%- raw -%}' }}{{ (current_list_item | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
+        - {{ yamlval.render_cac_scalar(current_list_item) }}
 {%         endfor %}
 {%       endif %}
+{%     elif extra_vars_item.value is mapping %}
+      {{ extra_vars_item.key }}:
+{{ yamlval.render_value(extra_vars_item.value, indent_width=8, first_indent=true) }}
 {%     else %}
-      {{ extra_vars_item.key }}: {{ '"{%- raw -%}' }}{{ (extra_vars_item.value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
-
+      {{ extra_vars_item.key }}: {{ yamlval.render_cac_scalar(extra_vars_item.value) }}
 {%     endif %}
 {%   endfor %}
 {% elif __job_template_extra_vars is string and (__job_template_extra_vars | length > 0) and (__job_template_extra_vars | trim) != '---' %}
