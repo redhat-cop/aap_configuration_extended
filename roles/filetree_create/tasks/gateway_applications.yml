@@ -9,7 +9,7 @@
   vars:
     query_params:
       order_by: 'organization,id'
-  # no_log: "{{ gateway_configuration_filetree_create_secure_logging }}"
+  no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
 - name: "Block for to generate flatten output"
   when:

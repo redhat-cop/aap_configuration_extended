@@ -80,20 +80,20 @@ argument_specs:
 
       # No_log variables
       controller_configuration_filetree_create_secure_logging:
-        default: "{{ aap_configuration_secure_logging | default(controller_configuration_secure_logging | default(false)) }}"
+        default: "{{ aap_configuration_secure_logging | default(controller_configuration_secure_logging | default(true)) }}"
         required: false
         type: bool
-        description: Whether or not to hide Controller export task output from the log (`no_log`). Defaults to `aap_configuration_secure_logging`, then legacy `controller_configuration_secure_logging`.
+        description: Whether or not to hide Controller export task output from the log (`no_log`). Defaults to `aap_configuration_secure_logging`, then legacy `controller_configuration_secure_logging`, then `true`.
       eda_configuration_filetree_create_secure_logging:
-        default: "{{ aap_configuration_secure_logging | default(controller_configuration_secure_logging | default(false)) }}"
+        default: "{{ aap_configuration_secure_logging | default(controller_configuration_secure_logging | default(true)) }}"
         required: false
         type: bool
-        description: Whether or not to hide EDA export task output from the log (`no_log`). Defaults to `aap_configuration_secure_logging`, then legacy `controller_configuration_secure_logging`.
+        description: Whether or not to hide EDA export task output from the log (`no_log`). Defaults to `aap_configuration_secure_logging`, then legacy `controller_configuration_secure_logging`, then `true`.
       hub_configuration_filetree_create_secure_logging:
-        default: "{{ aap_configuration_secure_logging | default(controller_configuration_secure_logging | default(false)) }}"
+        default: "{{ aap_configuration_secure_logging | default(controller_configuration_secure_logging | default(true)) }}"
         required: false
         type: bool
-        description: Whether or not to hide Hub export task output from the log (`no_log`). Defaults to `aap_configuration_secure_logging`, then legacy `controller_configuration_secure_logging`.
+        description: Whether or not to hide Hub export task output from the log (`no_log`). Defaults to `aap_configuration_secure_logging`, then legacy `controller_configuration_secure_logging`, then `true`.
       aap_configuration_secure_logging:
         default: false
         required: false
