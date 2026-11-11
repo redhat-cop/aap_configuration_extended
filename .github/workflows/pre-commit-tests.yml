@@ -45,10 +45,24 @@ jobs:
             const pullRequest = context.payload.pull_request;
             const headSha = pullRequest.head.sha;
 
+            function isSameRepoPullRequest() {
+              return (
+                pullRequest.head.repo &&
+                pullRequest.head.repo.full_name === `${owner}/${repo}`
+              );
+            }
+
             function isReleasePullRequest() {
               return (
-                pullRequest.head.ref.startsWith('release/') ||
-                pullRequest.title.startsWith('[RELEASE]')
+                isSameRepoPullRequest() &&
+                (pullRequest.head.ref.startsWith('release/') ||
+                  pullRequest.title.startsWith('[RELEASE]'))
+              );
+            }
+
+            function isTrustedAuthor() {
+              return ['OWNER', 'MEMBER', 'COLLABORATOR'].includes(
+                pullRequest.author_association,
               );
             }
 
@@ -120,7 +134,9 @@ jobs:
               const approvalRun = await getLatestApprovalRun();
 
               if (!approvalRun) {
-                if (await hasCiApprovedLabel()) {
+                // Label-only escape hatch is for maintainers when pull_request_target
+                // labeling fails; do not honor spoofed labels from untrusted authors.
+                if (isTrustedAuthor() && (await hasCiApprovedLabel())) {
                   core.notice(
                     'Approved via ci-approved label (no pull_request_target approval workflow run)',
                     { title: 'CI approval gate' },
