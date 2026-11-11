@@ -19,6 +19,21 @@
 {%- endif -%}
 {%- endmacro %}
 
+{# Like render_scalar for typed values; wrap other strings in raw/endraw for include_vars. #}
+{% macro render_cac_scalar(value) -%}
+{%- if value is boolean
+      or value is number
+      or (value is string and (value | lower) is match('^(true|false)$'))
+      or (value is string and value is match('^-?\d+(\.\d+)?$'))
+      or value is none
+      or value == 'None'
+      or value == '' -%}
+{{ render_scalar(value) }}
+{%- else -%}
+{{ '"{%- raw -%}' }}{{ (value | regex_replace("\n", "\\\\n") | regex_replace('"', '\\"')) | regex_replace('\\\\(?!n|")', '\\\\\\\\') }}{{ '{%- endraw -%}"' }}
+{%- endif -%}
+{%- endmacro %}
+
 {% macro render_value(value, indent_width=0, first_indent=true) -%}
 {%- if value is mapping or (value is sequence and value is not string) -%}
 {{ value | to_nice_yaml(indent=2, sort_keys=false) | indent(width=indent_width, first=first_indent) }}
