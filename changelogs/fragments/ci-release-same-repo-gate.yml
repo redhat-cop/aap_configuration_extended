@@ -1,0 +1,3 @@
+---
+security_fixes:
+  - "CI - Restrict release auto-approval and approval-gate short-circuit to same-repo pull requests so fork PRs cannot bypass review by spoofing a ``[RELEASE]`` title or ``release/`` branch."
