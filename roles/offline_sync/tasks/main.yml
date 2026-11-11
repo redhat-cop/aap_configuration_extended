@@ -19,7 +19,7 @@
         ah_username: "{{ aap_username }}"
         ah_password: "{{ aap_password }}"
         ah_path_prefix: galaxy  # this is for private automation hub
-        validate_certs: false
+        validate_certs: "{{ aap_validate_certs | default(true) }}"
       register: r_aap_token
 
     - name: Fixing format
@@ -57,7 +57,16 @@
     mode: "0755"
 
 - name: Download all collections
-  ansible.builtin.command: ansible-galaxy collection download {% if hub_configuration_no_deps %}--no-deps{% endif %} -r requirements.yml -p "{{ hub_configuration_working_dir }}/collections"
+  ansible.builtin.command:
+    argv: >-
+      {{
+        ['ansible-galaxy', 'collection', 'download']
+        + (['--no-deps'] if (hub_configuration_no_deps | bool) else [])
+        + [
+            '-r', hub_configuration_working_dir ~ '/requirements.yml',
+            '-p', hub_configuration_working_dir ~ '/collections',
+          ]
+      }}
   changed_when: true
 
 - name: Find all relevant built collection files

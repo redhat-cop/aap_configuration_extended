@@ -35,7 +35,7 @@
           vars:
             # rulebook_activation_organization: "{{ current_rulebook_activations_asset_value.organization_id | default(organization, true) }}"
             # rulebook_activation_id: "{{ current_rulebook_activations_asset_value.id }}"
-            # rulebook_activation_name: "{{ current_rulebook_activations_asset_value.name | regex_replace('/', '_') }}"
+            # rulebook_activation_name: "{{ current_rulebook_activations_asset_value.name | infra.aap_configuration_extended.filetree_safe_path_component }}"
             query_organization_name: "{{ (query('ansible.platform.gateway_api', 'api/eda/v1/organizations/' + current_rulebook_activations_asset_value.organization_id | string,
                                                 host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                                 return_all=true, max_objects=query_eda_api_max_objects) | first).name
@@ -74,7 +74,7 @@
             mode: '0755'
           vars:
             __task_name_append: "{{ filetree_create_eda_rulebook_activations }} output directory for rulebook_activations in {{ output_path }}"
-            __path: "{{ output_path }}/{{ needed_path | regex_replace('/', '_') }}/{{ filetree_create_eda_rulebook_activations }}"
+            __path: "{{ output_path }}/{{ needed_path | infra.aap_configuration_extended.filetree_safe_path_component }}/{{ filetree_create_eda_rulebook_activations }}"
           loop: "{{ (rulebook_activations_lookvar | selectattr('organization_id', 'defined') |
                     map(attribute='organization_id') | list | flatten | unique) +
                     ([organization] if ((rulebook_activations_lookvar | selectattr('organization', 'undefined') | list) | flatten | length > 0) else [])
@@ -92,8 +92,8 @@
             __task_name_append: "{{ filetree_create_eda_rulebook_activations }} output file in {{ output_path }}"
             rulebook_activation_organization: "{{ current_rulebook_activations_asset_value.organization_id | default(organization, true) }}"
             rulebook_activation_id: "{{ current_rulebook_activations_asset_value.id }}"
-            rulebook_activation_name: "{{ current_rulebook_activations_asset_value.name | regex_replace('/', '_') }}"
-            __dest: "{{ output_path }}/{{ rulebook_activation_organization | regex_replace('/', '_') }}/{{ filetree_create_eda_rulebook_activations }}/{{ (rulebook_activation_id ~ '_') if not (omit_id | default(false) | bool) else '' }}{{ rulebook_activation_name | regex_replace('/', '_') }}.yaml"
+            rulebook_activation_name: "{{ current_rulebook_activations_asset_value.name | infra.aap_configuration_extended.filetree_safe_path_component }}"
+            __dest: "{{ output_path }}/{{ rulebook_activation_organization | infra.aap_configuration_extended.filetree_safe_path_component }}/{{ filetree_create_eda_rulebook_activations }}/{{ (rulebook_activation_id ~ '_') if not (omit_id | default(false) | bool) else '' }}{{ rulebook_activation_name | infra.aap_configuration_extended.filetree_safe_path_component }}.yaml"
             query_organization_name: "{{ (query('ansible.platform.gateway_api', 'api/eda/v1/organizations/' + current_rulebook_activations_asset_value.organization_id | string,
                                                 host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                                                 return_all=true, max_objects=query_eda_api_max_objects) | first).name

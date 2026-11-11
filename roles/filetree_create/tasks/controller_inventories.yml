@@ -43,7 +43,7 @@
         block: "{{ lookup('template', 'templates/controller_inventories.j2') }}"
       vars:
         inventory_organization: "{{ current_inventories_asset_value.summary_fields.organization.name | default(organization) }}"
-        inventory_name: "{{ current_inventories_asset_value.name | regex_replace('/', '_') }}"
+        inventory_name: "{{ current_inventories_asset_value.name | infra.aap_configuration_extended.filetree_safe_path_component }}"
         first_inventory: "{{ not (__inventories_file.stat.exists | bool) }}"
         last_inventory: "{{ current_inventory_index == ((inventory_lookvar | length) - 1) }}"
       loop: "{{ inventory_lookvar }}"
@@ -69,8 +69,8 @@
       vars:
         __task_name_append: "{{ filetree_create_controller_inventories }} output directory for inventories in {{ output_path }}"
         inventory_organization: "{{ needed_path.summary_fields.organization.name | default(organization) }}"
-        inventory_name: "{{ needed_path.name | regex_replace('/', '_') }}"
-        __path: "{{ output_path }}/{{ inventory_organization | regex_replace('/', '_') }}/{{ filetree_create_controller_inventories }}/{{ inventory_name | regex_replace('/', '_') }}"
+        inventory_name: "{{ needed_path.name | infra.aap_configuration_extended.filetree_safe_path_component }}"
+        __path: "{{ output_path }}/{{ inventory_organization | infra.aap_configuration_extended.filetree_safe_path_component }}/{{ filetree_create_controller_inventories }}/{{ inventory_name | infra.aap_configuration_extended.filetree_safe_path_component }}"
       loop: "{{ inventory_lookvar }}"
       loop_control:
         loop_var: needed_path
@@ -84,8 +84,8 @@
       vars:
         __task_name_append: "{{ filetree_create_controller_inventories }} output yaml file in {{ output_path }}"
         inventory_organization: "{{ current_inventories_asset_value.summary_fields.organization.name | default(organization) }}"
-        inventory_name: "{{ current_inventories_asset_value.name | regex_replace('/', '_') }}"
-        __dest: "{{ output_path }}/{{ inventory_organization | regex_replace('/', '_') }}/{{ filetree_create_controller_inventories }}/{{ inventory_name | regex_replace('/', '_') }}/{{ (current_inventories_asset_value.id ~ '_') if not (omit_id | default(false) | bool) else '' }}{{ inventory_name | regex_replace('/', '_') }}.yaml"
+        inventory_name: "{{ current_inventories_asset_value.name | infra.aap_configuration_extended.filetree_safe_path_component }}"
+        __dest: "{{ output_path }}/{{ inventory_organization | infra.aap_configuration_extended.filetree_safe_path_component }}/{{ filetree_create_controller_inventories }}/{{ inventory_name | infra.aap_configuration_extended.filetree_safe_path_component }}/{{ (current_inventories_asset_value.id ~ '_') if not (omit_id | default(false) | bool) else '' }}{{ inventory_name | infra.aap_configuration_extended.filetree_safe_path_component }}.yaml"
       loop: "{{ inventory_lookvar }}"
       loop_control:
         loop_var: current_inventories_asset_value
@@ -96,8 +96,8 @@
   when: current_inventory_sources.total_inventory_sources > 0 and not skip_inventory_sources
   vars:
     inventory_organization: "{{ current_inventory_sources.summary_fields.organization.name | default(organization) }}"
-    inventory_name: "{{ current_inventory_sources.name | regex_replace('/', '_') }}"
-    inventory_sources_output_path: "{{ (output_path + '/' + inventory_organization | regex_replace('/', '_') + '/' + filetree_create_controller_inventory_sources + '/' + inventory_name | regex_replace('/', '_'))
+    inventory_name: "{{ current_inventory_sources.name | infra.aap_configuration_extended.filetree_safe_path_component }}"
+    inventory_sources_output_path: "{{ (output_path + '/' + inventory_organization | infra.aap_configuration_extended.filetree_safe_path_component + '/' + filetree_create_controller_inventory_sources + '/' + inventory_name | infra.aap_configuration_extended.filetree_safe_path_component)
                                       if (flatten_output is not defined or (flatten_output | bool) == false)
                                       else
                                         output_path + '/controller_inventory_sources.yaml' }}"
@@ -119,8 +119,8 @@
   when: (not skip_inventory_hosts and current_inventory_hosts.kind is not search('smart|constructed')) or (not skip_inventory_hosts and inventory_id is defined)
   vars:
     inventory_organization: "{{ current_inventory_hosts.summary_fields.organization.name | default(organization) }}"
-    inventory_name: "{{ current_inventory_hosts.name | regex_replace('/', '_') }}"
-    hosts_output_path: "{{ (output_path + '/' + inventory_organization | regex_replace('/', '_') + '/' + filetree_create_controller_hosts + '/' + inventory_name | regex_replace('/', '_'))
+    inventory_name: "{{ current_inventory_hosts.name | infra.aap_configuration_extended.filetree_safe_path_component }}"
+    hosts_output_path: "{{ (output_path + '/' + inventory_organization | infra.aap_configuration_extended.filetree_safe_path_component + '/' + filetree_create_controller_hosts + '/' + inventory_name | infra.aap_configuration_extended.filetree_safe_path_component)
                           if (flatten_output is not defined or (flatten_output | bool) == false)
                           else
                             output_path + '/controller_hosts.yaml' }}"
@@ -141,8 +141,8 @@
   when: current_inventory_groups.total_groups > 0 and not skip_inventory_groups
   vars:
     inventory_organization: "{{ current_inventory_groups.summary_fields.organization.name | default(organization) }}"
-    inventory_name: "{{ current_inventory_groups.name | regex_replace('/', '_') }}"
-    groups_output_path: "{{   (output_path + '/' + inventory_organization | regex_replace('/', '_') + '/' + filetree_create_controller_groups + '/' + inventory_name | regex_replace('/', '_'))
+    inventory_name: "{{ current_inventory_groups.name | infra.aap_configuration_extended.filetree_safe_path_component }}"
+    groups_output_path: "{{   (output_path + '/' + inventory_organization | infra.aap_configuration_extended.filetree_safe_path_component + '/' + filetree_create_controller_groups + '/' + inventory_name | infra.aap_configuration_extended.filetree_safe_path_component)
                           if (flatten_output is not defined or (flatten_output | bool) == false)
                           else
                             output_path + '/controller_groups.yaml' }}"
