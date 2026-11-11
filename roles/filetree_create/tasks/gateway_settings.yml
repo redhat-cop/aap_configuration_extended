@@ -8,6 +8,7 @@
                                 return_all=true, max_objects=query_gateway_api_max_objects)
                            }}"
         settings_export_from_changed: true
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
   rescue:
     - name: "Fallback to gateway settings/all when changed endpoint is unavailable"
       ansible.builtin.set_fact:
@@ -16,6 +17,7 @@
                                 return_all=true, max_objects=query_gateway_api_max_objects)
                            }}"
         settings_export_from_changed: false
+      no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
 - name: "Create the output directory for gateway_settings in {{ output_path }}"
   ansible.builtin.file:
@@ -28,4 +30,5 @@
     src: "templates/gateway_settings.j2"
     dest: "{{ output_path }}/gateway_settings.yaml"
     mode: '0644'
+  no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 ...

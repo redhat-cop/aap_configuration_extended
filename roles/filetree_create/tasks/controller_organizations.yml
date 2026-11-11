@@ -75,7 +75,7 @@
         state: directory
         mode: '0755'
       vars:
-        __path: "{{ output_path }}/{{ current_organization_dir.name | regex_replace('/', '_') }}"
+        __path: "{{ output_path }}/{{ current_organization_dir.name | infra.aap_configuration_extended.filetree_safe_path_component }}"
       loop: "{{ orgs_lookvar }}"
       loop_control:
         loop_var: current_organization_dir
@@ -87,7 +87,7 @@
         dest: "{{ __dest }}"
         mode: '0644'
       vars:
-        __dest: "{{ output_path }}/{{ current_organization.name | regex_replace('/', '_') }}/controller_organization.yaml"
+        __dest: "{{ output_path }}/{{ current_organization.name | infra.aap_configuration_extended.filetree_safe_path_component }}/controller_organization.yaml"
         query_galaxy_credentials: "{{ query('ansible.platform.gateway_api', current_organization.related.galaxy_credentials,
                          host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                          return_all=true, max_objects=query_controller_api_max_objects)

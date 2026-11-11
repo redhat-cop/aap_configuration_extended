@@ -54,7 +54,7 @@
         mode: '0755'
       vars:
         __task_name_append: "{{ filetree_create_controller_notifications }} output directory for notification templates in {{ output_path }}"
-        __path: "{{ output_path }}/{{ needed_path | regex_replace('/', '_') }}/{{ filetree_create_controller_notifications }}"
+        __path: "{{ output_path }}/{{ needed_path | infra.aap_configuration_extended.filetree_safe_path_component }}/{{ filetree_create_controller_notifications }}"
       loop: "{{ (notification_templates_lookvar | map(attribute='summary_fields') | selectattr('organization', 'defined') |
                 map(attribute='organization') | map(attribute='name') | list | flatten | unique) +
                 ([organization] if ((notification_templates_lookvar | map(attribute='summary_fields') |
@@ -70,7 +70,7 @@
         dest: "{{ __dest }}"
         mode: '0644'
       vars:
-        __dest: "{{ output_path }}/{{ (current_notification_templates_asset_value.summary_fields.organization.name | default(organization, true)) | regex_replace('/', '_') }}/{{ filetree_create_controller_notifications }}/{{ current_notification_templates_asset_value.name | regex_replace('/', '_') }}.yaml"
+        __dest: "{{ output_path }}/{{ (current_notification_templates_asset_value.summary_fields.organization.name | default(organization, true)) | infra.aap_configuration_extended.filetree_safe_path_component }}/{{ filetree_create_controller_notifications }}/{{ current_notification_templates_asset_value.name | infra.aap_configuration_extended.filetree_safe_path_component }}.yaml"
       loop: "{{ notification_templates_lookvar }}"
       loop_control:
         loop_var: current_notification_templates_asset_value
