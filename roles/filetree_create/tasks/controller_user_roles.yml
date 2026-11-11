@@ -80,7 +80,7 @@
     - name: "Add current roles to the output yaml file"
       ansible.builtin.template:
         src: "templates/controller_user_roles.j2"
-        dest: "{{ output_path }}/{{ filetree_create_controller_user_roles }}/{{ username | regex_replace('/', '_') }}.yaml"
+        dest: "{{ output_path }}/{{ filetree_create_controller_user_roles }}/{{ username | infra.aap_configuration_extended.filetree_safe_path_component }}.yaml"
         mode: '0644'
       when: object_roles | length > 0
 ...

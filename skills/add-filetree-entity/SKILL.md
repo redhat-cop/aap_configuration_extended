@@ -25,6 +25,7 @@ Confirm the **CaC variable** in `infra.aap_configuration` (e.g. `controller_inst
 ### 2. filetree_create
 
 1. `roles/filetree_create/tasks/controller_<entity>.yml` — `gateway_api` query, optional lookups, `template` → `{{ output_path }}/controller_<entity>.yaml`.
+   - Any object name used in `dest` / `path` under `output_path` (organization, entity name, `resource_name`, etc.) MUST go through `| infra.aap_configuration_extended.filetree_safe_path_component` so `/`, `\`, `.`, and `..` cannot escape the export directory. Do not use only `regex_replace('/', '_')`.
 2. `roles/filetree_create/templates/controller_<entity>.j2` — top-level key = CaC variable; omit empty fields.
    - At the top of the template (after the YAML `---` list header), define Jinja lists with `{% set %}`: always `__empty_values`, plus any allowlists (e.g. `__exportable_node_types`, `__exportable_node_states`). Do not inline list literals in `{% if %}` conditions.
    - Use `__empty_values` for every optional scalar/mapping field before exporting (e.g. `field is defined and field not in __empty_values`). Combine with allowlists when the API returns runtime-only values that must not be applied via CaC.
