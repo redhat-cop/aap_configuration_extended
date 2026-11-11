@@ -1,0 +1,25 @@
+---
+- name: Compute inventory content-change delta
+  ansible.builtin.set_fact:
+    __diff: "{{ query('infra.aap_configuration_extended.controller_filetree_diff',
+      live_list=__live_list, cac_list=__cac_list,
+      object_type='inventory', with_present=false, set_absent=true) | flatten }}"
+  vars:
+    __live_list:
+      - name: Shared Inventory
+        organization: Default
+        description: Live description
+    __cac_list:
+      - name: Shared Inventory
+        organization: Default
+        description: CaC description
+
+- name: Validate modified inventory delta
+  ansible.builtin.include_tasks: assert_modified.yml
+  vars:
+    __object_label: inventories-modified
+    __id_field: name
+    __shared_name: Shared Inventory
+    __modified_field: description
+    __modified_value: CaC description
+...

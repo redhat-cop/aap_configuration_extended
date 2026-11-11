@@ -1,0 +1,10 @@
+---
+controller_execution_environments:
+  - name: Object Diff Test Shared EE
+    organization: "{{ orgs }}"
+    image: quay.io/ansible/ansible-runner:stable-2.4-latest
+  - name: Object Diff Test New CaC EE
+    organization: "{{ orgs }}"
+    image: quay.io/ansible/ansible-runner:stable-2.4-latest
+    description: Only in CaC
+...

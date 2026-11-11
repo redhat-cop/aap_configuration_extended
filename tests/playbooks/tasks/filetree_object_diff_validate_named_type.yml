@@ -1,0 +1,47 @@
+---
+# Name-based (non-assignment) delta validation for one object_diff type.
+- name: Store CaC identifiers | {{ od_type.label }}
+  ansible.builtin.set_fact:
+    __od_cac_ids: "{{ __cac_snapshots[od_type.var] | map(attribute=od_type.id_field) | list }}"
+
+- name: Show diff | {{ od_type.label }}
+  ansible.builtin.debug:
+    msg: >-
+      {{
+        __od_diff
+        | json_query('[].{' + od_type.id_field + ': ' + od_type.id_field + ', state: state}')
+      }}
+
+- name: Validate all present items exist in CaC | {{ od_type.label }}
+  ansible.builtin.assert:
+    that:
+      - od_diff_entry[od_type.id_field] in __od_cac_ids
+    fail_msg: >-
+      Present item '{{ od_diff_entry[od_type.id_field] }}' must exist in repository CaC
+  loop: "{{ __od_diff | selectattr('state', 'defined') | selectattr('state', 'equalto', 'present') | list }}"
+  loop_control:
+    loop_var: od_diff_entry
+    label: "{{ od_type.label }}: {{ od_diff_entry[od_type.id_field] }}"
+
+- name: Validate CaC-only present items are not in API | {{ od_type.label }}
+  ansible.builtin.assert:
+    that:
+      - od_type.cac_only not in __od_api_before[od_type.label]
+    fail_msg: CaC-only item must not exist in API before apply
+
+- name: Validate orphan absent item is API-only | {{ od_type.label }}
+  ansible.builtin.assert:
+    that:
+      - od_type.orphan in __od_api_before[od_type.label]
+      - od_type.orphan not in __od_cac_ids
+    fail_msg: >-
+      Orphan item '{{ od_type.orphan }}' must be in API and not in CaC
+  when:
+    - (__od_diff | selectattr('state', 'defined') | selectattr('state', 'equalto', 'absent') | selectattr(od_type.id_field, 'equalto', od_type.orphan) | list | length) == 1
+
+- name: Expect CaC-only present and orphan absent | {{ od_type.label }}
+  ansible.builtin.assert:
+    that:
+      - (__od_diff | selectattr('state', 'defined') | selectattr('state', 'equalto', 'present') | selectattr(od_type.id_field, 'equalto', od_type.cac_only) | list | length) == 1
+      - (__od_diff | selectattr('state', 'defined') | selectattr('state', 'equalto', 'absent') | selectattr(od_type.id_field, 'equalto', od_type.orphan) | list | length) == 1
+...

@@ -84,6 +84,7 @@ Point `extra_vars_read_export.yml` at `/tmp/filetree_output_default`.
 
 ## Success criteria
 
+- Changed Python code passes **SonarQube / SonarLint with zero reported issues** (see collection rules and `skills/add-filetree-entity/SKILL.md`).
 - All three playbooks exit `failed=0`.
 - Step 3 is idempotent (`changed=0` or only benign async retries).
 - For data-type fixes: spot-check `controller_settings.yaml` / `gateway_settings.yaml` for native YAML types (`int`, `bool`, dicts), not quoted strings.

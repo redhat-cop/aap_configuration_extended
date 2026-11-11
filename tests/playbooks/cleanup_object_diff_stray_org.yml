@@ -1,0 +1,77 @@
+---
+# Remove leftover "Object Diff *" resources from non-test orgs (e.g. truncated "Object").
+- name: Cleanup stray Object Diff resources outside the test organization
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../vars/aap_connection.yml
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    object_diff_test_org: "{{ orgs | default('Object Diff Test') }}"
+    object_diff_name_prefix: Object Diff
+  pre_tasks:
+    - name: Setup authentication
+      ansible.builtin.include_tasks: tasks/aap_oauth.yml
+      vars:
+        aap_oauth_action: setup
+  tasks:
+    - name: Delete stray controller objects by API path
+      ansible.builtin.include_tasks: tasks/cleanup_object_diff_stray_api_path.yml
+      vars:
+        od_cleanup_api_path: "{{ od_path_item.path }}"
+        od_cleanup_name_attr: "{{ od_path_item.name_attr | default('name') }}"
+      loop:
+        - {path: api/controller/v2/schedules/, name_attr: name}
+        - {path: api/controller/v2/job_templates/, name_attr: name}
+        - {path: api/controller/v2/workflow_job_templates/, name_attr: name}
+        - {path: api/controller/v2/inventory_sources/, name_attr: name}
+        - {path: api/controller/v2/hosts/, name_attr: name}
+        - {path: api/controller/v2/groups/, name_attr: name}
+        - {path: api/controller/v2/inventories/, name_attr: name}
+        - {path: api/controller/v2/credentials/, name_attr: name}
+        - {path: api/controller/v2/projects/, name_attr: name}
+        - {path: api/controller/v2/notification_templates/, name_attr: name}
+        - {path: api/controller/v2/execution_environments/, name_attr: name}
+        - {path: api/controller/v2/teams/, name_attr: name}
+      loop_control:
+        loop_var: od_path_item
+        label: "{{ od_path_item.path }}"
+
+    - name: Find truncated leftover organization named Object
+      ansible.builtin.set_fact:
+        __od_stray_org: >-
+          {{
+            query(
+              'ansible.platform.gateway_api',
+              'api/gateway/v1/organizations/',
+              query_params={'name': 'Object'},
+              host=aap_hostname,
+              oauth_token=aap_oauthtoken,
+              verify_ssl=aap_validate_certs,
+              return_all=true,
+              max_objects=10
+            )
+            | selectattr('name', 'equalto', 'Object')
+            | list
+          }}
+
+    - name: Delete truncated leftover organization Object
+      ansible.builtin.uri:
+        url: "https://{{ aap_hostname }}/api/gateway/v1/organizations/{{ item.id }}/"
+        method: DELETE
+        headers:
+          Authorization: "Bearer {{ aap_oauthtoken }}"
+        validate_certs: "{{ aap_validate_certs }}"
+        status_code: [202, 204, 404]
+      loop: "{{ __od_stray_org }}"
+      loop_control:
+        label: "{{ item.name }} ({{ item.id }})"
+
+  post_tasks:
+    - name: Revoke authentication token
+      ansible.builtin.include_tasks: tasks/aap_oauth.yml
+      vars:
+        aap_oauth_action: revoke
+      tags: [always]
+...

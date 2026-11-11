@@ -1,0 +1,7 @@
+---
+- name: Full filetree_object_diff test suite
+  ansible.builtin.import_playbook: playbooks/setup_filetree_object_diff.yml
+
+- name: Run filetree_object_diff integration test
+  ansible.builtin.import_playbook: playbooks/test_filetree_object_diff_all.yml
+...

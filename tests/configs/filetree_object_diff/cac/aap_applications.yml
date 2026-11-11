@@ -1,0 +1,12 @@
+---
+aap_applications:
+  - name: Object Diff Shared Application
+    organization: "{{ orgs }}"
+    authorization_grant_type: password
+    client_type: public
+  - name: Object Diff New CaC Application
+    organization: "{{ orgs }}"
+    authorization_grant_type: password
+    client_type: public
+    description: Only in CaC
+...
