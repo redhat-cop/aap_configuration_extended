@@ -1,0 +1,8 @@
+---
+bugfixes:
+  - >-
+    filetree_create - Export job template and workflow job template extra_vars
+    using native YAML types (int, bool, float) instead of always wrapping values
+    in raw Jinja strings
+    (https://github.com/redhat-cop/aap_configuration_extended/issues/437).
+...

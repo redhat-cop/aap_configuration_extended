@@ -61,15 +61,15 @@ The following variables are required for that role to work properly:
 ### Secure Logging Variables
 
 These variables control Ansible `no_log` on tasks that may touch credentials or tokens.
-If neither a role-specific nor a shared variable is set, secure logging defaults to `false`.
+If neither a role-specific nor a shared variable is set, secure logging defaults to `true` (aligned with `filetree_read` / `object_diff`).
 
-Each `*_filetree_create_secure_logging` variable defaults to `aap_configuration_secure_logging`, then to the legacy `controller_configuration_secure_logging`. That lets you toggle secure logging for the whole CaC suite with one variable, or override it per component (Controller / EDA / Hub).
+Each `*_filetree_create_secure_logging` variable defaults to `aap_configuration_secure_logging`, then to the legacy `controller_configuration_secure_logging`, then `true`. That lets you toggle secure logging for the whole CaC suite with one variable, or override it per component (Controller / EDA / Hub).
 
 | Variable Name | Default Value | Required | Type | Description |
 | :------------ | :-----------: | :------: | :------: | :---------- |
-| `controller_configuration_filetree_create_secure_logging` | `false` (via shared cascade) | no | bool | Whether to hide Controller export task output from the log (`no_log`). |
-| `eda_configuration_filetree_create_secure_logging` | `false` (via shared cascade) | no | bool | Whether to hide EDA export task output from the log (`no_log`). |
-| `hub_configuration_filetree_create_secure_logging` | `false` (via shared cascade) | no | bool | Whether to hide Hub export task output from the log (`no_log`). |
+| `controller_configuration_filetree_create_secure_logging` | `true` (via shared cascade) | no | bool | Whether to hide Controller export task output from the log (`no_log`). |
+| `eda_configuration_filetree_create_secure_logging` | `true` (via shared cascade) | no | bool | Whether to hide EDA export task output from the log (`no_log`). |
+| `hub_configuration_filetree_create_secure_logging` | `true` (via shared cascade) | no | bool | Whether to hide Hub export task output from the log (`no_log`). |
 | `aap_configuration_secure_logging` | `false` | no | bool | Shared secure-logging default across `infra.aap_configuration` / `infra.aap_configuration_extended` roles. |
 | `controller_configuration_secure_logging` | `false` | no | bool | Legacy shared default; used when `aap_configuration_secure_logging` is unset. |
 
@@ -106,7 +106,7 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
         - name: "Expose aap_token dict for collection roles"
           ansible.builtin.set_fact:
             aap_token: "{{ ansible_facts['aap_token'] }}"
-      no_log: "{{ controller_configuration_filetree_create_secure_logging | default('false') }}"
+      no_log: "{{ controller_configuration_filetree_create_secure_logging | default('true') }}"
       when: not (ansible_facts.get('aap_token') or aap_token is defined)
       tags:
         - always

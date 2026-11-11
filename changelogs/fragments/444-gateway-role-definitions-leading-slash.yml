@@ -1,0 +1,7 @@
+---
+bugfixes:
+  - >-
+    filetree_create - Remove leading slash from gateway role definitions API
+    path so Envoy on AAP 2.6 does not reject a double-slash URL
+    (https://github.com/redhat-cop/aap_configuration_extended/issues/444).
+...

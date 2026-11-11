@@ -31,7 +31,7 @@
         block: "{{ lookup('template', 'templates/controller_schedules.j2') }}"
       vars:
         label_id: "{{ current_schedules_asset_value.id }}"
-        label_name: "{{ current_schedules_asset_value.name | regex_replace('/', '_') }}"
+        label_name: "{{ current_schedules_asset_value.name | infra.aap_configuration_extended.filetree_safe_path_component }}"
         query_credentials: "{{ query('ansible.platform.gateway_api', current_schedules_asset_value.related.credentials,
                      host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) if current_schedules_asset_value.related.credentials is defined else [] }}"
@@ -70,8 +70,8 @@
         mode: '0644'
       vars:
         label_id: "{{ current_schedules_asset_value.id }}"
-        label_name: "{{ current_schedules_asset_value.name | regex_replace('/', '_') }}"
-        __dest: "{{ output_path }}/{{ filetree_create_controller_schedules }}/{{ (label_id ~ '_') if not (omit_id | default(false) | bool) else '' }}{{ label_name | regex_replace('/', '_') }}.yaml"
+        label_name: "{{ current_schedules_asset_value.name | infra.aap_configuration_extended.filetree_safe_path_component }}"
+        __dest: "{{ output_path }}/{{ filetree_create_controller_schedules }}/{{ (label_id ~ '_') if not (omit_id | default(false) | bool) else '' }}{{ label_name | infra.aap_configuration_extended.filetree_safe_path_component }}.yaml"
         query_credentials: "{{ query('ansible.platform.gateway_api', current_schedules_asset_value.related.credentials,
                      host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
                      return_all=true, max_objects=query_controller_api_max_objects) if current_schedules_asset_value.related.credentials is defined else [] }}"

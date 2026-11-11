@@ -35,6 +35,27 @@ def filetree_as_var(value, object_type, name, field, enabled=False, prefix="vaul
     return "{{ " + filetree_var_name(object_type, name, field, prefix=prefix) + " }}"
 
 
+def filetree_safe_path_component(value):
+    """
+    Return a single path component safe to join under ``output_path``.
+
+    Replaces path separators, drops ``.`` / ``..`` segments so AAP object names
+    cannot escape the export directory, and returns ``_`` when nothing remains.
+    """
+    if value is None:
+        return "_"
+    normalized = str(value).replace("\\", "/")
+    parts = []
+    for part in normalized.split("/"):
+        if part in ("", ".", ".."):
+            continue
+        parts.append(part)
+    joined = "_".join(parts)
+    if joined in ("", ".", ".."):
+        return "_"
+    return joined
+
+
 class FilterModule(object):
     """Ansible filter plugin."""
 
@@ -42,4 +63,5 @@ class FilterModule(object):
         return {
             "filetree_as_var": filetree_as_var,
             "filetree_var_name": filetree_var_name,
+            "filetree_safe_path_component": filetree_safe_path_component,
         }
