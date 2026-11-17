@@ -1,0 +1,19 @@
+---
+- name: "Ensure live export directory exists"
+  ansible.builtin.file:
+    path: "{{ filetree_object_diff_live_path }}"
+    state: directory
+    mode: "0755"
+
+- name: "Export current API objects to live filetree"
+  ansible.builtin.import_role:
+    name: infra.aap_configuration_extended.filetree_create
+  vars:
+    output_path: "{{ filetree_object_diff_live_path }}"
+    input_tag: "{{ filetree_object_diff_create_tags }}"
+    organization_filter: "{{ orgs | default(omit) }}"
+    # Support both filetree_create layouts (normal tree and flatten_output).
+    flatten_output: "{{ filetree_object_diff_flatten_output | default(false) | bool }}"
+    omit_id: "{{ filetree_object_diff_omit_id | default(true) | bool }}"
+    controller_configuration_filetree_create_secure_logging: "{{ controller_configuration_filetree_create_secure_logging }}"
+...

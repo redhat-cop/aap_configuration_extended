@@ -1,0 +1,31 @@
+---
+- name: Compute inventory source filetree delta
+  ansible.builtin.set_fact:
+    __diff: "{{ query('infra.aap_configuration_extended.controller_filetree_diff',
+      live_list=__live_list, cac_list=__cac_list,
+      object_type='inventory_source', with_present=false, set_absent=true) | flatten }}"
+  vars:
+    __live_list:
+      - name: Shared Source
+        organization: Default
+        inventory: Shared Inventory
+      - name: Orphan Source
+        organization: Default
+        inventory: Shared Inventory
+    __cac_list:
+      - name: Shared Source
+        organization: Default
+        inventory: Shared Inventory
+      - name: New CaC Source
+        organization: Default
+        inventory: Shared Inventory
+
+- name: Validate inventory source delta
+  ansible.builtin.include_tasks: assert_delta.yml
+  vars:
+    __object_label: inventory_sources
+    __id_field: name
+    __cac_only_name: New CaC Source
+    __orphan_name: Orphan Source
+    __shared_name: Shared Source
+...

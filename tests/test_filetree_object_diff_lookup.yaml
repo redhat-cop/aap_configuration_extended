@@ -1,0 +1,4 @@
+---
+- name: Run controller_filetree_diff offline lookup tests
+  ansible.builtin.import_playbook: playbooks/test_filetree_object_diff_lookup.yml
+...

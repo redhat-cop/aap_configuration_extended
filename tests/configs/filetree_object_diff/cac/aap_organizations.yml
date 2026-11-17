@@ -1,0 +1,7 @@
+---
+aap_organizations:
+  - name: Object Diff Shared Organization
+    description: Shared organization for object_diff integration test
+  - name: Object Diff New CaC Organization
+    description: Organization only defined in CaC
+...

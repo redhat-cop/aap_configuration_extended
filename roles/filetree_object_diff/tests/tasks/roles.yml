@@ -1,0 +1,31 @@
+---
+- name: Compute role filetree delta
+  ansible.builtin.set_fact:
+    __diff: "{{ query('infra.aap_configuration_extended.controller_filetree_diff',
+      live_list=__live_list, cac_list=__cac_list,
+      object_type='role', with_present=false, set_absent=true) | flatten }}"
+  vars:
+    __live_list:
+      - role: execute
+        user: shared_user
+        job_template: Shared Job Template
+      - role: admin
+        user: orphan_user
+        organization: Default
+    __cac_list:
+      - role: execute
+        user: shared_user
+        job_template: Shared Job Template
+      - role: member
+        user: new_cac_user
+        target_team: New CaC Team
+
+- name: Validate role delta
+  ansible.builtin.assert:
+    that:
+      - (__diff | selectattr('user', 'equalto', 'new_cac_user') | list | length) == 1
+      - (__diff | selectattr('user', 'equalto', 'new_cac_user') | first).state == 'present'
+      - (__diff | selectattr('user', 'equalto', 'orphan_user') | list | length) == 1
+      - (__diff | selectattr('user', 'equalto', 'orphan_user') | first).state == 'absent'
+      - __diff | selectattr('user', 'equalto', 'shared_user') | list | length == 0
+...

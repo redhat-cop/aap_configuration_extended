@@ -1,0 +1,4 @@
+---
+minor_changes:
+  - filetree_object_diff - Cover the full Gateway, Controller, Hub, and EDA surface shared by ``filetree_create`` and ``infra.aap_configuration.dispatch`` (settings, instances, labels, Gateway RBAC/infra, Hub, and EDA).
+  - filetree_cac_diff - Add identity keys for Gateway/Hub/EDA types; write settings deltas as mappings; support list-valued identity fields for role assignments.

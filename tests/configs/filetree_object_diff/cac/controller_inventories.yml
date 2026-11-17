@@ -1,0 +1,9 @@
+---
+controller_inventories:
+  - name: Object Diff Shared Inventory
+    organization: "{{ orgs }}"
+    description: Shared inventory for object_diff integration test
+  - name: Object Diff New CaC Inventory
+    organization: "{{ orgs }}"
+    description: Inventory only defined in CaC
+...
