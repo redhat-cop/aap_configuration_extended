@@ -4,6 +4,28 @@ infra.aap\_configuration\_extended Release Notes
 
 .. contents:: Topics
 
+v4.13.1
+=======
+
+Security Fixes
+--------------
+
+- CI - Restrict release auto-approval and approval-gate short-circuit to same-repo pull requests so fork PRs cannot bypass review by spoofing a ``[RELEASE]`` title or ``release/`` branch.
+- filetree_create - Apply ``show_encrypted`` / ``$encrypted$`` / ``secrets_as_variables`` handling before multiline formatting in credential and EDA credential exports so encrypted or vaulted secrets are not dumped as plaintext YAML blocks.
+- filetree_create - Default export ``secure_logging`` / ``no_log`` cascade to ``true`` (aligned with ``filetree_read`` / ``object_diff``), restore ``no_log`` on gateway applications fetch, and add ``no_log`` to gateway settings export tasks.
+- filetree_create - Sanitize export path components with ``filetree_safe_path_component`` so AAP object names containing ``..`` or path separators cannot write outside ``output_path``.
+- offline_sync - Honor ``aap_validate_certs`` (default ``true``) when requesting an Automation Hub token, and invoke ``ansible-galaxy collection download`` via ``argv`` instead of a free-form command string.
+
+Bugfixes
+--------
+
+- filetree_create - Export job template and workflow job template extra_vars using native YAML types (int, bool, float) instead of always wrapping values in raw Jinja strings (https://github.com/redhat-cop/aap_configuration_extended/issues/437).
+- filetree_create - Fix organization_filter undefined error when organization_filter is not defined
+- filetree_create - Remove leading slash from gateway role definitions API path so Envoy on AAP 2.6 does not reject a double-slash URL (https://github.com/redhat-cop/aap_configuration_extended/issues/444).
+- roles/filetree_create/templates/gateway_role_team_assignments.j2 had the same narrow skip for team assignments. A team role on galaxy.containernamespace reached the resolver and failed. The loop now skips those assignments by content type, the same way the user-assignment template does.
+- roles/filetree_create/templates/gateway_role_user_assignments.j2 only skipped role names that start with 'galaxy.'. Hub also creates roles named container.* on content type galaxy.containernamespace, and those were still exported. The loop now skips any assignment whose content type starts with galaxy., so those Hub roles are left out instead of stopping the export.
+- roles/filetree_create/templates/macros/assignment_target.j2 looked up each target with a list call such as /api/eda/v1/activations/?id=2 and continued only when that call returned exactly one object with a name. If the list result is not one named object, the macro now requests the object directly by id and uses that name.
+
 v4.13.0
 =======
 
