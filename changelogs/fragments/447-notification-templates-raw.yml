@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Wrap notification template ``messages`` in ``raw`` / ``endraw`` on export, like the other exported text fields, so placeholders such as ``{{ job_metadata }}`` stay literal when the files are read back instead of failing as undefined variables. Also export the notification template ``description`` (https://github.com/redhat-cop/aap_configuration_extended/issues/447).
