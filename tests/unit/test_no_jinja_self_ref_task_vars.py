@@ -18,7 +18,7 @@ import re
 import unittest
 
 # Pure self-default: name: "{{ name | default(...) }}" with nothing else.
-_SELF_DEFAULT = re.compile(r"^([ \t]*)([A-Za-z_][A-Za-z0-9_]*)\s*:\s*" r"[\"']\{\{\s*\2\s*\|\s*default\([^)]*\)\s*\}\}[\"']\s*$")
+_SELF_DEFAULT = re.compile(r"^([ \t]*)([A-Za-z_][A-Za-z0-9_]*)\s*:\s*[\"']\{\{\s*\2\s*\|\s*default\([^)]*\)\s*\}\}[\"']\s*$")
 _VARS_KEY = re.compile(r"^([ \t]*)vars\s*:\s*$")
 _TASK_KEY = re.compile(r"^([ \t]*)-\s+name\s*:")
 
