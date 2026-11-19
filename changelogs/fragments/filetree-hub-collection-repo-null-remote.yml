@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - filetree_create - Fix ``object of type 'NoneType' has no len()`` when exporting Hub collection repositories whose Pulp repository has no remote (e.g. ``published``, ``staging``, ``rejected``), where the API returns ``remote: null``.
+...
