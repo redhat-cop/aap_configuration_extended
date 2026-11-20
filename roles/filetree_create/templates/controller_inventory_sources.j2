@@ -3,13 +3,18 @@
 controller_inventory_sources: {{ [] if current_inventory_sources_asset_value | length == 0 }}
 {% endif %}
 {% for inventory_source in current_inventory_sources_asset_value %}
+{%   set __empty_values = [None, '', "None", [], {}, [{}]] %}
   - name: "{{ inventory_source.name }}"
+{%   if template_overrides_resources.inventory_source[inventory_source.name].description
+                     | default(template_overrides_global.inventory_source.description)
+                     | default(inventory_source.description) not in __empty_values %}
     description: |-
       {{ '{%- raw -%}' }}
       {{ template_overrides_resources.inventory_source[inventory_source.name].description
                      | default(template_overrides_global.inventory_source.description)
                      | default(inventory_source.description) | indent(6) }}
       {{ '{%- endraw -%}' }}
+{%   endif %}
 {%   if inventory_source.summary_fields.organization is defined %}
     organization: "{{ inventory_source.summary_fields.organization.name }}"
 {%   endif %}

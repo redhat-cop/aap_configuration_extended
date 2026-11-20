@@ -2,13 +2,18 @@
 ---
 aap_teams:
 {% endif %}
+{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
   - name: "{{ current_teams_asset_value.name }}"
+{% if template_overrides_resources.team[current_teams_asset_value.name].description
+                     | default(template_overrides_global.team.description)
+                     | default(current_teams_asset_value.description) not in __empty_values %}
     description: |-
       {{ '{%- raw -%}' }}
       {{ template_overrides_resources.team[current_teams_asset_value.name].description
                      | default(template_overrides_global.team.description)
                      | default(current_teams_asset_value.description) | indent(6) }}
       {{ '{%- endraw -%}' }}
+{% endif %}
     organization: "{{ current_teams_asset_value.summary_fields.organization.name }}"
 {% if last_team | default(true) | bool %}
 ...

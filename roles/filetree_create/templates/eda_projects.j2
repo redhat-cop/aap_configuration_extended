@@ -2,10 +2,15 @@
 ---
 eda_projects:
 {% endif %}
+{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
   - name: "{{ current_projects_asset_value.name }}"
+{% if template_overrides_resources.eda_project[current_projects_asset_value.name].description
+                     | default(template_overrides_global.eda_project.description)
+                     | default(current_projects_asset_value.description) not in __empty_values %}
     description: "{{ template_overrides_resources.eda_project[current_projects_asset_value.name].description
                      | default(template_overrides_global.eda_project.description)
                      | default(current_projects_asset_value.description) }}"
+{% endif %}
     organization: "{{ current_projects_asset_value.organization_id
                       | default(organization if organization != 'ORGANIZATIONLESS'
                                 else 'ToDo: The project \'' + current_projects_asset_value.name + '\' must have an organization') }}"

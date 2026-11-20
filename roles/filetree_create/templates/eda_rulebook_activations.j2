@@ -2,10 +2,15 @@
 ---
 eda_rulebook_activations:
 {% endif %}
+{% set __empty_values = [None, '', "None", [], {}, [{}]] %}
   - name: "{{ current_rulebook_activations_asset_value.name }}"
+{% if template_overrides_resources.eda_rulebook_activation[current_rulebook_activations_asset_value.name].description
+                     | default(template_overrides_global.eda_rulebook_activation.description)
+                     | default(current_rulebook_activations_asset_value.description) not in __empty_values %}
     description: "{{ template_overrides_resources.eda_rulebook_activation[current_rulebook_activations_asset_value.name].description
                      | default(template_overrides_global.eda_rulebook_activation.description)
                      | default(current_rulebook_activations_asset_value.description) }}"
+{% endif %}
 {% if template_overrides_resources.eda_rulebook_activation[current_rulebook_activations_asset_value.name].is_enabled is defined
       or template_overrides_global.eda_rulebook_activation.is_enabled is defined
       or current_rulebook_activations_asset_value.is_enabled %}
