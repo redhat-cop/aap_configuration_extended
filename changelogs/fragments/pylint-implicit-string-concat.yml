@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - tests/unit/test_no_jinja_self_ref_task_vars.py - Fix pylint's implicit string concatenation sanity failure.
+...
