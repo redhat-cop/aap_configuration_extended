@@ -93,6 +93,82 @@ class TestFiletreeVarsFilters(unittest.TestCase):
         self.assertEqual(self.mod.filetree_safe_path_component("My Org"), "My Org")
         self.assertEqual(self.mod.filetree_safe_path_component("project-name"), "project-name")
 
+    # --- Variable name collisions --------------------------------------------------------------
+
+    @staticmethod
+    def _cred(name, org="Default"):
+        return {"name": name, "summary_fields": {"organization": {"name": org}}}
+
+    def _names(self, objects, field="password"):
+        collisions = self.mod.filetree_var_collisions(objects, "name", "summary_fields.organization.name")
+        return [
+            self.mod.filetree_var_name(
+                "controller_credentials",
+                o["name"],
+                field,
+                "vaulted",
+                o["summary_fields"]["organization"]["name"],
+                collisions,
+            )
+            for o in objects
+        ]
+
+    def test_collisions_names_differing_only_in_punctuation_or_case(self):
+        objects = [self._cred("RH Insights"), self._cred("RH-Insights"), self._cred("rh insights"), self._cred("Other")]
+        self.assertEqual(
+            self.mod.filetree_var_collisions(objects, "name", "summary_fields.organization.name"),
+            ["Default/RH Insights", "Default/RH-Insights", "Default/rh insights"],
+        )
+
+    def test_collisions_same_name_in_two_scopes(self):
+        objects = [self._cred("GitHub", "Org A"), self._cred("GitHub", "Org B")]
+        self.assertEqual(
+            self.mod.filetree_var_collisions(objects, "name", "summary_fields.organization.name"),
+            ["Org A/GitHub", "Org B/GitHub"],
+        )
+
+    def test_collisions_none_when_unique(self):
+        objects = [self._cred("A"), self._cred("B"), {"name": None}, "not-a-dict", {"no_name": 1}]
+        self.assertEqual(self.mod.filetree_var_collisions(objects, "name", "summary_fields.organization.name"), [])
+        self.assertEqual(self.mod.filetree_var_collisions(None), [])
+
+    def test_collisions_missing_scope_path_is_empty_scope(self):
+        objects = [{"name": "EE"}, {"name": "ee"}]
+        self.assertEqual(self.mod.filetree_var_collisions(objects, "name", "summary_fields.organization.name"), ["/EE", "/ee"])
+
+    def test_colliding_objects_get_distinct_stable_names(self):
+        objects = [self._cred("RH Insights"), self._cred("RH-Insights"), self._cred("Other")]
+        names = self._names(objects)
+        self.assertEqual(len(set(names)), 3)
+        self.assertRegex(names[0], r"^vaulted_controller_credentials_rh_insights_[0-9a-f]{6}_password$")
+        self.assertRegex(names[1], r"^vaulted_controller_credentials_rh_insights_[0-9a-f]{6}_password$")
+        # Objects that don't collide keep the historical name.
+        self.assertEqual(names[2], "vaulted_controller_credentials_other_password")
+        # Stable across runs and independent of list order.
+        self.assertEqual(self._names(list(reversed(objects))), list(reversed(names)))
+
+    def test_same_name_in_two_scopes_gets_distinct_names(self):
+        names = self._names([self._cred("GitHub", "Org A"), self._cred("GitHub", "Org B")])
+        self.assertNotEqual(names[0], names[1])
+
+    def test_var_name_without_collisions_is_unchanged(self):
+        self.assertEqual(
+            self.mod.filetree_var_name("controller_credentials", "RH Insights", "password", "vaulted", "Default", []),
+            "vaulted_controller_credentials_rh_insights_password",
+        )
+        self.assertEqual(
+            self.mod.filetree_var_name("controller_credentials", "RH Insights", "password", "vaulted", "Default", None),
+            "vaulted_controller_credentials_rh_insights_password",
+        )
+
+    def test_as_var_passes_scope_and_collisions(self):
+        collisions = ["Default/RH Insights", "Default/RH-Insights"]
+        result = self.mod.filetree_as_var("", "controller_credentials", "RH Insights", "password", True, "vault", "Default", collisions)
+        self.assertRegex(result, r"^\{\{ vault_controller_credentials_rh_insights_[0-9a-f]{6}_password \}\}$")
+
+    def test_filter_module_registers_collisions_filter(self):
+        self.assertIn("filetree_var_collisions", self.mod.FilterModule().filters())
+
 
 if __name__ == "__main__":
     unittest.main()

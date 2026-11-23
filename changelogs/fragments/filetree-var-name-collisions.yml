@@ -1,0 +1,7 @@
+---
+bugfixes:
+  - filetree_create - Objects whose exported variable names would collide (names that differ only in case or punctuation such as ``RH Insights`` and ``RH-Insights``, or the same name in two organizations) silently shared one ``secrets_as_variables`` / ``env_fields_as_variables`` placeholder, so one of them got the other's secret on import. Colliding credentials, EDA credentials, projects, job templates, notification templates and execution environments now get a short stable hash after the name; all other variable names are unchanged.
+minor_changes:
+  - filetree_create - The env variables stub step now warns when an exported variable is still used by more than one object (for example hosts with the same name in different inventories).
+  - filetree_var_collisions - New filter that returns the objects whose ``filetree_var_name`` variable names would collide.
+  - filetree_var_name, filetree_as_var - New optional ``scope`` and ``collisions`` arguments to give colliding objects distinct names.

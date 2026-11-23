@@ -1,0 +1,38 @@
+DOCUMENTATION:
+  name: filetree_var_collisions
+  version_added: "4.14.0"
+  short_description: Find exported objects whose filetree variable names would collide
+  description:
+    - Variable names built by C(filetree_var_name) lowercase the object name and replace every other
+      character with C(_), and don't include the organization or inventory. So objects whose names differ
+      only in case or punctuation (C(RH Insights) and C(RH-Insights)), or that share a name in different
+      scopes (the same credential name in two organizations), would get the same variable and the same value.
+    - Returns the identities (C(scope/name)) of those objects. Pass the result as O(filetree_var_name#filter:collisions)
+      to give each of them a distinct name.
+  positional: name_attr, scope_attr
+  options:
+    _input:
+      description: List of objects of one type, as returned by the API.
+      type: list
+      elements: dict
+      required: true
+    name_attr:
+      description: Dotted path of the object name.
+      type: str
+      default: name
+    scope_attr:
+      description: Dotted path of the field that makes names unique (for example C(summary_fields.organization.name)).
+      type: str
+
+EXAMPLES: |
+  - name: Find credentials whose exported variable names would collide
+    ansible.builtin.set_fact:
+      __collisions: "{{ credentials | infra.aap_configuration_extended.filetree_var_collisions('name', 'summary_fields.organization.name') }}"
+    # => ['Default/RH Insights', 'Default/RH-Insights']
+
+RETURN:
+  _value:
+    description: Sorted C(scope/name) identities of the colliding objects (empty when there are none).
+    type: list
+    elements: str
+...

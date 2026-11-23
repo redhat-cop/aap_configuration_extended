@@ -397,6 +397,14 @@ The import process can be executed directly, using that file with the extra_vars
 
 When `generate_env_variables_stub` is enabled (default whenever secrets or env-fields-as-variables are on), the role also writes `{output_path}/env_variables.yml` with every discovered `vaulted_*` key set to `CHANGE_ME`. Fill that file with target-environment values (and optionally vault-encrypt it) instead of hand-crafting the variable list.
 
+### Variable names and collisions
+
+Variable names are built as `<prefix>_<object type>_<name>_<field>`, where the name is lowercased and every character other than `a-z` and `0-9` becomes `_`. The organization (or inventory) isn't part of the name. So two objects whose names differ only in case or punctuation (`RH Insights` and `RH-Insights`), or that share a name in different organizations, would map to the same variable and silently get the same value.
+
+To prevent that, objects whose names would collide get a short, stable hash of their organization and exact name after the name, for example `vaulted_controller_credentials_rh_insights_b7815f_client_secret`. All other variable names are unchanged. This applies to credentials, EDA credentials, projects, job templates, notification templates and execution environments (filters `filetree_var_collisions`, `filetree_var_name`, `filetree_as_var`).
+
+After the export, the stub step also checks every exported file and warns about any variable that is still used by more than one object, for example two hosts named `localhost` in different inventories when host variables are exported as variables. Rename the placeholder in one of them before importing.
+
 ## PRE → PRO: complete examples (Job Template and Workflow)
 
 Move one **Job Template** or **Workflow Job Template** (and its dependencies) from a PRE AAP to a PRO AAP. Objects are identified by **name** only (Configuration as Code). Secrets and environment-specific fields are exported as `{{ vaulted_* }}` placeholders; fill them for PRO before import.

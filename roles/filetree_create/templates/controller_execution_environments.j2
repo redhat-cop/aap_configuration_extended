@@ -2,6 +2,7 @@
 controller_execution_environments: {{ [] if current_execution_environments_asset_value | length == 0 }}
 {% set __empty_values = [None, '', "None", [], {}, [{}]] %}
 {% set __org_filter_active = organization_filter is defined and (organization_filter | length) > 0 %}
+{% set __ee_var_collisions = current_execution_environments_asset_value | infra.aap_configuration_extended.filetree_var_collisions('name', 'summary_fields.organization.name') %}
 {% for ee in current_execution_environments_asset_value %}
 {%   set __ee_has_org = ee.summary_fields.organization is defined and ee.summary_fields.organization.name is defined %}
 {%   set __ee_org_matches = __org_filter_active and __ee_has_org and (ee.summary_fields.organization.name is match(organization_filter)) %}
@@ -27,7 +28,7 @@ controller_execution_environments: {{ [] if current_execution_environments_asset
     image: "{{ (template_overrides_resources.ee[ee.name].image
                | default(template_overrides_global.ee.image)
                | default(ee.image))
-               | infra.aap_configuration_extended.filetree_as_var('controller_execution_environments', ee.name, 'image', (env_fields_as_variables | bool) and ('image' in env_fields_as_variables_map.controller_execution_environments), secrets_as_variables_prefix) }}"
+               | infra.aap_configuration_extended.filetree_as_var('controller_execution_environments', ee.name, 'image', (env_fields_as_variables | bool) and ('image' in env_fields_as_variables_map.controller_execution_environments), secrets_as_variables_prefix, ee.summary_fields.organization.name | default(none), __ee_var_collisions) }}"
     pull: "{{ template_overrides_resources.ee[ee.name].pull
               | default(template_overrides_global.ee.pull)
               | default(ee.pull) }}"

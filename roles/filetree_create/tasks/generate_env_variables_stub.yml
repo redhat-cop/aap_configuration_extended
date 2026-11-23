@@ -43,6 +43,69 @@
       ansible.builtin.set_fact:
         env_variable_keys: "{{ (__env_stub_keys_raw.stdout_lines | default([])) | reject('equalto', '') | list }}"
 
+    # A placeholder used by more than one object means those objects would share one value
+    # (for example two hosts named localhost in different inventories). Names are made unique
+    # where the whole object list is known; this catches anything left over.
+    - name: "Find exported variables shared by more than one object"
+      when: (env_variable_keys | length) > 0
+      ansible.builtin.command:
+        argv: "{{ ['python3', '-c', __shared_vars_python, secrets_as_variables_prefix] + (__env_stub_files.files | map(attribute='path') | list) }}"
+      vars:
+        __shared_vars_python: |
+          import json, re, sys
+          try:
+              import yaml
+          except ImportError:
+              print(json.dumps({"skipped": "PyYAML is not available"}))
+              sys.exit(0)
+          prefix = sys.argv[1]
+          pattern = re.compile(r"\{\{\s*(" + re.escape(prefix) + r"_[a-zA-Z0-9_]+)\s*\}\}")
+          users = {}
+          def refs(value):
+              if isinstance(value, dict):
+                  for v in value.values():
+                      yield from refs(v)
+              elif isinstance(value, list):
+                  for v in value:
+                      yield from refs(v)
+              elif isinstance(value, str):
+                  yield from pattern.findall(value)
+          for path in sys.argv[2:]:
+              try:
+                  with open(path, encoding="utf-8") as handle:
+                      data = yaml.safe_load(handle)
+              except Exception:
+                  continue
+              if not isinstance(data, dict):
+                  continue
+              for var, items in data.items():
+                  if not isinstance(items, list):
+                      continue
+                  for item in items:
+                      if not isinstance(item, dict):
+                          continue
+                      name = item.get("name") or item.get("username") or item.get("hostname")
+                      scope = item.get("organization") or item.get("inventory")
+                      label = "{0} [{1}{2}]".format(var, name, ", " + str(scope) if scope else "")
+                      for ref in set(refs(item)):
+                          users.setdefault(ref, {})[label] = path
+          shared = {ref: found for ref, found in users.items() if len(found) > 1}
+          print(json.dumps({"shared": shared}, sort_keys=True))
+      register: __env_stub_shared_raw
+      changed_when: false
+
+    - name: "Warn about exported variables shared by more than one object"
+      when:
+        - __env_stub_shared_raw.stdout is defined
+        - ((__env_stub_shared_raw.stdout | from_json).shared | default({}) | length) > 0
+      ansible.builtin.debug:
+        msg: >-
+          WARNING: {{ __shared | length }} exported variable(s) are used by more than one object, so those
+          objects would get the same value: {{ __shared | dict2items | map(attribute='key') | join(', ') }}.
+          Rename the placeholder in one of each pair before importing. Details: {{ __shared | to_json }}
+      vars:
+        __shared: "{{ (__env_stub_shared_raw.stdout | from_json).shared }}"
+
     - name: "Write env_variables stub file"
       ansible.builtin.template:
         src: templates/env_variables.j2
