@@ -13,6 +13,13 @@
       order_by: 'organization,id'
   no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
 
+# Objects whose names map to the same exported variable (names that differ only in case or
+# punctuation, or the same name in two organizations) get a short distinguishing suffix.
+- name: "Find projects whose exported variable names would collide"
+  ansible.builtin.set_fact:
+    __filetree_var_collisions_controller_projects: "{{ projects_lookvar | infra.aap_configuration_extended.filetree_var_collisions('name', 'summary_fields.organization.name') }}"
+  no_log: "{{ controller_configuration_filetree_create_secure_logging }}"
+
 - name: "Block for to generate flatten output"
   when:
     - flatten_output is defined

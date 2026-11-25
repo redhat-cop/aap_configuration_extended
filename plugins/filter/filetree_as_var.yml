@@ -6,7 +6,7 @@ DOCUMENTATION:
     - When enabled, return the literal text C({{ var_name }}) so it survives rendering into YAML.
     - When disabled, return the original value unchanged.
     - Used by C(filetree_create) templates to defer resolution of secrets and environment-specific fields.
-  positional: value, object_type, name, field, enabled, prefix
+  positional: value, object_type, name, field, enabled, prefix, scope, collisions
   options:
     _input:
       description: Field value from the API export.
@@ -32,6 +32,20 @@ DOCUMENTATION:
       description: Variable name prefix for vaulted or environment-specific values.
       type: str
       default: vaulted
+    scope:
+      description:
+        - Scope that makes the object name unique (for example its organization or inventory name).
+        - Only used when the object is listed in O(collisions).
+      type: str
+      version_added: "4.14.0"
+    collisions:
+      description:
+        - Output of C(filetree_var_collisions) for all exported objects of this type.
+        - Objects listed here get a short hash of O(scope) and O(name) after the name, so objects whose
+          names would otherwise map to the same variable get their own. Other names are unchanged.
+      type: list
+      elements: str
+      version_added: "4.14.0"
 
 EXAMPLES: |
   - name: Export SCM URL as a variable reference in filetree_create templates
