@@ -1,0 +1,7 @@
+---
+minor_changes:
+  - filetree_object_diff - Enable live roundtrip integration tests for job templates, workflow job templates, and schedules.
+bugfixes:
+  - filetree_cac_diff - Keep schedules without an organization field in scope when filtering by organization name.
+
+...

@@ -1,0 +1,6 @@
+---
+# Shared naming for object_diff integration tests (legacy aliases kept for inventories-only playbooks).
+object_diff_orphan_inventory: Object Diff Orphan Inventory
+object_diff_shared_inventory: Object Diff Shared Inventory
+object_diff_test_user_password: "{{ vault_aap_password | default('testpassword123!') }}"
+...

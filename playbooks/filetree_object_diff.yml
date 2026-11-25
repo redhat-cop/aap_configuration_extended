@@ -1,0 +1,186 @@
+---
+# Synchronize one organization in AAP with repository Configuration as Code (CaC).
+#
+# Workflow:
+#   filetree_create (live export) → filetree_cac_diff (on-disk compare) →
+#   filetree_read (diff files only) → dispatch (optional apply)
+#
+# Preview diff without applying changes:
+#   ansible-playbook playbooks/filetree_object_diff.yml \
+#     -e @examples/filetree_object_diff/vars/filetree_object_diff.yml \
+#     -e @examples/filetree_object_diff/vars/vault.yml \
+#     -e apply_changes=false
+#
+# Apply the delta to the controller:
+#   ansible-playbook playbooks/filetree_object_diff.yml \
+#     -e @examples/filetree_object_diff/vars/filetree_object_diff.yml \
+#     -e @examples/filetree_object_diff/vars/vault.yml
+#
+# Limit object types (same tags as filetree_create / dispatch):
+#   ansible-playbook playbooks/filetree_object_diff.yml ... \
+#     --tags controller_projects,controller_inventories
+#
+- name: Synchronize AAP organization from repository CaC (filetree_object_diff)
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    apply_changes: true
+    controller_api_version: v2
+
+  pre_tasks:
+    - name: Validate required variables
+      ansible.builtin.assert:
+        that:
+          - orgs is defined
+          - dir_orgs_vars is defined
+          - env is defined
+          - aap_hostname | length > 0
+          - aap_username | length > 0
+          - aap_password | length > 0
+        fail_msg: >-
+          Define orgs, dir_orgs_vars, env and AAP credentials.
+          See examples/filetree_object_diff/vars/
+      tags: [always]
+
+    - name: Setup authentication
+      tags: [always]
+      block:
+        - name: Get OAuth token
+          ansible.builtin.uri:
+            url: "https://{{ aap_hostname }}/api/gateway/v1/tokens/"
+            user: "{{ aap_username }}"
+            password: "{{ aap_password }}"
+            method: POST
+            force_basic_auth: true
+            validate_certs: "{{ aap_validate_certs }}"
+            status_code: 201
+          register: __filetree_object_diff_authtoken_res
+          no_log: "{{ controller_configuration_filetree_object_diff_secure_logging | default(true) }}"
+          when: aap_oauthtoken | default('', true) | length == 0
+
+        - name: Store OAuth token
+          ansible.builtin.set_fact:
+            aap_oauthtoken: "{{ __filetree_object_diff_authtoken_res.json.token }}"
+            aap_oauthtoken_url: "{{ __filetree_object_diff_authtoken_res.json.url }}"
+          no_log: "{{ controller_configuration_filetree_object_diff_secure_logging | default(true) }}"
+          when: __filetree_object_diff_authtoken_res is defined and __filetree_object_diff_authtoken_res is not skipped
+
+  tasks:
+    - name: Compare live controller state with repository CaC
+      ansible.builtin.import_role:
+        name: infra.aap_configuration_extended.filetree_object_diff
+
+    - name: Show detailed from/to report summary
+      ansible.builtin.debug:
+        msg: >-
+          report {{ filetree_object_diff_report_path | default('(none)') }}:
+          create={{ filetree_object_diff_report.summary['create'] | default(0) }}
+          update={{ filetree_object_diff_report.summary['update'] | default(0) }}
+          delete={{ filetree_object_diff_report.summary['delete'] | default(0) }}
+          unchanged={{ filetree_object_diff_report.summary['unchanged'] | default(0) }}
+      when:
+        - not (controller_configuration_filetree_object_diff_secure_logging | default(true) | bool)
+        - filetree_object_diff_report is defined
+
+    - name: Show objects marked present in the delta
+      ansible.builtin.debug:
+        msg: >-
+          {{ item.var }}:
+          {{
+            lookup('vars', item.var, default=[])
+            | selectattr('state', 'defined')
+            | selectattr('state', 'equalto', 'present')
+            | list
+          }}
+      loop: "{{ controller_configuration_filetree_object_diff_tasks }}"
+      loop_control:
+        label: "{{ item.var }}"
+      when:
+        - not (controller_configuration_filetree_object_diff_secure_logging | default(true) | bool)
+        - lookup('vars', item.var, default=[]) | selectattr('state', 'defined') | selectattr('state', 'equalto', 'present') | list | length > 0
+
+    - name: Show objects marked absent in the delta
+      ansible.builtin.debug:
+        msg: >-
+          {{ item.var }}:
+          {{
+            lookup('vars', item.var, default=[])
+            | selectattr('state', 'defined')
+            | selectattr('state', 'equalto', 'absent')
+            | list
+          }}
+      loop: "{{ controller_configuration_filetree_object_diff_tasks }}"
+      loop_control:
+        label: "{{ item.var }}"
+      when:
+        - not (controller_configuration_filetree_object_diff_secure_logging | default(true) | bool)
+        - lookup('vars', item.var, default=[]) | selectattr('state', 'defined') | selectattr('state', 'equalto', 'absent') | list | length > 0
+
+    - name: Build dispatch role list from non-empty deltas
+      ansible.builtin.set_fact:
+        __filetree_object_diff_dispatch_roles: >-
+          {{
+            __filetree_object_diff_dispatch_roles | default([]) + [{
+              'role': item.dispatch_role,
+              'var': item.var,
+              'tags': item.dispatch_tag
+            }]
+          }}
+      loop: "{{ filetree_object_diff_dispatch_roles }}"
+      loop_control:
+        label: "{{ item.var }}"
+      when:
+        - apply_changes | bool
+        - lookup('vars', item.var, default=[]) | length > 0
+
+    - name: Apply delta via dispatch
+      ansible.builtin.import_role:
+        name: infra.aap_configuration.dispatch
+      vars:
+        # Override the combined Gateway/Hub/Controller/EDA list so only delta roles run.
+        aap_configuration_dispatcher_roles: "{{ __filetree_object_diff_dispatch_roles }}"
+      when:
+        - apply_changes | bool
+        - __filetree_object_diff_dispatch_roles | default([]) | length > 0
+
+    - name: Verify convergence after apply
+      when: apply_changes | bool
+      block:
+        - name: Re-run filetree_object_diff after apply
+          ansible.builtin.import_role:
+            name: infra.aap_configuration_extended.filetree_object_diff
+
+        - name: Assert no remaining delta for managed types
+          ansible.builtin.assert:
+            that:
+              - lookup('vars', item.var, default=[]) | length == 0
+            fail_msg: >-
+              Delta still present for {{ item.var }}:
+              {{ lookup('vars', item.var, default=[]) }}
+          loop: "{{ filetree_object_diff_dispatch_roles }}"
+          when: lookup('vars', item.var, default=[]) is defined
+
+  post_tasks:
+    - name: Revoke OAuth token
+      tags: [always]
+      block:
+        - name: Delete OAuth token
+          ansible.builtin.uri:
+            url: "https://{{ aap_hostname }}{{ aap_oauthtoken_url }}"
+            user: "{{ aap_username }}"
+            password: "{{ aap_password }}"
+            method: DELETE
+            force_basic_auth: true
+            validate_certs: "{{ aap_validate_certs }}"
+            status_code: 204
+          when: aap_oauthtoken_url | default('', true) | length > 0
+          no_log: "{{ controller_configuration_filetree_object_diff_secure_logging | default(true) }}"
+
+        - name: Clear OAuth token from facts
+          ansible.builtin.set_fact:
+            aap_oauthtoken: ""
+            aap_oauthtoken_url: ""
+          when: aap_oauthtoken | default('', true) | length > 0
+...

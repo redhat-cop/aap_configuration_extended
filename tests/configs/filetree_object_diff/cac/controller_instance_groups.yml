@@ -1,0 +1,6 @@
+---
+controller_instance_groups:
+  - name: Object Diff Shared Instance Group
+  - name: Object Diff New CaC Instance Group
+    description: Only in CaC
+...

@@ -1,0 +1,9 @@
+---
+controller_hosts:
+  - name: object-diff-shared-host
+    inventory: Object Diff Shared Inventory
+    enabled: true
+  - name: object-diff-new-cac-host
+    inventory: Object Diff Shared Inventory
+    description: Only in CaC
+...

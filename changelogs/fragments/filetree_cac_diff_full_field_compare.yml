@@ -1,0 +1,5 @@
+---
+bugfixes:
+  - >-
+    filetree_cac_diff - Compare all non-empty CaC fields against live (not only object
+    identity); treat CaC fields missing on live as a drift that emits ``state: present``.

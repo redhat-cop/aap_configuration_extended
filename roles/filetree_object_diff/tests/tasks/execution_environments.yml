@@ -1,0 +1,31 @@
+---
+- name: Compute execution environment filetree delta
+  ansible.builtin.set_fact:
+    __diff: "{{ query('infra.aap_configuration_extended.controller_filetree_diff',
+      live_list=__live_list, cac_list=__cac_list,
+      object_type='execution_environment', with_present=false, set_absent=true) | flatten }}"
+  vars:
+    __live_list:
+      - name: Shared EE
+        organization: Default
+        image: quay.io/shared:latest
+      - name: Orphan EE
+        organization: Default
+        image: quay.io/orphan:latest
+    __cac_list:
+      - name: Shared EE
+        organization: Default
+        image: quay.io/shared:latest
+      - name: New CaC EE
+        organization: Default
+        image: quay.io/new:latest
+
+- name: Validate execution environment delta
+  ansible.builtin.include_tasks: assert_delta.yml
+  vars:
+    __object_label: execution_environments
+    __id_field: name
+    __cac_only_name: New CaC EE
+    __orphan_name: Orphan EE
+    __shared_name: Shared EE
+...

@@ -1,0 +1,47 @@
+---
+# Preserve the first-pass report before the post-apply re-run overwrites it, and
+# assert create / update / delete coverage (not only unchanged).
+- name: Ensure pre-apply report destination exists | {{ od_report_layout }}
+  ansible.builtin.file:
+    path: "{{ od_report_dst | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: Copy pre-apply report aside | {{ od_report_layout }}
+  ansible.builtin.copy:
+    src: "{{ od_report_src }}"
+    dest: "{{ od_report_dst }}"
+    remote_src: true
+    mode: "0644"
+
+- name: Assert pre-apply report covers create/update/delete | {{ od_report_layout }}
+  ansible.builtin.assert:
+    that:
+      - (__od_report_summary['create'] | int) > 0
+      - (__od_report_summary['update'] | int) > 0
+      - (__od_report_summary['delete'] | int) > 0
+      - (__od_host_updates | length) >= 1
+    success_msg: >-
+      Pre-apply report ({{ od_report_layout }}):
+      create={{ __od_report_summary['create'] }}
+      update={{ __od_report_summary['update'] }}
+      delete={{ __od_report_summary['delete'] }}
+      unchanged={{ __od_report_summary['unchanged'] }}
+      (saved to {{ od_report_dst }})
+    fail_msg: >-
+      Pre-apply report ({{ od_report_layout }}) missing create/update/delete coverage:
+      {{ __od_report_summary }}
+      host_updates={{ __od_host_updates }}
+  vars:
+    # Bracket keys: summary.update is dict.update (method), not the count.
+    __od_report_summary: "{{ filetree_object_diff_report.summary | default({}) }}"
+    __od_host_updates: >-
+      {{
+        filetree_object_diff_report.objects
+        | default([])
+        | json_query(
+            "[?action=='update' && root_key=='controller_hosts' && identity.name=='object-diff-shared-host']"
+          )
+        | default([], true)
+      }}
+...

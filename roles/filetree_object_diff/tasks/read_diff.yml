@@ -1,0 +1,86 @@
+---
+- name: "Ensure filetree_read validation variables are available"
+  ansible.builtin.set_fact:
+    dir_orgs_vars: "{{ dir_orgs_vars | default(filetree_object_diff_diff_path) }}"
+    orgs: "{{ orgs | default('Default') }}"
+    env: "{{ env | default('common') }}"
+
+- name: "Reset object lists before reading difference files"
+  ansible.builtin.set_fact:
+    "{{ item.var }}": []
+  loop: "{{ controller_configuration_filetree_read_tasks | default(controller_configuration_filetree_object_diff_tasks) }}"
+  loop_control:
+    label: "{{ item.var }}"
+
+- name: "Point filetree_read paths to the difference directory"
+  ansible.builtin.set_fact:
+    filetree_gateway_authenticators: "{{ filetree_object_diff_diff_path }}/"
+    filetree_gateway_authenticator_maps: "{{ filetree_object_diff_diff_path }}/"
+    filetree_gateway_settings: "{{ filetree_object_diff_diff_path }}/"
+    filetree_aap_organizations: "{{ filetree_object_diff_diff_path }}/"
+    filetree_aap_applications: "{{ filetree_object_diff_diff_path }}/"
+    filetree_gateway_http_ports: "{{ filetree_object_diff_diff_path }}/"
+    filetree_gateway_service_clusters: "{{ filetree_object_diff_diff_path }}/"
+    filetree_gateway_service_keys: "{{ filetree_object_diff_diff_path }}/"
+    filetree_gateway_service_nodes: "{{ filetree_object_diff_diff_path }}/"
+    filetree_gateway_services: "{{ filetree_object_diff_diff_path }}/"
+    filetree_aap_teams: "{{ filetree_object_diff_diff_path }}/"
+    filetree_aap_user_accounts: "{{ filetree_object_diff_diff_path }}/"
+    filetree_gateway_role_definitions: "{{ filetree_object_diff_diff_path }}/"
+    filetree_gateway_role_team_assignments: "{{ filetree_object_diff_diff_path }}/"
+    filetree_gateway_role_user_assignments: "{{ filetree_object_diff_diff_path }}/"
+    filetree_gateway_routes: "{{ filetree_object_diff_diff_path }}/"
+    filetree_controller_settings: "{{ filetree_object_diff_diff_path }}/"
+    filetree_controller_labels: "{{ filetree_object_diff_diff_path }}/"
+    filetree_controller_credential_types: "{{ filetree_object_diff_diff_path }}/"
+    filetree_controller_credentials: "{{ filetree_object_diff_diff_path }}/"
+    filetree_controller_credential_input_sources: "{{ filetree_object_diff_diff_path }}/"
+    filetree_controller_notifications: "{{ filetree_object_diff_diff_path }}/"
+    filetree_controller_projects: "{{ filetree_object_diff_diff_path }}/"
+    filetree_controller_execution_environments: "{{ filetree_object_diff_diff_path }}/"
+    filetree_controller_inventories: "{{ filetree_object_diff_diff_path }}/"
+    filetree_controller_inventory_sources: "{{ filetree_object_diff_diff_path }}/"
+    filetree_controller_instance_groups: "{{ filetree_object_diff_diff_path }}/"
+    filetree_controller_instances: "{{ filetree_object_diff_diff_path }}/"
+    filetree_controller_hosts: "{{ filetree_object_diff_diff_path }}/"
+    filetree_controller_groups: "{{ filetree_object_diff_diff_path }}/"
+    filetree_controller_templates: "{{ filetree_object_diff_diff_path }}/"
+    filetree_controller_workflow_job_templates: "{{ filetree_object_diff_diff_path }}/"
+    filetree_controller_schedules: "{{ filetree_object_diff_diff_path }}/"
+    filetree_controller_roles: "{{ filetree_object_diff_diff_path }}/"
+    filetree_eda_credential_types: "{{ filetree_object_diff_diff_path }}/"
+    filetree_eda_credentials: "{{ filetree_object_diff_diff_path }}/"
+    filetree_eda_decision_environments: "{{ filetree_object_diff_diff_path }}/"
+    filetree_eda_event_streams: "{{ filetree_object_diff_diff_path }}/"
+    filetree_eda_projects: "{{ filetree_object_diff_diff_path }}/"
+    filetree_eda_rulebook_activations: "{{ filetree_object_diff_diff_path }}/"
+    filetree_hub_namespaces: "{{ filetree_object_diff_diff_path }}/"
+    filetree_hub_collections: "{{ filetree_object_diff_diff_path }}/"
+    filetree_hub_collection_remotes: "{{ filetree_object_diff_diff_path }}/"
+    filetree_hub_collection_repositories: "{{ filetree_object_diff_diff_path }}/"
+    filetree_hub_ee_registries: "{{ filetree_object_diff_diff_path }}/"
+    filetree_hub_ee_repositories: "{{ filetree_object_diff_diff_path }}/"
+    filetree_hub_ee_images: "{{ filetree_object_diff_diff_path }}/"
+
+- name: "Build filetree_read task list for difference files only"
+  ansible.builtin.set_fact:
+    __filetree_object_diff_read_tasks: >-
+      {{
+        controller_configuration_filetree_read_tasks
+        | selectattr('var', 'in', filetree_object_diff_root_keys_filter)
+        | list
+      }}
+
+- name: "Clear filetree_read populate caches before loading diff files"
+  ansible.builtin.set_fact:
+    "{{ ('__populate_' ~ item.var) }}": []
+  loop: "{{ __filetree_object_diff_read_tasks }}"
+  loop_control:
+    label: "{{ item.var }}"
+
+- name: "Load difference files into Ansible variables"
+  ansible.builtin.import_role:
+    name: infra.aap_configuration_extended.filetree_read
+  vars:
+    controller_configuration_filetree_read_tasks: "{{ __filetree_object_diff_read_tasks }}"
+...

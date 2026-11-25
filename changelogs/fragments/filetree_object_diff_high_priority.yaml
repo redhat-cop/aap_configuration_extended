@@ -1,0 +1,6 @@
+---
+bugfixes:
+  - filetree_object_diff - Use controller_organizations export and normalize gateway_organizations to aap_organizations during on-disk comparison.
+  - filetree_object_diff - Skip superuser_only object types (organizations, roles, instance groups) when the API user is not a super-admin.
+
+...

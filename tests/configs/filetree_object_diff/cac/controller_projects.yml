@@ -1,0 +1,13 @@
+---
+controller_projects:
+  - name: Object Diff Shared Project
+    organization: "{{ orgs }}"
+    scm_type: git
+    scm_url: https://github.com/ansible/ansible-tower-samples.git
+    update_project: true
+    wait: true
+  - name: Object Diff New CaC Project
+    organization: "{{ orgs }}"
+    scm_type: git
+    scm_url: https://github.com/ansible/ansible-tower-samples.git
+...
