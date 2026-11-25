@@ -22,7 +22,7 @@
         __enriched_hub_collection_repositories: "{{ __enriched_hub_collection_repositories + [__enriched_item] }}"
       vars:
         __distribution: "{{ __distribution_item }}"
-        __repository_href: "{{ __distribution.repository | default('') }}"
+        __repository_href: "{{ __distribution.repository | default('', true) }}"
         __repository: >-
           {{
             (query('ansible.platform.gateway_api', __repository_href,
@@ -30,12 +30,12 @@
                    return_all=true, max_objects=1) | first)
             if (__repository_href | length) > 0 else {}
           }}
-        __remote_href: "{{ __repository.remote | default('') }}"
+        __remote_href: "{{ __repository.remote | default('', true) }}"
         __remote_name: >-
           {{
             (query('ansible.platform.gateway_api', __remote_href,
                    host=aap_hostname, oauth_token=__filetree_create_oauth_token, verify_ssl=aap_validate_certs,
-                   return_all=true, max_objects=1) | first).name | default('')
+                   return_all=true, max_objects=1) | first).name | default('', true)
             if (__remote_href | length) > 0 else ''
           }}
         __enriched_item: >-
