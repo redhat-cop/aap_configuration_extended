@@ -3,13 +3,18 @@
 controller_groups: {{ [] if current_groups_asset_value | length == 0 }}
 {% endif %}
 {% for group in current_groups_asset_value %}
+{%   set __empty_values = [None, '', "None", [], {}, [{}]] %}
   - name: "{{ group.name }}"
+{%   if template_overrides_resources.group[group.name].description
+                     | default(template_overrides_global.group.description)
+                     | default(group.description) not in __empty_values %}
     description: |-
       {{ '{%- raw -%}' }}
       {{ template_overrides_resources.group[group.name].description
                      | default(template_overrides_global.group.description)
                      | default(group.description) | indent(6) }}
       {{ '{%- endraw -%}' }}
+{%   endif %}
     inventory: "{{ group.summary_fields.inventory.name }}"
 {%   if template_overrides_resources.group[group.name].variables is defined
       or template_overrides_global.group.variables is defined

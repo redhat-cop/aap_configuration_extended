@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - filetree_create - Leave out ``description`` when it is not set instead of exporting an empty or null value, for credential input sources, applications, groups, inventory sources, teams, gateway routes, and EDA credential types, credentials, decision environments, projects and rulebook activations (https://github.com/redhat-cop/aap_configuration_extended/issues/458).
